@@ -106,7 +106,7 @@ ROWS = [
     "widget": "manage"
   },
   {
-    "description": ("<b>Colour the driving path green when openpilot is speeding up and red when it is slowing down.</b><br><br>Handy for seeing a " +
+    "description": ("<b>Color the driving path green when openpilot is speeding up and red when it is slowing down.</b><br><br>Handy for seeing a " +
                     "slowdown coming before you feel it."),
     "key": "AccelerationPath",
     "order": 0,
@@ -127,7 +127,7 @@ ROWS = [
   },
   {
     "description": ("<b>Turn the lane beside you red whenever your car's sensors see something in that blind spot.</b><br><br>It only shows up above " +
-                    "your \"Minimum Lane Change Speed\" (20 mph or 32 km/h by default), so it stays away in slow traffic and car parks. Keep " +
+                    "your \"Minimum Lane Change Speed\" (20 mph or 32 km/h by default), so it stays away in slow traffic and parking lots. Keep " +
                     "checking your mirrors regardless."),
     "key": "BlindSpotPath",
     "order": 2,
@@ -146,7 +146,7 @@ ROWS = [
     "widget": "toggle"
   },
   {
-    "description": ("<b>Add a button to the driving screen that switches your following distance between Aggressive, Standard and Relaxed without " +
+    "description": ("<b>Add a button to the driving screen that switches your following distance between Aggressive, Standard, and Relaxed without " +
                     "going into the menus.</b><br><br>It works as a second \"Distance\" button, so holding it, or changing what that button does " +
                     "under \"WHEEL BUTTONS\", gives you those actions instead. This changes how the car actually drives, not just what you see. It " +
                     "also shows which one is active."),
@@ -180,8 +180,8 @@ ROWS = [
   },
   {
     "children": ("Theme and Appearance", "DRIVING VIEW", "Model UI"),
-    "description": ("<b>Change how openpilot draws the road ahead, including the driving path, the lane lines and the road edges.</b><br><br>Turning " +
-                    "this off falls back to stock openpilot's sizes, though the coloured path edges go away with it."),
+    "description": ("<b>Change how openpilot draws the road ahead, including the driving path, the lane lines, and the road edges.</b><br><br>Turning " +
+                    "this off falls back to stock openpilot's sizes, though the colored path edges go away with it."),
     "key": "ModelUI",
     "order": 2,
     "path": ("Theme and Appearance", "DRIVING VIEW"),
@@ -212,7 +212,7 @@ ROWS = [
     "widget": "value"
   },
   {
-    "description": ("<b>Set how thick the coloured stripe down each side of the driving path is, which is what tells you which mode openpilot is " +
+    "description": ("<b>Set how thick the colored stripe down each side of the driving path is, which is what tells you which mode openpilot is " +
                     "in.</b><br><br>By default the two stripes together take up a fifth of the path width. Set it to zero to hide the stripe " +
                     "entirely.<br><br>Light blue means \"Always On Lateral\" is steering for you, green is normal driving, orange is Experimental " +
                     "Mode, red is Traffic Mode, and yellow means you have overridden Conditional Experimental Mode to keep Experimental Mode off."),
@@ -276,8 +276,9 @@ ROWS = [
     "widget": "toggle"
   },
   {
-    "description": ("<b>Fall back to Mapbox for the speed limit when none of your downloaded maps, your dashboard or signs read by the camera know " +
-                    "one.</b><br><br>Needs your Public Mapbox Key set up under \"Maps and Navigation\" and a working internet connection."),
+    "description": ("<b>Fall back to Mapbox for the speed limit when none of your downloaded maps, your dashboard, or signs read by the camera know " +
+                    "one.</b><br><br>Needs your Public Mapbox Key set up under \"Maps and Navigation\" and a working internet connection. It sends " +
+                    "your location to Mapbox to look up the limit."),
     "id": "ShowSpeedLimitsFromMapbox",
     "key": "SLCMapboxFiller",
     "level_key": "SLCMapboxFiller",

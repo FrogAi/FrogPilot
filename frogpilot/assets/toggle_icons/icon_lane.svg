@@ -3,7 +3,8 @@
     <path d="M18 18v164M182 18v164" fill="none" stroke="#fff" stroke-linecap="round" stroke-width="12"/>
     <path d="M100 18v22M100 70v22M100 122v22M100 174v8" fill="none" stroke="#fff" stroke-linecap="round" stroke-width="11"/>
     <g transform="translate(86 146) rotate(12) matrix(0.8 0 0 0.8 0 -48)">
-      <path d="M-18 0c-8 0-10 10-10 22v60c0 10 4 14 12 14h32c8 0 12-4 12-14V22c0-12-2-22-10-22Zm-10 35-4.5-1.5V39l4.5 1Zm56 0 4.5-1.5V39L28 40Z" fill="#3aa0ff"/>
+      <path d="M-18 0c-8 0-10 10-10 22v60c0 10 4 14 12 14h32c8 0 12-4 12-14V22c0-12-2-22-10-22Zm-10 35-4.5-1.5V39l4.5 1Zm56 0 4.5-1.5V39L28 40Z" fill="#292929" stroke="#292929" stroke-linejoin="round" stroke-width="20"/>
+      <path d="M-18 0c-8 0-10 10-10 22v60c0 10 4 14 12 14h32c8 0 12-4 12-14V22c0-12-2-22-10-22Zm-10 35-4.5-1.5V39l4.5 1Zm56 0 4.5-1.5V39L28 40Z" fill="#fff"/>
       <path d="M-19 30c7-5 31-5 38 0l-4 14h-30Z" fill="#292929"/>
       <path d="M-15 70h30l3 12c-8 4-28 4-36 0Z" fill="#292929"/>
       <path d="M-21 48v18m42-18v18" stroke="#292929" stroke-linecap="round" stroke-width="3.5"/>

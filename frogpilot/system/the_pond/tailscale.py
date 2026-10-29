@@ -9,7 +9,7 @@ import time
 
 from aiohttp import web
 
-from openpilot.frogpilot.common import frogpilot_utilities, frogpilot_variables
+from openpilot.frogpilot.common import frogpilot_paths, frogpilot_utilities, frogpilot_variables
 from openpilot.frogpilot.system.the_pond import utilities
 
 DEVICE_NAME_CHECK_INTERVAL = 5
@@ -42,11 +42,11 @@ async def cancel_login(the_pond):
 
 
 def get_command(*args):
-  return [str(frogpilot_variables.TAILSCALE_PATH / "tailscale"), f"--socket={frogpilot_variables.TAILSCALE_SOCKET_PATH}", *args]
+  return [str(frogpilot_paths.TAILSCALE_PATH / "tailscale"), f"--socket={frogpilot_paths.TAILSCALE_SOCKET_PATH}", *args]
 
 
 def is_installed():
-  return all((frogpilot_variables.TAILSCALE_PATH / binary).is_file() for binary in TAILSCALE_BINARIES)
+  return all((frogpilot_paths.TAILSCALE_PATH / binary).is_file() for binary in TAILSCALE_BINARIES)
 
 
 async def get_status():
@@ -72,18 +72,18 @@ def extract_binaries(archive_path):
     for member in archive.getmembers():
       name = member.name.rpartition("/")[2]
       if member.isfile() and name in TAILSCALE_BINARIES:
-        with archive.extractfile(member) as source, open(frogpilot_variables.TAILSCALE_PATH / f".{name}", "wb") as destination:
+        with archive.extractfile(member) as source, open(frogpilot_paths.TAILSCALE_PATH / f".{name}", "wb") as destination:
           shutil.copyfileobj(source, destination)
 
   for binary in TAILSCALE_BINARIES:
-    path = frogpilot_variables.TAILSCALE_PATH / f".{binary}"
+    path = frogpilot_paths.TAILSCALE_PATH / f".{binary}"
     path.chmod(0o755)
-    path.rename(frogpilot_variables.TAILSCALE_PATH / binary)
+    path.rename(frogpilot_paths.TAILSCALE_PATH / binary)
 
 
 async def install(the_pond, progress):
-  frogpilot_variables.TAILSCALE_PATH.mkdir(parents=True, exist_ok=True)
-  archive_path = frogpilot_variables.TAILSCALE_PATH / ".download.tgz"
+  frogpilot_paths.TAILSCALE_PATH.mkdir(parents=True, exist_ok=True)
+  archive_path = frogpilot_paths.TAILSCALE_PATH / ".download.tgz"
 
   try:
     async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=DOWNLOAD_TIMEOUT), raise_for_status=True) as session:
@@ -109,7 +109,7 @@ async def install(the_pond, progress):
   finally:
     archive_path.unlink(missing_ok=True)
 
-  frogpilot_variables.TAILSCALE_STATE_PATH.mkdir(exist_ok=True)
+  frogpilot_paths.TAILSCALE_STATE_PATH.mkdir(exist_ok=True)
   the_pond.send_request("updateToggles")
 
 
@@ -125,7 +125,7 @@ async def login(the_pond):
 
 async def uninstall(the_pond):
   for binary in TAILSCALE_BINARIES:
-    (frogpilot_variables.TAILSCALE_PATH / binary).unlink(missing_ok=True)
+    (frogpilot_paths.TAILSCALE_PATH / binary).unlink(missing_ok=True)
   the_pond.send_request("updateToggles")
 
   for _ in range(STOP_TIMEOUT):
@@ -133,7 +133,7 @@ async def uninstall(the_pond):
       break
     await asyncio.sleep(1)
 
-  await asyncio.to_thread(shutil.rmtree, frogpilot_variables.TAILSCALE_PATH, True)
+  await asyncio.to_thread(shutil.rmtree, frogpilot_paths.TAILSCALE_PATH, True)
 
 
 @routes.get("/api/tailscale")

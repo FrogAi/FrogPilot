@@ -25,7 +25,7 @@ def main():
                            poll='modelV2')
 
   # FrogPilot variables
-  sm = sm.extend(['frogpilotCarState', 'frogpilotPlan'])
+  sm = sm.extend(['frogpilotCarState', 'frogpilotPlan', 'frogpilotProcessState'])
 
   frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles()
 

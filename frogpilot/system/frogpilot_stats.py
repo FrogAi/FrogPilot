@@ -3,7 +3,7 @@ import math
 
 from cereal import car, custom
 
-from openpilot.frogpilot.common import frogpilot_utilities, frogpilot_variables
+from openpilot.frogpilot.common import frogpilot_paths, frogpilot_utilities, frogpilot_variables
 
 SEA_LIMIT = 0.3
 
@@ -52,7 +52,7 @@ def get_location(last_gps_position):
   latitude = position["latitude"]
   longitude = position["longitude"]
 
-  with frogpilot_variables.BORDERS_PATH.open(encoding="utf-8") as file:
+  with frogpilot_paths.BORDERS_PATH.open(encoding="utf-8") as file:
     borders = json.load(file)
 
   inside = set()
@@ -71,7 +71,7 @@ def get_location(last_gps_position):
 
   region = borders["regions"][min(inside)] if inside else None
 
-  with frogpilot_variables.CITIES_PATH.open(encoding="utf-8") as file:
+  with frogpilot_paths.CITIES_PATH.open(encoding="utf-8") as file:
     countries = json.load(file)
 
   best_distance = math.inf
@@ -101,13 +101,13 @@ def get_model_scores(params):
     model_scores.append({
       "drives": drives,
       "model_name": model_name,
-      "score": int(model_data.get("Score", 0)),
+      "score": round(model_data.get("Score", 0)),
     })
 
   return model_scores
 
 
-def send_stats(params, frogpilot_toggles, frogpilot_api):
+def send_stats(params, frogpilot_toggles, api):
   if not params.get_bool("FrogPilotTelemetryConfirmed"):
     return
 
@@ -135,10 +135,8 @@ def send_stats(params, frogpilot_toggles, frogpilot_api):
       "toggles": vars(frogpilot_toggles),
       "using_default_model": frogpilot_toggles.model == frogpilot_variables.DEFAULT_MODEL["id"],
     }
-  else:
-    params.remove("SpeedLimitsUploadedHash")
 
-  response = frogpilot_api.post_gzip("/v1/stats", json.dumps(payload, separators=(",", ":")).encode(), timeout=30)
-  if not frogpilot_api.succeeded(response):
+  response = api.post_gzip("/v1/stats", json.dumps(payload, separators=(",", ":")).encode(), timeout=30)
+  if not api.succeeded(response):
     status = "no_response" if response is None else response.status_code
     print(f"Error sending stats (status={status})")

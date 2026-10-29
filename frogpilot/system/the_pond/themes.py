@@ -3,8 +3,8 @@ import shutil
 
 from aiohttp import web
 
-from openpilot.frogpilot.assets.theme_manager import DOWNLOADABLE_PARAMS, ThemeManager
-from openpilot.frogpilot.common import frogpilot_utilities, frogpilot_variables
+from openpilot.frogpilot.assets.theme_manager import ThemeManager
+from openpilot.frogpilot.common import frogpilot_paths, frogpilot_utilities, frogpilot_variables
 from openpilot.frogpilot.system.the_pond import utilities
 
 ACTIVE_FOLDERS = {
@@ -27,15 +27,15 @@ def get_component(request):
 
 def get_installed(component):
   if component == "steering_wheels":
-    keys = [path.stem for path in frogpilot_variables.STEERING_WHEELS_PATH.glob("*") if path.is_file()]
+    keys = [path.stem for path in frogpilot_paths.STEERING_WHEELS_PATH.glob("*") if path.is_file()]
   else:
-    keys = [path.parent.name for path in frogpilot_variables.THEME_PACKS_PATH.glob(f"*/{component}") if path.is_dir()]
+    keys = [path.parent.name for path in frogpilot_paths.THEME_PACKS_PATH.glob(f"*/{component}") if path.is_dir()]
   return sorted(keys)
 
 
 def get_theme_folder(component, key):
   if key == "active":
-    return frogpilot_variables.ACTIVE_THEME_PATH / ACTIVE_FOLDERS[component]
+    return frogpilot_paths.ACTIVE_THEME_PATH / ACTIVE_FOLDERS[component]
 
   if component == "steering_wheels":
     if key == "none":
@@ -96,14 +96,14 @@ async def delete_theme(request):
     raise web.HTTPConflict(text="in_use")
 
   if component == "steering_wheels":
-    for path in frogpilot_variables.STEERING_WHEELS_PATH.glob("*"):
+    for path in frogpilot_paths.STEERING_WHEELS_PATH.glob("*"):
       if path.is_file() and path.stem == key:
         path.unlink()
   else:
-    await asyncio.to_thread(shutil.rmtree, frogpilot_variables.THEME_PACKS_PATH / key / component)
+    await asyncio.to_thread(shutil.rmtree, frogpilot_paths.THEME_PACKS_PATH / key / component)
 
   downloadable = {}
-  for downloadable_component, param in DOWNLOADABLE_PARAMS.items():
+  for downloadable_component, param in frogpilot_variables.DOWNLOADABLE_PARAMS.items():
     downloadable[downloadable_component] = [name for name in params.get(param).split(",") if name]
   if not key.endswith(frogpilot_variables.USER_CREATED_THEME_SUFFIX):
     downloadable[component].append(ThemeManager.format_name(key))
@@ -118,10 +118,10 @@ async def download_themes(request):
   body = await utilities.read_json(request)
   component = body.get("component")
   names = body.get("names")
-  if component not in DOWNLOADABLE_PARAMS:
+  if component not in frogpilot_variables.DOWNLOADABLE_PARAMS:
     raise web.HTTPBadRequest(text="invalid_component")
 
-  downloadable = the_pond.params.get(DOWNLOADABLE_PARAMS[component]).split(",")
+  downloadable = the_pond.params.get(frogpilot_variables.DOWNLOADABLE_PARAMS[component]).split(",")
   if not isinstance(names, list) or not names or any(not isinstance(name, str) or name not in downloadable for name in names):
     raise web.HTTPBadRequest(text="invalid_names")
   if not frogpilot_utilities.is_online(the_pond.sm["deviceState"]):
@@ -165,7 +165,7 @@ async def get_themes(request):
       installed.append({"key": key, "name": name, "user_created": user_created})
 
     components[component] = {
-      "downloadable": [name for name in params.get(DOWNLOADABLE_PARAMS[component]).split(",") if name],
+      "downloadable": [name for name in params.get(frogpilot_variables.DOWNLOADABLE_PARAMS[component]).split(",") if name],
       "excluded": sorted(frogpilot_variables.THEME_EXCLUDED_BUILTINS[component]),
       "installed": installed,
       "selected": params.get(param),
@@ -176,7 +176,7 @@ async def get_themes(request):
     startup_alert[key] = {"current": params.get(key), "frogpilot": params.get_default_value(key), "max_length": maximum_length,
                           "stock": params.get_stock_value(key)}
 
-  user_themes = sorted(path.name for path in frogpilot_variables.THEME_PACKS_PATH.glob(f"*{frogpilot_variables.USER_CREATED_THEME_SUFFIX}") if path.is_dir())
+  user_themes = sorted(path.name for path in frogpilot_paths.THEME_PACKS_PATH.glob(f"*{frogpilot_variables.USER_CREATED_THEME_SUFFIX}") if path.is_dir())
 
   return web.json_response({
     "builtins": frogpilot_variables.BUILTIN_THEMES,

@@ -83,6 +83,10 @@ class TestHyundaiCanfdBase(HyundaiButtonBase, common.CarSafetyTest, common.Drive
     return self.packer.make_can_msg_safety("CRUISE_BUTTONS", bus, values)
 
   # FrogPilot variables
+  def _acc_state_msg(self, main_on):
+    values = {"MainMode_ACC": main_on}
+    return self.packer.make_can_msg_safety("SCC_CONTROL", self.SCC_BUS, values)
+
   def _toggle_aol(self, toggle_on):
     self._rx(self.packer.make_can_msg_safety("CRUISE_BUTTONS", self.PT_BUS, {"LDA_BTN": 0}))
     return self.packer.make_can_msg_safety("CRUISE_BUTTONS", self.PT_BUS, {"LDA_BTN": int(toggle_on != self.safety.get_lkas_on())})

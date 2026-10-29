@@ -2,10 +2,8 @@
 import json
 import math
 import re
-import tomllib
 
 from functools import cache, lru_cache
-from pathlib import Path
 from types import SimpleNamespace
 
 import cereal.messaging as messaging
@@ -16,21 +14,22 @@ from opendbc.car.car_helpers import interfaces
 from opendbc.car.gm.values import CC_ONLY_CAR
 from opendbc.car.honda.values import HONDA_BOSCH
 from opendbc.car.hyundai.values import HyundaiFlags
-from opendbc.car.interfaces import TORQUE_SUBSTITUTE_PATH, GearShifter
+from opendbc.car.interfaces import GearShifter
 from opendbc.car.mock.values import CAR as MOCK
-from opendbc.car.subaru.values import SubaruFlags
 from opendbc.car.toyota.values import ToyotaFlags, ToyotaFrogPilotFlags
-from openpilot.common.basedir import BASEDIR
 from openpilot.common.constants import CV
 from openpilot.common.params import Params
 from openpilot.selfdrive.controls.lib.drive_helpers import MAX_LATERAL_ACCEL_NO_ROLL
 from openpilot.selfdrive.controls.lib.latcontrol_torque import KP
+from openpilot.selfdrive.locationd import torqued
 from openpilot.selfdrive.modeld.constants import ModelConstants
 from openpilot.system.hardware.power_monitoring import VBATT_PAUSE_CHARGING
 from openpilot.system.version import get_build_metadata
 
-CITY_SPEED_LIMIT = 25                     # 55mph is typically the minimum speed for highways
-CRUISING_SPEED = 5                        # Roughly the speed cars go when not touching the gas while in drive
+from openpilot.frogpilot.common import frogpilot_paths
+
+CITY_SPEED_LIMIT = 25                     # m/s, ~56 mph; at or above this counts as highway driving
+CRUISING_SPEED = 5                        # m/s, roughly the speed cars go when not touching the gas while in drive
 CURVE_AHEAD_ENTER = 0.6                   # m/s^2, peak lateral acceleration on the planned path that counts as a curve ahead
 CURVE_AHEAD_EXIT = 0.4                    # m/s^2, peak lateral acceleration on the planned path below which the curve ahead has ended
 DEFAULT_LATERAL_ACCELERATION = 2.0        # m/s^2, typical lateral acceleration when taking curves
@@ -47,16 +46,18 @@ MAX_T_FOLLOW = 3.0                        # Maximum allowed following duration. 
 MINIMUM_LATERAL_ACCELERATION = 1.3        # m/s^2, typical minimum lateral acceleration when taking curves
 MINIMUM_PLANNED_SPEED = 2.0               # m/s, model path points predicted slower than this are stop approaches, not curves
 PLANNER_TIME = ModelConstants.T_IDXS[-1]  # Length of time the model projects out for
+READER_CLIP_SHARE = 0.1                   # Share of the speed limit sign reader's new limits recorded as clips, so wrong limits can be found
+SIGN_IMAGE_MARGIN = 0.5                   # Share of a sign's width and height added on each side when its image is saved for Speed Limit Filler
 STOPPING_SPEED = 1.0                      # m/s, planned speeds below this count as the model coming to a stop
+TACO_LAG_TIME = 4                         # Seconds of driving taken off each turn's distance so TACO brakes early enough to reach the turn speed
 THRESHOLD = 1 - 1 / math.e                # Requires the condition to be true for ~1 second
+UNSURE_SIGN_AGREEMENT = 0.5               # Probability at or above which a sign the speed limit sign reader leaves unposted is recorded as a clip
 UPDATE_CLEANUP_RATIO = 0.93               # How long git's cleanup after an update's copy takes relative to the copy, measured on a C3
 UPDATE_COPY_AVERAGE_WEIGHT = 0.3          # Share of the way each update's copy time moves the remembered average copy time toward it
 UPDATE_COPY_SECONDS = 22                  # Seconds an update's copy takes until a device's first update measures its own, measured on a C3
-UPDATE_ETA_MIN_SECONDS = 10               # Seconds an update runs before its time left is estimated
 UPDATE_PROGRESS_INTERVAL = 0.1            # Seconds between update progress checks; the shown percent climbs at most 1% per check so it counts up smoothly
 
 DISABLE_OPENPILOT_LONG_BRANDS = {"ford", "toyota"}
-GAS_INTERCEPTOR_BRANDS = {"honda", "toyota"}
 LKAS_BUTTON_BRANDS = {"chrysler", "ford", "gm", "honda", "mazda", "nissan"}
 MAP_GEARS_BRANDS = {"gm", "toyota"}
 
@@ -75,7 +76,6 @@ RESET_REMOVED_KEYS = {
   "GithubUsername",
   "LastGPSPosition",
   "SecOCKey",
-  "SpeedLimits",
   "SshEnabled",
   "ThePondPairedBrowsers"
 }
@@ -98,9 +98,14 @@ GIT_PROGRESS_PATTERN = re.compile(r"(?:remote: )?(?P<phase>\w+ \w+): +(?P<percen
 GIT_PROGRESS_SUMMARY_PATTERN = re.compile(r"remote: (?:\w+ \w+: \d+, done\.|Total \d+ )")
 UPDATER_PROCESS = "system.updated.updated"
 
+ACTION_DELAY_MODELS = {"cd210-model", "pop-model"}
+CURRENT_SPEED_STOP_MODELS = {"cd210-model", "pop-model"}
 DEFAULT_MODEL = {"id": "dark-souls", "lat_smooth_seconds": 0.1, "name": "Dark Souls"}
 LEAD_TRAJECTORY_OUTPUT_SIZE = 144
-MODELS_FOLDER = "openpilot-0_10_3"
+MIN_STABLE_DELAY_MODELS = {"cd210-model"}
+PRE_TOMB_RAIDER_MODELS = {"alabama", "certified-herbalist", "dragon-rider", "duck-amigo", "filet-o-fish", "kerrygold", "last-horizon", "liquid-crystal",
+                          "los-angeles", "national-public-radio", "north-america", "north-dakota", "notre-dame", "null-pointer", "postal-service",
+                          "recertified-herbalist", "vegan-filet-o-fish", "vegetarian-filet-o-fish", "wd-40"}
 SPLIT_MODEL_FILES = ("driving_policy_metadata.pkl", "driving_policy_tinygrad.pkl", "driving_vision_metadata.pkl", "driving_vision_tinygrad.pkl")
 
 SPEED_LIMIT_READER_COMPATIBILITY = 1
@@ -129,7 +134,7 @@ REPORT_DESCRIBED_ISSUES = (REPORT_CRASH_ISSUE, REPORT_OTHER_ISSUE, REPORT_UNSURE
 REPORT_DESCRIPTION_MAX_LENGTH = 300
 REPORT_DESCRIPTION_MIN_LENGTH = 10
 REPORT_DISCORD_USER_MAX_LENGTH = 64
-REPORT_GIT_REMOTE = "frogai/"
+REPORT_REPOSITORIES = ("frogai/frogpilot", "frogai/frogpilot-development", "frogai/openpilot")
 
 THE_POND_HOSTNAME = "ThePond.local"
 THE_POND_PORT = 8082
@@ -144,77 +149,14 @@ ROUTE_PRESERVE_ATTR_NAME = "user.frogpilot_preserve"
 ROUTE_PRESERVED = b"1"
 
 UPLOAD_ATTR_NAME = "user.frogpilot_telemetry"
+UPLOAD_DONE = b"done"
 UPLOAD_PENDING = b"pending"
 
 VALID_NAME_PATTERN = re.compile(r"[A-Za-z0-9._-]+")
 
-ACTIVE_THEME_PATH = Path(BASEDIR) / "frogpilot/assets/active_theme"
-HOLIDAY_THEMES_PATH = Path(BASEDIR) / "frogpilot/assets/holiday_themes"
-MODELS_PATH = Path("/data/models") / MODELS_FOLDER
-MODELS_LIST_PATH = MODELS_PATH / "models.json"
-RANDOM_EVENTS_PATH = Path(BASEDIR) / "frogpilot/assets/random_events"
-STOCK_MODEL_PATH = Path(BASEDIR) / "selfdrive/modeld/models"
-STOCK_THEME_PATH = Path(BASEDIR) / "frogpilot/assets/stock_theme"
-STOCK_THEME_COLORS_PATH = STOCK_THEME_PATH / "colors/colors.json"
-THEME_COLORS_PATH = ACTIVE_THEME_PATH / "colors/colors.json"
-THEME_SAVE_PATH = Path("/data/themes")
-STEERING_WHEELS_PATH = THEME_SAVE_PATH / "steering_wheels"
-THEME_PACKS_PATH = THEME_SAVE_PATH / "theme_packs"
-FROG_THEME_PATH = THEME_PACKS_PATH / "frog"
-
-ERROR_LOGS_PATH = Path("/data/error_logs")
-ERROR_LOG_PATH = ERROR_LOGS_PATH / "error.txt"
-SCREEN_RECORDINGS_PATH = Path("/data/media/screen_recordings")
-SENTRY_QUEUE_PATH = Path("/data/sentry_queue")
-SPEED_LIMIT_CAPTURES_PATH = Path("/data/media/speed_limit_captures")
-TMUX_LOGS_PATH = Path("/data/tmux_logs")
-
-TAILSCALE_PATH = Path("/data/tailscale")
-TAILSCALE_SOCKET_PATH = TAILSCALE_PATH / "tailscaled.sock"
-TAILSCALE_STATE_PATH = TAILSCALE_PATH / "state"
-
-THE_POND_PATH = Path("/data/the_pond")
-THE_POND_DRIVES_PATH = THE_POND_PATH / "drives"
-THE_POND_THUMBNAILS_PATH = THE_POND_PATH / "thumbnails"
-THE_POND_VIDEOS_PATH = THE_POND_PATH / "videos"
-
 AUTOMATIC_BACKUP_SUFFIX = "_auto"
 IN_PROGRESS_BACKUP_SUFFIX = "_in_progress"
 SCREEN_RECORDING_COMPANION_SUFFIXES = (".gif", ".png")
-
-BACKUP_PATH = Path("/cache/on_backup")
-FROGPILOT_BACKUPS = Path("/data/backups")
-PARAMS_CACHE_PATH = Path("/cache/params")
-RESTORE_TEMP_PATH = Path("/data/restore_temp")
-TOGGLE_BACKUPS = Path("/data/toggle_backups")
-
-BOOT_LOGO_PATH = Path("/usr/comma/bg.jpg")
-FROGPILOT_BOOT_LOGO_PATH = Path(BASEDIR) / "frogpilot/assets/other_images/frogpilot_boot_logo.jpg"
-STOCK_BOOT_LOGO_PATH = Path(BASEDIR) / "frogpilot/assets/other_images/stock_bg.jpg"
-
-BORDERS_PATH = Path(BASEDIR) / "frogpilot/assets/borders.json"
-# City data from GeoNames (https://www.geonames.org/), CC BY 4.0
-CITIES_PATH = Path(BASEDIR) / "frogpilot/assets/cities.json"
-
-FROGS_GO_MOO_PATH = Path("/persist/frogsgomoo.py")
-
-HD_LOGS_PATH = Path("/data/media/0/realdata_HD")
-HD_PATH = Path("/cache/use_HD")
-
-KONIK_LOGS_PATH = Path("/data/media/0/realdata_konik")
-KONIK_PATH = Path("/cache/use_konik")
-
-LOG_ROOTS = (Path("/data/media/0/realdata"), HD_LOGS_PATH, KONIK_LOGS_PATH)
-
-MAPS_PATH = Path("/data/media/0/osm/offline")
-
-NNFF_MODELS_PATH = Path(BASEDIR) / "frogpilot/assets/nnff_models"
-
-NOT_VETTED_PATH = Path("/data/openpilot/not_vetted")
-
-SPEED_LIMIT_READER_BUNDLED_PATH = Path(BASEDIR) / "frogpilot/assets/models"
-SPEED_LIMIT_READER_MODEL_PATH = Path("/data/speed_limit_reader_model")
-SPEED_LIMIT_READER_MANIFEST_PATH = SPEED_LIMIT_READER_MODEL_PATH / "manifest.json"
 
 ACCELERATION_PROFILES = {
   "STANDARD": 0,
@@ -410,27 +352,21 @@ DEVICE_SHUTDOWN_TIMES = {
   33: 108000,  # 30 hours
 }
 
+DOWNLOADABLE_PARAMS = {
+  "colors": "DownloadableColors",
+  "distance_icons": "DownloadableDistanceIcons",
+  "icons": "DownloadableIcons",
+  "signals": "DownloadableSignals",
+  "sounds": "DownloadableSounds",
+  "steering_wheels": "DownloadableWheels",
+}
+
 EXCLUDED_KEYS = {
-  "AccessToken",
-  "ApiCache_Device",
   "ApiCache_DriveStats",
-  "AssistNowToken",
-  "AthenadRecentlyViewedRoutes",
-  "AthenadUploadQueue",
+  "ApiCache_DriveStatsKonik",
   "CalibratedLateralAcceleration",
-  "CalibrationParams",
   "CalibrationProgress",
-  "CarBatteryCapacity",
-  "CarParams",
-  "CarParamsCache",
-  "CarParamsPersistent",
-  "CarParamsPrevRoute",
-  "ControlsReady",
-  "CurrentRoute",
   "CurvatureData",
-  "DongleId",
-  "DoReboot",
-  "DoShutdown",
   "DoSoftReboot",
   "DownloadableColors",
   "DownloadableDistanceIcons",
@@ -438,7 +374,6 @@ EXCLUDED_KEYS = {
   "DownloadableSignals",
   "DownloadableSounds",
   "DownloadableWheels",
-  "FirmwareQueryDone",
   "ForceOffroad",
   "ForceOnroad",
   "FrogPilotApiToken",
@@ -449,58 +384,26 @@ EXCLUDED_KEYS = {
   "FrogPilotStats",
   "FrogPilotTelemetry",
   "FrogPilotTelemetryConfirmed",
-  "GitDiff",
-  "GithubSshKeys",
-  "GithubUsername",
-  "HardwareSerial",
-  "IsOffroad",
-  "IsOnroad",
   "KonikDongleId",
   "KonikMinutes",
-  "LastAthenaPingTime",
-  "LastGPSPosition",
   "LastMapsUpdate",
-  "LastOffroadStatusPacket",
   "LastUpdateRouteCount",
-  "LastUpdateTime",
   "LastUpdateUptimeOnroad",
-  "LiveDelay",
-  "LiveParameters",
-  "LiveParametersV2",
-  "LiveTorqueParameters",
-  "LocationFilterInitialState",
   "MapBoxRequests",
   "MaxLateralAcceleration",
   "MinimumBackupSize",
   "ModelDrivesAndScores",
-  "NetworkMetered",
   "NNFFModelName",
-  "ObdMultiplexingChanged",
-  "ObdMultiplexingEnabled",
   "openpilotMinutes",
-  "PandaSignatures",
   "PreviousSpeedLimit",
   "RandomizedModel",
   "RouteCount",
-  "SpeedLimits",
-  "SpeedLimitsUploadedHash",
   "StockDongleId",
   "ThemesDownloaded",
   "ThePondPairedBrowsers",
   "ThePondPairing",
   "ThePondPairingCode",
-  "UpdateAvailable",
   "Updated",
-  "UpdateFailedCount",
-  "UpdaterAvailableBranches",
-  "UpdaterCurrentDescription",
-  "UpdaterCurrentReleaseNotes",
-  "UpdaterFetchAvailable",
-  "UpdaterLastFetchTime",
-  "UpdaterLastRunTime",
-  "UpdaterNewDescription",
-  "UpdaterNewReleaseNotes",
-  "UpdaterTargetBranch",
   "UptimeOffroad",
   "UptimeOnroad"
 }
@@ -1322,17 +1225,12 @@ TUNING_LEVELS = {
   "DEVELOPER": 3
 }
 
-def can_disable_openpilot_long(CP):
-  if CP.brand == "gm":
-    return CP.carFingerprint in CC_ONLY_CAR and not CP.enableGasInterceptorDEPRECATED
-  return CP.brand in DISABLE_OPENPILOT_LONG_BRANDS
-
 @cache
 def get_mock_car_params():
   return interfaces[MOCK.MOCK].get_params(MOCK.MOCK, gen_empty_fingerprint(), [], False, False, False).as_reader()
 
 def get_models():
-  return json.loads(MODELS_LIST_PATH.read_text()) if MODELS_LIST_PATH.is_file() else []
+  return json.loads(frogpilot_paths.MODELS_LIST_PATH.read_text()) if frogpilot_paths.MODELS_LIST_PATH.is_file() else []
 
 def is_model_complete(model_path):
   if (model_path / "supercombo_metadata.pkl").is_file():
@@ -1340,25 +1238,11 @@ def is_model_complete(model_path):
 
   return all((model_path / file_name).is_file() for file_name in SPLIT_MODEL_FILES)
 
-@cache
-def get_nnff_model_files():
-  return [file.stem for file in NNFF_MODELS_PATH.iterdir() if file.is_file()]
-
-@cache
-def get_nnff_substitutes():
-  with open(TORQUE_SUBSTITUTE_PATH, "rb") as f:
-    return tomllib.load(f)
-
-@cache
-def nnff_supported(car_fingerprint):
-  from openpilot.frogpilot.controls.lib.neural_network_feedforward import get_nn_model_path
-  return get_nn_model_path(car_fingerprint, "") is not None
-
 def get_frogpilot_toggles(sm=None):
   if sm is None:
     process_frogpilot_toggles.cache_clear()
     return process_frogpilot_toggles("")
-  return process_frogpilot_toggles(sm["frogpilotPlan"].frogpilotToggles)
+  return process_frogpilot_toggles(sm["frogpilotProcessState"].frogpilotToggles)
 
 @lru_cache(maxsize=1)
 def process_frogpilot_toggles(toggles):
@@ -1371,37 +1255,25 @@ class FrogPilotVariables:
     self.params = Params(return_defaults=True)
 
     self.frogpilot_toggles = SimpleNamespace()
-    toggle = self.frogpilot_toggles
 
     self.default_values = {key.decode(): self.params.get_default_value(key) for key in self.params.all_keys()}
     self.stock_values = {key.decode(): self.params.get_stock_value(key) for key in self.params.all_keys()}
     self.tuning_levels = {key.decode(): self.params.get_tuning_level(key) for key in self.params.all_keys()}
 
-    branch = get_build_metadata().channel
+    build_metadata = get_build_metadata()
+
+    branch = build_metadata.channel
     self.development_branch = branch == DEVELOPMENT_BRANCH
     self.release_branch = branch == RELEASE_BRANCH
     self.vetting_branch = branch == VETTING_BRANCH
 
-    self.frogs_go_moo = FROGS_GO_MOO_PATH.is_file()
+    self.frogs_go_moo = frogpilot_paths.FROGS_GO_MOO_PATH.is_file()
 
-    toggle.block_user = branch == PR_BRANCH and not self.frogs_go_moo
+    remote = build_metadata.openpilot.git_origin.lower().removesuffix(".git")
+    repository = "/".join(remote.replace(":", "/").split("/")[-2:])
+    self.issue_report_available = repository in REPORT_REPOSITORIES and (not build_metadata.openpilot.is_dirty or self.frogs_go_moo)
 
-    toggle.tuning_level = self.params.get("TuningLevel") if self.params.get_bool("TuningLevelConfirmed") else TUNING_LEVELS["ADVANCED"]
-
-    device_management = self.get_value("DeviceManagement")
-
-    toggle.use_higher_bitrate = device_management
-    toggle.use_higher_bitrate &= self.get_value("HigherBitrate")
-    toggle.use_higher_bitrate &= self.get_value("NoUploads")
-    toggle.use_higher_bitrate &= not self.get_value("DisableOnroadUploads")
-    toggle.use_higher_bitrate &= not self.vetting_branch
-    toggle.use_higher_bitrate |= self.development_branch
-
-    toggle.use_konik_server = device_management
-    toggle.use_konik_server &= self.get_value("UseKonikServer")
-    toggle.use_konik_server |= NOT_VETTED_PATH.is_file()
-
-    self.stock_colors = json.loads(STOCK_THEME_COLORS_PATH.read_text())
+    self.stock_colors = json.loads(frogpilot_paths.STOCK_THEME_COLORS_PATH.read_text())
 
     self.update()
 
@@ -1448,7 +1320,17 @@ class FrogPilotVariables:
 
     return value
 
+  def torque_cache_matches(self, CP, version):
+    msg_bytes = self.params.get("CarParamsPrevRoute")
+    if not msg_bytes:
+      return False
+
+    prev_CP = messaging.log_from_bytes(msg_bytes, car.CarParams)
+    return torqued.TorqueEstimator.get_restore_key(prev_CP, version) == torqued.TorqueEstimator.get_restore_key(CP, torqued.VERSION)
+
   def update(self, holiday_theme="stock", started=False):
+    from openpilot.frogpilot.common import frogpilot_utilities
+
     toggle = self.frogpilot_toggles
     toggle.tuning_level = self.params.get("TuningLevel") if self.params.get_bool("TuningLevelConfirmed") else TUNING_LEVELS["ADVANCED"]
 
@@ -1478,11 +1360,11 @@ class FrogPilotVariables:
     alpha_longitudinal = CP.alphaLongitudinalAvailable
     toggle.car_make = CP.brand
     toggle.car_model = selected_car_model if toggle.force_fingerprint else CP.carFingerprint
-    toggle.can_disable_openpilot_long = can_disable_openpilot_long(CP) and not alpha_longitudinal
+    toggle.can_disable_openpilot_long = frogpilot_utilities.can_disable_openpilot_long(CP) and not alpha_longitudinal
     toggle.disable_openpilot_long = self.get_value("DisableOpenpilotLongitudinal", condition=toggle.can_disable_openpilot_long)
     has_bsm = CP.enableBsm
     toggle.has_dashboard_speed_limit = FPCP.hasDashboardSpeedLimit
-    toggle.has_nnff = nnff_supported(toggle.car_model)
+    toggle.has_nnff = frogpilot_utilities.nnff_supported(toggle.car_model)
     has_radar = not CP.radarUnavailable
     toggle.has_sdsu = toggle.car_make == "toyota" and bool(FPCP.flags & ToyotaFrogPilotFlags.SMART_DSU.value)
     has_sng = CP.autoResumeSng
@@ -1508,13 +1390,21 @@ class FrogPilotVariables:
     vEgoStarting = CP.vEgoStarting
     vEgoStopping = CP.vEgoStopping
 
+    toggle.has_auto_tune = toggle.car_make in torqued.ALLOWED_CARS and is_torque_car
+
     msg_bytes = self.params.get("LiveTorqueParameters")
+    if not started:
+      self.drive_start_torque_cache = None
+    elif self.drive_start_torque_cache is None:
+      self.drive_start_torque_cache = msg_bytes or b""
+
     if msg_bytes:
       LTP = messaging.log_from_bytes(msg_bytes, log.Event).liveTorqueParameters
-      has_auto_tune = LTP.useParams
       toggle.liveValid = LTP.liveValid
+
+      if msg_bytes == self.drive_start_torque_cache:
+        toggle.liveValid &= self.torque_cache_matches(CP, LTP.version)
     else:
-      has_auto_tune = False
       toggle.liveValid = False
 
     max_lateral_accel = CP.maxLateralAccel
@@ -1527,6 +1417,7 @@ class FrogPilotVariables:
     toggle.debug_mode = self.params.get_bool("DebugMode")
     toggle.force_offroad = self.params.get_bool("ForceOffroad")
     toggle.force_onroad = self.params.get_bool("ForceOnroad")
+    toggle.issue_report_available = self.issue_report_available
 
     toggle.is_metric = self.params.get_bool("IsMetric")
     distance_conversion = 1 if toggle.is_metric else CV.FOOT_TO_METER
@@ -1542,16 +1433,16 @@ class FrogPilotVariables:
     toggle.use_wheel_speed = self.get_value("WheelSpeed", condition=advanced_custom_ui)
 
     advanced_lateral_tuning = self.get_value("AdvancedLateralTune")
-    toggle.force_auto_tune = self.get_value("ForceAutoTune", condition=is_torque_car and not is_angle_car and not has_auto_tune and advanced_lateral_tuning)
-    toggle.force_auto_tune_off = self.get_value("ForceAutoTuneOff", condition=is_torque_car and not is_angle_car and has_auto_tune and advanced_lateral_tuning)
+    toggle.force_auto_tune = self.get_value("ForceAutoTune", condition=is_torque_car and not is_angle_car and not toggle.has_auto_tune and advanced_lateral_tuning)
+    toggle.force_auto_tune_off = self.get_value("ForceAutoTuneOff", condition=is_torque_car and not is_angle_car and toggle.has_auto_tune and advanced_lateral_tuning)
     toggle.force_torque_controller = self.get_value("ForceTorqueController", condition=advanced_lateral_tuning)
     toggle.steerActuatorDelay = self.get_value("SteerDelay", cast=float, condition=advanced_lateral_tuning and self.params.get("SteerDelay") != 0, default=steerActuatorDelay, minimum=0.01, maximum=1.0)
     toggle.use_custom_steerActuatorDelay = round(toggle.steerActuatorDelay, 2) != round(steerActuatorDelay, 2)
     toggle.friction = self.get_value("SteerFriction", cast=float, condition=advanced_lateral_tuning and self.params.get("SteerFriction") != 0, default=friction, minimum=0.01, maximum=1)
-    toggle.use_custom_friction = (round(toggle.friction, 2) != round(friction, 2) and is_torque_car and not has_auto_tune and not toggle.force_auto_tune) or toggle.force_auto_tune_off
+    toggle.use_custom_friction = (round(toggle.friction, 2) != round(friction, 2) and is_torque_car and not toggle.has_auto_tune and not toggle.force_auto_tune) or toggle.force_auto_tune_off
     toggle.steerKp = self.get_value("SteerKP", cast=float, condition=is_torque_car and not is_angle_car and advanced_lateral_tuning and self.params.get("SteerKP") != 0, default=steerKp, minimum=steerKp * 0.5, maximum=steerKp * 1.5)
     toggle.latAccelFactor = self.get_value("SteerLatAccel", cast=float, condition=advanced_lateral_tuning and self.params.get("SteerLatAccel") != 0, default=latAccelFactor, minimum=latAccelFactor * 0.5, maximum=latAccelFactor * 1.5)
-    toggle.use_custom_latAccelFactor = (round(toggle.latAccelFactor, 2) != round(latAccelFactor, 2) and is_torque_car and not has_auto_tune and not toggle.force_auto_tune) or toggle.force_auto_tune_off
+    toggle.use_custom_latAccelFactor = (round(toggle.latAccelFactor, 2) != round(latAccelFactor, 2) and is_torque_car and not toggle.has_auto_tune and not toggle.force_auto_tune) or toggle.force_auto_tune_off
     toggle.steerRatio = self.get_value("SteerRatio", cast=float, condition=advanced_lateral_tuning and self.params.get("SteerRatio") != 0, default=steerRatio, minimum=steerRatio * 0.5, maximum=steerRatio * 1.5)
     toggle.use_custom_steerRatio = (round(toggle.steerRatio, 2) != round(steerRatio, 2) and not toggle.force_auto_tune) or toggle.force_auto_tune_off
 
@@ -1578,7 +1469,7 @@ class FrogPilotVariables:
     toggle.always_on_lateral_main = toggle.always_on_lateral and not prohibited_main_aol and not toggle.always_on_lateral_lkas
     toggle.always_on_lateral_pause_speed = self.get_value("PauseAOLOnBrake", cast=float, condition=toggle.always_on_lateral, conversion=speed_conversion)
 
-    toggle.automatic_updates = self.get_value("AutomaticUpdates", condition=self.release_branch or self.vetting_branch or self.frogs_go_moo, default=True) and not BACKUP_PATH.is_file()
+    toggle.automatic_updates = self.get_value("AutomaticUpdates", condition=self.release_branch or self.vetting_branch or self.frogs_go_moo, default=True) and not frogpilot_paths.BACKUP_PATH.is_file()
 
     toggle.cluster_offset = self.get_value("ClusterOffset", cast=float, condition=toggle.car_make == "toyota")
 
@@ -1593,7 +1484,7 @@ class FrogPilotVariables:
     toggle.conditional_stop_lights = self.get_value("CEStopLights", condition=toggle.conditional_experimental_mode)
     toggle.conditional_signal = self.get_value("CESignalSpeed", cast=float, condition=toggle.conditional_experimental_mode, conversion=speed_conversion,
                                              default=self.default_values["CESignalSpeed"] * CV.MPH_TO_MS)
-    toggle.conditional_signal_lane_detection = self.get_value("CESignalLaneDetection", condition=toggle.conditional_signal != 0)
+    toggle.conditional_signal_lane_detection = self.get_value("CESignalLaneDetection", condition=toggle.conditional_experimental_mode and toggle.conditional_signal != 0)
     toggle.cem_status = self.get_value("ShowCEMStatus", condition=toggle.conditional_experimental_mode) or toggle.debug_mode
 
     toggle.curve_speed_controller = toggle.openpilot_longitudinal and self.get_value("CurveSpeedController")
@@ -1629,7 +1520,7 @@ class FrogPilotVariables:
 
     custom_themes = self.get_value("CustomThemes")
     toggle.color_scheme = self.get_value("ColorScheme", cast=None, condition=custom_themes)
-    theme_colors = json.loads(THEME_COLORS_PATH.read_text()) if THEME_COLORS_PATH.is_file() else {}
+    theme_colors = json.loads(frogpilot_paths.THEME_COLORS_PATH.read_text()) if frogpilot_paths.THEME_COLORS_PATH.is_file() else {}
     toggle.lane_lines_color = self.get_color("LaneLines", theme_colors)
     toggle.lead_marker_color = self.get_color("LeadMarker", theme_colors)
     toggle.path_color = self.get_color("Path", theme_colors)
@@ -1695,6 +1586,19 @@ class FrogPilotVariables:
     toggle.increase_thermal_limits = self.get_value("IncreaseThermalLimits", condition=device_management)
     toggle.low_voltage_shutdown = self.get_value("LowVoltageShutdown", cast=float, condition=device_management, minimum=VBATT_PAUSE_CHARGING, maximum=12.5)
     toggle.no_logging = self.get_value("NoLogging", condition=device_management and not self.vetting_branch) or toggle.force_onroad
+
+    if not started:
+      toggle.use_higher_bitrate = device_management
+      toggle.use_higher_bitrate &= self.get_value("HigherBitrate")
+      toggle.use_higher_bitrate &= self.get_value("NoUploads")
+      toggle.use_higher_bitrate &= not self.get_value("DisableOnroadUploads")
+      toggle.use_higher_bitrate &= not self.vetting_branch
+      toggle.use_higher_bitrate |= self.development_branch
+
+      toggle.use_konik_server = device_management
+      toggle.use_konik_server &= self.get_value("UseKonikServer")
+      toggle.use_konik_server |= frogpilot_paths.NOT_VETTED_PATH.is_file()
+
     toggle.no_uploads = self.get_value("NoUploads", condition=device_management and not self.vetting_branch) or toggle.use_higher_bitrate
     toggle.no_onroad_uploads = self.get_value("DisableOnroadUploads", condition=toggle.no_uploads and not toggle.use_higher_bitrate)
     toggle.uploads_disabled = toggle.no_uploads and not toggle.no_onroad_uploads
@@ -1734,8 +1638,10 @@ class FrogPilotVariables:
     toggle.one_lane_change = self.get_value("OneLaneChange", condition=toggle.lane_changes)
 
     lateral_tuning = self.get_value("LateralTune")
-    toggle.nnff = self.get_value("NNFF", condition=toggle.has_nnff and not is_angle_car and lateral_tuning)
-    toggle.nnff_lite = self.get_value("NNFFLite", condition=not is_angle_car and not toggle.nnff and lateral_tuning)
+    toggle.nnff_selected = self.get_value("NNFF", condition=lateral_tuning)
+    toggle.nnff_lite_selected = self.get_value("NNFFLite", condition=lateral_tuning)
+    toggle.nnff = toggle.has_nnff and not is_angle_car and toggle.nnff_selected
+    toggle.nnff_lite = not is_angle_car and not toggle.nnff and toggle.nnff_lite_selected
     toggle.use_turn_desires = self.get_value("TurnDesires", condition=lateral_tuning)
 
     if toggle.has_lkas_button and not toggle.always_on_lateral_lkas:
@@ -1768,15 +1674,14 @@ class FrogPilotVariables:
       else:
         model_id = self.get_value("DrivingModel", cast=None)
 
-      model = models.get(model_id) if is_model_complete(MODELS_PATH / model_id) else None
+      model = models.get(model_id) if is_model_complete(frogpilot_paths.MODELS_PATH / model_id) else None
 
       if model is None:
         model = DEFAULT_MODEL
 
-      toggle.lat_smooth_seconds = model["lat_smooth_seconds"]
       toggle.model = model["id"]
       toggle.model_name = model["name"]
-      toggle.model_path = str(STOCK_MODEL_PATH if model is DEFAULT_MODEL else MODELS_PATH / model["id"])
+      toggle.model_path = str(frogpilot_paths.STOCK_MODEL_PATH if model is DEFAULT_MODEL else frogpilot_paths.MODELS_PATH / model["id"])
 
     toggle.model_ui = self.get_value("ModelUI")
     toggle.dynamic_path_width = self.get_value("DynamicPathWidth", condition=toggle.model_ui and not toggle.debug_mode)
@@ -1873,26 +1778,25 @@ class FrogPilotVariables:
     toggle.speed_limit_sources = self.get_value("SpeedLimitSources", condition=toggle.speed_limit_controller) or toggle.debug_mode
 
     toggle.speed_limit_filler = self.get_value("SpeedLimitFiller")
-    toggle.speed_limit_filler_share_data = toggle.speed_limit_filler and toggle.frogpilot_telemetry
 
     toggle.startup_alert_top = self.get_value("StartupMessageTop", cast=None)
     toggle.startup_alert_bottom = self.get_value("StartupMessageBottom", cast=None)
 
-    toggle.subaru_sng = self.get_value("SubaruSNG", condition=toggle.car_make == "subaru" and not CP.flags & (SubaruFlags.GLOBAL_GEN2 | SubaruFlags.HYBRID))
+    toggle.subaru_sng = self.get_value("SubaruSNG")
 
-    toggle.taco_tune_hacks = self.get_value("TacoTuneHacks", condition=hyundai_canfd)
+    toggle.taco_tune_hacks = self.get_value("TacoTuneHacks")
 
-    toggle.tailscale_installed = (TAILSCALE_PATH / "tailscaled").is_file()
+    toggle.tailscale_installed = (frogpilot_paths.TAILSCALE_PATH / "tailscaled").is_file()
 
     toggle.reset_removed_keys = sorted(RESET_REMOVED_KEYS)
 
     toggle.can_use_dsu_bypass = toggle.car_make == "toyota" and not toggle.has_sdsu and not CP.flags & (ToyotaFlags.NO_DSU | ToyotaFlags.UNSUPPORTED_DSU)
-    toggle.toyota_dsu_bypass = self.get_value("ToyotaDSUBypass", condition=toggle.car_make == "toyota" and not toggle.has_sdsu)
+    toggle.toyota_dsu_bypass = self.get_value("ToyotaDSUBypass")
 
     toyota_doors = self.get_value("ToyotaDoors", condition=toggle.car_make == "toyota")
     toggle.lock_doors = self.get_value("LockDoors", condition=toyota_doors)
     toggle.unlock_doors = self.get_value("UnlockDoors", condition=toyota_doors)
 
-    toggle.volt_sng = self.get_value("VoltSNG", condition=toggle.car_model == "CHEVROLET_VOLT")
+    toggle.volt_sng = self.get_value("VoltSNG", condition=toggle.car_model == "CHEVROLET_VOLT" and not has_sng)
 
     self.toggles_json = json.dumps(vars(toggle))

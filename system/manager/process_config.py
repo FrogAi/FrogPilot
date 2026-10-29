@@ -9,7 +9,7 @@ from openpilot.common.params import Params
 from openpilot.system.hardware import HARDWARE, PC, TICI
 from openpilot.system.manager.process import PythonProcess, NativeProcess, DaemonProcess
 
-from openpilot.frogpilot.common import frogpilot_variables
+from openpilot.frogpilot.common import frogpilot_paths
 
 WEBCAM = os.getenv("USE_WEBCAM") is not None
 
@@ -76,13 +76,10 @@ def run_frogpilot_telemetry(started: bool, params: Params, CP: car.CarParams, fr
   return frogpilot_toggles.frogpilot_telemetry and not frogpilot_toggles.no_logging and not frogpilot_toggles.uploads_disabled
 
 def run_speed_limit_capture(started: bool, params: Params, CP: car.CarParams, frogpilot_toggles: SimpleNamespace) -> bool:
-  return started and CP.brand == "toyota" and frogpilot_toggles.has_dashboard_speed_limit and frogpilot_toggles.frogpilot_telemetry and not frogpilot_toggles.uploads_disabled
-
-def run_speed_limit_filler(started: bool, params: Params, CP: car.CarParams, frogpilot_toggles: SimpleNamespace) -> bool:
-  return frogpilot_toggles.speed_limit_filler
+  return started and (CP.brand == "toyota" and frogpilot_toggles.has_dashboard_speed_limit or run_speed_limit_reader(started, params, CP, frogpilot_toggles)) and frogpilot_toggles.frogpilot_telemetry and not frogpilot_toggles.uploads_disabled
 
 def run_speed_limit_reader(started: bool, params: Params, CP: car.CarParams, frogpilot_toggles: SimpleNamespace) -> bool:
-  return started and frogpilot_toggles.speed_limit_controller
+  return started and (frogpilot_toggles.speed_limit_controller or frogpilot_toggles.speed_limit_filler)
 
 def run_tailscale(started: bool, params: Params, CP: car.CarParams, frogpilot_toggles: SimpleNamespace) -> bool:
   return frogpilot_toggles.tailscale_installed
@@ -150,9 +147,8 @@ procs += [
   PythonProcess("frogpilot_telemetry", "frogpilot.system.frogpilot_telemetry", run_frogpilot_telemetry),
   NativeProcess("mapd", "frogpilot/navigation", ["env", "USE_MSGQ_PREFIX=true", "./mapd"], always_run),
   PythonProcess("speed_limit_capture", "frogpilot.system.speed_limit_capture", and_(allow_logging, run_speed_limit_capture)),
-  PythonProcess("speed_limit_filler", "frogpilot.system.speed_limit_filler", run_speed_limit_filler),
   PythonProcess("speed_limit_reader", "frogpilot.system.speed_limit_reader", run_speed_limit_reader, enabled=not PC),
-  NativeProcess("tailscaled", str(frogpilot_variables.TAILSCALE_PATH), ["./tailscaled", "--tun=userspace-networking", f"--socket={frogpilot_variables.TAILSCALE_SOCKET_PATH}", f"--statedir={frogpilot_variables.TAILSCALE_STATE_PATH}"], run_tailscale),
+  NativeProcess("tailscaled", str(frogpilot_paths.TAILSCALE_PATH), ["./tailscaled", "--tun=userspace-networking", f"--socket={frogpilot_paths.TAILSCALE_SOCKET_PATH}", f"--statedir={frogpilot_paths.TAILSCALE_STATE_PATH}"], run_tailscale),
   PythonProcess("the_pond", "frogpilot.system.the_pond.the_pond", always_run),
 ]
 

@@ -75,7 +75,7 @@ void DriverMonitorRenderer::draw(QPainter &painter, const QRect &surface_rect) {
   }
 
   if (frogpilot_toggles.value(QLatin1String("road_name_ui")).toBool()) {
-    y -= UI_BORDER_SIZE;
+    y -= UI_BORDER_SIZE + 10;
   }
 
   if (frogpilot_nvg) {

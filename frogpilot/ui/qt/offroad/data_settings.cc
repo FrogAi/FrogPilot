@@ -441,6 +441,15 @@ FrogPilotDataPanel::FrogPilotDataPanel(FrogPilotSettingsWindow *parent, bool for
       QString selection = MultiOptionDialog::getSelection(tr("Choose a backup to restore"), friendlyNames, "", this);
       if (!selection.isEmpty()) {
         if (ConfirmationDialog::confirm(tr("Restore this backup? The device will reboot on its own once the restore finishes."), tr("Restore"), this)) {
+          if (params.get("UpdaterState") != "idle") {
+            ConfirmationDialog::alert(tr("An update check is running. Wait for it to finish and try again."), this);
+            return;
+          }
+
+          bool createdBackupFlag = !QFile::exists("/cache/on_backup");
+          QFile("/cache/on_backup").open(QIODevice::WriteOnly);
+          frogpilotUIState()->updateToggles();
+
           std::thread([=]() {
             runOnUIThread(frogpilotBackupButton, [=]() {
               parent->activeOperations++;
@@ -494,8 +503,6 @@ FrogPilotDataPanel::FrogPilotDataPanel(FrogPilotSettingsWindow *parent, bool for
 
               QFile::remove("/data/safe_staging/finalized/.overlay_consistent");
 
-              QFile("/cache/on_backup").open(QIODevice::WriteOnly);
-
               runOnUIThread(frogpilotBackupButton, [=]() {
                 frogpilotBackupButton->setValue(tr("Restored!"));
               });
@@ -508,11 +515,30 @@ FrogPilotDataPanel::FrogPilotDataPanel(FrogPilotSettingsWindow *parent, bool for
 
               util::sleep_for(2500);
 
-              Hardware::reboot();
+              runOnUIThread(frogpilotBackupButton, [=]() {
+                if (uiState()->scene.started) {
+                  frogpilotBackupButton->setValue(tr("Reboots when the car is off"));
+
+                  parent->activeOperations--;
+
+                  QObject::connect(uiState(), &UIState::offroadTransition, [](bool offroad) {
+                    if (offroad) {
+                      Hardware::reboot();
+                    }
+                  });
+                } else {
+                  Hardware::reboot();
+                }
+              });
             } else {
               QDir(extractDirectory).removeRecursively();
 
               runOnUIThread(frogpilotBackupButton, [=]() {
+                if (createdBackupFlag) {
+                  QFile::remove("/cache/on_backup");
+                  frogpilotUIState()->updateToggles();
+                }
+
                 frogpilotBackupButton->setValue(tr("Restore failed..."));
               });
 

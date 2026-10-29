@@ -1087,7 +1087,7 @@ struct ModelDataV2 {
   confidence @23: ConfidenceClass;
 
   # Model perceived motion
-  temporalPoseDEPRECATED @21 :Pose;
+  temporalPose @21 :Pose;
 
   # e2e lateral planner
   action @26: Action;

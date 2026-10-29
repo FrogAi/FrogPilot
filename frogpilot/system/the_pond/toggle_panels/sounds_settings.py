@@ -12,7 +12,7 @@ def speed_limit_changed_alert_visible(context):
   navigation_ui = context.level < context.tuning_level("NavigationUI") or params.get_bool("NavigationUI")
   show_speed_limits = navigation_ui and (context.level < context.tuning_level("ShowSpeedLimits") or params.get_bool("ShowSpeedLimits"))
   speed_limit_controller = context.has_openpilot_longitudinal and params.get_bool("SpeedLimitController")
-  shown = show_speed_limits or params.get_bool("DebugMode") or params.get_bool("SpeedLimitFiller") or speed_limit_controller
+  shown = show_speed_limits or params.get_bool("DebugMode") or speed_limit_controller
 
   reason = context.level_reason("SpeedLimitChangedAlert")
   if reason is not None:
@@ -49,8 +49,8 @@ ROWS = [
     "description": ("<b>Set the volume for the sound openpilot makes when the driver camera thinks you've stopped watching the road.</b><br><br>You " +
                     "hear this if you look down at your phone, or if the camera cannot see your face and you go too long without touching the wheel. " +
                     "Ignore it long enough and it escalates into the \"DISENGAGE IMMEDIATELY\" warning, which plays at \"Urgent Warning Volume\" " +
-                    "instead. openpilot will not hand the car back on its own, so taking over is on you. This one stops at 25% so it can always " +
-                    "reach you."),
+                    "instead. openpilot will not hand the car back on its own, so taking over is on you. It never plays quieter than \"Auto\" would, " +
+                    "so it can always reach you."),
     "key": "PromptDistractedVolume",
     "order": 1,
     "path": ("Alerts and Sounds", "MANAGE", "Alert Volumes"),
@@ -81,8 +81,8 @@ ROWS = [
   },
   {
     "description": ("<b>Set the volume for openpilot's serious warnings, such as \"BRAKE! Risk of Collision\" when it thinks you're about to hit " +
-                    "something.</b><br><br>The \"Louder Blind Spot Alert\" plays at this volume too. This one stops at 25% so a warning can always " +
-                    "reach you."),
+                    "something.</b><br><br>The \"Louder Blind Spot Alert\" plays at this volume too. It never plays quieter than \"Auto\" would, so " +
+                    "it can always reach you."),
     "key": "WarningSoftVolume",
     "order": 4,
     "path": ("Alerts and Sounds", "MANAGE", "Alert Volumes"),
@@ -93,7 +93,8 @@ ROWS = [
   {
     "description": ("<b>Set the volume for openpilot's most urgent warnings, the ones telling you to take the wheel right " +
                     "now.</b><br><br>\"DISENGAGE IMMEDIATELY\" plays at this volume, which is what you get once you've ignored the driver camera " +
-                    "long enough that openpilot no longer trusts you're paying attention. This one stops at 25% so a warning can always reach you."),
+                    "long enough that openpilot no longer trusts you're paying attention. It never plays quieter than \"Auto\" would, so it can " +
+                    "always reach you."),
     "key": "WarningImmediateVolume",
     "order": 5,
     "path": ("Alerts and Sounds", "MANAGE", "Alert Volumes"),
@@ -157,7 +158,7 @@ ROWS = [
     "description": ("<b>Upgrade \"Car Detected in Blindspot\" from openpilot's quiet prompt chime to its warning chime.</b><br><br>You get this " +
                     "alert when you signal for a lane change while openpilot is steering and there is a car beside you where you cannot see it. It " +
                     "needs \"Lane Changes\" switched on and at least your \"Minimum Lane Change Speed\" (20 mph or 32 km/h by default), so " +
-                    "signalling slower than that gets you nothing. Because it becomes a warning, its volume comes from \"Soft Warning Volume\" " +
+                    "signaling slower than that gets you nothing. Because it becomes a warning, its volume comes from \"Soft Warning Volume\" " +
                     "instead of \"Prompt Volume\"."),
     "key": "LoudBlindspotAlert",
     "order": 3,

@@ -4,6 +4,8 @@ from pathlib import Path
 
 from openpilot.system.hardware import PC
 
+from openpilot.frogpilot.common import frogpilot_paths
+
 DEFAULT_DOWNLOAD_CACHE_ROOT = "/tmp/comma_download_cache"
 
 class Paths:
@@ -20,13 +22,13 @@ class Paths:
     else:
       # FrogPilot variables
       if not HD and not konik:
-        HD = Path("/cache/use_HD").is_file()
-        konik = Path("/cache/use_konik").is_file()
+        HD = frogpilot_paths.HD_PATH.is_file()
+        konik = frogpilot_paths.KONIK_PATH.is_file()
 
       if HD:
-        return '/data/media/0/realdata_HD/'
+        return f"{frogpilot_paths.HD_LOGS_PATH}/"
       elif konik:
-        return '/data/media/0/realdata_konik/'
+        return f"{frogpilot_paths.KONIK_LOGS_PATH}/"
 
       return '/data/media/0/realdata/'
 

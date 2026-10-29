@@ -33,6 +33,7 @@ class ConditionalExperimentalMode:
     self.experimental_mode = False
     self.lane_detected_left = False
     self.lane_detected_right = False
+    self.prev_standstill = False
     self.slow_lead_detected = False
     self.stop_light_detected = False
     self.stop_light_signal = False
@@ -44,9 +45,15 @@ class ConditionalExperimentalMode:
   def update(self, v_ego, sm, frogpilot_toggles):
     self.update_override(sm)
 
+    if self.prev_standstill and not sm["carState"].standstill:
+      self.stop_light_filter.x = 0
+
+    self.prev_standstill = sm["carState"].standstill
+
+    self.stop_sign_and_light(v_ego, sm)
+
     if not (sm["selfdriveState"].enabled and frogpilot_toggles.conditional_experimental_mode):
       self.reset()
-      self.stop_sign_and_light(v_ego, sm)
       return
 
     self.update_conditions(v_ego, sm, frogpilot_toggles)
@@ -58,9 +65,7 @@ class ConditionalExperimentalMode:
         self.experimental_mode &= self.status_value != frogpilot_variables.CE_STATUS["LEAD"]
         self.experimental_mode &= self.frogpilot_planner.model_stopped or self.frogpilot_planner.frogpilot_vcruise.forcing_stop
 
-        lead_stopped = self.frogpilot_planner.lead_relevant and self.frogpilot_planner.lead_one.vLead < frogpilot_variables.LEAD_DEPARTURE_SPEED
-
-        stopped_at_light = sm["modelV2"].action.shouldStop and not lead_stopped
+        stopped_at_light = sm["modelV2"].action.shouldStop and not sm["longitudinalPlan"].shouldStop
         if stopped_at_light and not sm["frogpilotCarState"].trafficModeEnabled and frogpilot_toggles.conditional_stop_lights:
           self.experimental_mode = True
           self.status_value = frogpilot_variables.CE_STATUS["STOP_LIGHT"]
@@ -132,11 +137,9 @@ class ConditionalExperimentalMode:
       self.slow_lead_detected = False
 
       self.slow_lead_filter.x = 0
-      self.stop_light_filter.x = 0
     else:
       self.slow_lead(v_ego, sm, frogpilot_toggles)
       self.curve_detection(v_ego)
-      self.stop_sign_and_light(v_ego, sm)
 
   def curve_detection(self, v_ego):
     self.curvature_filter.update(self.frogpilot_planner.curve_ahead or self.frogpilot_planner.driving_in_curve)

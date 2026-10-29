@@ -31,7 +31,7 @@ from openpilot.selfdrive.modeld.constants import ModelConstants, Plan
 from openpilot.selfdrive.modeld.models.commonmodel_pyx import DrivingModelFrame, CLContext
 from openpilot.selfdrive.modeld.runners.tinygrad_helpers import qcom_tensor_from_opencl_address
 
-from openpilot.frogpilot.common import frogpilot_model_utilities, frogpilot_variables
+from openpilot.frogpilot.common import frogpilot_model_utilities, frogpilot_utilities, frogpilot_variables
 
 
 PROCESS_NAME = "selfdrive.modeld.modeld"
@@ -48,12 +48,21 @@ MIN_LAT_CONTROL_SPEED = 0.3
 
 
 def get_action_from_model(model_output: dict[str, np.ndarray], prev_action: log.ModelDataV2.Action,
-                          lat_action_t: float, long_action_t: float, v_ego: float, lat_smooth_seconds: float) -> log.ModelDataV2.Action:
+                          lat_action_t: float, long_action_t: float, v_ego: float, lat_smooth_seconds: float, current_speed_stop: bool,
+                          min_stable_delay: float) -> log.ModelDataV2.Action:
     plan = model_output['plan'][0]
     desired_accel, should_stop = get_accel_from_plan(plan[:,Plan.VELOCITY][:,0],
                                                      plan[:,Plan.ACCELERATION][:,0],
                                                      ModelConstants.T_IDXS,
                                                      action_t=long_action_t)
+
+    # FrogPilot variables
+    if current_speed_stop:
+      desired_accel, should_stop = frogpilot_model_utilities.get_current_speed_accel_from_plan(plan[:,Plan.VELOCITY][:,0],
+                                                                                               plan[:,Plan.ACCELERATION][:,0],
+                                                                                               long_action_t,
+                                                                                               min_stable_delay)
+
     desired_accel = smooth_value(desired_accel, prev_action.desiredAcceleration, LONG_SMOOTH_SECONDS)
 
     desired_curvature = get_curvature_from_plan(plan[:,Plan.T_FROM_CURRENT_EULER][:,2],
@@ -61,6 +70,15 @@ def get_action_from_model(model_output: dict[str, np.ndarray], prev_action: log.
                                                 ModelConstants.T_IDXS,
                                                 v_ego,
                                                 lat_action_t)
+
+    # FrogPilot variables
+    if min_stable_delay > 0:
+      desired_curvature = frogpilot_model_utilities.get_stable_curvature_from_plan(plan[:,Plan.T_FROM_CURRENT_EULER][:,2],
+                                                                                   plan[:,Plan.ORIENTATION_RATE][:,2],
+                                                                                   v_ego,
+                                                                                   lat_action_t,
+                                                                                   min_stable_delay)
+
     if v_ego > MIN_LAT_CONTROL_SPEED:
       desired_curvature = smooth_value(desired_curvature, prev_action.desiredCurvature, lat_smooth_seconds)
     else:
@@ -230,6 +248,17 @@ def main(demo=False):
   # FrogPilot variables
   frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles()
   model_path = Path(frogpilot_toggles.model_path)
+  lat_smooth_seconds = frogpilot_utilities.get_model_lat_smooth_seconds(frogpilot_toggles.model)
+  current_speed_stop = frogpilot_utilities.use_current_speed_stop(frogpilot_toggles.model)
+
+  action_delay = 0
+  if frogpilot_utilities.use_action_delay(frogpilot_toggles.model):
+    action_delay = DT_MDL / 2
+
+  min_stable_delay = 0
+  if frogpilot_utilities.use_min_stable_delay(frogpilot_toggles.model):
+    min_stable_delay = frogpilot_model_utilities.MIN_STABLE_DELAY
+
   legacy_model = frogpilot_model_utilities.is_legacy_model(model_path)
   frogpilot_model_utilities.prepare_model_process(model_path, demo)
 
@@ -308,7 +337,7 @@ def main(demo=False):
   DH = DesireHelper()
 
   # FrogPilot variables
-  sm = sm.extend(['frogpilotPlan'])
+  sm = sm.extend(['frogpilotPlan', 'frogpilotProcessState'])
 
   if 'radar_tracks' in model.numpy_inputs:
     sm = sm.extend(['liveTracks'])
@@ -353,7 +382,7 @@ def main(demo=False):
     is_rhd = sm["driverMonitoringState"].isRHD
     frame_id = sm["roadCameraState"].frameId
     v_ego = max(sm["carState"].vEgo, 0.)
-    lat_delay = sm["liveDelay"].lateralDelay + frogpilot_toggles.lat_smooth_seconds
+    lat_delay = sm["liveDelay"].lateralDelay + lat_smooth_seconds
     if sm.updated["liveCalibration"] and sm.seen['roadCameraState'] and sm.seen['deviceState']:
       device_from_calib_euler = np.array(sm["liveCalibration"].rpyCalib, dtype=np.float32)
       dc = DEVICE_CAMERAS[(str(sm['deviceState'].deviceType), str(sm['roadCameraState'].sensor))]
@@ -402,11 +431,15 @@ def main(demo=False):
       drivingdata_send = messaging.new_message('drivingModelData')
       posenet_send = messaging.new_message('cameraOdometry')
 
-      action = get_action_from_model(model_output, prev_action, lat_delay + DT_MDL, long_delay + DT_MDL, v_ego, frogpilot_toggles.lat_smooth_seconds)
+      action = get_action_from_model(model_output, prev_action, lat_delay + DT_MDL + action_delay, long_delay + DT_MDL + action_delay, v_ego,
+                                     lat_smooth_seconds, current_speed_stop, min_stable_delay)
 
       # FrogPilot variables
       if legacy_model:
         action = model.update_action(action, model_output, prev_action, frogpilot_toggles.steerActuatorDelay, frogpilot_toggles.longitudinalActuatorDelay, v_ego, MIN_LAT_CONTROL_SPEED)
+
+        if frogpilot_utilities.is_pre_tomb_raider_model(frogpilot_toggles.model):
+          model.fill_temporal_pose(modelv2_send.modelV2.temporalPose, model_output)
 
       prev_action = action
       fill_model_msg(drivingdata_send, modelv2_send, model_output, action,

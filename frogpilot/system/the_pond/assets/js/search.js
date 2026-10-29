@@ -165,7 +165,7 @@ const SETTING_WORDS = {
   ScreenTimeoutOnroad: "screen off sleep display timeout",
   SNGHack: "stop and go traffic resume standstill",
   SpeedLimitController: "speed limit slc posted signs follow speed limits",
-  SpeedLimitFiller: "speed limit data collect fill missing",
+  SpeedLimitFiller: "speed limit learn missing wrong map signs camera fix correct",
   StandbyMode: "screen off display dark",
   StartupMessageTop: "welcome greeting boot",
   StoppedTimer: "red light timer stopped",

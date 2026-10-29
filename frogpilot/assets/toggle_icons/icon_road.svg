@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
   <g transform="matrix(1.037 0 0 1.037 -3.7 -6.8)">
-    <path d="M88 26h24l28 154H60Z" fill="#1ed760"/>
+    <path d="M88 26h24l28 154H60Z" fill="#30ff9c"/>
     <path d="M66 28 26 178M134 28l40 150" stroke="#fff" stroke-linecap="round" stroke-width="11"/>
-    <path d="M46 30 8 172M154 30l38 142" stroke="#ff3b30" stroke-linecap="round" stroke-width="8"/>
+    <path d="M46 30 8 172M154 30l38 142" stroke="#ff0000" stroke-linecap="round" stroke-width="8"/>
   </g>
 </svg>

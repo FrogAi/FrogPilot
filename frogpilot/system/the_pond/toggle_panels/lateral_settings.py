@@ -182,8 +182,8 @@ ROWS = [
     "widget": "toggle"
   },
   {
-    "description": ("<b>Stop openpilot from working out its own steering values, and use the numbers you set instead.</b><br><br>Only offered on " +
-                    "cars that normally tune themselves."),
+    "description": ("<b>Use the friction, lateral acceleration, and steer ratio you set instead of the values openpilot works out on its " +
+                    "own.</b><br><br>Only offered on cars that normally tune themselves."),
     "key": "ForceAutoTuneOff",
     "order": 6,
     "path": ("Driving Controls", "STEERING", "Advanced Lateral Tuning"),
@@ -207,7 +207,7 @@ ROWS = [
     "description": ("<b>openpilot keeps steering for you even when it isn't controlling the gas and brake, so it holds your lane when you press a " +
                     "pedal, cancel, or haven't engaged openpilot at all.</b><br><br>It steers from the moment your car's cruise control is switched " +
                     "on until you switch that back off or shift out of drive, and it pauses while you brake below the speed set in \"Pause on Brake " +
-                    "Press Below\", except at a full stop. On the newer Hyundai, Kia and Genesis cars, the LKAS button takes the place of cruise " +
+                    "Press Below\", except at a full stop. On the newer Hyundai, Kia, and Genesis cars, the LKAS button takes the place of cruise " +
                     "control while \"Enable With LKAS\" is on."),
     "key": "AlwaysOnLateral",
     "on_change": lambda context, old_value, new_value: context.started and new_value,
@@ -318,8 +318,8 @@ ROWS = [
   },
   {
     "description": ("<b>openpilot steers using a model trained on real driving data from cars like yours, which usually holds the lane more steadily " +
-                    "and tracks curves more closely.</b><br><br>It only appears when a trained model matches your car. While it's on it takes over " +
-                    "the \"Friction\" and \"Lateral Acceleration\" tuning, so those two rows disappear. Built by Twilsonco."),
+                    "and tracks curves more closely.</b><br><br>It only appears when a trained model matches your car. While it's on, the " +
+                    "\"Friction\" and \"Lateral Acceleration\" rows disappear, but some car models still use the friction value. Built by Twilsonco."),
     "key": "NNFF",
     "on_change": reboot_when_started,
     "order": 0,
@@ -331,7 +331,8 @@ ROWS = [
   {
     "description": ("<b>openpilot looks ahead at how sharply the road is about to bend and starts adjusting its steering early, which smooths how it " +
                     "enters and leaves curves.</b><br><br>Use this when the full \"Neural Network Feedforward (NNFF)\" setting isn't offered for " +
-                    "your car. It borrows the look-ahead without the trained model, so the improvement is smaller."),
+                    "your car. It borrows the look-ahead without the trained model, so the improvement is smaller. On cars that normally use " +
+                    "openpilot's PID steering, this also switches them to the torque controller."),
     "key": "NNFFLite",
     "on_change": reboot_when_started,
     "order": 1,

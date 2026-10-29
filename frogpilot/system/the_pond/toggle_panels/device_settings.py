@@ -1,4 +1,4 @@
-from openpilot.frogpilot.common import frogpilot_utilities, frogpilot_variables
+from openpilot.frogpilot.common import frogpilot_paths, frogpilot_utilities
 from openpilot.frogpilot.system.the_pond.toggle_panels import rows
 
 ONROAD_ONLY_REASON = {"key": "DisableOnroadUploads", "kind": "setting", "title": "Disable Onroad Only", "wanted": False}
@@ -11,7 +11,7 @@ def higher_bitrate_visible(context):
 
 
 def konik_forced():
-  return frogpilot_variables.NOT_VETTED_PATH.is_file()
+  return frogpilot_paths.NOT_VETTED_PATH.is_file()
 
 
 def konik_server_changed(context, old_value, new_value):
@@ -42,11 +42,6 @@ def onroad_only_reason(context):
 
 
 async def reboot_for_konik(context, body):
-  if context.params.get_bool("UseKonikServer"):
-    frogpilot_variables.KONIK_PATH.touch()
-  else:
-    frogpilot_variables.KONIK_PATH.unlink(missing_ok=True)
-
   context.params.put_bool("DoSoftReboot", True)
   return True
 
@@ -72,19 +67,6 @@ def shutdown_labels():
   return labels
 
 
-def update_higher_bitrate(context, old_value, new_value):
-  params = context.params
-  use_higher_bitrate = params.get_bool("HigherBitrate") and params.get_bool("NoUploads") and not params.get_bool("DisableOnroadUploads")
-  if frogpilot_variables.HD_PATH.is_file() == use_higher_bitrate:
-    return False
-
-  if use_higher_bitrate:
-    frogpilot_variables.HD_PATH.touch()
-  else:
-    frogpilot_variables.HD_PATH.unlink()
-  return True
-
-
 ROWS = [
   {
     "children": ("System Settings", "DEVICE / SCREEN", "Device Settings"),
@@ -108,7 +90,8 @@ ROWS = [
   {
     "confirm_enable": rows.ENABLE_CONFIRMATION,
     "description": ("<b>Stop the device from recording your drives.</b><br><br>No driving logs or camera footage are saved, so you won't be able to " +
-                    "review your drives later or send a useful bug report. Screen recordings and the device's own system logs are still saved."),
+                    "review your drives later or send a useful bug report, and FrogPilot driving logs are no longer shared. Screen recordings, speed " +
+                    "limit sign photos, and the device's own system logs are still saved."),
     "key": "NoLogging",
     "order": 1,
     "path": ("System Settings", "DEVICE / SCREEN", "Device Settings"),
@@ -118,16 +101,15 @@ ROWS = [
   },
   {
     "confirm_enable": rows.ENABLE_CONFIRMATION,
-    "description": ("<b>Stop the device from uploading your drives to \"comma connect\" or Konik and from sharing FrogPilot driving logs and speed " +
-                    "limit sign clips.</b><br><br>Your drives are still saved on the device. comma uses uploads for debugging and official support, " +
-                    "so turning this on limits the help they can give. Files that comma connect or Konik asks the device to upload, usage stats, " +
-                    "Speed Limit Filler data, device registration, crash reports, and weather and Mapbox lookups are not affected. \"Disable Onroad " +
+    "description": ("<b>Stop the device from uploading your drives to \"comma connect\" or Konik and from sharing FrogPilot driving logs, speed limit " +
+                    "sign clips, and learned speed limits.</b><br><br>Your drives are still saved on the device. comma uses uploads for debugging " +
+                    "and official support, so turning this on limits the help they can give. Files that comma connect or Konik asks the device to " +
+                    "upload, usage stats, device registration, crash reports, and weather and Mapbox lookups are not affected. \"Disable Onroad " +
                     "Only\" pauses uploads while you drive and lets them finish once you park, but only while the device is on Wi-Fi or Ethernet."),
     "key": "NoUploads",
-    "on_change": update_higher_bitrate,
     "order": 2,
     "path": ("System Settings", "DEVICE / SCREEN", "Device Settings"),
-    "sub_toggles": ({"key": "DisableOnroadUploads", "label": "Disable Onroad Only", "on_change": update_higher_bitrate},),
+    "sub_toggles": ({"key": "DisableOnroadUploads", "label": "Disable Onroad Only"},),
     "title": "Disable Uploads",
     "visible": no_uploads_visible,
     "widget": "button_toggle"
@@ -136,7 +118,6 @@ ROWS = [
     "description": ("<b>Record your drives in higher video quality.</b><br><br>This row only appears once \"Disable Uploads\" is on and \"Disable " +
                     "Onroad Only\" is off, since the larger files are not meant to be uploaded. The device needs to reboot for it to take effect."),
     "key": "HigherBitrate",
-    "on_change": update_higher_bitrate,
     "order": 3,
     "path": ("System Settings", "DEVICE / SCREEN", "Device Settings"),
     "title": "High-Quality Recording",
@@ -175,8 +156,9 @@ ROWS = [
       }
     },
     "current": konik_server_current,
-    "description": ("<b>Upload your drives to \"stable.konik.ai\" instead of \"connect.comma.ai\".</b><br><br>Registering with Konik sends the " +
-                    "device's IMEI and serial number. The device needs to reboot for this to take effect."),
+    "description": ("<b>Upload your drives to \"stable.konik.ai\" instead of \"connect.comma.ai\".</b><br><br>Device registration and remote access " +
+                    "go through Konik too. Registering with Konik sends the device's IMEI and serial number. The device needs to reboot for this to " +
+                    "take effect."),
     "enabled": konik_server_enabled,
     "key": "UseKonikServer",
     "on_change": konik_server_changed,
@@ -216,7 +198,8 @@ ROWS = [
   },
   {
     "description": ("<b>How bright the screen is while you're driving.</b><br><br>\"Auto\" matches the light around you, and \"Screen Off\" keeps " +
-                    "the display dark until you tap it. A tap brightens anything below 5% to 5% until the screen times out."),
+                    "the display dark until you tap it, an alert shows, or openpilot engages or disengages. A tap or wake-up brightens anything " +
+                    "below 5% to 5% until the screen times out."),
     "key": "ScreenBrightnessOnroad",
     "order": 2,
     "path": ("System Settings", "DEVICE / SCREEN", "Screen Settings"),

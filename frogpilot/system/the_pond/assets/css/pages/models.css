@@ -11,5 +11,7 @@
 .switch:has(input:disabled) { cursor: default; }
 
 @media (max-width: 719px) {
-  .model-row .acts { grid-template-columns: auto 44px 44px; justify-content: start; }
+  .model-row .acts { grid-template-columns: auto 44px 44px; justify-content: end; }
+  .panel-head:has(.models-random) { flex-wrap: wrap; }
+  .panel-head:has(.models-random) .switch { flex-basis: 100%; margin-left: 0; }
 }

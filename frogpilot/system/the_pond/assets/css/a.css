@@ -294,6 +294,8 @@ dialog.dlg[open] { animation: dlg-in .26s var(--ease); }
 .alert-preview span { display: block; font-size: 16px; margin-top: 4px; color: #ddd; }
 .form-grid { display: grid; gap: 16px; }
 .danger-zone { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; justify-content: space-between; }
+.danger-zone > :first-child { flex: 1; min-width: 0; }
+.danger-zone > :last-child { flex: none; }
 .danger-zone + .danger-zone { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line); }
 .file-btn { position: relative; overflow: hidden; }
 .file-btn input { position: absolute; inset: 0; opacity: 0; cursor: pointer; font-size: 0; }

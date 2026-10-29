@@ -25,7 +25,10 @@ def compute_gb_honda_nidec(accel, speed, max_brake):
   gb = float(accel) / 4.8 - creep_brake
 
   # FrogPilot variables
-  brake = float(accel) / CarControllerParams.NIDEC_ACCEL_MIN + creep_brake if max_brake else -gb
+  if max_brake:
+    brake = float(accel) / CarControllerParams.NIDEC_ACCEL_MIN + creep_brake
+  else:
+    brake = -gb
 
   return np.clip(gb, 0.0, 1.0), np.clip(brake, 0.0, 1.0)
 

@@ -45,6 +45,10 @@ function degrees(value) {
 
 async function sendDoors(lock) {
   if (!lock) {
+    if (!await P.pinWarning("doors", "Unlocking the doors from The Pond works from any browser that can open it.")) {
+      return;
+    }
+
     const shell = await P.shell();
     const ok = await P.dialog({
       icon: "unlock", title: "Unlock the doors?",
@@ -148,7 +152,17 @@ P.act("vehicle-reset-calibration", async () => {
 });
 
 P.act("vehicle-reset-curves", async () => {
-  const ok = await P.dialog({ icon: "refresh", tone: "danger", confirmTone: "danger", title: "Are you sure you want to completely reset your curvature data?", body: "<p>Everything openpilot has learned about how you take curves is thrown away. The “Adaptive” curve speed profile goes back to its starting value and relearns as you drive.</p>", confirm: "Reset" });
+  const body = "<p>Everything openpilot has learned about how you take curves is thrown away. " +
+               "The “Adaptive” curve speed profile goes back to its starting value and relearns as you drive.</p>";
+
+  const ok = await P.dialog({
+    icon: "refresh",
+    tone: "danger",
+    confirmTone: "danger",
+    title: "Are you sure you want to completely reset your curve data?",
+    body: body,
+    confirm: "Reset"
+  });
   if (!ok) {
     return;
   }

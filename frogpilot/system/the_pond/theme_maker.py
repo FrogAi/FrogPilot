@@ -16,7 +16,8 @@ from aiohttp import web
 from PIL import Image
 
 from openpilot.frogpilot.assets.theme_manager import THEME_PACK_COMPONENTS, WHEEL_EXTENSIONS, ThemeManager
-from openpilot.frogpilot.common import frogpilot_api, frogpilot_utilities, frogpilot_variables
+from openpilot.frogpilot.common import frogpilot_paths, frogpilot_utilities, frogpilot_variables
+from openpilot.frogpilot.common.frogpilot_api import FrogPilotAPI, FrogPilotAPIError
 from openpilot.frogpilot.system.the_pond import utilities
 
 GIF_APPLICATION = 0xFF
@@ -77,7 +78,7 @@ def get_user_theme(request):
 
 
 def get_no_wheel(key):
-  return frogpilot_variables.THEME_PACKS_PATH / key / WHEEL_FOLDER / WHEEL_NONE
+  return frogpilot_paths.THEME_PACKS_PATH / key / WHEEL_FOLDER / WHEEL_NONE
 
 
 def mark_no_wheel(key):
@@ -87,7 +88,7 @@ def mark_no_wheel(key):
 
 
 def get_wheel(key):
-  return next((path for path in frogpilot_variables.STEERING_WHEELS_PATH.glob(f"{key}.*") if path.suffix in WHEEL_EXTENSIONS), None)
+  return next((path for path in frogpilot_paths.STEERING_WHEELS_PATH.glob(f"{key}.*") if path.suffix in WHEEL_EXTENSIONS), None)
 
 
 def get_wheel_param(key):
@@ -99,7 +100,7 @@ def get_wheel_param(key):
 
 
 def theme_exists(key):
-  return (frogpilot_variables.THEME_PACKS_PATH / key).is_dir() or get_wheel(key) is not None
+  return (frogpilot_paths.THEME_PACKS_PATH / key).is_dir() or get_wheel(key) is not None
 
 
 def is_selected(params, key):
@@ -291,7 +292,7 @@ async def convert_sound(the_pond, data, path):
 
 
 async def edit_component(the_pond, key, component, change):
-  destination = frogpilot_variables.THEME_PACKS_PATH / key / component
+  destination = frogpilot_paths.THEME_PACKS_PATH / key / component
   staging = destination.with_name(f".{component}.new")
   backup = destination.with_name(f".{component}.old")
 
@@ -317,11 +318,11 @@ async def edit_component(the_pond, key, component, change):
 
 def get_source_files(component, source):
   if source == "active":
-    folder = frogpilot_variables.ACTIVE_THEME_PATH / component
+    folder = frogpilot_paths.ACTIVE_THEME_PATH / component
   else:
     folder = ThemeManager.get_theme_asset_path(component, source)
 
-  if not folder.is_dir() or folder.resolve() == (frogpilot_variables.STOCK_THEME_PATH / component).resolve():
+  if not folder.is_dir() or folder.resolve() == (frogpilot_paths.STOCK_THEME_PATH / component).resolve():
     return []
   return [path for path in folder.iterdir() if path.is_file() and is_theme_file(component, path.name)]
 
@@ -330,21 +331,21 @@ def copy_theme(source, key):
   for component in THEME_PACK_COMPONENTS:
     files = get_source_files(component, source)
     if files:
-      destination = frogpilot_variables.THEME_PACKS_PATH / key / component
+      destination = frogpilot_paths.THEME_PACKS_PATH / key / component
       destination.mkdir(parents=True, exist_ok=True)
       for path in files:
         shutil.copyfile(path, destination / path.name)
 
   if source == "active":
-    wheel = next(iter((frogpilot_variables.ACTIVE_THEME_PATH / WHEEL_FOLDER).glob("wheel.*")), None)
+    wheel = next(iter((frogpilot_paths.ACTIVE_THEME_PATH / WHEEL_FOLDER).glob("wheel.*")), None)
   elif source != "none":
     wheel = ThemeManager.get_wheel_path(source)
   else:
     wheel = None
 
-  if wheel is not None and wheel.resolve().parent != (frogpilot_variables.STOCK_THEME_PATH / WHEEL_FOLDER).resolve():
-    frogpilot_variables.STEERING_WHEELS_PATH.mkdir(parents=True, exist_ok=True)
-    shutil.copyfile(wheel, frogpilot_variables.STEERING_WHEELS_PATH / f"{key}{wheel.suffix}")
+  if wheel is not None and wheel.resolve().parent != (frogpilot_paths.STOCK_THEME_PATH / WHEEL_FOLDER).resolve():
+    frogpilot_paths.STEERING_WHEELS_PATH.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(wheel, frogpilot_paths.STEERING_WHEELS_PATH / f"{key}{wheel.suffix}")
   elif wheel is None and (source == "active" or get_no_wheel(source).is_file()):
     mark_no_wheel(key)
 
@@ -353,7 +354,7 @@ def build_export(key):
   archive = io.BytesIO()
   with zipfile.ZipFile(archive, "w", zipfile.ZIP_DEFLATED) as theme_zip:
     for component in THEME_PACK_COMPONENTS:
-      folder = frogpilot_variables.THEME_PACKS_PATH / key / component
+      folder = frogpilot_paths.THEME_PACKS_PATH / key / component
       if folder.is_dir():
         for path in sorted(folder.iterdir()):
           theme_zip.write(path, f"{component}/{path.name}")
@@ -369,7 +370,7 @@ def build_export(key):
 def build_submission(key):
   assets = {}
   for component in THEME_PACK_COMPONENTS:
-    folder = frogpilot_variables.THEME_PACKS_PATH / key / component
+    folder = frogpilot_paths.THEME_PACKS_PATH / key / component
     if folder.is_dir() and any(folder.iterdir()):
       archive = io.BytesIO()
       with zipfile.ZipFile(archive, "w", zipfile.ZIP_DEFLATED) as component_zip:
@@ -385,13 +386,13 @@ def build_submission(key):
 
 
 def submit_theme(params, theme_name, discord_username, assets):
-  api = frogpilot_api.FrogPilotAPI(params)
+  frogpilot_api = FrogPilotAPI(params)
 
   manifest = []
   for kind, (content_type, data) in sorted(assets.items()):
     manifest.append({"content_type": content_type, "kind": kind, "sha256": hashlib.sha256(data).hexdigest(), "size_bytes": len(data)})
 
-  submission = api.post_json("/v1/theme-submissions", {
+  submission = frogpilot_api.post_json("/v1/theme-submissions", {
     "assets": manifest,
     "client_submission_id": str(uuid.uuid4()),
     "discord_username": discord_username,
@@ -403,10 +404,10 @@ def submit_theme(params, theme_name, discord_username, assets):
   for asset in submission["assets"]:
     data = assets[asset["kind"]][1]
     if "upload" in asset:
-      api.put_upload(asset["upload"], data, f"Theme {asset['kind']}", "theme_submission")
+      frogpilot_api.put_upload(asset["upload"], data, f"Theme {asset['kind']}", "theme_submission")
     completed_assets.append({"asset_id": asset["asset_id"], "sha256": hashlib.sha256(data).hexdigest(), "size_bytes": len(data)})
 
-  api.post_json(f"/v1/theme-submissions/{submission['submission_id']}/complete", {"assets": completed_assets, "schema_version": 1})
+  frogpilot_api.post_json(f"/v1/theme-submissions/{submission['submission_id']}/complete", {"assets": completed_assets, "schema_version": 1})
   return submission["submission_id"]
 
 
@@ -432,7 +433,7 @@ async def apply_theme(request):
   for component, param in frogpilot_variables.THEME_PARAMS.items():
     if component == "steering_wheels":
       the_pond.params.put(param, get_wheel_param(key))
-    elif (frogpilot_variables.THEME_PACKS_PATH / key / component).is_dir():
+    elif (frogpilot_paths.THEME_PACKS_PATH / key / component).is_dir():
       the_pond.params.put(param, key)
     else:
       the_pond.params.put(param, "stock")
@@ -479,7 +480,7 @@ async def create_theme(request):
   if source is not None and source != "active" and source not in frogpilot_variables.BUILTIN_THEMES and not theme_exists(source):
     raise web.HTTPBadRequest(text="invalid_source")
 
-  (frogpilot_variables.THEME_PACKS_PATH / key).mkdir(parents=True)
+  (frogpilot_paths.THEME_PACKS_PATH / key).mkdir(parents=True)
   if source is not None:
     await asyncio.to_thread(copy_theme, source, key)
   return web.json_response({"key": key})
@@ -492,7 +493,7 @@ async def delete_theme(request):
   if is_selected(the_pond.params, key):
     raise web.HTTPConflict(text="in_use")
 
-  await asyncio.to_thread(shutil.rmtree, frogpilot_variables.THEME_PACKS_PATH / key, True)
+  await asyncio.to_thread(shutil.rmtree, frogpilot_paths.THEME_PACKS_PATH / key, True)
   wheel = get_wheel(key)
   if wheel is not None:
     wheel.unlink()
@@ -512,7 +513,7 @@ async def delete_component(request):
       wheel.unlink()
     get_no_wheel(key).unlink(missing_ok=True)
   elif component in THEME_PACK_COMPONENTS:
-    destination = frogpilot_variables.THEME_PACKS_PATH / key / component
+    destination = frogpilot_paths.THEME_PACKS_PATH / key / component
     async with the_pond.file_locks.setdefault(destination, asyncio.Lock()):
       await asyncio.to_thread(shutil.rmtree, destination, True)
   else:
@@ -546,14 +547,14 @@ async def duplicate_theme(request):
   key = get_user_theme(request)
   new_key = get_theme_key((await utilities.read_json(request)).get("name"))
 
-  (frogpilot_variables.THEME_PACKS_PATH / new_key).mkdir(parents=True)
+  (frogpilot_paths.THEME_PACKS_PATH / new_key).mkdir(parents=True)
   await asyncio.to_thread(copy_theme, key, new_key)
   return web.json_response({"key": new_key})
 
 
 @routes.get("/api/user_themes")
 async def get_user_themes(request):
-  no_wheel = [path.parent.parent.name for path in frogpilot_variables.THEME_PACKS_PATH.glob(f"*/{WHEEL_FOLDER}/{WHEEL_NONE}")]
+  no_wheel = [path.parent.parent.name for path in frogpilot_paths.THEME_PACKS_PATH.glob(f"*/{WHEEL_FOLDER}/{WHEEL_NONE}")]
 
   return web.json_response({
     "limits": {
@@ -591,13 +592,13 @@ async def import_theme(request):
     if (component, name) == (WHEEL_FOLDER, WHEEL_NONE):
       mark_no_wheel(key)
     elif component == WHEEL_FOLDER:
-      frogpilot_variables.STEERING_WHEELS_PATH.mkdir(parents=True, exist_ok=True)
-      (frogpilot_variables.STEERING_WHEELS_PATH / f"{key}{name.removeprefix('wheel')}").write_bytes(data)
+      frogpilot_paths.STEERING_WHEELS_PATH.mkdir(parents=True, exist_ok=True)
+      (frogpilot_paths.STEERING_WHEELS_PATH / f"{key}{name.removeprefix('wheel')}").write_bytes(data)
     else:
-      destination = frogpilot_variables.THEME_PACKS_PATH / key / component
+      destination = frogpilot_paths.THEME_PACKS_PATH / key / component
       destination.mkdir(parents=True, exist_ok=True)
       (destination / name).write_bytes(data)
-  (frogpilot_variables.THEME_PACKS_PATH / key).mkdir(parents=True, exist_ok=True)
+  (frogpilot_paths.THEME_PACKS_PATH / key).mkdir(parents=True, exist_ok=True)
   return web.json_response({"key": key})
 
 
@@ -607,8 +608,8 @@ async def rename_theme(request):
   key = get_user_theme(request)
   new_key = get_theme_key((await utilities.read_json(request)).get("name"))
 
-  if (frogpilot_variables.THEME_PACKS_PATH / key).is_dir():
-    (frogpilot_variables.THEME_PACKS_PATH / key).rename(frogpilot_variables.THEME_PACKS_PATH / new_key)
+  if (frogpilot_paths.THEME_PACKS_PATH / key).is_dir():
+    (frogpilot_paths.THEME_PACKS_PATH / key).rename(frogpilot_paths.THEME_PACKS_PATH / new_key)
 
   wheel = get_wheel(key)
   if wheel is not None:
@@ -685,11 +686,11 @@ async def set_wheel(request):
   key = get_user_theme(request)
   extension, data = read_image(await read_upload(request))
 
-  frogpilot_variables.STEERING_WHEELS_PATH.mkdir(parents=True, exist_ok=True)
+  frogpilot_paths.STEERING_WHEELS_PATH.mkdir(parents=True, exist_ok=True)
   wheel = get_wheel(key)
   if wheel is not None:
     wheel.unlink()
-  (frogpilot_variables.STEERING_WHEELS_PATH / f"{key}{extension}").write_bytes(data)
+  (frogpilot_paths.STEERING_WHEELS_PATH / f"{key}{extension}").write_bytes(data)
   get_no_wheel(key).unlink(missing_ok=True)
 
   refresh_if_selected(the_pond, key)
@@ -755,7 +756,7 @@ async def submit_theme_route(request):
   theme_name = utilities.format_theme_name(key.removesuffix(frogpilot_variables.USER_CREATED_THEME_SUFFIX), False)
   try:
     submission_id = await asyncio.to_thread(submit_theme, the_pond.params, theme_name, discord_username.strip(), assets)
-  except frogpilot_api.FrogPilotAPIError:
+  except FrogPilotAPIError:
     raise web.HTTPBadGateway(text="submission_failed") from None
 
   the_pond.params.put("DiscordUsername", discord_username.strip())

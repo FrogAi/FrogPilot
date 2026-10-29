@@ -5,6 +5,8 @@ from datetime import datetime, timedelta, UTC
 from openpilot.system.hardware.hw import Paths
 from openpilot.system.version import get_version
 
+from openpilot.frogpilot.common import frogpilot_paths
+
 API_HOST = os.getenv('API_HOST', 'https://api.commadotai.com')
 
 # FrogPilot variables
@@ -56,7 +58,7 @@ def api_get(endpoint, method='GET', timeout=None, access_token=None, session=Non
   req = requests if session is None else session
 
   # FrogPilot variables
-  host = KONIK_API_HOST if os.path.isfile('/cache/use_konik') else API_HOST
+  host = KONIK_API_HOST if frogpilot_paths.KONIK_PATH.is_file() else API_HOST
 
   return req.request(method, host + "/" + endpoint, timeout=timeout, headers=headers, params=params)
 

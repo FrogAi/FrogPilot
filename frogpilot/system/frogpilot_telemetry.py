@@ -22,14 +22,11 @@ from openpilot.system import sentry
 from openpilot.system.loggerd.uploader import listdir_by_creation
 from openpilot.system.loggerd.xattr_cache import getxattr, setxattr
 
-from openpilot.frogpilot.common import frogpilot_api, frogpilot_utilities, frogpilot_variables
+from openpilot.frogpilot.common import frogpilot_api, frogpilot_paths, frogpilot_utilities, frogpilot_variables
 
 MAX_LOG_SIZE = 256 * 1024 * 1024
 
 SCHEMA_FILES = ("car.capnp", "custom.capnp", "include/c++.capnp", "legacy.capnp", "log.capnp")
-SCHEMAS_PATH = Path("/data/telemetry_schemas")
-
-UPLOAD_DONE = b"done"
 
 EXCLUDED_MESSAGE_TYPES = frozenset((
   "androidLog",
@@ -84,7 +81,7 @@ REMOVED_FIELDS = {
 
 REPLACEMENT_FIELDS = {
   "carControl": {"orientationNED.2": 0},
-  "frogpilotPlan": {"gpsBearing": 0, "slcMapboxWayId": 0},
+  "frogpilotPlan": {"gpsBearing": 0},
   "gpsLocation": {"altitude": 0, "bearingDeg": 0, "latitude": 0, "longitude": 0, "unixTimestampMillis": 0, "vNED": []},
   "gpsLocationExternal": {"altitude": 0, "bearingDeg": 0, "latitude": 0, "longitude": 0, "unixTimestampMillis": 0, "vNED": []},
   "livePose": {"orientationNED.z": 0},
@@ -174,9 +171,9 @@ class FrogPilotTelemetry:
     self.git_commit = self.params.get("GitCommit")
     self.schemas = {self.git_commit: log}
 
-    schema_path = SCHEMAS_PATH / self.git_commit
+    schema_path = frogpilot_paths.TELEMETRY_SCHEMAS_PATH / self.git_commit
     if not schema_path.is_dir():
-      staging_path = SCHEMAS_PATH / f".{self.git_commit}"
+      staging_path = frogpilot_paths.TELEMETRY_SCHEMAS_PATH / f".{self.git_commit}"
       for name in SCHEMA_FILES:
         (staging_path / name).parent.mkdir(parents=True, exist_ok=True)
         shutil.copy(Path(CEREAL_PATH, name), staging_path / name)
@@ -197,13 +194,13 @@ class FrogPilotTelemetry:
     self.first_segment = None
 
     if self.route is not None:
-      for log_root in frogpilot_variables.LOG_ROOTS:
+      for log_root in frogpilot_paths.LOG_ROOTS:
         for lock_path in log_root.glob(f"{self.route}--*/rlog.lock"):
           self.first_segment = int(lock_path.parent.name.rpartition("--")[2]) + 1
 
   def mark_shared_logs(self):
     if self.route is not None and self.first_segment is not None:
-      for log_root in frogpilot_variables.LOG_ROOTS:
+      for log_root in frogpilot_paths.LOG_ROOTS:
         for segment_path in log_root.glob(f"{self.route}--*"):
           if (segment_path / "rlog.lock").exists():
             continue
@@ -221,8 +218,8 @@ class FrogPilotTelemetry:
       self.first_segment = 0
 
   def pending(self):
-    paths = [Path(log_root, segment) for log_root in frogpilot_variables.LOG_ROOTS for segment in listdir_by_creation(log_root)]
-    paths += sorted(frogpilot_variables.SPEED_LIMIT_CAPTURES_PATH.glob("*.hevc"))
+    paths = [Path(log_root, segment) for log_root in frogpilot_paths.LOG_ROOTS for segment in listdir_by_creation(log_root)]
+    paths += sorted(frogpilot_paths.SPEED_LIMIT_CAPTURES_PATH.glob("*.hevc"))
 
     for path in paths:
       if frogpilot_utilities.has_pending_telemetry(path):
@@ -230,7 +227,7 @@ class FrogPilotTelemetry:
 
   def schema(self, git_commit):
     if git_commit not in self.schemas:
-      schema_path = SCHEMAS_PATH / git_commit / "log.capnp"
+      schema_path = frogpilot_paths.TELEMETRY_SCHEMAS_PATH / git_commit / "log.capnp"
       self.schemas[git_commit] = capnp.SchemaParser().load(str(schema_path), imports=[str(schema_path.parent)])
     return self.schemas[git_commit]
 
@@ -305,9 +302,12 @@ class FrogPilotTelemetry:
         path.unlink()
         path.with_suffix(".json").unlink()
       else:
-        setxattr(path, frogpilot_variables.UPLOAD_ATTR_NAME, UPLOAD_DONE)
+        try:
+          setxattr(path, frogpilot_variables.UPLOAD_ATTR_NAME, frogpilot_variables.UPLOAD_DONE)
+        except FileNotFoundError:
+          pass
 
-    for schema_path in SCHEMAS_PATH.iterdir():
+    for schema_path in frogpilot_paths.TELEMETRY_SCHEMAS_PATH.iterdir():
       if schema_path.name != self.git_commit:
         shutil.rmtree(schema_path)
 

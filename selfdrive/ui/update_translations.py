@@ -5,11 +5,9 @@ import os
 
 from openpilot.common.basedir import BASEDIR
 
+from openpilot.frogpilot.common import frogpilot_paths
+
 UI_DIR = os.path.join(BASEDIR, "selfdrive", "ui")
-
-# FrogPilot variables
-FROGPILOT_UI_DIR = os.path.join(BASEDIR, "frogpilot", "ui")
-
 TRANSLATIONS_DIR = os.path.join(UI_DIR, "translations")
 LANGUAGES_FILE = os.path.join(TRANSLATIONS_DIR, "languages.json")
 TRANSLATIONS_INCLUDE_FILE = os.path.join(TRANSLATIONS_DIR, "alerts_generated.h")
@@ -35,7 +33,7 @@ def update_translations(vanish: bool = False, translation_files: None | list[str
 
   for file in translation_files:
     tr_file = os.path.join(translations_dir, f"{file}.ts")
-    args = f"lupdate -locations none -recursive {UI_DIR} {FROGPILOT_UI_DIR} -ts {tr_file} -I {BASEDIR}"
+    args = f"lupdate -locations none -recursive {UI_DIR} {frogpilot_paths.FROGPILOT_UI_DIR} -ts {tr_file} -I {BASEDIR}"
     if vanish:
       args += " -no-obsolete"
     if file in PLURAL_ONLY:

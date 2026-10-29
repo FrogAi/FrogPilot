@@ -5,12 +5,12 @@ import requests
 import tarfile
 import threading
 
-from openpilot.frogpilot.common import frogpilot_download_utilities, frogpilot_utilities, frogpilot_variables
+from openpilot.frogpilot.common import frogpilot_download_utilities, frogpilot_paths, frogpilot_utilities, frogpilot_variables
 
 ARCHIVE_SIZE_FILE = "archive_size"
 
 def model_url(repo_url, file_name):
-  return f"{repo_url}/Models/{frogpilot_variables.MODELS_FOLDER}/{file_name}"
+  return f"{repo_url}/Models/{frogpilot_paths.MODELS_FOLDER}/{file_name}"
 
 
 class ModelManager:
@@ -26,11 +26,11 @@ class ModelManager:
     self.session = requests.Session()
 
   def download_model(self, model_id, repo_url):
-    archive_path = frogpilot_variables.MODELS_PATH / f"{model_id}.tar"
+    archive_path = frogpilot_paths.MODELS_PATH / f"{model_id}.tar"
     if frogpilot_download_utilities.download_file(archive_path, self.download_state, self.session, model_url(repo_url, f"{model_id}.tar")) is None:
       return False
 
-    extract_path = frogpilot_variables.MODELS_PATH / f"{model_id}.tmp"
+    extract_path = frogpilot_paths.MODELS_PATH / f"{model_id}.tmp"
     frogpilot_utilities.delete_path(extract_path)
     with tarfile.open(archive_path) as archive:
       archive.extractall(extract_path, filter="data")
@@ -38,13 +38,13 @@ class ModelManager:
     archive_path.unlink()
 
     os.sync()
-    extract_path.rename(frogpilot_variables.MODELS_PATH / model_id)
+    extract_path.rename(frogpilot_paths.MODELS_PATH / model_id)
     self.models_updated = True
     return True
 
   def download_models(self, model_ids, finished_message):
     for model_id in model_ids:
-      if (frogpilot_variables.MODELS_PATH / model_id).is_dir():
+      if (frogpilot_paths.MODELS_PATH / model_id).is_dir():
         continue
 
       for repo_url in frogpilot_variables.RESOURCE_REPOSITORY_URLS:
@@ -61,10 +61,10 @@ class ModelManager:
     self.download_state.progress = finished_message
 
   def downloaded_models(self):
-    return [model["id"] for model in frogpilot_variables.get_models() if (frogpilot_variables.MODELS_PATH / model["id"]).is_dir()]
+    return [model["id"] for model in frogpilot_variables.get_models() if (frogpilot_paths.MODELS_PATH / model["id"]).is_dir()]
 
   def missing_models(self):
-    return [model["id"] for model in frogpilot_variables.get_models() if not (frogpilot_variables.MODELS_PATH / model["id"]).is_dir()]
+    return [model["id"] for model in frogpilot_variables.get_models() if not (frogpilot_paths.MODELS_PATH / model["id"]).is_dir()]
 
   def randomize_model(self, new_drive):
     blacklisted_models = self.params.get("BlacklistedModels").split(",")
@@ -89,13 +89,13 @@ class ModelManager:
       if remote_size == 0:
         continue
 
-      size_path = frogpilot_variables.MODELS_PATH / model_id / ARCHIVE_SIZE_FILE
+      size_path = frogpilot_paths.MODELS_PATH / model_id / ARCHIVE_SIZE_FILE
       if not size_path.is_file():
         size_path.write_text(str(remote_size))
       elif int(size_path.read_text()) != remote_size:
-        outdated_path = frogpilot_variables.MODELS_PATH / f"{model_id}.tmp"
+        outdated_path = frogpilot_paths.MODELS_PATH / f"{model_id}.tmp"
         frogpilot_utilities.delete_path(outdated_path)
-        (frogpilot_variables.MODELS_PATH / model_id).rename(outdated_path)
+        (frogpilot_paths.MODELS_PATH / model_id).rename(outdated_path)
         frogpilot_utilities.delete_path(outdated_path)
         self.models_updated = True
 
@@ -121,13 +121,13 @@ class ModelManager:
       models.append({"id": str(model["id"]), "lat_smooth_seconds": float(model["lat_smooth_seconds"]), "name": str(model["name"])})
 
     if models != frogpilot_variables.get_models():
-      frogpilot_variables.MODELS_PATH.mkdir(parents=True, exist_ok=True)
-      frogpilot_utilities.update_json_file(frogpilot_variables.MODELS_LIST_PATH, models)
+      frogpilot_paths.MODELS_PATH.mkdir(parents=True, exist_ok=True)
+      frogpilot_utilities.update_json_file(frogpilot_paths.MODELS_LIST_PATH, models)
       self.models_updated = True
 
     model_ids = {model["id"] for model in models}
-    for path in frogpilot_variables.MODELS_PATH.iterdir():
-      if path != frogpilot_variables.MODELS_LIST_PATH and path.name not in model_ids:
+    for path in frogpilot_paths.MODELS_PATH.iterdir():
+      if path != frogpilot_paths.MODELS_LIST_PATH and path.name not in model_ids:
         frogpilot_utilities.delete_path(path)
         self.models_updated = True
 

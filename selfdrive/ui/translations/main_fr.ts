@@ -119,7 +119,7 @@
         <translation>Empêcher les téléversements de données volumineuses lorsque vous utilisez une connexion Wi-Fi limitée</translation>
     </message>
     <message>
-        <source>Share your device's internet connection with other devices, either all the time or only while driving. Internet sharing only works on a paired device with comma prime lite or no comma prime.</source>
+        <source>Share your device's internet connection with other devices all the time, only while driving, or until the device reboots. Internet sharing only works on a paired device with comma prime lite or no comma prime.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -225,14 +225,14 @@
     </message>
     <message>
         <source>&lt;b&gt;Show the device temperature as a number in the sidebar instead of a word like "GOOD".&lt;/b&gt;&lt;br&gt;&lt;br&gt;Useful for spotting the device getting hot before it slows itself down.</source>
-        <translation>&lt;b&gt;Affichez la température de l'appareil sous forme numérique dans la barre latérale au lieu d'un mot comme « BONNE ».&lt;/b&gt;&lt;br&gt;&lt;br&gt;Utile pour repérer une surchauffe avant que l'appareil ne réduise ses performances.</translation>
+        <translation>&lt;b&gt;Affichez la température de l'appareil sous forme numérique dans la barre latérale au lieu d'un mot comme « BON ».&lt;/b&gt;&lt;br&gt;&lt;br&gt;Utile pour repérer une surchauffe avant que l'appareil ne réduise ses performances.</translation>
     </message>
     <message>
         <source>Sidebar Metrics</source>
-        <translation>Mesures de la barre latérale</translation>
+        <translation>Mesures latérales</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Fill the sidebar with how hard the device is working, how much storage is left and its IP address.&lt;/b&gt;&lt;br&gt;&lt;br&gt;They take the place of the vehicle, connection and signal indicators normally shown there.&lt;br&gt;&lt;br&gt;CPU and GPU cannot both be on, and RAM, SSD Left and SSD Used are one at a time, so picking one clears the other.</source>
+        <source>&lt;b&gt;Fill the sidebar with how hard the device is working, how much storage is left, and its IP address.&lt;/b&gt;&lt;br&gt;&lt;br&gt;They take the place of the vehicle, connection, and signal indicators normally shown there.&lt;br&gt;&lt;br&gt;CPU and GPU cannot both be on, and RAM, SSD Left, and SSD Used are one at a time, so picking one clears the other.</source>
         <translation>&lt;b&gt;Remplissez la barre latérale avec la charge de l'appareil, l'espace de stockage restant et son adresse IP.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Ces données remplacent les indicateurs de véhicule, de connexion et de signal normalement affichés.&lt;br&gt;&lt;br&gt;CPU et GPU ne peuvent pas être activés simultanément. RAM, SSD libre et SSD utilisé sont également mutuellement exclusifs : en choisir un désactive l'autre.</translation>
     </message>
     <message>
@@ -252,7 +252,7 @@
         <translation>Mesure nº 1</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Choose what the first slot in the developer sidebar shows.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The list covers steering, acceleration, engagement and auto-tune readouts. Every slot starts already filled in, and picking "None" closes the gap rather than leaving a hole.</source>
+        <source>&lt;b&gt;Choose what the first slot in the developer sidebar shows.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The list covers steering, acceleration, engagement, and auto-tune readouts. Every slot starts already filled in, and picking "None" closes the gap rather than leaving a hole.</source>
         <translation>&lt;b&gt;Choisissez la mesure affichée dans le premier emplacement de la barre latérale de développement.&lt;/b&gt;&lt;br&gt;&lt;br&gt;La liste comprend des données de direction, d'accélération, d'activation et d'auto-réglage. Chaque emplacement est initialement rempli ; choisir « Aucune » referme l'espace au lieu de laisser un vide.</translation>
     </message>
     <message>
@@ -324,15 +324,11 @@
         <translation>Point d'arrêt du modèle</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Drop a stop sign on the road where openpilot is planning to come to a stop.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It only marks stops openpilot works out for itself, so it stays away when openpilot is slowing for a car ahead, and "Traffic Mode" switches it off entirely.</source>
-        <translation>&lt;b&gt;Placez un panneau stop sur la route à l'endroit où openpilot prévoit de s'arrêter.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Seuls les arrêts calculés par openpilot lui-même sont indiqués. Aucun panneau n'apparaît lorsqu'il ralentit pour un véhicule précédent, et le « Mode trafic » désactive entièrement cet affichage.</translation>
-    </message>
-    <message>
         <source>Radar Tracks</source>
         <translation>Pistes radar</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Show every object your car's radar is returning, not just the car you are following.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Expect a lot of dots, including signs, barriers and parked cars.</source>
+        <source>&lt;b&gt;Show every object your car's radar is returning, not just the car you are following.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Expect a lot of dots, including signs, barriers, and parked cars.</source>
         <translation>&lt;b&gt;Affichez tous les objets renvoyés par le radar du véhicule, pas seulement celui que vous suivez.&lt;/b&gt;&lt;br&gt;&lt;br&gt;De nombreux points apparaîtront, notamment des panneaux, des barrières et des véhicules stationnés.</translation>
     </message>
     <message>
@@ -441,7 +437,7 @@
     </message>
     <message>
         <source>SELECT</source>
-        <translation>SÉLECTIONNER</translation>
+        <translation>CHOISIR</translation>
     </message>
     <message>
         <source>Select a metric to display</source>
@@ -452,7 +448,7 @@
         <translation>Afficher la distance</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Colour the edge of the driving screen to show what openpilot is reacting to.&lt;/b&gt;&lt;br&gt;&lt;br&gt;You can switch on the blind spot, steering effort and turn signal borders separately. The blind spot one only appears on cars with factory blind spot monitoring, and the steering effort one only appears on cars where openpilot sends a steering effort rather than a steering angle.</source>
+        <source>&lt;b&gt;Color the edge of the driving screen to show what openpilot is reacting to.&lt;/b&gt;&lt;br&gt;&lt;br&gt;You can switch on the blind spot, steering effort, and turn signal borders separately. The blind spot one only appears on cars with factory blind spot monitoring, and the steering effort one only appears on cars where openpilot sends a steering effort rather than a steering angle.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -461,6 +457,10 @@
     </message>
     <message>
         <source>&lt;b&gt;Add a second sidebar down the right-hand side, holding up to seven readouts you pick yourself.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It makes the camera view narrower, so it is worth turning off when you are not using it. Setting all seven to "None" leaves the bar there but empty.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Drop a stop sign on the road where openpilot is planning to come to a stop.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It only marks stops openpilot works out for itself, so it stays away when openpilot is slowing for a car ahead, and "Traffic Mode" switches it off entirely. "Show Distance" also prints how far away that stop is.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -859,17 +859,19 @@ Le Mode Firehose vous permet de maximiser vos envois de données d'entraînement
         <source>Desired: %1</source>
         <translation>Cible : %1</translation>
     </message>
-    <message>
-        <source>1 minute</source>
-        <translation>1 minute</translation>
+    <message numerus="yes">
+        <source>%n minute(s)</source>
+        <translation>
+            <numerusform>%n minute</numerusform>
+            <numerusform>%n minutes</numerusform>
+        </translation>
     </message>
-    <message>
-        <source>%1 minutes</source>
-        <translation>%1 minutes</translation>
-    </message>
-    <message>
-        <source>1 second</source>
-        <translation>1 seconde</translation>
+    <message numerus="yes">
+        <source>%n second(s)</source>
+        <translation>
+            <numerusform>%n seconde</numerusform>
+            <numerusform>%n secondes</numerusform>
+        </translation>
     </message>
     <message>
         <source>%1 seconds</source>
@@ -925,7 +927,7 @@ Le Mode Firehose vous permet de maximiser vos envois de données d'entraînement
     </message>
     <message>
         <source>N/A</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">N/A</translation>
     </message>
     <message>
         <source>Camera</source>
@@ -933,11 +935,11 @@ Le Mode Firehose vous permet de maximiser vos envois de données d'entraînement
     </message>
     <message>
         <source>Dashboard</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Tableau de bord</translation>
     </message>
     <message>
         <source>Map Data</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Données cartographiques</translation>
     </message>
     <message>
         <source>Mapbox</source>
@@ -946,6 +948,11 @@ Le Mode Firehose vous permet de maximiser vos envois de données d'entraînement
     <message>
         <source>Upcoming</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>LIMIT</source>
+        <comment>speed limit sign, line under SPEED</comment>
+        <translation type="unfinished">LIMITE</translation>
     </message>
 </context>
 <context>
@@ -1339,7 +1346,7 @@ Le Mode Firehose vous permet de maximiser vos envois de données d'entraînement
     </message>
     <message>
         <source>Settings Backups</source>
-        <translation>Sauvegardes des réglages</translation>
+        <translation>Copies des réglages</translation>
     </message>
     <message>
         <source>Delete all settings backups? This includes the copies FrogPilot saves automatically.</source>
@@ -1347,7 +1354,7 @@ Le Mode Firehose vous permet de maximiser vos envois de données d'entraînement
     </message>
     <message>
         <source>&lt;b&gt;See everything FrogPilot has tracked about your driving, or reset the numbers and start over.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Stats can only be reset while the car is off.</source>
-        <translation>&lt;b&gt;Consultez toutes les données de conduite suivies par FrogPilot ou remettez les compteurs à zéro.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Les statistiques ne peuvent être réinitialisées que lorsque le véhicule est à l'arrêt.</translation>
+        <translation>&lt;b&gt;Consultez toutes les données de conduite suivies par FrogPilot ou remettez les compteurs à zéro.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Les statistiques ne peuvent être réinitialisées que lorsque le contact est coupé.</translation>
     </message>
     <message>
         <source>Stats can't be reset while the car is on. Turn the car off and try again.</source>
@@ -1390,10 +1397,6 @@ Le Mode Firehose vous permet de maximiser vos envois de données d'entraînement
         <translation>Temps de conduite (météo) :</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Delete every recorded drive to free up space and clear personal footage off the device.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Only the one-minute chunk of footage containing the moment you flagged is kept, not the rest of that drive, and preserving a drive in "The Pond" keeps it the same one minute at a time.</source>
-        <translation>&lt;b&gt;Supprimez chaque trajet en voiture enregistré pour libérer de l'espace et effacer les séquences personnelles de l'appareil.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Seule la séquence d'une minute contenant le moment que vous avez signalé est conservée, pas le reste de ce trajet en voiture, et la conservation d'un trajet en voiture dans "The Pond" le conserve une minute à la fois.</translation>
-    </message>
-    <message>
         <source>That name can't be used. Names can only use letters, numbers, dashes, periods, and underscores.</source>
         <translation>Ce nom ne peut pas être utilisé. Les noms ne peuvent utiliser que des lettres, des chiffres, des tirets, des points et des traits de soulignement.</translation>
     </message>
@@ -1431,10 +1434,6 @@ Le Mode Firehose vous permet de maximiser vos envois de données d'entraînement
     </message>
     <message>
         <source>%1 %2%3, %4 (%5)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Delete all driving footage and data? Only the flagged and preserved one-minute chunks will be kept.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1487,7 +1486,7 @@ Le Mode Firehose vous permet de maximiser vos envois de données d'entraînement
     </message>
     <message>
         <source>Drives</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Trajets</translation>
     </message>
     <message>
         <source>Frog Squeaks</source>
@@ -1499,15 +1498,15 @@ Le Mode Firehose vous permet de maximiser vos envois de données d'entraînement
     </message>
     <message>
         <source>Aggressive</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Agressif</translation>
     </message>
     <message>
         <source>Relaxed</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Détendu</translation>
     </message>
     <message>
         <source>Standard</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Standard</translation>
     </message>
     <message>
         <source>Clear</source>
@@ -1515,11 +1514,11 @@ Le Mode Firehose vous permet de maximiser vos envois de données d'entraînement
     </message>
     <message>
         <source>Low Visibility</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Faible visibilité</translation>
     </message>
     <message>
         <source>Rain</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Pluie</translation>
     </message>
     <message>
         <source>Rain Storm</source>
@@ -1527,10 +1526,30 @@ Le Mode Firehose vous permet de maximiser vos envois de données d'entraînement
     </message>
     <message>
         <source>Snow</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Neige</translation>
     </message>
     <message>
         <source>% of %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Delete every recorded drive to free up space and clear personal footage off the device.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Only the one-minute chunk of footage containing the moment you flagged is kept, not the rest of that drive. Drives preserved in "The Pond" are kept whole.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete all driving footage and data? Only the flagged one-minute chunks and the drives preserved in "The Pond" will be kept.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>An update check is running. Wait for it to finish and try again.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reboots when the car is off</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Total Time Tracked</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1574,7 +1593,7 @@ Le Mode Firehose vous permet de maximiser vos envois de données d'entraînement
     </message>
     <message>
         <source>Screen Brightness (Offroad)</source>
-        <translation>Luminosité de l'écran (à l'arrêt)</translation>
+        <translation>Luminosité de l'écran (contact coupé)</translation>
     </message>
     <message>
         <source>Screen Brightness (Onroad)</source>
@@ -1586,7 +1605,7 @@ Le Mode Firehose vous permet de maximiser vos envois de données d'entraînement
     </message>
     <message>
         <source>Screen Timeout (Offroad)</source>
-        <translation>Délai d'extinction de l'écran (à l'arrêt)</translation>
+        <translation>Délai d'extinction de l'écran (contact coupé)</translation>
     </message>
     <message>
         <source>Screen Timeout (Onroad)</source>
@@ -1641,20 +1660,12 @@ Le Mode Firehose vous permet de maximiser vos envois de données d'entraînement
         <translation>&lt;b&gt;Durée pendant laquelle l'appareil reste allumé après la fin de votre trajet avant de s'éteindre automatiquement.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Une durée plus courte sollicite moins la batterie du véhicule. Le réglage minimal est de 5 minutes.</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Stop the device from uploading your drives to "comma connect".&lt;/b&gt;&lt;br&gt;&lt;br&gt;Your drives are still saved on the device. comma uses uploads for debugging and official support, so turning this on limits the help they can give. "Disable Onroad Only" pauses uploads while you drive and lets them finish once you park, but only while the device is on Wi-Fi or Ethernet.</source>
-        <translation>&lt;b&gt;Empêchez l'appareil de téléverser vos trajets vers « comma connect ».&lt;/b&gt;&lt;br&gt;&lt;br&gt;Vos trajets restent enregistrés sur l'appareil. comma utilise les téléversements pour le diagnostic et l'assistance officielle ; activer cette option limite donc l'aide qu'ils peuvent fournir. « Seulement pendant la conduite » suspend les téléversements lorsque vous conduisez et les laisse se terminer une fois stationné, mais uniquement si l'appareil est connecté en Wi-Fi ou par Ethernet.</translation>
-    </message>
-    <message>
         <source>&lt;b&gt;Record your drives in higher video quality.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This row only appears once "Disable Uploads" is on and "Disable Onroad Only" is off, since the larger files are not meant to be uploaded. The device needs to reboot for it to take effect.</source>
         <translation>&lt;b&gt;Enregistrez vos trajets avec une meilleure qualité vidéo.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Cette option n'apparaît que lorsque « Désactiver les téléversements » est activé et « Seulement pendant la conduite » est désactivé, car les fichiers plus volumineux ne sont pas destinés à être téléversés. L'appareil doit redémarrer pour appliquer ce réglage.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Shut the device down when your car's battery drops below the voltage you pick.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This only happens while parked, and keeps the device from draining the battery too far to start the car.</source>
-        <translation>&lt;b&gt;Éteignez l'appareil lorsque la tension de la batterie du véhicule passe sous le seuil choisi.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Cela ne se produit qu'à l'arrêt et évite que l'appareil ne décharge la batterie au point d'empêcher le démarrage du véhicule.</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Upload your drives to "stable.konik.ai" instead of "connect.comma.ai".&lt;/b&gt;&lt;br&gt;&lt;br&gt;The device needs to reboot for this to take effect.</source>
-        <translation>&lt;b&gt;Téléversez vos trajets vers « stable.konik.ai » au lieu de « connect.comma.ai ».&lt;/b&gt;&lt;br&gt;&lt;br&gt;L'appareil doit redémarrer pour appliquer ce réglage.</translation>
+        <translation>&lt;b&gt;Éteignez l'appareil lorsque la tension de la batterie du véhicule passe sous le seuil choisi.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Cela ne se produit que lorsque le véhicule est garé et évite que l'appareil ne décharge la batterie au point d'empêcher le démarrage du véhicule.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Change how bright the screen is, how long it stays on, and whether you can record it.&lt;/b&gt;</source>
@@ -1694,7 +1705,7 @@ Le Mode Firehose vous permet de maximiser vos envois de données d'entraînement
     </message>
     <message>
         <source>Off</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Désactivé</translation>
     </message>
     <message>
         <source>30 seconds</source>
@@ -1706,7 +1717,7 @@ Le Mode Firehose vous permet de maximiser vos envois de données d'entraînement
     </message>
     <message>
         <source> minutes</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"> minutes</translation>
     </message>
     <message>
         <source>Start Recording</source>
@@ -1717,11 +1728,19 @@ Le Mode Firehose vous permet de maximiser vos envois de données d'entraînement
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&lt;b&gt;Stop the device from recording your drives.&lt;/b&gt;&lt;br&gt;&lt;br&gt;No driving logs or camera footage are saved, so you won't be able to review your drives later or send a useful bug report. Screen recordings and the device's own system logs are still saved.</source>
+        <source>&lt;b&gt;Stop the device from recording your drives.&lt;/b&gt;&lt;br&gt;&lt;br&gt;No driving logs or camera footage are saved, so you won't be able to review your drives later or send a useful bug report, and FrogPilot driving logs are no longer shared. Screen recordings, speed limit sign photos, and the device's own system logs are still saved.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&lt;b&gt;How bright the screen is while you're driving.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"Auto" matches the light around you, and "Screen Off" keeps the display dark until you tap it. A tap brightens anything below 5% to 5% until the screen times out.</source>
+        <source>&lt;b&gt;Stop the device from uploading your drives to "comma connect" or Konik and from sharing FrogPilot driving logs, speed limit sign clips, and learned speed limits.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Your drives are still saved on the device. comma uses uploads for debugging and official support, so turning this on limits the help they can give. Files that comma connect or Konik asks the device to upload, usage stats, device registration, crash reports, and weather and Mapbox lookups are not affected. "Disable Onroad Only" pauses uploads while you drive and lets them finish once you park, but only while the device is on Wi-Fi or Ethernet.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Upload your drives to "stable.konik.ai" instead of "connect.comma.ai".&lt;/b&gt;&lt;br&gt;&lt;br&gt;Device registration and remote access go through Konik too. Registering with Konik sends the device's IMEI and serial number. The device needs to reboot for this to take effect.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;How bright the screen is while you're driving.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"Auto" matches the light around you, and "Screen Off" keeps the display dark until you tap it, an alert shows, or openpilot engages or disengages. A tap or wake-up brightens anything below 5% to 5% until the screen times out.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1734,54 +1753,6 @@ Le Mode Firehose vous permet de maximiser vos envois de données d'entraînement
     <message>
         <source>Drive Summary</source>
         <translation>Résumé du trajet</translation>
-    </message>
-    <message>
-        <source>UwUs</source>
-        <translation>UwU</translation>
-    </message>
-    <message>
-        <source>Loch Ness Encounters</source>
-        <translation>Rencontres avec le monstre du Loch Ness</translation>
-    </message>
-    <message>
-        <source>Visits to 1955</source>
-        <translation>Visites en 1955</translation>
-    </message>
-    <message>
-        <source>Deja Vu Moments</source>
-        <translation>Moments de déjà-vu</translation>
-    </message>
-    <message>
-        <source>Internet Explorer Weeeeeeees</source>
-        <translation>« Weeeeeeee » d'Internet Explorer</translation>
-    </message>
-    <message>
-        <source>HAL 9000 Denials</source>
-        <translation>Refus de HAL 9000</translation>
-    </message>
-    <message>
-        <source>openpilot Crashes</source>
-        <translation>Plantages d'openpilot</translation>
-    </message>
-    <message>
-        <source>This Is Fine Moments</source>
-        <translation>Moments « Tout va bien »</translation>
-    </message>
-    <message>
-        <source>To Be Continued Moments</source>
-        <translation>Moments « À suivre »</translation>
-    </message>
-    <message>
-        <source>Noices</source>
-        <translation>« Noice »</translation>
-    </message>
-    <message>
-        <source>Attempted Frog Murders</source>
-        <translation>Tentatives de meurtre de grenouille</translation>
-    </message>
-    <message>
-        <source>Total Mail Received</source>
-        <translation>Nombre total de courriers reçus</translation>
     </message>
     <message>
         <source>% of Drive With openpilot Engaged</source>
@@ -1802,50 +1773,6 @@ Le Mode Firehose vous permet de maximiser vos envois de données d'entraînement
     <message>
         <source>No Random Events Played!</source>
         <translation>Aucun événement aléatoire n'a été déclenché !</translation>
-    </message>
-    <message>
-        <source> kilometer</source>
-        <translation> kilomètre</translation>
-    </message>
-    <message>
-        <source> kilometers</source>
-        <translation> kilomètres</translation>
-    </message>
-    <message>
-        <source> mile</source>
-        <translation> mile</translation>
-    </message>
-    <message>
-        <source> miles</source>
-        <translation> miles</translation>
-    </message>
-    <message>
-        <source> day </source>
-        <translation> jour </translation>
-    </message>
-    <message>
-        <source> days </source>
-        <translation> jours </translation>
-    </message>
-    <message>
-        <source> hour </source>
-        <translation> heure </translation>
-    </message>
-    <message>
-        <source> hours </source>
-        <translation> heures </translation>
-    </message>
-    <message>
-        <source> minute</source>
-        <translation> minute</translation>
-    </message>
-    <message>
-        <source> minutes</source>
-        <translation> minutes</translation>
-    </message>
-    <message>
-        <source>Goat Screams</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2063,10 +1990,6 @@ Le Mode Firehose vous permet de maximiser vos envois de données d'entraînement
         <translation>&lt;b&gt;Laissez openpilot calculer ses propres paramètres de direction sur un véhicule qui ne le fait pas automatiquement.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Les valeurs apprises par openpilot remplacent celles que vous avez définies ; les réglages correspondants disparaissent donc lorsque cette option est activée.</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Stop openpilot from working out its own steering values, and use the numbers you set instead.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Only offered on cars that normally tune themselves.</source>
-        <translation>&lt;b&gt;Empêchez openpilot de calculer ses propres paramètres de direction et utilisez les valeurs que vous avez définies.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Cette option n'est proposée que sur les véhicules qui se règlent normalement automatiquement.</translation>
-    </message>
-    <message>
         <source>&lt;b&gt;Switch openpilot to steering by effort instead of by wheel angle, which usually holds the lane more smoothly through curves.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Only offered on cars that don't already steer this way. Changing this while driving asks you to reboot.</source>
         <translation>&lt;b&gt;Faites contrôler la direction par openpilot en fonction de l'effort plutôt que de l'angle du volant, ce qui maintient généralement la voie plus régulièrement dans les virages.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Cette option n'est proposée que sur les véhicules qui n'utilisent pas déjà ce mode de contrôle. Toute modification pendant la conduite nécessitera un redémarrage.</translation>
     </message>
@@ -2076,7 +1999,7 @@ Le Mode Firehose vous permet de maximiser vos envois de données d'entraînement
     </message>
     <message>
         <source>&lt;b&gt;The slowest speed at which openpilot will change lanes for you.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Below this speed you steer into the lane change yourself. Set it to "Any speed" to let openpilot change lanes at any speed, but that also switches off "Steer Into Turns Below Lane Change Speed", which only ever runs below this number.</source>
-        <translation>&lt;b&gt;Vitesse minimale à laquelle openpilot effectuera un changement de voie pour vous.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Sous cette vitesse, vous devez vous-même diriger le véhicule pour changer de voie. Choisissez « Toute vitesse » pour autoriser openpilot à changer de voie à n'importe quelle vitesse ; cela désactive toutefois « Accompagner les virages sous la vitesse de changement de voie », qui ne fonctionne qu'en dessous de ce seuil.</translation>
+        <translation>&lt;b&gt;Vitesse minimale à laquelle openpilot effectuera un changement de voie pour vous.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Sous cette vitesse, vous devez vous-même diriger le véhicule pour changer de voie. Choisissez « Toute vitesse » pour autoriser openpilot à changer de voie à n'importe quelle vitesse ; cela désactive toutefois « Virages sous la vitesse de changement de voie », qui ne fonctionne qu'en dessous de ce seuil.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Only one lane change per turn signal.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Switch the signal off and back on to change lanes again. Lane changes you start yourself by pushing the wheel count toward this too.</source>
@@ -2084,19 +2007,11 @@ Le Mode Firehose vous permet de maximiser vos envois de données d'entraînement
     </message>
     <message>
         <source>Steer Into Turns Below Lane Change Speed</source>
-        <translation>Accompagner les virages sous la vitesse de changement de voie</translation>
+        <translation>Virages sous la vitesse de changement de voie</translation>
     </message>
     <message>
         <source>&lt;b&gt;With your turn signal on below your minimum lane change speed, openpilot steers with you into the turn instead of pulling back toward the lane you're leaving.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Use it for intersections and tight exit ramps, where openpilot normally works against your steering. You still choose where and when to turn.</source>
         <translation>&lt;b&gt;Lorsque le clignotant est activé sous la vitesse minimale de changement de voie, openpilot accompagne votre direction dans le virage au lieu de ramener le véhicule vers la voie que vous quittez.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Utilisez cette fonction aux intersections et sur les bretelles de sortie serrées, où openpilot s'oppose normalement à votre direction. Vous restez responsable du choix du lieu et du moment où tourner.</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;openpilot steers using a model trained on real driving data from cars like yours, which usually holds the lane more steadily and tracks curves more closely.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It only appears when a trained model matches your car. While it's on it takes over the "Friction" and "Lateral Acceleration" tuning, so those two rows disappear. Built by Twilsonco.</source>
-        <translation>&lt;b&gt;openpilot dirige le véhicule à l'aide d'un modèle entraîné sur des données réelles provenant de véhicules comme le vôtre, ce qui améliore généralement la stabilité dans la voie et le suivi des virages.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Cette option n'apparaît que si un modèle entraîné correspond à votre véhicule. Lorsqu'elle est activée, elle prend en charge les réglages « Frottement » et « Accélération latérale » ; ces deux lignes disparaissent donc. Développé par Twilsonco.</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;openpilot looks ahead at how sharply the road is about to bend and starts adjusting its steering early, which smooths how it enters and leaves curves.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Use this when the full "Neural Network Feedforward (NNFF)" setting isn't offered for your car. It borrows the look-ahead without the trained model, so the improvement is smaller.</source>
-        <translation>&lt;b&gt;openpilot anticipe la courbure de la route et commence à ajuster la direction plus tôt, ce qui adoucit l'entrée et la sortie des virages.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Utilisez cette option lorsque le réglage complet « Commande anticipée par réseau neuronal (NNFF) » n'est pas proposé pour votre véhicule. Elle reprend l'anticipation sans le modèle entraîné ; l'amélioration est donc plus limitée.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Hand the wheel back to yourself below a speed you set.&lt;/b&gt;</source>
@@ -2120,10 +2035,10 @@ Le Mode Firehose vous permet de maximiser vos envois de données d'entraînement
     </message>
     <message>
         <source>Reset</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Réinitialiser</translation>
     </message>
     <message>
-        <source>&lt;b&gt;openpilot keeps steering for you even when it isn't controlling the gas and brake, so it holds your lane when you press a pedal, cancel, or haven't engaged openpilot at all.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It steers from the moment your car's cruise control is switched on until you switch that back off or shift out of drive, and it pauses while you brake below the speed set in "Pause on Brake Press Below", except at a full stop. On the newer Hyundai, Kia and Genesis cars, the LKAS button takes the place of cruise control while "Enable With LKAS" is on.</source>
+        <source>&lt;b&gt;openpilot keeps steering for you even when it isn't controlling the gas and brake, so it holds your lane when you press a pedal, cancel, or haven't engaged openpilot at all.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It steers from the moment your car's cruise control is switched on until you switch that back off or shift out of drive, and it pauses while you brake below the speed set in "Pause on Brake Press Below", except at a full stop. On the newer Hyundai, Kia, and Genesis cars, the LKAS button takes the place of cruise control while "Enable With LKAS" is on.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2132,6 +2047,18 @@ Le Mode Firehose vous permet de maximiser vos envois de données d'entraînement
     </message>
     <message>
         <source>&lt;b&gt;Switch openpilot's steering over to a neural network for a smoother wheel on cars that support it, and have it steer into turns when you signal below your minimum lane change speed.&lt;/b&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Use the friction, lateral acceleration, and steer ratio you set instead of the values openpilot works out on its own.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Only offered on cars that normally tune themselves.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;openpilot steers using a model trained on real driving data from cars like yours, which usually holds the lane more steadily and tracks curves more closely.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It only appears when a trained model matches your car. While it's on, the "Friction" and "Lateral Acceleration" rows disappear, but some car models still use the friction value. Built by Twilsonco.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;openpilot looks ahead at how sharply the road is about to bend and starts adjusting its steering early, which smooths how it enters and leaves curves.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Use this when the full "Neural Network Feedforward (NNFF)" setting isn't offered for your car. It borrows the look-ahead without the trained model, so the improvement is smaller. On cars that normally use openpilot's PID steering, this also switches them to the torque controller.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2343,7 +2270,7 @@ Le Mode Firehose vous permet de maximiser vos envois de données d'entraînement
     </message>
     <message>
         <source>Map Accel/Decel to Gears</source>
-        <translation>Lier l'accélération et la décélération aux modes de conduite</translation>
+        <translation>Accél./décél. selon le mode</translation>
     </message>
     <message>
         <source>Offset Set Speed by:</source>
@@ -2459,7 +2386,7 @@ Le Mode Firehose vous permet de maximiser vos envois de données d'entraînement
     </message>
     <message>
         <source>With Lead</source>
-        <translation>À proximité du véhicule de tête</translation>
+        <translation>En suivi</translation>
     </message>
     <message>
         <source>Slower Lead</source>
@@ -2486,7 +2413,7 @@ Le Mode Firehose vous permet de maximiser vos envois de données d'entraînement
         <translation>RÉINITIALISER</translation>
     </message>
     <message>
-        <source>Are you sure you want to completely reset your curvature data?</source>
+        <source>Are you sure you want to completely reset your curve data?</source>
         <translation>Voulez-vous vraiment réinitialiser entièrement vos données de courbure ?</translation>
     </message>
     <message>
@@ -2538,20 +2465,16 @@ Le Mode Firehose vous permet de maximiser vos envois de données d'entraînement
         <translation>&lt;b&gt;Réduit la force exercée par openpilot en virage sous la neige.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Ce réglage n’agit que si le « Contrôleur de vitesse en virage » est activé. Augmentez-le pour prendre les virages plus doucement et plus sûrement sur une route glissante. La vitesse en virage diminue de moins que cette valeur, car la force en virage augmente avec le carré de la vitesse.</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Fall back to Mapbox for the speed limit when none of your chosen sources have one.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Needs your Public Mapbox Key and a working internet connection.</source>
-        <translation>&lt;b&gt;Utilisez Mapbox comme source de repli pour la limite de vitesse lorsqu'aucune des sources choisies n'en fournit.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Nécessite votre clé publique Mapbox et une connexion Internet fonctionnelle.</translation>
-    </message>
-    <message>
         <source>Set Speed</source>
-        <translation>Vitesse de consigne</translation>
+        <translation>Consigne</translation>
     </message>
     <message>
         <source>Experimental Mode</source>
-        <translation>Mode expérimental</translation>
+        <translation>Expérimental</translation>
     </message>
     <message>
         <source>Previous Limit</source>
-        <translation>Limite précédente</translation>
+        <translation>Précédente</translation>
     </message>
     <message>
         <source>None</source>
@@ -2559,15 +2482,15 @@ Le Mode Firehose vous permet de maximiser vos envois de données d'entraînement
     </message>
     <message>
         <source>Set With Gas Pedal</source>
-        <translation>Définie avec l'accélérateur</translation>
+        <translation>À l'accélérateur</translation>
     </message>
     <message>
         <source>Max Set Speed</source>
-        <translation>Vitesse de consigne maximale</translation>
+        <translation>Consigne max.</translation>
     </message>
     <message>
         <source>SELECT</source>
-        <translation>SÉLECTIONNER</translation>
+        <translation>CHOISIR</translation>
     </message>
     <message>
         <source>Dashboard</source>
@@ -2595,11 +2518,11 @@ Le Mode Firehose vous permet de maximiser vos envois de données d'entraînement
     </message>
     <message>
         <source>Lower Limits</source>
-        <translation>Limites inférieures</translation>
+        <translation>Inférieures</translation>
     </message>
     <message>
         <source>Higher Limits</source>
-        <translation>Limites supérieures</translation>
+        <translation>Supérieures</translation>
     </message>
     <message>
         <source>Are you sure you want to completely reset your settings for the &lt;b&gt;Aggressive&lt;/b&gt; personality?</source>
@@ -2751,7 +2674,7 @@ Le Mode Firehose vous permet de maximiser vos envois de données d'entraînement
     </message>
     <message>
         <source>Curve Speed Profile</source>
-        <translation>Profil de vitesse en virage</translation>
+        <translation>Profil en virage</translation>
     </message>
     <message>
         <source>Maximum Lateral Acceleration</source>
@@ -2762,7 +2685,7 @@ Le Mode Firehose vous permet de maximiser vos envois de données d'entraînement
         <translation>&lt;b&gt;Afficher sur l'écran de conduite la vitesse visée par openpilot dans le virage.&lt;/b&gt;&lt;br&gt;&lt;br&gt;La mention « Apprentissage... » apparaît également pendant qu'openpilot apprend de votre manière de prendre un virage.</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Change what Aggressive, Standard and Relaxed actually do, so they match how you like to drive.&lt;/b&gt;</source>
+        <source>&lt;b&gt;Change what Aggressive, Standard, and Relaxed actually do, so they match how you like to drive.&lt;/b&gt;</source>
         <translation>&lt;b&gt;Modifiez le comportement des profils Agressif, Standard et Détendu afin qu'ils correspondent à votre style de conduite.&lt;/b&gt;</translation>
     </message>
     <message>
@@ -2867,11 +2790,11 @@ Le Mode Firehose vous permet de maximiser vos envois de données d'entraînement
     </message>
     <message>
         <source>&lt;b&gt;The speed used by "Speed Limit Controller" when no speed limit is found.&lt;/b&gt;&lt;br&gt;&lt;br&gt;- &lt;b&gt;Set Speed&lt;/b&gt;: Use the cruise set speed&lt;br&gt;- &lt;b&gt;Experimental Mode&lt;/b&gt;: Let openpilot pick the speed from what the camera sees, never going above your set speed&lt;br&gt;- &lt;b&gt;Previous Limit&lt;/b&gt;: Keep using the last confirmed limit</source>
-        <translation>&lt;b&gt;Vitesse utilisée par le « Contrôleur de limite de vitesse » lorsqu'aucune limite n'est trouvée.&lt;/b&gt;&lt;br&gt;&lt;br&gt;- &lt;b&gt;Vitesse de consigne&lt;/b&gt; : utiliser la vitesse de consigne du régulateur&lt;br&gt;- &lt;b&gt;Mode expérimental&lt;/b&gt; : laisser openpilot choisir la vitesse d'après les images de la caméra, sans jamais dépasser la vitesse de consigne&lt;br&gt;- &lt;b&gt;Limite précédente&lt;/b&gt; : continuer d'utiliser la dernière limite confirmée</translation>
+        <translation>&lt;b&gt;Vitesse utilisée par le « Contrôleur de limite de vitesse » lorsqu'aucune limite n'est trouvée.&lt;/b&gt;&lt;br&gt;&lt;br&gt;- &lt;b&gt;Consigne&lt;/b&gt; : utiliser la vitesse de consigne du régulateur&lt;br&gt;- &lt;b&gt;Expérimental&lt;/b&gt; : laisser openpilot choisir la vitesse d'après les images de la caméra, sans jamais dépasser la vitesse de consigne&lt;br&gt;- &lt;b&gt;Précédente&lt;/b&gt; : continuer d'utiliser la dernière limite confirmée</translation>
     </message>
     <message>
         <source>&lt;b&gt;The speed used by "Speed Limit Controller" after you manually drive faster than the posted limit.&lt;/b&gt;&lt;br&gt;&lt;br&gt;- &lt;b&gt;None&lt;/b&gt;: Go back to the posted limit as soon as you are off the gas&lt;br&gt;- &lt;b&gt;Set With Gas Pedal&lt;/b&gt;: Use the highest speed reached while pressing the gas&lt;br&gt;- &lt;b&gt;Max Set Speed&lt;/b&gt;: Use the cruise set speed&lt;br&gt;&lt;br&gt;Overrides clear when openpilot disengages.</source>
-        <translation>&lt;b&gt;Vitesse utilisée par le « Contrôleur de limite de vitesse » après que vous avez dépassé manuellement la limitation.&lt;/b&gt;&lt;br&gt;&lt;br&gt;- &lt;b&gt;Aucune&lt;/b&gt; : revenir à la limitation dès que vous relâchez l'accélérateur&lt;br&gt;- &lt;b&gt;Définie avec l'accélérateur&lt;/b&gt; : utiliser la vitesse maximale atteinte pendant l'appui sur l'accélérateur&lt;br&gt;- &lt;b&gt;Vitesse de consigne maximale&lt;/b&gt; : utiliser la vitesse de consigne du régulateur&lt;br&gt;&lt;br&gt;Les dérogations sont effacées lorsqu'openpilot se désactive.</translation>
+        <translation>&lt;b&gt;Vitesse utilisée par le « Contrôleur de limite de vitesse » après que vous avez dépassé manuellement la limitation.&lt;/b&gt;&lt;br&gt;&lt;br&gt;- &lt;b&gt;Aucune&lt;/b&gt; : revenir à la limitation dès que vous relâchez l'accélérateur&lt;br&gt;- &lt;b&gt;À l'accélérateur&lt;/b&gt; : utiliser la vitesse maximale atteinte pendant l'appui sur l'accélérateur&lt;br&gt;- &lt;b&gt;Consigne max.&lt;/b&gt; : utiliser la vitesse de consigne du régulateur&lt;br&gt;&lt;br&gt;Les dérogations sont effacées lorsqu'openpilot se désactive.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Smaller changes to how "Speed Limit Controller" behaves.&lt;/b&gt;</source>
@@ -2879,7 +2802,7 @@ Le Mode Firehose vous permet de maximiser vos envois de données d'entraînement
     </message>
     <message>
         <source>&lt;b&gt;Ask before changing to a new speed limit, with the "Lower Limits" and "Higher Limits" buttons choosing which changes need your approval.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Neither button starts on, so pick at least one or openpilot keeps accepting every new limit without asking. To accept, tap the flashing widget on the driving screen or press the Cruise Increase button. To deny, press Cruise Decrease or ignore it for 30 seconds.</source>
-        <translation>&lt;b&gt;Demander confirmation avant d'adopter une nouvelle limite de vitesse ; les boutons « Limites inférieures » et « Limites supérieures » déterminent les changements nécessitant votre accord.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Aucun bouton n'est activé par défaut. Sélectionnez-en au moins un, sinon openpilot continuera d'accepter chaque nouvelle limite sans demander. Pour accepter, touchez le widget clignotant sur l'écran de conduite ou appuyez sur le bouton d'augmentation du régulateur. Pour refuser, appuyez sur le bouton de diminution du régulateur ou ignorez la demande pendant 30 secondes.</translation>
+        <translation>&lt;b&gt;Demander confirmation avant d'adopter une nouvelle limite de vitesse ; les boutons « Inférieures » et « Supérieures » déterminent les changements nécessitant votre accord.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Aucun bouton n'est activé par défaut. Sélectionnez-en au moins un, sinon openpilot continuera d'accepter chaque nouvelle limite sans demander. Pour accepter, touchez le widget clignotant sur l'écran de conduite ou appuyez sur le bouton d'augmentation du régulateur. Pour refuser, appuyez sur le bouton de diminution du régulateur ou ignorez la demande pendant 30 secondes.</translation>
     </message>
     <message>
         <source>&lt;b&gt;How far ahead openpilot looks for a higher speed limit coming up.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This reads from your downloaded map data.</source>
@@ -2979,7 +2902,7 @@ Le Mode Firehose vous permet de maximiser vos envois de données d'entraînement
     </message>
     <message>
         <source>&lt;b&gt;openpilot slows down on its own for curves ahead, and you pick how fast it takes them with "Curve Speed Profile".&lt;/b&gt;&lt;br&gt;&lt;br&gt;It comes set to "Adaptive", which learns how you prefer to take curves.</source>
-        <translation>&lt;b&gt;openpilot ralentit automatiquement pour les virages à venir ; vous choisissez la vitesse à laquelle il les aborde avec le « Profil de vitesse en virage ».&lt;/b&gt;&lt;br&gt;&lt;br&gt;Le réglage par défaut est « Adaptatif », qui apprend comment vous préférez prendre les virages.</translation>
+        <translation>&lt;b&gt;openpilot ralentit automatiquement pour les virages à venir ; vous choisissez la vitesse à laquelle il les aborde avec le « Profil en virage ».&lt;/b&gt;&lt;br&gt;&lt;br&gt;Le réglage par défaut est « Adaptatif », qui apprend comment vous préférez prendre les virages.</translation>
     </message>
     <message>
         <source>&lt;b&gt;How hard you corner, learned from your own driving.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The "Adaptive" profile uses this to take curves the way you do, but never harder than your steering has proven it can hold. A higher number means carrying more speed through curves. Lower means taking them gentler.</source>
@@ -2998,15 +2921,7 @@ Le Mode Firehose vous permet de maximiser vos envois de données d'entraînement
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&lt;b&gt;How gently openpilot slows down when the road ahead is clear.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"Standard" brakes at full strength, "Eco" brakes about half as hard so you coast more, and "Eco+" just lets off the gas and coasts, so it slows quicker uphill and barely slows on a steep downhill until the road levels out. Whenever there is a car ahead, or while "Experimental Mode" is running, openpilot goes back to full-strength braking so it can still stop in time.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>&lt;b&gt;openpilot follows the car ahead more naturally, reading where that car is headed so it eases off and starts braking earlier and softer instead of reacting late.&lt;/b&gt;&lt;br&gt;&lt;br&gt;On the default driving model this only works while openpilot can clearly see the car ahead.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Switch to "Experimental Mode" for a predicted stop, except while following a detected lead.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It keeps checking for a possible stop behind that lead and can trigger once the lead is no longer tracked. "Traffic Mode" turns this condition off.&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Disclaimer&lt;/b&gt;: openpilot does not explicitly detect traffic lights or stop signs. In "Experimental Mode", openpilot makes end-to-end driving decisions from camera input, which means it may stop even when there's no clear reason!&lt;/i&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3014,19 +2929,7 @@ Le Mode Firehose vous permet de maximiser vos envois de données d'entraînement
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Stop Detection Sensitivity</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Adjust when a predicted stop can switch to "Experimental Mode". Higher values can trigger earlier; lower values are less sensitive.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The seconds value is a sensitivity setting, not an exact countdown to a stop. While following a detected lead, it keeps checking for a possible stop and can trigger once that lead is no longer tracked. "Traffic Mode" turns this condition off.&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Disclaimer&lt;/b&gt;: openpilot does not explicitly detect traffic lights or stop signs. In "Experimental Mode", openpilot makes end-to-end driving decisions from camera input, which means it may stop even when there's no clear reason!&lt;/i&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Switch to "Experimental Mode" when you signal below the set speed. Turn on "Not For Detected Lanes" to suppress this when an adjacent lane is detected as you start signalling.&lt;/b&gt;&lt;br&gt;&lt;br&gt;With the button off, any signal below the set speed can trigger it. With it on, the space beside you must be narrower than the "Minimum Lane Width" under "Lane Changes" in the "STEERING" panel when you start signalling, or you must be below the "Minimum Lane Change Speed". That width starts at zero, so raise it to use lane detection. Lane estimates can miss an adjacent lane.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Lets your car's "Eco" and "Sport" gear modes take over how openpilot speeds up, how it slows down, or both.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Pick "Acceleration", "Deceleration" or both with the buttons on this row, since neither starts on and nothing changes until you do.&lt;br&gt;&lt;br&gt;"Eco" gear makes openpilot accelerate gently and "Sport" gear makes it accelerate firmly. For braking, "Eco" gear halves how hard openpilot can brake and "Sport" gear brakes at full strength. The braking change only applies when there is no car ahead.</source>
+        <source>&lt;b&gt;Switch to "Experimental Mode" when you signal below the set speed. Turn on "Not For Detected Lanes" to suppress this when an adjacent lane is detected as you start signaling.&lt;/b&gt;&lt;br&gt;&lt;br&gt;With the button off, any signal below the set speed can trigger it. With it on, the space beside you must be narrower than the "Minimum Lane Width" under "Lane Changes" in the "STEERING" panel when you start signaling, or you must be below the "Minimum Lane Change Speed". That width starts at zero, so raise it to use lane detection. Lane estimates can miss an adjacent lane.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3034,7 +2937,7 @@ Le Mode Firehose vous permet de maximiser vos envois de données d'entraînement
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&lt;b&gt;Hold openpilot's max speed to the posted speed limit.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The limit comes from your downloaded maps, Mapbox, speed limit signs read by the road camera, or, on supported Ford, Genesis, Hyundai, Kia, Lexus and Toyota models, your dashboard.</source>
+        <source>&lt;b&gt;Hold openpilot's max speed to the posted speed limit.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The limit comes from your downloaded maps, Mapbox, speed limit signs read by the road camera, or, on supported Ford, Genesis, Hyundai, Kia, Lexus, and Toyota models, your dashboard.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3150,10 +3053,6 @@ Le Mode Firehose vous permet de maximiser vos envois de données d'entraînement
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&lt;b&gt;openpilot comes to a full stop whenever it thinks it sees a red light or stop sign, whether or not "Experimental Mode" is running.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It only kicks in when openpilot is not already tracking a car ahead, so behind a queue at a light your normal following does the stopping instead. Touching the gas cancels a forced stop. "Traffic Mode" turns this off.&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Heads up&lt;/b&gt;: openpilot never actually reads traffic lights or stop signs. It decides from what the camera sees, so it can stop when there is no reason to.&lt;/i&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>&lt;b&gt;Adds an extra amount on top of the "Cruise Interval (Hold)" step, but only when you press and hold the + cruise button.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The - button does not mirror it. Holding - takes the normal hold step down and then moves down by one more "Cruise Interval (Hold)" amount minus this offset, so with a hold interval of 5 and 5 chosen here you just get the normal hold step down, as you also do with any offset above the hold interval. A quick tap is never affected, and 0 turns this off.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3205,6 +3104,26 @@ Le Mode Firehose vous permet de maximiser vos envois de données d'entraînement
         <source>&lt;b&gt;How fast openpilot takes curves.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"Gentle" and "Standard" hold to a fixed, relaxed pace, "Sport" uses your car's maximum configured or learned cornering limit, and "Adaptive" learns how you prefer to take curves.</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>&lt;b&gt;How gently openpilot slows down when the road ahead is clear.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"Standard" is openpilot's normal braking, "Eco" brakes about half as hard so you coast more, and "Eco+" just lets off the gas and coasts, so it slows quicker uphill and barely slows on a steep downhill until the road levels out. Whenever there is a car ahead, or while "Experimental Mode" is running, openpilot goes back to full-strength braking so it can still stop in time.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Switch to "Experimental Mode" when openpilot plans to slow down a lot or stop soon, except while following a detected lead.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It keeps checking for a possible stop behind that lead and can trigger once the lead is no longer tracked. "Traffic Mode" turns this condition off.&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Disclaimer&lt;/b&gt;: openpilot does not explicitly detect traffic lights or stop signs. In "Experimental Mode", openpilot makes end-to-end driving decisions from camera input, which means it may stop even when there's no clear reason!&lt;/i&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;openpilot comes to a full stop whenever it thinks it sees a red light or stop sign, whether or not "Experimental Mode" is running.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It only kicks in when openpilot is not already tracking a car ahead, so behind a queue at a light your normal following does the stopping instead. Touching the gas or pressing RES/+ cancels a forced stop. "Traffic Mode" turns this off.&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Heads up&lt;/b&gt;: openpilot never actually reads traffic lights or stop signs. It decides from what the camera sees, so it can stop when there is no reason to.&lt;/i&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Lets your car's "Eco" and "Sport" gear modes take over how openpilot speeds up, how it slows down, or both.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Pick "Acceleration", "Deceleration" or both with the buttons on this row, since neither starts on and nothing changes until you do.&lt;br&gt;&lt;br&gt;"Eco" gear makes openpilot accelerate gently and "Sport" gear makes it accelerate firmly. For braking, "Eco" gear halves how hard openpilot can brake and "Sport" gear uses openpilot's normal braking. The braking change only applies when there is no car ahead.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Fall back to Mapbox for the speed limit when none of your chosen sources have one.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Needs your Public Mapbox Key and a working internet connection. It sends your location to Mapbox to look up the limit.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>FrogPilotManageControl</name>
@@ -3217,19 +3136,19 @@ Le Mode Firehose vous permet de maximiser vos envois de données d'entraînement
     <name>FrogPilotMapsPanel</name>
     <message>
         <source>Manually</source>
-        <translation>Manuellement</translation>
+        <translation>Manuel</translation>
     </message>
     <message>
         <source>Weekly</source>
-        <translation>Chaque semaine</translation>
+        <translation>Hebdo</translation>
     </message>
     <message>
         <source>Monthly</source>
-        <translation>Chaque mois</translation>
+        <translation>Mensuel</translation>
     </message>
     <message>
         <source>Automatically Update Maps</source>
-        <translation>Mettre à jour automatiquement les cartes</translation>
+        <translation>Mise à jour des cartes</translation>
     </message>
     <message>
         <source>Download Maps</source>
@@ -3237,7 +3156,7 @@ Le Mode Firehose vous permet de maximiser vos envois de données d'entraînement
     </message>
     <message>
         <source>DOWNLOAD</source>
-        <translation>TÉLÉCHARGER</translation>
+        <translation>OBTENIR</translation>
     </message>
     <message>
         <source>CANCEL</source>
@@ -3404,7 +3323,7 @@ Le Mode Firehose vous permet de maximiser vos envois de données d'entraînement
     </message>
     <message>
         <source>Manage Model Blacklist</source>
-        <translation>Gérer la liste d'exclusion des modèles</translation>
+        <translation>Modèles exclus</translation>
     </message>
     <message>
         <source>Manage Model Ratings</source>
@@ -3496,7 +3415,7 @@ Le Mode Firehose vous permet de maximiser vos envois de données d'entraînement
     </message>
     <message>
         <source>SELECT</source>
-        <translation>SÉLECTIONNER</translation>
+        <translation>CHOISIR</translation>
     </message>
     <message>
         <source>Offline...</source>
@@ -3527,19 +3446,15 @@ Le Mode Firehose vous permet de maximiser vos envois de données d'entraînement
         <translation>GitHub et GitLab sont hors ligne...</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Download new driving models on their own as they are released, so they are ready when you want to try one.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This runs whenever the device is online, including while you are driving. It also grabs every model that is not already on the device, not just newly released ones, so anything you removed with "Delete Driving Models" comes back.</source>
-        <translation>&lt;b&gt;Téléchargez automatiquement les nouveaux modèles de conduite dès leur publication afin qu'ils soient prêts lorsque vous souhaitez les essayer.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Le téléchargement s'effectue chaque fois que l'appareil est en ligne, y compris pendant la conduite. Tous les modèles absents de l'appareil sont récupérés, pas seulement les nouvelles versions ; tout modèle supprimé avec « Supprimer des modèles de conduite » sera donc retéléchargé.</translation>
-    </message>
-    <message>
         <source>&lt;b&gt;Picks a different driving model for you at the start of every drive, then asks how it went when you park, so you can work out which one you like best.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It only chooses from models you have downloaded and have not blacklisted, and it only asks for a rating after drives longer than 15 minutes. Your ratings are saved under "Manage Model Ratings" for you to compare.</source>
         <translation>&lt;b&gt;Choisit un modèle de conduite différent au début de chaque trajet, puis vous demande votre avis une fois stationné afin de déterminer celui que vous préférez.&lt;/b&gt;&lt;br&gt;&lt;br&gt;La sélection se limite aux modèles téléchargés qui ne figurent pas dans la liste d'exclusion, et une évaluation n'est demandée qu'après les trajets de plus de 15 minutes. Vos évaluations sont enregistrées sous « Gérer les évaluations des modèles » afin de pouvoir les comparer.</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Stop the "Model Randomizer" from picking driving models you did not get on with.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Blocking a model here has no effect on choosing it yourself under "Select Driving Model".</source>
+        <source>&lt;b&gt;Stop the "Model Randomizer" from picking driving models you did not like.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Blocking a model here has no effect on choosing it yourself under "Select Driving Model".</source>
         <translation>&lt;b&gt;Empêchez la « Sélection aléatoire du modèle » de choisir les modèles de conduite qui ne vous conviennent pas.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Exclure un modèle ici ne vous empêche pas de le choisir vous-même sous « Sélectionner le modèle de conduite ».</translation>
     </message>
     <message>
-        <source>&lt;b&gt;See how you rated each driving model and how many drives you gave it, or wipe those ratings and start fresh.&lt;/b&gt;&lt;br&gt;&lt;br&gt;These are for your own comparison. The "Model Randomizer" picks at random and does not favour your higher-rated models.</source>
+        <source>&lt;b&gt;See how you rated each driving model and how many drives you gave it, or wipe those ratings and start fresh.&lt;/b&gt;&lt;br&gt;&lt;br&gt;These are for your own comparison. The "Model Randomizer" picks at random and does not favor your higher-rated models.</source>
         <translation>&lt;b&gt;Consultez l'évaluation attribuée à chaque modèle de conduite et le nombre de trajets effectués avec lui, ou effacez ces évaluations pour recommencer.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Elles servent uniquement à votre comparaison. La « Sélection aléatoire du modèle » choisit au hasard et ne favorise pas les modèles les mieux notés.</translation>
     </message>
     <message>
@@ -3555,7 +3470,7 @@ Le Mode Firehose vous permet de maximiser vos envois de données d'entraînement
         <translation>Aucun modèle de conduite ne peut être ajouté à la liste d'exclusion.</translation>
     </message>
     <message>
-        <source>You have not blocked any driving models.</source>
+        <source>You have not blacklisted any driving models.</source>
         <translation>Vous n'avez exclu aucun modèle de conduite.</translation>
     </message>
     <message>
@@ -3592,11 +3507,7 @@ Le Mode Firehose vous permet de maximiser vos envois de données d'entraînement
     </message>
     <message>
         <source>Not parked</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Remove driving models you have downloaded to free up storage.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"DELETE" lets you pick which ones, "DELETE ALL" removes the rest. The model you are currently using and the one FrogPilot ships with are always kept. Turn "Automatically Download New Models" off first, or anything you delete is downloaded again within the hour.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Véhicule non stationné</translation>
     </message>
     <message>
         <source>&lt;b&gt;Download driving models onto the device so you can switch to them.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"DOWNLOAD" lets you pick which ones, "DOWNLOAD ALL" fetches everything. Your car has to be parked and online, and models are large, so this can take a while.</source>
@@ -3616,6 +3527,14 @@ Le Mode Firehose vous permet de maximiser vos envois de données d'entraînement
     </message>
     <message>
         <source>Download</source>
+        <translation type="unfinished">Télécharger</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Download new driving models on their own as they are released, so they are ready when you want to try one.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This runs whenever the device is on Wi-Fi or another unmetered connection, including while you are driving. It also grabs every model that is not already on the device, not just newly released ones, so anything you removed with "Delete Driving Models" comes back.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Remove driving models you have downloaded to free up storage.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"DELETE" lets you pick which ones, "DELETE ALL" removes the rest. The model you are currently using and the one FrogPilot ships with are always kept. Turn "Automatically Download New Models" off first, or anything you delete is downloaded again within the hour whenever the device is on Wi-Fi or another unmetered connection.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3642,11 +3561,43 @@ Le Mode Firehose vous permet de maximiser vos envois de données d'entraînement
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Rating: %1% over %2 drive</source>
+        <source>Model Rank</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Rating: %1% over %2 drives</source>
+        <source>Model Rating</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Model Drives</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Total Drives</source>
+        <translation type="unfinished">Nombre total de trajets</translation>
+    </message>
+    <message>
+        <source>#%1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1%</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 Drive</source>
+        <translation type="unfinished">%1 trajet</translation>
+    </message>
+    <message>
+        <source>%1 Drives</source>
+        <translation type="unfinished">%1 trajets</translation>
+    </message>
+    <message>
+        <source>%1 Total Drive</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 Total Drives</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3654,7 +3605,7 @@ Le Mode Firehose vous permet de maximiser vos envois de données d'entraînement
     <name>FrogPilotMultiOptionDialog</name>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Annuler</translation>
     </message>
 </context>
 <context>
@@ -3732,10 +3683,6 @@ Le Mode Firehose vous permet de maximiser vos envois de données d'entraînement
         <translation>Saisissez votre clé secrète Mapbox</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Open this address in a browser on the same Wi-Fi to reach "The Pond", where you search for destinations and send them to your car.&lt;/b&gt;</source>
-        <translation>&lt;b&gt;Ouvrez cette adresse dans un navigateur connecté au même réseau Wi-Fi pour accéder à « The Pond », où vous pouvez rechercher des destinations et les envoyer à votre véhicule.&lt;/b&gt;</translation>
-    </message>
-    <message>
         <source>That's your Secret Mapbox Key. Enter your Public Mapbox Key.</source>
         <translation>Il s'agit de votre clé secrète Mapbox. Saisissez votre clé publique Mapbox.</translation>
     </message>
@@ -3752,15 +3699,31 @@ Le Mode Firehose vous permet de maximiser vos envois de données d'entraînement
         <translation>&lt;b&gt;Dessine la carte elle-même sur votre écran de conduite, parallèlement à ce que "Clé publique Mapbox" fait pour la recherche.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Gardez celle-ci pour vous, car elle peut être utilisée pour facturer des frais sur votre compte Mapbox. Après l'avoir ajouté, il vous est demandé si vous souhaitez redémarrer maintenant ou plus tard, et cela ne prend effet que lorsque l'appareil a réellement redémarré.</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Collect missing or incorrect speed limits automatically while you drive.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Saved corrections are reused on later drives for the same road and direction, except on roads with conditional speed limits.&lt;br&gt;&lt;br&gt;FrogPilot compares speed limits from your dashboard, where supported, and Mapbox, which needs your Public Mapbox Key and a working internet connection. Downloaded maps are required because FrogPilot uses their OSM way IDs to identify each road.&lt;br&gt;&lt;br&gt;You can download the results from "The Pond" in the "Download Speed Limits" menu and load them into the Speed Limit Filler website. Review every proposed edit before submitting it to OSM.&lt;br&gt;&lt;br&gt;With "Share FrogPilot Data" on, collected road speed limits are also sent to FrogPilot while parked on unmetered Wi-Fi or Ethernet to help expand speed limit coverage for all FrogPilot users.&lt;br&gt;&lt;br&gt;Need a step-by-step guide? Visit &lt;b&gt;#speed-limit-filler&lt;/b&gt; in the FrogPilot Discord!</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>&lt;b&gt;Lets openpilot get speed limits from Mapbox.&lt;/b&gt;&lt;br&gt;&lt;br&gt;You make this key yourself on Mapbox's website. "Mapbox Setup Instructions" walks you through it.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&lt;b&gt;Walks you through getting your own free Mapbox keys.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The guide only shows the steps for where you are in setup, so it changes as you add each key. Tap the instructions to come back here.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Open this address in a browser on the same Wi-Fi to reach "The Pond", where you manage your drives, recordings, themes, and more from a phone or computer.&lt;/b&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pairing Code</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Ask for a code before a browser can use "The Pond".&lt;/b&gt;&lt;br&gt;&lt;br&gt;Without a code, any device on the same Wi-Fi or Tailscale network can open your drives, camera footage, logs, location, and saved places, and can change your settings, unlock your doors, reboot the device, switch branches, run any command on the device from its shell, restore a backup that replaces its software, or sign the device into a Tailscale account. The code shows next to the address above. Turning this off signs every browser out, and turning it back on makes a new code.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Learns speed limits from the signs the camera reads on roads where your downloaded maps have no limit or the wrong one.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Each learned limit is saved for that road and direction and used in place of the map's limit the next time you drive there, and it is forgotten once the map matches the signs. It also keeps a cropped photo of the sign each learned limit came from. Roads with conditional limits, such as ones that change with the time of day or the weather, are skipped. Needs downloaded maps. With "Share FrogPilot Data" on, the learned limits, their sign photos, and the roads where the signs matched your map are sent to FrogPilot while parked on unmetered Wi-Fi or Ethernet and used to improve speed limits for everyone using FrogPilot.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> (Code %1)</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3977,16 +3940,8 @@ Ne continuez que si vous comprenez leur fonctionnement.</translation>
         <translation>Volume des avertissements modérés</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Set the volume for openpilot's serious warnings, such as "BRAKE! Risk of Collision" when it thinks you're about to hit something.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The "Louder Blind Spot Alert" plays at this volume too. This one stops at 25% so a warning can always reach you.</source>
-        <translation>&lt;b&gt;Réglez le volume des avertissements sérieux d'openpilot, comme « FREINEZ ! Risque de collision » lorsqu'il pense qu'un choc est imminent.&lt;/b&gt;&lt;br&gt;&lt;br&gt;L'« Alerte d'angle mort renforcée » utilise également ce volume. Celui-ci ne peut pas descendre sous 25 % afin qu'un avertissement reste toujours audible.</translation>
-    </message>
-    <message>
         <source>Urgent Warning Volume</source>
         <translation>Volume des avertissements urgents</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Set the volume for openpilot's most urgent warnings, the ones telling you to take the wheel right now.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"DISENGAGE IMMEDIATELY" plays at this volume, which is what you get once you've ignored the driver camera long enough that openpilot no longer trusts you're paying attention. This one stops at 25% so a warning can always reach you.</source>
-        <translation>&lt;b&gt;Réglez le volume des avertissements les plus urgents d'openpilot, ceux qui vous demandent de reprendre immédiatement le volant.&lt;/b&gt;&lt;br&gt;&lt;br&gt;« REPRENEZ IMMÉDIATEMENT LE CONTRÔLE » est diffusé à ce volume lorsque vous avez ignoré la caméra conducteur assez longtemps pour qu'openpilot ne vous considère plus attentif. Ce volume ne peut pas descendre sous 25 % afin qu'un avertissement reste toujours audible.</translation>
     </message>
     <message>
         <source>Won't Engage Volume</source>
@@ -3998,7 +3953,7 @@ Ne continuez que si vous comprenez leur fonctionnement.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Swap the chime for "Turn Exceeds Steering Limit" out for a screaming goat.&lt;/b&gt;&lt;br&gt;&lt;br&gt;That alert means the turn is sharper than openpilot can steer through on its own, so it's asking you to help turn the wheel. It plays at whatever you set "Prompt Volume" to.</source>
-        <translation>&lt;b&gt;Remplacez le carillon « Virage au-delà de la limite de direction » par le cri d'une chèvre.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Cette alerte indique que le virage est trop serré pour qu'openpilot le négocie seul et vous demande donc d'aider à tourner le volant. Elle utilise le « Volume des notifications ».</translation>
+        <translation>&lt;b&gt;Remplacez le carillon « Turn Exceeds Steering Limit » par le cri d'une chèvre.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Cette alerte indique que le virage est trop serré pour qu'openpilot le négocie seul et vous demande donc d'aider à tourner le volant. Elle utilise le « Volume des notifications ».</translation>
     </message>
     <message>
         <source>&lt;b&gt;Play a chime when you're stopped in traffic and the car in front of you starts moving again.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It waits until that car has genuinely pulled away rather than just crept forward, so it won't chime the moment they roll an inch.</source>
@@ -4017,10 +3972,6 @@ Ne continuez que si vous comprenez leur fonctionnement.</translation>
         <translation>&lt;b&gt;Activez des alertes supplémentaires que la norme openpilot n'a pas, pour des choses que vous auriez autrement dû attraper vous-même.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Celles-ci couvrent le feu qui passe au vert, la voiture devant qui commence à bouger et la modification de la limite de vitesse. L'angle mort ici n'est pas une nouvelle alerte&#xa0;: openpilot sonne déjà lorsque vous signalez un changement de voie et qu'il y a une voiture à côté de vous, et cela ne fait qu'échanger ce carillon contre un autre plus fort.</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Set the volume for the sound openpilot makes when the driver camera thinks you've stopped watching the road.&lt;/b&gt;&lt;br&gt;&lt;br&gt;You hear this if you look down at your phone, or if the camera cannot see your face and you go too long without touching the wheel. Ignore it long enough and it escalates into the "DISENGAGE IMMEDIATELY" warning, which plays at "Urgent Warning Volume" instead. openpilot will not hand the car back on its own, so taking over is on you. This one stops at 25% so it can always reach you.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>&lt;b&gt;Set the volume for the quick chimes openpilot uses when it needs you to notice something.&lt;/b&gt;&lt;br&gt;&lt;br&gt;You hear these for things like a car sitting in your blind spot when you signal, or a turn too sharp for openpilot to steer through on its own. The "Goat Scream" alert plays at this volume as well. This one stops at 25% so it can always reach you.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4037,26 +3988,42 @@ Ne continuez que si vous comprenez leur fonctionnement.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&lt;b&gt;Upgrade "Car Detected in Blindspot" from openpilot's quiet prompt chime to its warning chime.&lt;/b&gt;&lt;br&gt;&lt;br&gt;You get this alert when you signal for a lane change while openpilot is steering and there is a car beside you where you cannot see it. It needs "Lane Changes" switched on and at least your "Minimum Lane Change Speed" (20 mph or 32 km/h by default), so signalling slower than that gets you nothing. Because it becomes a warning, its volume comes from "Soft Warning Volume" instead of "Prompt Volume".</source>
+        <source>&lt;b&gt;Upgrade "Car Detected in Blindspot" from openpilot's quiet prompt chime to its warning chime.&lt;/b&gt;&lt;br&gt;&lt;br&gt;You get this alert when you signal for a lane change while openpilot is steering and there is a car beside you where you cannot see it. It needs "Lane Changes" switched on and at least your "Minimum Lane Change Speed" (20 mph or 32 km/h by default), so signaling slower than that gets you nothing. Because it becomes a warning, its volume comes from "Soft Warning Volume" instead of "Prompt Volume".</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Set the volume for the sound openpilot makes when the driver camera thinks you've stopped watching the road.&lt;/b&gt;&lt;br&gt;&lt;br&gt;You hear this if you look down at your phone, or if the camera cannot see your face and you go too long without touching the wheel. Ignore it long enough and it escalates into the "DISENGAGE IMMEDIATELY" warning, which plays at "Urgent Warning Volume" instead. openpilot will not hand the car back on its own, so taking over is on you. It never plays quieter than "Auto" would, so it can always reach you.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Set the volume for openpilot's serious warnings, such as "BRAKE! Risk of Collision" when it thinks you're about to hit something.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The "Louder Blind Spot Alert" plays at this volume too. It never plays quieter than "Auto" would, so it can always reach you.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Set the volume for openpilot's most urgent warnings, the ones telling you to take the wheel right now.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"DISENGAGE IMMEDIATELY" plays at this volume, which is what you get once you've ignored the driver camera long enough that openpilot no longer trusts you're paying attention. It never plays quieter than "Auto" would, so it can always reach you.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>FrogPilotTelemetryPage</name>
     <message>
-        <source>Share FrogPilot Data?</source>
+        <source>Help Improve FrogPilot?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>No</source>
+        <source>No Thanks</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Yes</source>
+        <source>Yes, Share Data</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&lt;b&gt;Help make FrogPilot better by sharing filtered driving logs, short speed limit sign clips, and usage stats.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This data is how FrogPilot gets better at driving your car. It's used to make steering smoother and more precise, tune how FrogPilot uses the gas and brakes so it speeds up, slows down, and stops more naturally, add and fine-tune support for more cars, train features like the speed limit sign reader, and find and fix problems faster. Every driver who shares makes FrogPilot drive better for everyone.&lt;br&gt;&lt;br&gt;&lt;b&gt;Your privacy comes first.&lt;/b&gt; Driving logs are filtered on your device before they leave, and logs and clips upload only on unmetered Wi-Fi or Ethernet while your car is off, so they never use your data plan or slow a drive.&lt;br&gt;&lt;br&gt;&lt;b&gt;Driving logs&lt;/b&gt; have camera footage, account details, SSH keys, and the exact GPS location and date/time removed. The last six VIN characters are masked, and the rest remains. Each drive gets its own random ID. They're stored under your FrogPilot device ID. Raw CAN data from your car is kept because it's essential for adding and improving car support, and on some cars it can still contain GPS, VIN, date/time, or who's in the seats.&lt;br&gt;&lt;br&gt;&lt;b&gt;Speed Limit Filler&lt;/b&gt; (if you use it) shares the speed limits it collects: a list of the roads you've driven and in which direction, linked to your device.&lt;br&gt;&lt;br&gt;&lt;b&gt;Speed limit sign clips&lt;/b&gt; are about 10 seconds of road camera video, saved when your dashboard shows a new speed limit. No GPS location or date and time is attached, and each clip gets an ID that doesn't reveal when it was recorded. Each is sent with that speed limit and basic details about your device, its camera, and its software, and stored under your FrogPilot device ID. The video itself shows where you were and can include license plates, people, and places, and a clip can be matched to its driving log.&lt;br&gt;&lt;br&gt;&lt;b&gt;Usage stats&lt;/b&gt; cover your device, software version, car, FrogPilot settings, and driving totals, with only your city, state, and country, never your exact location. They're linked to your FrogPilot device ID.&lt;br&gt;&lt;br&gt;Turn this off anytime to stop all of these. Your device will still send its type and software version, check in when it starts and after each drive so we can count active devices, and send crash reports tagged with your device ID. None of these include your stats, settings, or location.</source>
+        <source>Your FrogPilot device ID is &lt;b&gt;%1&lt;/b&gt;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Help make FrogPilot better by sharing filtered driving logs, short speed limit sign clips, learned speed limits, and usage stats.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Your everyday drives help us improve steering, acceleration, and braking, fine-tune support for more cars, train the speed limit sign reader, and find and fix problems. Keeping sharing enabled gives us more real-world examples across cars, roads, and driving conditions.&lt;br&gt;&lt;br&gt;&lt;b&gt;Privacy protection starts on your device.&lt;/b&gt; Driving logs are filtered, and the location included in usage stats is generalized, before they are sent.&lt;br&gt;&lt;br&gt;&lt;b&gt;Driving logs&lt;/b&gt; record vehicle behavior and FrogPilot's driving decisions. Before upload, we remove camera footage, audio, driver face data, account details, SSH keys, navigation routes, and map road names and IDs. Exact GPS coordinates and recording date/time fields are cleared, and &lt;b&gt;the VIN field is removed entirely&lt;/b&gt;. Driver-monitoring data is limited to awareness level and whether your car is right-hand drive. We also discard CAN messages captured during startup vehicle identification. Each drive gets an ID that hides when it was recorded, and uploaded logs are linked to your FrogPilot device ID.&lt;br&gt;&lt;br&gt;Raw CAN data recorded during driving is kept to help improve car support. On some cars, these vehicle messages can still contain GPS, VIN, date/time, odometer, or seat occupancy information.&lt;br&gt;&lt;br&gt;&lt;b&gt;Usage stats&lt;/b&gt; cover your device, software, car and calibration details, FrogPilot settings, model usage and scores, and lifetime driving totals, including drives from before you turned sharing on. &lt;b&gt;Your location is generalized on your device.&lt;/b&gt; It reports the nearest city in your country or US state from a list filtered to populations of &lt;b&gt;50,000 or more&lt;/b&gt;. If that region has no qualifying city, it uses its capital instead. This helps protect location privacy in small communities. For location, these stats include only the resulting city, state, and country, never your exact GPS coordinates. The VIN is excluded from car details, and stats are linked to your FrogPilot device ID.&lt;br&gt;&lt;br&gt;&lt;b&gt;Speed limit sign clips&lt;/b&gt; are about 10 seconds of road camera video, recorded when a supported car's dashboard shows a new speed limit, when the speed limit sign reader sees a sign it isn't sure of, and for some of the limits it reads. No GPS coordinates or recording date/time are attached, and clip IDs hide the original recording time. Each clip includes the speed limit or the reader's reading, camera calibration, and basic device, camera, and software details, and is linked to your FrogPilot device ID. Video is uploaded as recorded and can show license plates, people, and identifiable places. Clips picked to train or test the reader may be kept for up to 2 years. Clips may be matched to driving logs.&lt;br&gt;&lt;br&gt;&lt;b&gt;Learned speed limits&lt;/b&gt; are the limits "Speed Limit Filler" learns from the signs the camera reads, when that setting is on. They are used to improve speed limits for everyone using FrogPilot. Each one includes the speed limit, the map ID of the road it was learned on, the direction of travel, the GPS location and heading where the sign was seen, the date, and how far the car drove with that limit, and they are linked to your FrogPilot device ID. Each one also includes a cropped photo of the sign it was read from, with the GPS location, heading, and time it was taken, and the photo can show part of the road around the sign. Roads where the sign matched your map's limit are sent too, with the limit and the date, to measure how accurate the sign reader is. Limits learned before you turned sharing on are included. The road IDs and locations show where the car has been driven.&lt;br&gt;&lt;br&gt;&lt;b&gt;Uploads&lt;/b&gt; of driving logs, clips, and learned speed limits happen only while your car is off, on unmetered Wi-Fi or Ethernet. Usage stats are sent at startup and after drives and may use other available internet connections.&lt;br&gt;&lt;br&gt;&lt;b&gt;Your choice.&lt;/b&gt; You can turn off "Share FrogPilot Data" anytime to stop sharing these logs, clips, learned speed limits, and usage stats. Basic device registration still sends device type, operating system and software build details, and a public authentication key. Startup and after-drive check-ins continue without your usage stats, settings, or location. Crash reports also continue, tagged with your comma device ID (or your Konik device ID when you use the Konik server) and software details. Python crash reports do not automatically collect local variable values.&lt;br&gt;&lt;br&gt;Read FrogPilot's full privacy policy at &lt;b&gt;frogpilot.com/privacy&lt;/b&gt;.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -4219,7 +4186,7 @@ Ne continuez que si vous comprenez leur fonctionnement.</translation>
         <translation>GitHub et GitLab sont hors ligne...</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Swap openpilot's colors, icons, sounds, turn signal animations, steering wheel picture and personality button for a theme pack you download.&lt;/b&gt;&lt;br&gt;&lt;br&gt;You mix and match freely, so one theme's colors can run alongside another's sounds. Packs are made by other drivers, and you can build your own with the "Theme Maker" in "The Pond".</source>
+        <source>&lt;b&gt;Swap openpilot's colors, icons, sounds, turn signal animations, steering wheel picture, and personality button for a theme pack you download.&lt;/b&gt;&lt;br&gt;&lt;br&gt;You mix and match freely, so one theme's colors can run alongside another's sounds. Packs are made by other drivers, and you can build your own with the "Theme Maker" in "The Pond".</source>
         <translation>&lt;b&gt;Remplacez les couleurs, icônes, sons, animations de clignotant, image du volant et bouton de personnalité d'openpilot par ceux d'un pack de thème téléchargé.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Vous pouvez les combiner librement : les couleurs d'un thème peuvent accompagner les sons d'un autre. Les packs sont créés par d'autres conducteurs et vous pouvez fabriquer le vôtre avec le « Theme Maker » dans « The Pond ».</translation>
     </message>
     <message>
@@ -4227,11 +4194,11 @@ Ne continuez que si vous comprenez leur fonctionnement.</translation>
         <translation>&lt;b&gt;Modifiez les couleurs dessinées par openpilot sur l'écran de conduite, principalement la trajectoire à l'avant et les lignes de voie.&lt;/b&gt;&lt;br&gt;&lt;br&gt;« Original » correspond à la trajectoire verte et aux lignes blanches normales d'openpilot. Une palette recolore aussi le repère du véhicule précédent et les cases de la barre latérale, mais les bords de route restent toujours rouges. Les options festives correspondent à la fête indiquée et chaque pack téléchargé apporte ses propres couleurs.</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Change the settings, home and flag buttons on openpilot's sidebar.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"Stock" puts the normal three back. A pack replaces all three at once and nothing else, so every other icon openpilot draws stays stock.</source>
+        <source>&lt;b&gt;Change the settings, home, and flag buttons on openpilot's sidebar.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"Stock" puts the normal three back. A pack replaces all three at once and nothing else, so every other icon openpilot draws stays stock.</source>
         <translation>&lt;b&gt;Modifiez les boutons Réglages, Accueil et Signalement de la barre latérale d'openpilot.&lt;/b&gt;&lt;br&gt;&lt;br&gt;« Original » rétablit les trois icônes normales. Un pack remplace ces trois icônes à la fois, sans rien modifier d'autre ; toutes les autres icônes d'openpilot restent d'origine.</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Change the icons on the driving personality button, the one you tap on the driving screen to switch between Aggressive, Standard and Relaxed.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Each pack draws four icons: one each for Aggressive, Standard and Relaxed, plus one that takes over while Traffic Mode is on. This row only appears while that button is switched on under "Driving Personality Button".</source>
+        <source>&lt;b&gt;Change the icons on the driving personality button, the one you tap on the driving screen to switch between Aggressive, Standard, and Relaxed.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Each pack draws four icons: one each for Aggressive, Standard, and Relaxed, plus one that takes over while Traffic Mode is on. This row only appears while that button is switched on under "Driving Personality Button".</source>
         <translation>&lt;b&gt;Modifiez les icônes du bouton de personnalité de conduite, que vous touchez sur l'écran de conduite pour passer entre Agressif, Standard et Détendu.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Chaque pack contient quatre icônes : une pour chacun des profils Agressif, Standard et Détendu, plus une utilisée lorsque le Mode trafic est actif. Cette ligne n'apparaît que si ce bouton est activé sous « Bouton de personnalité de conduite ».</translation>
     </message>
     <message>
@@ -4243,11 +4210,11 @@ Ne continuez que si vous comprenez leur fonctionnement.</translation>
         <translation>&lt;b&gt;Modifiez l'image du volant située en haut à droite de l'écran de conduite, qui tourne lorsqu'openpilot dirige le véhicule.&lt;/b&gt;&lt;br&gt;&lt;br&gt;« Original » utilise le volant normal d'openpilot et « Aucun » le masque entièrement. Certains volants téléchargés sont animés.</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Play an animation across the driving screen for as long as your turn signal is on.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The animation runs toward whichever side you signalled. "None" turns it off, and each downloaded pack brings its own animation.</source>
+        <source>&lt;b&gt;Play an animation across the driving screen for as long as your turn signal is on.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The animation runs toward whichever side you signaled. "None" turns it off, and each downloaded pack brings its own animation.</source>
         <translation>&lt;b&gt;Affichez une animation sur l'écran de conduite tant que le clignotant est activé.&lt;/b&gt;&lt;br&gt;&lt;br&gt;L'animation se déplace vers le côté signalé. « Aucune » la désactive et chaque pack téléchargé apporte sa propre animation.</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Dress openpilot up for thirteen holidays through the year, swapping the colors, icons, sounds, turn signals, steering wheel and personality button all at once.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Smaller ones like April Fools or Cinco de Mayo run on the day itself. Easter, Halloween, Thanksgiving and Christmas start on the Monday of that week and finish on the day, so they last anywhere from one day to a full week depending on where the date falls.&lt;br&gt;&lt;br&gt;While a holiday is running it replaces the themes you picked, and your own choices come back the next day.</source>
+        <source>&lt;b&gt;Dress openpilot up for thirteen holidays through the year, swapping the colors, icons, sounds, turn signals, steering wheel, and personality button all at once.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Smaller ones like April Fools or Cinco de Mayo run on the day itself. Easter, Halloween, Thanksgiving, and Christmas start on the Monday of that week and finish on the day, so they last anywhere from one day to a full week depending on where the date falls.&lt;br&gt;&lt;br&gt;While a holiday is running it replaces the themes you picked, and your own choices come back the next day.</source>
         <translation>&lt;b&gt;Habillez openpilot pour treize fêtes au fil de l'année en remplaçant simultanément les couleurs, icônes, sons, clignotants, volant et bouton de personnalité.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Les fêtes plus courtes, comme le poisson d'avril ou Cinco de Mayo, ne s'appliquent que le jour même. Pâques, Halloween, Thanksgiving et Noël commencent le lundi de la semaine concernée et se terminent le jour de la fête ; elles durent donc d'un jour à une semaine complète selon la date.&lt;br&gt;&lt;br&gt;Pendant une fête, le thème festif remplace vos choix, qui sont rétablis le lendemain.</translation>
     </message>
     <message>
@@ -4356,7 +4323,7 @@ Ne continuez que si vous comprenez leur fonctionnement.</translation>
     </message>
     <message>
         <source>Download</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Télécharger</translation>
     </message>
     <message>
         <source>"Random Themes" picks from the built-in Frog theme, the holiday themes when "Include Holiday Themes" is on, and themes you've already downloaded, so grab the ones you want it to use!</source>
@@ -4375,7 +4342,7 @@ Ne continuez que si vous comprenez leur fonctionnement.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&lt;b&gt;Start every drive with a theme picked at random from the built-in Frog theme and the packs you have already downloaded.&lt;/b&gt;&lt;br&gt;&lt;br&gt;A downloaded pack only joins the mix once you have its colors, icons and sounds, and the same theme can come up twice in a row. With "Include Holiday Themes" on, the holiday themes are in the mix too. While this is on, the rows inside "Custom Themes" stop offering "SELECT", and turning it back off gives you your own picks again.</source>
+        <source>&lt;b&gt;Start every drive with a theme picked at random from the built-in Frog theme and the packs you have already downloaded.&lt;/b&gt;&lt;br&gt;&lt;br&gt;A downloaded pack only joins the mix once you have its colors, icons, and sounds, and the same theme can come up twice in a row. With "Include Holiday Themes" on, the holiday themes are in the mix too. While this is on, the rows inside "Custom Themes" stop offering "SELECT", and turning it back off gives you your own picks again.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -4583,23 +4550,7 @@ Retry to avoid duplicates.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&lt;b&gt;Put every FrogPilot setting back to the value it shipped with, along with some of openpilot's own settings.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Those openpilot settings are "Enable openpilot", "Disengage on Accelerator Pedal", "Driving Personality" and "Cellular Metered". This also clears your accepted terms, your completed training and your language, so you go through first-time setup again in English the next time the device starts. Your drives, backups, downloaded themes, learned driving data and saved keys are left alone.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Reset all FrogPilot and some openpilot settings? You will have to accept the terms, redo the training and set your language again.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Reset Settings to Stock openpilot</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Put every setting back to what plain openpilot uses, turning FrogPilot's own features off rather than back to FrogPilot's defaults.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This also clears your accepted terms, your completed training and your language, so you go through first-time setup again in English the next time the device starts. Your drives, backups, downloaded themes, learned driving data and saved keys are left alone.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Reset every setting to match stock openpilot? You will have to accept the terms, redo the training and set your language again.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4622,6 +4573,26 @@ Retry to avoid duplicates.</source>
         <source>&lt;b&gt;Show FrogPilot's developer readouts on the driving screen for your next drive, so a bug report can say what openpilot was actually doing.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It switches itself back off once you finish the drive. While it is on, the temperature reads in Celsius and the developer numbers read in scientific units, whatever you picked elsewhere. It also brings back anything you hid from the driving screen and uses the default "Model UI" sizes and "Camera View", with "Rainbow Path" off, until the drive ends. Your speedometer keeps its own units.</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Tailscale sign-out failed...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Put every FrogPilot setting back to the value it shipped with, along with some of openpilot's own settings.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Those openpilot settings are "Enable openpilot", "Disengage on Accelerator Pedal", "Driving Personality", and "Cellular Metered". This also clears your accepted terms, your completed training, and your language, so you go through first-time setup again in English the next time the device starts. It also erases your saved keys (Mapbox, weather, and Toyota security keys), favorite places, Discord name, timezone, map settings, FrogPilot driving stats, Speed Limit Filler data, saved car details, SSH keys, and the browsers paired with "The Pond" (making a new pairing code if pairing is on), turns SSH off, signs out of Tailscale, and asks again whether to share FrogPilot data, so the device is clean to sell or hand on. Your drives, backups, and downloaded themes are left alone, and settings backups still hold your keys and favorite places until you delete them.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reset all FrogPilot and some openpilot settings? This also erases your saved keys, favorite places, Discord name, timezone, map settings, driving stats, Speed Limit Filler data, saved car details, SSH keys, and paired browsers, turns SSH off, signs out of Tailscale, and asks again whether to share FrogPilot data. You will have to accept the terms, redo the training, and set your language again.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Put every setting back to what plain openpilot uses, turning FrogPilot's own features off rather than back to FrogPilot's defaults.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This also clears your accepted terms, your completed training, and your language, so you go through first-time setup again in English the next time the device starts. It also erases your saved keys (Mapbox, weather, and Toyota security keys), favorite places, Discord name, timezone, map settings, FrogPilot driving stats, Speed Limit Filler data, saved car details, SSH keys, and the browsers paired with "The Pond" (making a new pairing code if pairing is on), turns SSH off, signs out of Tailscale, and asks again whether to share FrogPilot data, so the device is clean to sell or hand on. Your drives, backups, and downloaded themes are left alone, and settings backups still hold your keys and favorite places until you delete them.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reset every setting to match stock openpilot? This also erases your saved keys, favorite places, Discord name, timezone, map settings, driving stats, Speed Limit Filler data, saved car details, SSH keys, and paired browsers, turns SSH off, signs out of Tailscale, and asks again whether to share FrogPilot data. You will have to accept the terms, redo the training, and set your language again.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>FrogPilotVehiclesPanel</name>
@@ -4631,7 +4602,7 @@ Retry to avoid duplicates.</source>
     </message>
     <message>
         <source>SELECT</source>
-        <translation>SÉLECTIONNER</translation>
+        <translation>CHOISIR</translation>
     </message>
     <message>
         <source>Choose your car make</source>
@@ -4691,7 +4662,7 @@ Retry to avoid duplicates.</source>
     </message>
     <message>
         <source>Lock Doors On Ignition Off After</source>
-        <translation>Verrouiller les portes après la coupure du contact au bout de</translation>
+        <translation>Verrouiller après coupure du contact</translation>
     </message>
     <message>
         <source>MANAGE</source>
@@ -4794,7 +4765,7 @@ Retry to avoid duplicates.</source>
         <translation>&lt;b&gt;Faites redémarrer automatiquement votre véhicule lorsque celui qui vous précède repart après un arrêt complet.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Le régulateur Subaru maintient les freins et attend que vous appuyiez sur reprise après quelques secondes d'arrêt. FrogPilot surveille le véhicule précédent et envoie cette commande pour vous. Gardez le pied près du frein lors des premières utilisations afin d'observer son comportement.</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Settings that only work on Lexus and Toyota cars, covering door locking, dashboard speed, stop-and-go and openpilot's own tuning.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Which of these you see depends on your exact model and on what hardware is fitted.</source>
+        <source>&lt;b&gt;Settings that only work on Lexus and Toyota cars, covering door locking, dashboard speed, stop-and-go, and openpilot's own tuning.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Which of these you see depends on your exact model and on what hardware is fitted.</source>
         <translation>&lt;b&gt;Réglages réservés aux véhicules Lexus et Toyota, concernant le verrouillage des portes, la vitesse du tableau de bord, le redémarrage après arrêt et les réglages propres à openpilot.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Les options affichées dépendent du modèle exact et du matériel installé.</translation>
     </message>
     <message>
@@ -4810,19 +4781,11 @@ Retry to avoid duplicates.</source>
         <translation>&lt;b&gt;Autorisez openpilot à contrôler l'accélérateur et le frein sur une ancienne Toyota en redirigeant les messages du calculateur de régulation par un faisceau que vous installez vous-même.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Le DSU est le boîtier qui gère normalement le régulateur radar du véhicule. N'activez cette option qu'après l'installation physique du faisceau, car openpilot ne peut pas vérifier sa présence.</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Swap in FrogsGoMoo's own settings for how openpilot comes to a stop.&lt;/b&gt;&lt;br&gt;&lt;br&gt;These are personal preferences rather than a fix for anything, and they are already on. They take over your stopping and starting values from "Driving Controls" and hide those rows while this is on, though on a Toyota the starting value has no effect.</source>
-        <translation>&lt;b&gt;Utilisez les réglages personnels de FrogsGoMoo pour les arrêts d'openpilot.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Il s'agit de préférences personnelles et non d'un correctif ; elles sont déjà activées. Elles remplacent vos valeurs d'arrêt et de démarrage sous « Contrôles de conduite » et masquent ces lignes. Sur une Toyota, la valeur de démarrage n'a toutefois aucun effet.</translation>
-    </message>
-    <message>
         <source>&lt;b&gt;Lock the doors on their own once you have switched the car off and left it, after the number of seconds you pick.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The countdown only starts once the screen has gone dark, and it starts over if the driver camera still sees a face in the driver's seat or if any door is open. Somebody sitting in the front passenger seat will not hold it off. Set it to "Never" to switch it off.</source>
         <translation>&lt;b&gt;Verrouillez automatiquement les portes après avoir coupé le contact et quitté le véhicule, au terme du délai choisi.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Le compte à rebours ne commence qu'une fois l'écran éteint et redémarre si la caméra conducteur voit encore un visage sur le siège du conducteur ou si une porte est ouverte. Une personne assise sur le siège passager avant ne retarde pas le verrouillage. Réglez sur « Jamais » pour désactiver la fonction.</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Make the car pull away by itself after a full stop on a Lexus or Toyota that does not do this from the factory.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Without it you have to press the gas or the resume button every time traffic moves off. It works by telling the car openpilot is never fully stopped, so keep your foot near the brake the first few times.</source>
-        <translation>&lt;b&gt;Faites redémarrer automatiquement une Lexus ou Toyota après un arrêt complet lorsque le véhicule ne le fait pas d'origine.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Sans cette fonction, vous devez appuyer sur l'accélérateur ou sur le bouton de reprise chaque fois que la circulation redémarre. Elle indique au véhicule qu'openpilot n'est jamais complètement arrêté ; gardez donc le pied près du frein lors des premières utilisations.</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;What openpilot has worked out about your car and what it can do with it.&lt;/b&gt;&lt;br&gt;&lt;br&gt;These rows are read-only. They stay on "Unknown until first drive" until openpilot has recognised your car.</source>
+        <source>&lt;b&gt;What openpilot has worked out about your car and what it can do with it.&lt;/b&gt;&lt;br&gt;&lt;br&gt;These rows are read-only. They stay on "Unknown until first drive" until openpilot has recognized your car.</source>
         <translation>&lt;b&gt;Informations déterminées par openpilot sur votre véhicule et ses capacités.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Ces lignes sont en lecture seule. Elles restent sur « Inconnu jusqu'au premier trajet » tant qu'openpilot n'a pas reconnu le véhicule.</translation>
     </message>
     <message>
@@ -4838,7 +4801,7 @@ Retry to avoid duplicates.</source>
         <translation>&lt;b&gt;Indique si openpilot gère lui-même l'accélérateur et le frein au lieu de les laisser au régulateur de vitesse du véhicule.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Si la réponse est « Non », openpilot contrôle uniquement la direction et le véhicule décide de la vitesse. Les réglages d'accélération et de freinage sous « Contrôles de conduite » n'ont alors aucun effet.</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Whether openpilot can use your car's radar alongside its camera, which helps it track the car ahead in rain, fog and darkness.&lt;/b&gt;&lt;br&gt;&lt;br&gt;If this says No, openpilot is working from the camera alone and may pick up the car ahead later in poor visibility.</source>
+        <source>&lt;b&gt;Whether openpilot can use your car's radar alongside its camera, which helps it track the car ahead in rain, fog, and darkness.&lt;/b&gt;&lt;br&gt;&lt;br&gt;If this says No, openpilot is working from the camera alone and may pick up the car ahead later in poor visibility.</source>
         <translation>&lt;b&gt;Indique si openpilot peut utiliser le radar du véhicule avec sa caméra, ce qui l'aide à suivre le véhicule précédent sous la pluie, dans le brouillard et dans l'obscurité.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Si la réponse est « Non », openpilot fonctionne uniquement avec la caméra et peut détecter le véhicule précédent plus tard lorsque la visibilité est mauvaise.</translation>
     </message>
     <message>
@@ -4862,12 +4825,12 @@ Retry to avoid duplicates.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&lt;b&gt;Settings that only work on Genesis, Hyundai and Kia cars, covering a steering torque hack.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The steering hack only appears on cars using CAN-FD.</source>
+        <source>&lt;b&gt;Settings that only work on Genesis, Hyundai, and Kia cars, covering a steering torque hack.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The steering hack only appears on cars using CAN-FD.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Reset</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Réinitialiser</translation>
     </message>
     <message>
         <source>&lt;b&gt;Warning:&lt;/b&gt; openpilot can't tell whether your keys are still in the car, so keep a spare somewhere safe before you rely on this!</source>
@@ -4902,7 +4865,7 @@ Retry to avoid duplicates.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&lt;b&gt;Settings that only work on Buick, Cadillac, Chevrolet, GMC and Holden cars, covering pedal response on hills and how openpilot stops and starts.&lt;/b&gt;</source>
+        <source>&lt;b&gt;Settings that only work on Buick, Cadillac, Chevrolet, GMC, and Holden cars, covering pedal response on hills and how openpilot stops and starts.&lt;/b&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4914,7 +4877,23 @@ Retry to avoid duplicates.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&lt;b&gt;Extra hardware openpilot has found fitted to your car, such as a comma pedal, an SDSU or a ZSS.&lt;/b&gt;&lt;br&gt;&lt;br&gt;openpilot works these out from your car's wiring on its own. "None" is not proof nothing is fitted: a comma pedal is only reported on cars that support one.</source>
+        <source>&lt;b&gt;Extra hardware openpilot has found fitted to your car, such as a comma pedal, an SDSU, or a ZSS.&lt;/b&gt;&lt;br&gt;&lt;br&gt;openpilot works these out from your car's wiring on its own. "None" is not proof nothing is fitted: a comma pedal is only reported on cars that support one.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Responsive Pedal at Low Speeds</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Improves acceleration from a standstill for a more responsive throttle feel in city driving.&lt;/b&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Swap in FrogsGoMoo's own settings for how openpilot comes to a stop.&lt;/b&gt;&lt;br&gt;&lt;br&gt;These are personal preferences rather than a fix for anything, and they are already on. They take over your stopping and starting values from "Driving Controls" and hide those rows while this is on, though on a Toyota the starting value has no effect. They also make openpilot's gas and brake control predict the car's acceleration further ahead at every speed, so they change how it drives while cruising as well.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Make the car pull away by itself after a full stop on a Lexus or Toyota that does not do this from the factory.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Without it you have to press the gas or the resume button every time traffic moves off. It works by telling the car openpilot is never fully stopped, so keep your foot near the brake the first few times. It also lets openpilot engage, and stay engaged, below about 19 mph (30 km/h), where it would otherwise refuse or turn itself off.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -5125,7 +5104,7 @@ Retry to avoid duplicates.</source>
         <translation>&lt;b&gt;Ajoutez à l'écran de conduite des éléments absents d'openpilot d'origine.&lt;/b&gt;&lt;br&gt;&lt;br&gt;L'un d'eux modifie réellement la conduite : le « Bouton de personnalité de conduite » change votre distance de suivi.</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Colour the driving path green when openpilot is speeding up and red when it is slowing down.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Handy for seeing a slowdown coming before you feel it.</source>
+        <source>&lt;b&gt;Color the driving path green when openpilot is speeding up and red when it is slowing down.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Handy for seeing a slowdown coming before you feel it.</source>
         <translation>&lt;b&gt;Colorez la trajectoire en vert lorsqu'openpilot accélère et en rouge lorsqu'il ralentit.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Cela permet de voir un ralentissement arriver avant de le ressentir.</translation>
     </message>
     <message>
@@ -5133,7 +5112,7 @@ Retry to avoid duplicates.</source>
         <translation>&lt;b&gt;Faites tourner l'image du volant à l'écran en synchronisation avec le volant réel.&lt;/b&gt;</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Change how openpilot draws the road ahead, including the driving path, the lane lines and the road edges.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Turning this off falls back to stock openpilot's sizes, though the coloured path edges go away with it.</source>
+        <source>&lt;b&gt;Change how openpilot draws the road ahead, including the driving path, the lane lines, and the road edges.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Turning this off falls back to stock openpilot's sizes, though the colored path edges go away with it.</source>
         <translation>&lt;b&gt;Modifiez la façon dont openpilot dessine la route à l'avant, notamment la trajectoire, les lignes de voie et les bords de route.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Désactiver cette fonction rétablit les dimensions d'openpilot d'origine, mais supprime également les bords colorés de la trajectoire.</translation>
     </message>
     <message>
@@ -5193,19 +5172,15 @@ Retry to avoid duplicates.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&lt;b&gt;Fall back to Mapbox for the speed limit when none of your downloaded maps, your dashboard or signs read by the camera know one.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Needs your Public Mapbox Key set up under "Maps and Navigation" and a working internet connection.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>&lt;b&gt;Draw the paths of the lanes either side of you, so you can see where openpilot thinks they run.&lt;/b&gt;&lt;br&gt;&lt;br&gt;They only appear above your "Minimum Lane Change Speed" (20 mph or 32 km/h by default), and only where openpilot sees a lane between you and the road edge.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&lt;b&gt;Turn the lane beside you red whenever your car's sensors see something in that blind spot.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It only shows up above your "Minimum Lane Change Speed" (20 mph or 32 km/h by default), so it stays away in slow traffic and car parks. Keep checking your mirrors regardless.</source>
+        <source>&lt;b&gt;Turn the lane beside you red whenever your car's sensors see something in that blind spot.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It only shows up above your "Minimum Lane Change Speed" (20 mph or 32 km/h by default), so it stays away in slow traffic and parking lots. Keep checking your mirrors regardless.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&lt;b&gt;Add a button to the driving screen that switches your following distance between Aggressive, Standard and Relaxed without going into the menus.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It works as a second "Distance" button, so holding it, or changing what that button does under "WHEEL BUTTONS", gives you those actions instead. This changes how the car actually drives, not just what you see. It also shows which one is active.</source>
+        <source>&lt;b&gt;Add a button to the driving screen that switches your following distance between Aggressive, Standard, and Relaxed without going into the menus.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It works as a second "Distance" button, so holding it, or changing what that button does under "WHEEL BUTTONS", gives you those actions instead. This changes how the car actually drives, not just what you see. It also shows which one is active.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5217,11 +5192,15 @@ Retry to avoid duplicates.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&lt;b&gt;Set how thick the coloured stripe down each side of the driving path is, which is what tells you which mode openpilot is in.&lt;/b&gt;&lt;br&gt;&lt;br&gt;By default the two stripes together take up a fifth of the path width. Set it to zero to hide the stripe entirely.&lt;br&gt;&lt;br&gt;Light blue means "Always On Lateral" is steering for you, green is normal driving, orange is Experimental Mode, red is Traffic Mode, and yellow means you have overridden Conditional Experimental Mode to keep Experimental Mode off.</source>
+        <source>&lt;b&gt;Set how thick the colored stripe down each side of the driving path is, which is what tells you which mode openpilot is in.&lt;/b&gt;&lt;br&gt;&lt;br&gt;By default the two stripes together take up a fifth of the path width. Set it to zero to hide the stripe entirely.&lt;br&gt;&lt;br&gt;Light blue means "Always On Lateral" is steering for you, green is normal driving, orange is Experimental Mode, red is Traffic Mode, and yellow means you have overridden Conditional Experimental Mode to keep Experimental Mode off.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&lt;b&gt;Replace your speed with a running timer once you come to a complete stop, so you can see how long you have been waiting.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It stays off for the first minute of a drive.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Fall back to Mapbox for the speed limit when none of your downloaded maps, your dashboard, or signs read by the camera know one.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Needs your Public Mapbox Key set up under "Maps and Navigation" and a working internet connection. It sends your location to Mapbox to look up the limit.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -5281,7 +5260,7 @@ Retry to avoid duplicates.</source>
     </message>
     <message>
         <source>SELECT</source>
-        <translation>SÉLECTIONNER</translation>
+        <translation>CHOISIR</translation>
     </message>
     <message>
         <source>Select a function to assign to this button</source>
@@ -5544,7 +5523,7 @@ Retry to avoid duplicates.</source>
     </message>
     <message>
         <source>Antarctica</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Antarctique</translation>
     </message>
     <message>
         <source>Afghanistan</source>
@@ -6348,6 +6327,10 @@ Retry to avoid duplicates.</source>
         <source>Excessive %1 actuation detected on your last drive. Please contact support at https://comma.ai/support and share your device's Dongle ID for troubleshooting.</source>
         <translation>Actionnement excessif du %1 détecté lors de votre dernier trajet. Veuillez contacter l'assistance au https://comma.ai/support et partager l'ID du dongle de votre appareil pour le dépannage.</translation>
     </message>
+    <message>
+        <source>NVMe drive not mounted.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>OffroadHome</name>
@@ -6898,7 +6881,11 @@ Retry to avoid duplicates.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Automatically update FrogPilot when the car is off with an active internet connection. Automatic updates turn off after a FrogPilot backup is restored until you update manually.</source>
+        <source>Automatically update FrogPilot when the car is off and the device is on an unmetered connection, such as Wi-Fi. Automatic updates turn off after a FrogPilot backup is restored until you update manually.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No error log found.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -7103,6 +7090,14 @@ Retry to avoid duplicates.</source>
     <message>
         <source>Open</source>
         <translation>Ouvrir</translation>
+    </message>
+    <message>
+        <source>Uploading disabled</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Turn off "Disable Uploads" to upload your drives again.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

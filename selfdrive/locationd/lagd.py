@@ -372,7 +372,8 @@ def main():
   DEBUG = bool(int(os.getenv("DEBUG", "0")))
 
   pm = messaging.PubMaster(['liveDelay'])
-  sm = messaging.SubMaster(['livePose', 'liveCalibration', 'carState', 'controlsState', 'carControl'], poll='livePose')
+  sm = messaging.SubMaster(['livePose', 'liveCalibration', 'carState', 'controlsState', 'carControl'], poll='livePose',
+                           ignore_alive=['frogpilotProcessState'], ignore_valid=['frogpilotProcessState'])
 
   params = Params()
   CP = messaging.log_from_bytes(params.get("CarParams", block=True), car.CarParams)
@@ -383,7 +384,7 @@ def main():
     lag_learner.reset(lag, valid_blocks)
 
   # FrogPilot variables
-  sm = sm.extend(['frogpilotPlan'])
+  sm = sm.extend(['frogpilotProcessState'])
 
   while True:
     sm.update()

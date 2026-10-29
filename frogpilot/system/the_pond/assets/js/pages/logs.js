@@ -5,6 +5,7 @@ const P = window.Pond;
 
 const CONSOLE_ERRORS = { invalid_key: "That key can't be sent to the console", invalid_text: "Commands can be up to 1000 characters, with no tabs or line breaks" };
 const CONSOLE_KEYS = [["Esc", "Escape"], ["Tab", "Tab"], ["Ctrl", "Ctrl"], ["↑", "Up"], ["↓", "Down"], ["←", "Left"], ["→", "Right"]];
+const CONSOLE_SESSIONS = [["openpilot", "openpilot"], ["shell", "Shell"]];
 const FILE_PAGE = 50;
 const FILE_PANELS = {
   error: { empty: `<div class="empty"><h3>No error logs</h3><p>Nothing has gone wrong lately.</p></div>`, title: "Error logs" },
@@ -16,15 +17,34 @@ const PATHS = { error: "/api/error_logs", tmux: "/api/tmux_logs" };
 
 const fileLists = {};
 
+let consoleSession = "openpilot";
 let sending = Promise.resolve();
 
 function sendConsole(body) {
-  const sent = sending.then(() => P.request("POST", "/api/tmux", body));
+  const session = consoleSession;
+  const sent = sending.then(() => {
+    return P.request("POST", "/api/tmux", { ...body, session });
+  });
   sending = sent.catch(() => {});
   return sent.then(() => true, error => {
     P.fail(error, "Couldn't send to the console", CONSOLE_ERRORS);
     return false;
   });
+}
+
+function closeShell() {
+  P.request("DELETE", "/api/tmux/shell").catch(error => {
+    P.fail(error, "Couldn't close the shell");
+  });
+}
+
+function consoleSessionButtons() {
+  let buttons = "";
+  for (const [session, label] of CONSOLE_SESSIONS) {
+    buttons += `<button type="button" data-session="${session}" aria-pressed="${session === "openpilot"}">${label}</button>`;
+  }
+
+  return `<div class="seg" role="group" aria-label="Console">${buttons}</div>`;
 }
 
 function fileURL(button) {
@@ -82,7 +102,14 @@ function setToggle(button, pressed, icon, label) {
 P.page("logs", {
   title: "Error Logs and Console",
   async render() {
-    const [errorLogs, tmuxLogs, pane] = await Promise.all([P.get("/api/error_logs"), P.get("/api/tmux_logs"), P.get("/api/tmux")]);
+    consoleSession = "openpilot";
+
+    const [errorLogs, tmuxLogs, pane] = await Promise.all([
+      P.get("/api/error_logs"),
+      P.get("/api/tmux_logs"),
+      P.get("/api/tmux?session=openpilot")
+    ]);
+
     return {
       body: `
       <div class="two-col">
@@ -91,6 +118,7 @@ P.page("logs", {
           <section class="panel logs-console"><div class="panel-head"><h2>Live console</h2><span class="aside state-line" data-console-state><span class="dot"></span>Live</span></div>
             <div class="logs-term">
               <div class="logs-term-bar">
+                ${consoleSessionButtons()}
                 <button type="button" class="btn btn-small logs-term-btn" data-act="logs-pause" aria-pressed="false">${P.ic("pause")}<span>Pause</span></button>
                 <button type="button" class="btn btn-small logs-term-btn" data-act="logs-expand" aria-pressed="false">${P.ic("full")}<span>Expand</span></button>
                 <button type="button" class="btn btn-small logs-term-btn logs-save" data-act="logs-save">${P.ic("file")}<span>Save a copy</span></button>
@@ -111,6 +139,33 @@ P.page("logs", {
         let id = pane.id;
         let lines = pane.lines;
         con.scrollTop = con.scrollHeight;
+        root.querySelector("[aria-label='Console']").addEventListener("click", async e => {
+          const button = e.target.closest("[data-session]");
+          if (!button || button.dataset.session === consoleSession) {
+            return;
+          }
+
+          if (button.dataset.session === "shell") {
+            const warning = "The shell in The Pond can run any command on the device, including ones that change or erase its software.";
+            if (!await P.pinWarning("shell", warning)) {
+              return;
+            }
+          }
+
+          if (consoleSession === "shell") {
+            closeShell();
+          }
+
+          consoleSession = button.dataset.session;
+          for (const option of button.parentElement.children) {
+            option.setAttribute("aria-pressed", String(option === button));
+          }
+
+          id = "";
+          lines = [];
+          con.textContent = "";
+          following = true;
+        });
         con.addEventListener("scroll", () => {
           following = con.scrollHeight - con.scrollTop - con.clientHeight < 24;
         });
@@ -157,8 +212,9 @@ P.page("logs", {
           if (document.hidden || pause.getAttribute("aria-pressed") === "true") {
             return;
           }
-          const update = await P.get(`/api/tmux?since=${id}`);
-          if (stopped || !update || pause.getAttribute("aria-pressed") === "true") {
+          const session = consoleSession;
+          const update = await P.get(`/api/tmux?session=${session}&since=${id}`);
+          if (stopped || !update || session !== consoleSession || pause.getAttribute("aria-pressed") === "true") {
             return;
           }
           id = update.id;
@@ -177,6 +233,9 @@ P.page("logs", {
         });
         return () => {
           stopped = true;
+          if (consoleSession === "shell") {
+            closeShell();
+          }
         };
       }
     };
@@ -284,7 +343,7 @@ P.act("logs-save", async b => {
   b.disabled = true;
   let saved;
   try {
-    saved = await P.request("POST", "/api/tmux_logs");
+    saved = await P.request("POST", "/api/tmux_logs", { session: consoleSession });
   } catch (error) {
     b.disabled = false;
     P.fail(error, "Couldn't save the console");

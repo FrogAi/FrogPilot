@@ -15,6 +15,7 @@ signals:
 
 protected:
   void mousePressEvent(QMouseEvent *e) override;
+  void showEvent(QShowEvent *event) override;
 
 private:
   void rateDrive(int rating);
@@ -25,12 +26,15 @@ private:
 
   QElapsedTimer driveTimer;
 
+  QLabel *blacklistLabel;
   QLabel *modelDrivesLabel;
   QLabel *modelLabel;
   QLabel *modelRankLabel;
   QLabel *modelRatingLabel;
   QLabel *resultLabel;
   QLabel *totalDrivesLabel;
+
+  QPushButton *blacklistButton;
 
   QStackedLayout *mainLayout;
 

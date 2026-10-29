@@ -45,7 +45,7 @@ SafetyModel = car.CarParams.SafetyModel
 # FrogPilot variables
 FrogPilotEventName = custom.FrogPilotOnroadEvent.EventName
 
-SHOWN_ONCE_EVENTS = {EventName.belowSteerSpeed, EventName.resumeRequired, EventName.steerTempUnavailableSilent}
+SHOWN_ONCE_EVENTS = {EventName.belowSteerSpeed, EventName.resumeRequired}
 
 IGNORED_SAFETY_MODES = (SafetyModel.silent, SafetyModel.noOutput)
 
@@ -82,7 +82,7 @@ class SelfdriveD:
     # TODO: de-couple selfdrived with card/conflate on carState without introducing controls mismatches
     self.car_state_sock = messaging.sub_sock('carState', timeout=20)
 
-    ignore = self.sensor_packets + self.gps_packets + ['alertDebug']
+    ignore = self.sensor_packets + self.gps_packets + ['alertDebug', 'frogpilotProcessState']
     if SIMULATION:
       ignore += ['driverCameraState', 'managerState']
     if REPLAY:
@@ -136,10 +136,10 @@ class SelfdriveD:
       self.startup_event = None
     if not car_recognized:
       self.startup_event = EventName.startupNoCar
-    elif car_recognized and self.CP.passive:
-      self.startup_event = EventName.startupNoControl
     elif self.CP.secOcRequired and not self.CP.secOcKeyAvailable:
       self.startup_event = EventName.startupNoSecOcKey
+    elif car_recognized and self.CP.passive:
+      self.startup_event = EventName.startupNoControl
 
     if not car_recognized:
       self.events.add(EventName.carUnrecognized, static=True)
@@ -148,7 +148,7 @@ class SelfdriveD:
       self.events.add(EventName.dashcamMode, static=True)
 
     # FrogPilot variables
-    self.sm = self.sm.extend(['frogpilotCarState', 'frogpilotPlan'])
+    self.sm = self.sm.extend(['frogpilotCarState', 'frogpilotPlan', 'frogpilotProcessState'])
     self.pm = self.pm.extend(['frogpilotOnroadEvents', 'frogpilotSelfdriveState'])
 
     self.frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles()
@@ -175,7 +175,7 @@ class SelfdriveD:
     # FrogPilot variables
     self.frogpilot_events.clear()
 
-    if self.frogpilot_toggles.block_user:
+    if frogpilot_utilities.block_user():
       self.frogpilot_events.add(FrogPilotEventName.blockUser)
 
     if self.sm['controlsState'].lateralControlState.which() == 'debugState':
@@ -315,13 +315,13 @@ class SelfdriveD:
       else:
         if direction == LaneChangeDirection.left:
           # FrogPilot variables
-          if self.sm['frogpilotPlan'].laneWidthLeft >= self.frogpilot_toggles.lane_detection_width:
+          if self.sm['frogpilotPlan'].laneWidthLeft >= self.frogpilot_toggles.lane_detection_width or not self.frogpilot_toggles.nudgeless:
             self.events.add(EventName.preLaneChangeLeft)
           else:
             self.frogpilot_events.add(FrogPilotEventName.noLaneAvailable)
         else:
           # FrogPilot variables
-          if self.sm['frogpilotPlan'].laneWidthRight >= self.frogpilot_toggles.lane_detection_width:
+          if self.sm['frogpilotPlan'].laneWidthRight >= self.frogpilot_toggles.lane_detection_width or not self.frogpilot_toggles.nudgeless:
             self.events.add(EventName.preLaneChangeRight)
           else:
             self.frogpilot_events.add(FrogPilotEventName.noLaneAvailable)
@@ -468,7 +468,9 @@ class SelfdriveD:
 
       if self.frogpilot_toggles.distance_button_function == frogpilot_variables.BUTTON_FUNCTIONS["PERSONALITY_PROFILE"]:
         distance_pressed |= any(not be.pressed and be.type == ButtonType.gapAdjustCruise for be in CS.buttonEvents)
-        distance_pressed &= not (self.sm['frogpilotCarState'].distanceLongPressed or self.sm['frogpilotCarState'].distanceVeryLongPressed)
+        if self.frogpilot_toggles.distance_long_button_function != frogpilot_variables.BUTTON_FUNCTIONS["NOTHING"] or \
+           self.frogpilot_toggles.distance_very_long_button_function != frogpilot_variables.BUTTON_FUNCTIONS["NOTHING"]:
+          distance_pressed &= not (self.sm['frogpilotCarState'].distanceLongPressed or self.sm['frogpilotCarState'].distanceVeryLongPressed)
       if self.frogpilot_toggles.distance_long_button_function == frogpilot_variables.BUTTON_FUNCTIONS["PERSONALITY_PROFILE"]:
         distance_pressed |= self.sm['frogpilotCarState'].distanceLongPressed
       if self.frogpilot_toggles.distance_very_long_button_function == frogpilot_variables.BUTTON_FUNCTIONS["PERSONALITY_PROFILE"]:
@@ -476,7 +478,9 @@ class SelfdriveD:
       if self.frogpilot_toggles.lkas_button_function == frogpilot_variables.BUTTON_FUNCTIONS["PERSONALITY_PROFILE"]:
         distance_pressed |= any(not be.pressed and be.type == ButtonType.lkas for be in CS.buttonEvents)
 
-      if not distance_pressed and self.distance_pressed_previously:
+      if not distance_pressed and self.distance_pressed_previously and \
+         not (self.sm['frogpilotCarState'].distanceVeryLongPressed and
+              self.frogpilot_toggles.distance_long_button_function == frogpilot_variables.BUTTON_FUNCTIONS["PERSONALITY_PROFILE"]):
         if self.display_timer > 0 or not self.has_menu:
           self.personality = (self.personality - 1) % 3
           self.params.put_nonblocking('LongitudinalPersonality', self.personality)
@@ -578,6 +582,10 @@ class SelfdriveD:
     ss.alertHudVisual = self.AM.current_alert.visual_alert or self.frogpilot_AM.current_alert.visual_alert
 
     # FrogPilot variables
+    has_priority_alert = self.frogpilot_AM.current_alert.priority > self.AM.current_alert.priority
+    if has_priority_alert:
+      ss.alertHudVisual = self.frogpilot_AM.current_alert.visual_alert
+
     if self.frogpilot_toggles.conditional_experimental_mode:
       ss.experimentalMode = self.sm['frogpilotPlan'].experimentalMode
     else:
@@ -605,9 +613,7 @@ class SelfdriveD:
     fpss.alertType = self.frogpilot_AM.current_alert.alert_type
     fpss.alertSound = self.frogpilot_AM.current_alert.audible_alert
     fpss.hasDisableEvents = self.events.contains_disable_event() or self.frogpilot_events.contains_disable_event()
-    fpss.hasPriorityAlert = self.frogpilot_AM.current_alert.alert_status == custom.FrogPilotSelfdriveState.AlertStatus.critical
-    fpss.hasPriorityAlert |= self.frogpilot_AM.current_alert.alert_type.endswith(f"/{ET.SOFT_DISABLE}")
-    fpss.hasPriorityAlert &= self.AM.current_alert.alert_status != log.SelfdriveState.AlertStatus.critical
+    fpss.hasPriorityAlert = has_priority_alert
 
     self.pm.send('frogpilotSelfdriveState', fpss_msg)
 

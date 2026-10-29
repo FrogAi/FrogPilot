@@ -650,6 +650,13 @@ class TestHondaNidecClaritySafety(TestHondaNidecPcmSafety):
     values = {"COMPUTER_BRAKE_HYBRID": brake, "AEB_REQ_1": aeb_req}
     return self.packer.make_can_msg_safety("BRAKE_COMMAND", bus, values)
 
+  def test_computer_brake_blocked(self):
+    for controls_allowed in (True, False):
+      self.safety.set_controls_allowed(controls_allowed)
+      for brake in (1, self.MAX_BRAKE):
+        values = {"COMPUTER_BRAKE": brake}
+        self.assertFalse(self._tx(self.packer.make_can_msg_safety("BRAKE_COMMAND", 0, values)))
+
 
 if __name__ == "__main__":
   unittest.main()

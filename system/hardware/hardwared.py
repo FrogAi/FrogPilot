@@ -218,7 +218,7 @@ def hardware_thread(end_event, hw_queue) -> None:
   fan_controller = None
 
   # FrogPilot variables
-  sm = sm.extend(['frogpilotPlan'])
+  sm = sm.extend(['frogpilotProcessState'])
   pm = pm.extend(['frogpilotDeviceState'])
 
   frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles()

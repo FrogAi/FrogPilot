@@ -123,8 +123,8 @@ class CarState(CarStateBase):
       prev_lkas_button = self.lkas_button
       self.lkas_button = not ret.invalidLkasSetting
 
-      if prev_lkas_button is not None:
-        ret.buttonEvents = [*ret.buttonEvents, *create_button_events(self.lkas_button, prev_lkas_button, {1: ButtonType.lkas})]
+      if prev_lkas_button is not None and self.lkas_button != prev_lkas_button:
+        ret.buttonEvents = [*ret.buttonEvents, *create_button_events(1, 0, {1: ButtonType.lkas}), *create_button_events(0, 1, {1: ButtonType.lkas})]
 
     return ret
 

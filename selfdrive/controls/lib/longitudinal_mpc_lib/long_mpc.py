@@ -59,51 +59,26 @@ STOP_DISTANCE = 6.0
 CRUISE_MIN_ACCEL = -1.2
 CRUISE_MAX_ACCEL = 1.6
 
-def get_jerk_factor(aggressive_jerk_acceleration=0.5, aggressive_jerk_danger=1.0, aggressive_jerk_speed=0.5,
-                    standard_jerk_acceleration=1.0, standard_jerk_danger=1.0, standard_jerk_speed=1.0,
-                    relaxed_jerk_acceleration=1.0, relaxed_jerk_danger=1.0, relaxed_jerk_speed=1.0,
-                    custom_personalities=False, personality=log.LongitudinalPersonality.standard):
-  # FrogPilot variables
-  if custom_personalities:
-    if personality==log.LongitudinalPersonality.relaxed:
-      return relaxed_jerk_acceleration, relaxed_jerk_danger, relaxed_jerk_speed
-    elif personality==log.LongitudinalPersonality.standard:
-      return standard_jerk_acceleration, standard_jerk_danger, standard_jerk_speed
-    elif personality==log.LongitudinalPersonality.aggressive:
-      return aggressive_jerk_acceleration, aggressive_jerk_danger, aggressive_jerk_speed
-    else:
-      raise NotImplementedError("Longitudinal personality not supported")
+def get_jerk_factor(personality=log.LongitudinalPersonality.standard):
+  if personality==log.LongitudinalPersonality.relaxed:
+    return 1.0
+  elif personality==log.LongitudinalPersonality.standard:
+    return 1.0
+  elif personality==log.LongitudinalPersonality.aggressive:
+    return 0.5
   else:
-    if personality==log.LongitudinalPersonality.relaxed:
-      return 1.0, 1.0, 1.0
-    elif personality==log.LongitudinalPersonality.standard:
-      return 1.0, 1.0, 1.0
-    elif personality==log.LongitudinalPersonality.aggressive:
-      return 0.5, 1.0, 0.5
-    else:
-      raise NotImplementedError("Longitudinal personality not supported")
+    raise NotImplementedError("Longitudinal personality not supported")
 
 
-def get_T_FOLLOW(aggressive_follow=1.25, standard_follow=1.45, relaxed_follow=1.75, custom_personalities=False, personality=log.LongitudinalPersonality.standard):
-  # FrogPilot variables
-  if custom_personalities:
-    if personality==log.LongitudinalPersonality.relaxed:
-      return relaxed_follow
-    elif personality==log.LongitudinalPersonality.standard:
-      return standard_follow
-    elif personality==log.LongitudinalPersonality.aggressive:
-      return aggressive_follow
-    else:
-      raise NotImplementedError("Longitudinal personality not supported")
+def get_T_FOLLOW(personality=log.LongitudinalPersonality.standard):
+  if personality==log.LongitudinalPersonality.relaxed:
+    return 1.75
+  elif personality==log.LongitudinalPersonality.standard:
+    return 1.45
+  elif personality==log.LongitudinalPersonality.aggressive:
+    return 1.25
   else:
-    if personality==log.LongitudinalPersonality.relaxed:
-      return 1.75
-    elif personality==log.LongitudinalPersonality.standard:
-      return 1.45
-    elif personality==log.LongitudinalPersonality.aggressive:
-      return 1.25
-    else:
-      raise NotImplementedError("Longitudinal personality not supported")
+    raise NotImplementedError("Longitudinal personality not supported")
 
 def get_stopped_equivalence_factor(v_lead):
   return (v_lead**2) / (2 * COMFORT_BRAKE)
@@ -381,7 +356,7 @@ class LongitudinalMpc:
     # FrogPilot variables
     model_leads = modelV2.leadsV3
 
-    self.status = model_leads[0].prob > frogpilot_toggles.lead_detection_probability or model_leads[1].prob > frogpilot_toggles.lead_detection_probability
+    self.status = radarstate.leadOne.status or radarstate.leadTwo.status
 
     lead_xv_0 = self.process_lead(radarstate.leadOne, frogpilot_toggles, model_leads[0], traffic_mode_active)
     lead_xv_1 = self.process_lead(radarstate.leadTwo, frogpilot_toggles, model_leads[1], traffic_mode_active)
@@ -449,7 +424,7 @@ class LongitudinalMpc:
 
     self.run()
     if (np.any(lead_xv_0[FCW_IDXS,0] - self.x_sol[FCW_IDXS,0] < CRASH_DISTANCE) and
-            model_leads[0].prob > 0.9):
+            radarstate.leadOne.modelProb > 0.9):
       self.crash_cnt += 1
     else:
       self.crash_cnt = 0

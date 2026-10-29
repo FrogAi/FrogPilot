@@ -139,13 +139,17 @@ void AnnotatedCameraWidget::paintGL() {
   hud.frogpilot_nvg = frogpilot_nvg;
   model.frogpilot_nvg = frogpilot_nvg;
 
+  frogpilot_nvg->driverView = active_stream_type == VISION_STREAM_DRIVER;
   frogpilot_nvg->experimentalButtonPosition = experimental_btn->pos();
 
   dmon.frogpilot_toggles = frogpilot_toggles;
   hud.frogpilot_toggles = frogpilot_toggles;
   model.frogpilot_toggles = frogpilot_toggles;
 
-  model.draw(painter, rect());
+  if (!frogpilot_nvg->driverView) {
+    model.draw(painter, rect());
+  }
+
   dmon.draw(painter, rect());
   hud.updateState(*s);
   hud.draw(painter, rect());

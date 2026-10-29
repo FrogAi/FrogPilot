@@ -7,12 +7,13 @@
       <circle cx="89.92" cy="137.92" r="9.88" fill="#292929"/>
     </g>
     <g transform="rotate(14 144 68)">
-      <rect x="102" y="26" width="84" height="84" rx="15.12" fill="#ff3b30"/>
-      <circle cx="125.52" cy="49.52" r="7.98" fill="#fff"/>
-      <circle cx="162.48" cy="49.52" r="7.98" fill="#fff"/>
-      <circle cx="125.52" cy="86.48" r="7.98" fill="#fff"/>
-      <circle cx="162.48" cy="86.48" r="7.98" fill="#fff"/>
-      <circle cx="144" cy="68" r="7.98" fill="#fff"/>
+      <rect x="102" y="26" width="84" height="84" rx="15.12" fill="#292929" stroke="#292929" stroke-width="16"/>
+      <rect x="102" y="26" width="84" height="84" rx="15.12" fill="#fff"/>
+      <circle cx="125.52" cy="49.52" r="7.98" fill="#292929"/>
+      <circle cx="162.48" cy="49.52" r="7.98" fill="#292929"/>
+      <circle cx="125.52" cy="86.48" r="7.98" fill="#292929"/>
+      <circle cx="162.48" cy="86.48" r="7.98" fill="#292929"/>
+      <circle cx="144" cy="68" r="7.98" fill="#292929"/>
     </g>
   </g>
 </svg>

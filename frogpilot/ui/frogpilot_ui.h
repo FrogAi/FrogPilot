@@ -40,12 +40,13 @@ public:
   void flashPanda();
   void reportIssue(const QString &report);
   void restoreSettingsBackup(const QString &name);
+  void retryIssueReport();
   void runUpdateChecks();
   void screenRecorderEvent(cereal::FrogPilotOnroadEvent::EventName event);
   void setDistanceButtonPressed(bool pressed);
   void setTethering(int mode);
   void speedLimitAccepted();
-  void testAlert(const QString &alert);
+  void testAlert(const QString &alert, float volume);
   void update();
   void updateToggles();
 

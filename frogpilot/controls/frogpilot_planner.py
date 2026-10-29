@@ -18,6 +18,7 @@ from openpilot.frogpilot.controls.lib.frogpilot_acceleration import FrogPilotAcc
 from openpilot.frogpilot.controls.lib.frogpilot_events import FrogPilotEvents
 from openpilot.frogpilot.controls.lib.frogpilot_following import FrogPilotFollowing
 from openpilot.frogpilot.controls.lib.frogpilot_vcruise import FrogPilotVCruise
+from openpilot.frogpilot.controls.lib.speed_limit_filler import SpeedLimitFiller
 from openpilot.frogpilot.controls.lib.weather_checker import WeatherChecker
 
 class FrogPilotPlanner:
@@ -30,6 +31,7 @@ class FrogPilotPlanner:
     self.frogpilot_following = FrogPilotFollowing(self)
     self.frogpilot_vcruise = FrogPilotVCruise(self)
     self.frogpilot_weather = WeatherChecker(frogpilot_api)
+    self.speed_limit_filler = SpeedLimitFiller()
 
     self.accel_pressed = False
     self.curve_ahead = False
@@ -121,6 +123,9 @@ class FrogPilotPlanner:
     else:
       self.gps_position = None
 
+    if frogpilot_toggles.speed_limit_filler:
+      self.speed_limit_filler.update(self.gps_position, v_ego, sm)
+
     if v_ego >= frogpilot_toggles.minimum_lane_change_speed:
       lane_widths, road_edge_distances = frogpilot_utilities.calculate_lane_widths(sm["modelV2"])
       self.lane_width_filter.update(lane_widths)
@@ -173,7 +178,7 @@ class FrogPilotPlanner:
     relevant_lead &= lead.dRel < STOP_DISTANCE + following_speed * frogpilot_variables.MAX_T_FOLLOW + max(following_speed - lead_speed, 0) * frogpilot_variables.PLANNER_TIME
     return relevant_lead
 
-  def publish(self, theme_update_count, sm, pm, frogpilot_toggles, toggles_json):
+  def publish(self, theme_update_count, sm, pm, frogpilot_toggles):
     frogpilot_plan_send = messaging.new_message("frogpilotPlan")
     frogpilot_plan_send.valid = sm.all_checks(service_list=["carState", "controlsState", "selfdriveState", "radarState"])
     frogpilotPlan = frogpilot_plan_send.frogpilotPlan
@@ -200,8 +205,6 @@ class FrogPilotPlanner:
 
     frogpilotPlan.frogpilotEvents = self.frogpilot_events.events.to_msg()
 
-    frogpilotPlan.frogpilotToggles = toggles_json
-
     frogpilotPlan.gpsBearing = self.gps_bearing
 
     if sm["frogpilotCarState"].trafficModeEnabled:
@@ -223,9 +226,7 @@ class FrogPilotPlanner:
 
     frogpilotPlan.roadCurvature = self.road_curvature
 
-    frogpilotPlan.slcMapboxIsForward = self.frogpilot_vcruise.slc.mapbox_is_forward
     frogpilotPlan.slcMapboxSpeedLimit = self.frogpilot_vcruise.slc.mapbox_speed_limit
-    frogpilotPlan.slcMapboxWayId = self.frogpilot_vcruise.slc.mapbox_way_id
     frogpilotPlan.slcMapSpeedLimit = self.frogpilot_vcruise.slc.map_speed_limit
     frogpilotPlan.slcNextSpeedLimit = self.frogpilot_vcruise.slc.next_speed_limit
     frogpilotPlan.slcOverriddenSpeed = self.frogpilot_vcruise.slc.overridden_speed

@@ -201,7 +201,7 @@ ROWS = [
   },
   {
     "children": ("Vehicle Settings", "VEHICLE SETTINGS", "General Motors Settings"),
-    "description": ("<b>Settings that only work on Buick, Cadillac, Chevrolet, GMC and Holden cars, covering pedal response on hills and how " +
+    "description": ("<b>Settings that only work on Buick, Cadillac, Chevrolet, GMC, and Holden cars, covering pedal response on hills and how " +
                     "openpilot stops and starts.</b>"),
     "id": "GMToggles",
     "key": None,
@@ -213,7 +213,7 @@ ROWS = [
   },
   {
     "children": ("Vehicle Settings", "VEHICLE SETTINGS", "Hyundai/Kia/Genesis Settings"),
-    "description": ("<b>Settings that only work on Genesis, Hyundai and Kia cars, covering a steering torque hack.</b><br><br>The steering hack only " +
+    "description": ("<b>Settings that only work on Genesis, Hyundai, and Kia cars, covering a steering torque hack.</b><br><br>The steering hack only " +
                     "appears on cars using CAN-FD."),
     "id": "HKGToggles",
     "key": None,
@@ -237,7 +237,7 @@ ROWS = [
   },
   {
     "children": ("Vehicle Settings", "VEHICLE SETTINGS", "Toyota/Lexus Settings"),
-    "description": ("<b>Settings that only work on Lexus and Toyota cars, covering door locking, dashboard speed, stop-and-go and openpilot's own " +
+    "description": ("<b>Settings that only work on Lexus and Toyota cars, covering door locking, dashboard speed, stop-and-go, and openpilot's own " +
                     "tuning.</b><br><br>Which of these you see depends on your exact model and on what hardware is fitted."),
     "id": "ToyotaToggles",
     "key": None,
@@ -250,7 +250,7 @@ ROWS = [
   {
     "children": ("Vehicle Settings", "VEHICLE SETTINGS", "Vehicle Info"),
     "description": ("<b>What openpilot has worked out about your car and what it can do with it.</b><br><br>These rows are read-only. They stay on " +
-                    "\"Unknown until first drive\" until openpilot has recognised your car."),
+                    "\"Unknown until first drive\" until openpilot has recognized your car."),
     "id": "VehicleInfo",
     "key": None,
     "order": 9,
@@ -376,7 +376,8 @@ ROWS = [
   {
     "description": ("<b>Swap in FrogsGoMoo's own settings for how openpilot comes to a stop.</b><br><br>These are personal preferences rather than a " +
                     "fix for anything, and they are already on. They take over your stopping and starting values from \"Driving Controls\" and hide " +
-                    "those rows while this is on, though on a Toyota the starting value has no effect."),
+                    "those rows while this is on, though on a Toyota the starting value has no effect. They also make openpilot's gas and brake " +
+                    "control predict the car's acceleration further ahead at every speed, so they change how it drives while cruising as well."),
     "key": "FrogsGoMoosTweak",
     "order": 3,
     "path": ("Vehicle Settings", "VEHICLE SETTINGS", "Toyota/Lexus Settings"),
@@ -401,7 +402,8 @@ ROWS = [
   {
     "description": ("<b>Make the car pull away by itself after a full stop on a Lexus or Toyota that does not do this from the " +
                     "factory.</b><br><br>Without it you have to press the gas or the resume button every time traffic moves off. It works by telling " +
-                    "the car openpilot is never fully stopped, so keep your foot near the brake the first few times."),
+                    "the car openpilot is never fully stopped, so keep your foot near the brake the first few times. It also lets openpilot engage, " +
+                    "and stay engaged, below about 19 mph (30 km/h), where it would otherwise refuse or turn itself off."),
     "key": "SNGHack",
     "order": 5,
     "path": ("Vehicle Settings", "VEHICLE SETTINGS", "Toyota/Lexus Settings"),
@@ -410,7 +412,7 @@ ROWS = [
     "widget": "toggle"
   },
   {
-    "description": ("<b>Extra hardware openpilot has found fitted to your car, such as a comma pedal, an SDSU or a ZSS.</b><br><br>openpilot works " +
+    "description": ("<b>Extra hardware openpilot has found fitted to your car, such as a comma pedal, an SDSU, or a ZSS.</b><br><br>openpilot works " +
                     "these out from your car's wiring on its own. \"None\" is not proof nothing is fitted: a comma pedal is only reported on cars " +
                     "that support one."),
     "display": hardware_detected,
@@ -457,7 +459,7 @@ ROWS = [
     "widget": "text"
   },
   {
-    "description": ("<b>Whether openpilot can use your car's radar alongside its camera, which helps it track the car ahead in rain, fog and " +
+    "description": ("<b>Whether openpilot can use your car's radar alongside its camera, which helps it track the car ahead in rain, fog, and " +
                     "darkness.</b><br><br>If this says No, openpilot is working from the camera alone and may pick up the car ahead later in poor " +
                     "visibility."),
     "display": lambda context: support_text(context, context.has_radar),

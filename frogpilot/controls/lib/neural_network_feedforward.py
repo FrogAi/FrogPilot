@@ -18,7 +18,7 @@ from openpilot.selfdrive.controls.lib.drive_helpers import CONTROL_N
 from openpilot.selfdrive.controls.lib.latcontrol import LatControl
 from openpilot.selfdrive.modeld.constants import ModelConstants
 
-from openpilot.frogpilot.common import frogpilot_variables
+from openpilot.frogpilot.common import frogpilot_paths, frogpilot_utilities
 
 # At higher speeds (25+mph) we can assume:
 # Lateral acceleration achieved by a specific car correlates to
@@ -45,7 +45,6 @@ class FluxModel:
       params = json.load(f)
 
     self.input_size = params["input_size"]
-    self.output_size = params["output_size"]
 
     self.input_mean = np.array(params["input_mean"], dtype=np.float32).T
     self.input_std = np.array(params["input_std"], dtype=np.float32).T
@@ -76,20 +75,24 @@ class FluxModel:
   # End activation functions
 
   def check_for_friction_override(self):
-    self.friction_override = self.evaluate([10.0, 0.0, 0.2]) < 0.1
+    self.friction_override = self.evaluate([[10.0, 0.0, 0.2]])[0] < 0.1
 
-  def evaluate(self, input_array):
-    if len(input_array) != self.input_size:
-      # If the input is length 2-4, then it's a simplified evaluation.
-      # In that case, need to add on zeros to fill out the input array to match the correct length.
-      if len(input_array) >= 2:
-        input_array += [0] * (self.input_size - len(input_array))
-      else:
-        raise ValueError(f"Input length {len(input_array)} must be 2 or greater")
+  def evaluate(self, input_arrays):
+    padded_input_arrays = []
+    for input_array in input_arrays:
+      if len(input_array) != self.input_size:
+        # If the input is length 2-4, then it's a simplified evaluation.
+        # In that case, need to add on zeros to fill out the input array to match the correct length.
+        if len(input_array) >= 2:
+          input_array = input_array + [0] * (self.input_size - len(input_array))
+        else:
+          raise ValueError(f"Input length {len(input_array)} must be 2 or greater")
+
+      padded_input_arrays.append(input_array)
 
     # Rescale the input array using the input_mean and input_std
-    output = self.forward((np.array(input_array, dtype=np.float32) - self.input_mean) / self.input_std)
-    return float(output[0, 0])
+    output = self.forward((np.array(padded_input_arrays, dtype=np.float32) - self.input_mean) / self.input_std)
+    return output[:, 0].tolist()
 
   def forward(self, x):
     for weights, bias, activation in self.layers:
@@ -113,27 +116,32 @@ def get_lookahead_value(future_values, current_value):
 def get_nn_model(car, eps_firmware) -> FluxModel | None:
   model_path = get_nn_model_path(car, eps_firmware)
   if model_path:
-    Params().put("NNFFModelName", car.replace("_", " "))
+    model_name = os.path.splitext(os.path.basename(model_path))[0].split("_b'")[0]
+    Params().put("NNFFModelName", model_name.replace("_", " "))
     return FluxModel(model_path)
   return None
 
 def get_nn_model_path(car, eps_firmware) -> str | None:
   def best_model_path(query):
-    candidates = frogpilot_variables.get_nnff_model_files()
+    candidates = frogpilot_utilities.get_nnff_model_files()
     if not candidates:
       return None, 0.0
 
     best = max(candidates, key=lambda model: similarity(model, query))
-    return os.path.join(frogpilot_variables.NNFF_MODELS_PATH, f"{best}.json"), similarity(best, query)
+    return os.path.join(frogpilot_paths.NNFF_MODELS_PATH, f"{best}.json"), similarity(best, query)
 
   def find_valid_model(*queries_with_candidates):
     for query, candidate in queries_with_candidates:
-      path, score = best_model_path(query)
-      if path and candidate in path and score >= 0.9:
-        return path
+      if query == candidate:
+        if candidate in frogpilot_utilities.get_nnff_model_files():
+          return os.path.join(frogpilot_paths.NNFF_MODELS_PATH, f"{candidate}.json")
+      else:
+        path, score = best_model_path(query)
+        if path and candidate in path and score >= 0.9:
+          return path
     return None
 
-  substitutes = frogpilot_variables.get_nnff_substitutes()
+  substitutes = frogpilot_utilities.get_nnff_substitutes()
   sub_candidate = substitutes.get(car, car)
 
   candidates_to_check = [car]
@@ -216,9 +224,13 @@ class LatControlNNFF(LatControl):
     self.past_future_len = len(self.past_times) + len(self.nn_future_times)
     self.roll_deque = deque(maxlen=history_check_frames[0])
 
+  def reset(self):
+    super().reset()
+    self.lateral_accel_desired_deque.clear()
+    self.roll_deque.clear()
+
   def update_live_delay(self, lat_delay):
     self.nn_future_times = [time + lat_delay for time in self.future_times]
-    self.past_future_len = len(self.past_times) + len(self.nn_future_times)
 
   def update_live_torque_params(self, latAccelFactor, latAccelOffset, friction):
     self.torque_params.latAccelFactor = latAccelFactor
@@ -300,22 +312,26 @@ class LatControlNNFF(LatControl):
           nnff_setpoint_input = base_input[:1] + [setpoint, lateral_jerk_setpoint] + base_input[1:] + [setpoint] * self.past_future_len + nnff_common
           nnff_measurement_input = base_input[:1] + [measurement, lateral_jerk_measurement] + base_input[1:] + [measurement] * self.past_future_len + nnff_common
 
-          torque_from_setpoint = self.lat_torque_nn_model.evaluate(nnff_setpoint_input)
-          torque_from_measurement = self.lat_torque_nn_model.evaluate(nnff_measurement_input)
-
-          pid_log.error = torque_from_setpoint - torque_from_measurement
-
-          error_blend = np.interp(abs(desired_lateral_accel), [1.0, 2.0], [0.0, 1.0])
-          if error_blend > 0.0:  # blend in stronger error response when in high lat accel
-            torque_from_error = self.lat_torque_nn_model.evaluate([CS.vEgo, setpoint - measurement, lateral_jerk_setpoint - lateral_jerk_measurement, 0.0])
-            if sign(pid_log.error) == sign(torque_from_error) and abs(pid_log.error) < abs(torque_from_error):
-              pid_log.error = float(pid_log.error * (1.0 - error_blend) + torque_from_error * error_blend)
-
           # compute feedforward (same as nn setpoint output)
           error = setpoint - measurement
           friction_input = lat_accel_friction_factor * error + self.lat_jerk_friction_factor * lookahead_lateral_jerk
           nn_input = [CS.vEgo, desired_lateral_accel, friction_input, roll] + past_lateral_accels_desired + future_lateral_accels + nnff_common
-          ff = self.lat_torque_nn_model.evaluate(nn_input)
+
+          nn_inputs = [nnff_setpoint_input, nnff_measurement_input, nn_input]
+
+          error_blend = np.interp(abs(desired_lateral_accel), [1.0, 2.0], [0.0, 1.0])
+          if error_blend > 0.0:
+            nn_inputs.append([CS.vEgo, error, lateral_jerk_setpoint - lateral_jerk_measurement, 0.0])
+
+          nn_outputs = self.lat_torque_nn_model.evaluate(nn_inputs)
+          torque_from_setpoint, torque_from_measurement, ff = nn_outputs[:3]
+
+          pid_log.error = torque_from_setpoint - torque_from_measurement
+
+          if error_blend > 0.0:  # blend in stronger error response when in high lat accel
+            torque_from_error = nn_outputs[3]
+            if sign(pid_log.error) == sign(torque_from_error) and abs(pid_log.error) < abs(torque_from_error):
+              pid_log.error = float(pid_log.error * (1.0 - error_blend) + torque_from_error * error_blend)
 
           # apply friction override for cars with low NN friction response
           if self.nn_friction_override:
@@ -340,7 +356,8 @@ class LatControlNNFF(LatControl):
 
         pid_log.error = float(torque_from_setpoint - torque_from_measurement)
 
-        ff = self.torque_from_lateral_accel(gravity_adjusted_lateral_accel, self.torque_params)
+        friction_compensation = get_friction(desired_lateral_accel - actual_lateral_accel, lateral_accel_deadzone, FRICTION_THRESHOLD, self.torque_params)
+        ff = self.torque_from_lateral_accel(gravity_adjusted_lateral_accel + friction_compensation, self.torque_params)
 
       freeze_integrator = steer_limited_by_safety or CS.steeringPressed or CS.vEgo < 5
       output_torque = self.pid.update(pid_log.error,

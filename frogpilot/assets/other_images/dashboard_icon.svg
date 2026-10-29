@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
-  <path d="M8 168V96C8 60 46 32 100 32s92 28 92 64v72Z" fill="#3a3f47" stroke="#fff" stroke-width="10" stroke-linejoin="round"/>
-  <circle cx="42" cy="116" r="29" fill="#1b1d21"/>
+  <path d="M8 168V96C8 60 46 32 100 32s92 28 92 64v72Z" fill="#393939" stroke="#fff" stroke-width="10" stroke-linejoin="round"/>
+  <circle cx="42" cy="116" r="29" fill="#1c1c1c"/>
   <path d="M27.2 130.8L23.5 134.5" stroke="#3aa0ff" stroke-linecap="round" stroke-width="3.5"/>
   <path d="M21.5 120.1L16.4 121.1" stroke="#3aa0ff" stroke-linecap="round" stroke-width="3.5"/>
   <path d="M22.7 108L17.9 106" stroke="#3aa0ff" stroke-linecap="round" stroke-width="3.5"/>
@@ -11,8 +11,8 @@
   <path d="M62.5 120.1L67.6 121.1" stroke="#3aa0ff" stroke-linecap="round" stroke-width="3.5"/>
   <path d="M56.8 130.8L60.5 134.5" stroke="#3aa0ff" stroke-linecap="round" stroke-width="3.5"/>
   <path d="M42 116L23.5 103" stroke="#ff3b30" stroke-linecap="round" stroke-width="4.1"/>
-  <circle cx="42" cy="116" r="4.1" fill="#c9d1dc"/>
-  <circle cx="158" cy="116" r="29" fill="#1b1d21"/>
+  <circle cx="42" cy="116" r="4.1" fill="#fff"/>
+  <circle cx="158" cy="116" r="29" fill="#1c1c1c"/>
   <path d="M143.2 130.8L139.5 134.5" stroke="#3aa0ff" stroke-linecap="round" stroke-width="3.5"/>
   <path d="M137.5 120.1L132.4 121.1" stroke="#3aa0ff" stroke-linecap="round" stroke-width="3.5"/>
   <path d="M138.7 108L133.9 106" stroke="#3aa0ff" stroke-linecap="round" stroke-width="3.5"/>
@@ -23,16 +23,16 @@
   <path d="M178.5 120.1L183.6 121.1" stroke="#3aa0ff" stroke-linecap="round" stroke-width="3.5"/>
   <path d="M172.8 130.8L176.5 134.5" stroke="#3aa0ff" stroke-linecap="round" stroke-width="3.5"/>
   <path d="M158 116L169.3 96.4" stroke="#ff3b30" stroke-linecap="round" stroke-width="4.1"/>
-  <circle cx="158" cy="116" r="4.1" fill="#c9d1dc"/>
+  <circle cx="158" cy="116" r="4.1" fill="#fff"/>
   <g transform="matrix(0.36 0 0 0.36 64 76)">
-    <rect x="20" y="0" width="160" height="200" rx="12" fill="#ecf0f1"/>
-    <rect x="27.5" y="7.5" width="145" height="185" rx="7" fill="none" stroke="#393f4a" stroke-width="5"/>
-    <g fill="none" stroke="#393f4a" stroke-linecap="round" stroke-linejoin="round" stroke-width="6.5">
+    <rect x="20" y="0" width="160" height="200" rx="12" fill="#fff"/>
+    <rect x="27.5" y="7.5" width="145" height="185" rx="7" fill="none" stroke="#000" stroke-width="5"/>
+    <g fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="6.5">
       <path d="M59 33c0-5-4-6.5-7.5-6.5-4 0-8.5 1.5-8.5 6.5 0 9 16 2 16 13 0 5-3.5 7-7.5 7-4.5 0-8.5-2-8.5-7"/>
       <path d="M70 53V27h6c11 0 11 13 0 13h-6m36.8-13H94v26h12.8M94 40h10m25.3-13h-12.8v26h12.8m-12.8-13h10"/>
       <path d="M140 27h6c7 0 10.5 5 10.5 13S153 53 146 53h-6ZM60 66v24h9m11-24v24m10 0V66l10 20 10-20v24m10-24v24m10-24h13m-6.5 0v24"/>
     </g>
-    <g fill="#393f4a">
+    <g fill="#000">
       <path d="M50.5 120.5C55.2 110.6 63 107 70 107c13.5 0 23.5 9 23.5 21.5 0 6.5-3 12.5-8 15.5 7 4 11 10.5 11 18 0 12-11.5 18-27 18-8 0-16.06-2.24-19-7-1.31-2.13-1.08-4.08.5-5.5l5-4.5c1.34-1.2 3.1.82 5 2 4.25 2.63 8.98 2.92 14 2 5.98-1.1 9.5-4 9.5-7.5 0-6-7.5-8.5-15.5-10.5-2-.5-2-2-2-5v-6c0-3 1.93-3.24 5-4 5.9-1.47 9.5-4 9.5-7.5 0-4.5-4.5-7-10.5-7s-8.19 2.38-10 5.5c-1.12 1.93-2.33 1.67-4 1l-5-2c-1.91-.77-2.46-1.48-1.5-3.5"/>
       <path d="M115 107h25c9 0 9 13 0 13h-18l-1.5 10c17.5 1 25.5 10 25.5 23 0 16-7 27-24 27-7 0-13-1-17-3-6-3-3.69-7.72-1-11 2.29-2.79 5-2 8-1 6 2 14.3 3.27 18-1 3.28-3.78 4.08-13.06 2-16-2.89-4.08-8-4-15-4h-4c-5 0-6.66-2.94-6-8l3-23c.53-4.09 2-6 5-6"/>
     </g>

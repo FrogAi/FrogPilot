@@ -33,10 +33,10 @@ from urllib.parse import parse_qs, urlencode
 from openpilot.tools.lib.api import APIError, CommaApi, UnauthorizedError
 from openpilot.tools.lib.auth_config import set_token, get_token
 
-from openpilot.frogpilot.common import frogpilot_utilities
+from openpilot.frogpilot.common import frogpilot_paths
 
 # FrogPilot variables
-API_HOST = os.getenv('API_HOST', f"https://api.{'konik' if frogpilot_utilities.use_konik_server() else 'comma'}.ai")
+API_HOST = os.getenv('API_HOST', f"https://api.{'konik' if frogpilot_paths.KONIK_PATH.is_file() else 'comma'}.ai")
 
 PORT = 3000
 

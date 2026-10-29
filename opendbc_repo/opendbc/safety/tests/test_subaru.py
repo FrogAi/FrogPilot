@@ -189,6 +189,68 @@ class TestSubaruGen1TorqueRaisedSteerLimitStockLongitudinalSafety(TestSubaruGen1
   MAX_TORQUE_LOOKUP = [0], [3071]
 
 
+# FrogPilot variables
+class TestSubaruSngForwarding(unittest.TestCase):
+  TX_MSGS = None
+  SNG_MSGS = {CarParams.SafetyModel.subaru: (0x40, 0x139), CarParams.SafetyModel.subaruPreglobal: (0x140,)}
+  SNG_TX_TIMEOUT = 100000
+
+  def setUp(self):
+    self.safety = libsafety_py.libsafety
+    self.safety.init_tests()
+
+  def _forwarded(self, addr):
+    return self.safety.safety_fwd_hook(SUBARU_MAIN_BUS, addr) == SUBARU_CAM_BUS
+
+  def _tx_sng(self, addr):
+    return self.safety.safety_tx_hook(common.make_msg(SUBARU_CAM_BUS, addr))
+
+  def test_flag_off(self):
+    for mode, addrs in self.SNG_MSGS.items():
+      self.safety.set_safety_hooks(mode, 0)
+      for addr in addrs:
+        self.assertFalse(self._tx_sng(addr))
+        self.assertTrue(self._forwarded(addr))
+
+  def test_forwarded_without_sng_tx(self):
+    self.safety.set_timer(10000000)
+    for mode, addrs in self.SNG_MSGS.items():
+      self.safety.set_safety_hooks(mode, SubaruSafetyFlags.SNG)
+      for addr in addrs:
+        self.assertTrue(self._forwarded(addr))
+
+  def test_blocked_until_sng_tx_times_out(self):
+    for mode, addrs in self.SNG_MSGS.items():
+      for addr in addrs:
+        for ts in (0, 2**32 - self.SNG_TX_TIMEOUT // 2):
+          self.safety.set_safety_hooks(mode, SubaruSafetyFlags.SNG)
+          self.safety.set_timer(ts)
+          self.assertTrue(self._tx_sng(addr))
+          self.assertFalse(self._forwarded(addr))
+          self.safety.set_timer((ts + self.SNG_TX_TIMEOUT) % 2**32)
+          self.assertFalse(self._forwarded(addr))
+          self.safety.set_timer((ts + self.SNG_TX_TIMEOUT + 1) % 2**32)
+          self.assertTrue(self._forwarded(addr))
+          self.safety.set_timer(ts)
+          self.assertTrue(self._forwarded(addr))
+
+  def test_addresses_are_independent(self):
+    self.safety.set_safety_hooks(CarParams.SafetyModel.subaru, SubaruSafetyFlags.SNG)
+    self.safety.set_timer(0)
+    self.assertTrue(self._tx_sng(0x40))
+    self.assertFalse(self._forwarded(0x40))
+    self.assertTrue(self._forwarded(0x139))
+
+  def test_init_resets_sng_tx(self):
+    for mode, addrs in self.SNG_MSGS.items():
+      for addr in addrs:
+        self.safety.set_safety_hooks(mode, SubaruSafetyFlags.SNG)
+        self.safety.set_timer(0)
+        self.assertTrue(self._tx_sng(addr))
+        self.safety.set_safety_hooks(mode, SubaruSafetyFlags.SNG)
+        self.assertTrue(self._forwarded(addr))
+
+
 class TestSubaruGen2TorqueSafetyBase(TestSubaruTorqueSafetyBase):
   ALT_MAIN_BUS = SUBARU_ALT_BUS
   ALT_CAM_BUS = SUBARU_ALT_BUS

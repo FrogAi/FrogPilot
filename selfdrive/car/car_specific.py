@@ -3,7 +3,6 @@ import cereal.messaging as messaging
 from opendbc.car import DT_CTRL, structs
 from opendbc.car.chrysler.values import RAM_DT
 from opendbc.car.gm.values import GMFlags
-from opendbc.car.honda.values import CAR as HONDA
 from opendbc.car.interfaces import MAX_CTRL_SPEED
 
 from openpilot.selfdrive.selfdrived.events import Events
@@ -89,9 +88,6 @@ class CarSpecificEvents:
           if CS.vEgo < self.CP.minEnableSpeed + 2.:
             # non loud alert if cruise disables below 25mph as expected (+ a little margin)
             events.add(EventName.speedTooLow)
-          # FrogPilot variables
-          elif self.CP.carFingerprint == HONDA.HONDA_CLARITY:
-            events.add(EventName.buttonCancel)
           else:
             events.add(EventName.cruiseDisabled)
       if self.CP.minEnableSpeed > 0 and CS.vEgo < 0.001:

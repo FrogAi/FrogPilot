@@ -12,6 +12,8 @@ public:
 
   void updateState(const UIState &s, const FrogPilotUIState &fs);
 
+  bool rightHandDM = false;
+
 private:
   void hideEvent(QHideEvent *event) override;
   void paintEvent(QPaintEvent *event) override;

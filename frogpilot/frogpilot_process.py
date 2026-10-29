@@ -1,18 +1,20 @@
 #!/usr/bin/env python3
 import datetime
-import gc
 import json
+import os
 import threading
 import time
 
 from cereal import messaging
 from openpilot.common.params import Params
-from openpilot.common.realtime import Priority, config_realtime_process
+from openpilot.common.realtime import Priority, set_core_affinity
 from openpilot.common.time_helpers import system_time_valid
+from openpilot.system.hardware import PC
 
 from openpilot.frogpilot.assets.theme_manager import ThemeManager
-from openpilot.frogpilot.common import frogpilot_api, frogpilot_backups, frogpilot_functions, frogpilot_utilities, frogpilot_variables
+from openpilot.frogpilot.common import frogpilot_api, frogpilot_backups, frogpilot_functions, frogpilot_paths, frogpilot_utilities, frogpilot_variables
 from openpilot.frogpilot.controls.frogpilot_planner import FrogPilotPlanner
+from openpilot.frogpilot.controls.lib.speed_limit_filler import upload_speed_limits
 from openpilot.frogpilot.system.frogpilot_stats import send_stats
 from openpilot.frogpilot.system.frogpilot_tracking import FrogPilotTracking
 from openpilot.frogpilot.system.model_manager import ModelManager
@@ -34,11 +36,14 @@ class FrogPilotRequests:
     self.flashed_panda = False
 
     self.door_command = ""
-    self.issue_report = "{}"
     self.settings_backup = ""
 
     self.pending = {}
     self.request_times = {}
+
+    self.issue_report = "{}"
+
+    self.failed_report = None
 
   def take(self, kind):
     pending = self.pending.pop(kind, None)
@@ -65,11 +70,15 @@ class FrogPilotRequests:
     else:
       self.door_command = "failed"
 
+  def publish_issue_report(self, issue_report):
+    self.issue_report = json.dumps(issue_report)
+
   def send_report(self, report, frogpilot_toggles, api):
     try:
-      self.issue_report = json.dumps(capture_report(report, frogpilot_toggles, api))
+      self.failed_report = capture_report(report, frogpilot_toggles, api, self.publish_issue_report)
     except Exception:
-      self.issue_report = json.dumps({**report, "status": "failed"})
+      self.failed_report = report
+      self.publish_issue_report({"status": "failed"})
       raise
 
   def update(self, now, time_validated, sm, params, frogpilot_toggles, api):
@@ -137,6 +146,9 @@ class FrogPilotRequests:
       if request is not None:
         self.issue_report = json.dumps({"status": "pending"})
         self.thread_manager.run_in_thread(self.send_report, (json.loads(request.issueReport), dict(vars(frogpilot_toggles)), api))
+      elif self.take("retryIssueReport") is not None and self.failed_report is not None:
+        self.issue_report = json.dumps({"status": "pending"})
+        self.thread_manager.run_in_thread(self.send_report, (self.failed_report, dict(vars(frogpilot_toggles)), api))
 
     if not self.thread_manager.is_thread_alive("update_maps") and self.take("downloadMaps") is not None:
       self.thread_manager.run_in_thread(frogpilot_functions.update_maps, (now, params, self.cancel_maps_download, sm, True))
@@ -164,7 +176,7 @@ class FrogPilotRequests:
         if request is not None:
           self.settings_backup = "pending"
           self.thread_manager.run_in_thread(self.run_settings_backup, (frogpilot_backups.restore_settings_backup, params,
-                                                                      frogpilot_variables.TOGGLE_BACKUPS / request.restoreSettingsBackup))
+                                                                      frogpilot_paths.TOGGLE_BACKUPS / request.restoreSettingsBackup))
 
     if self.take("refreshTheme") is not None:
       self.theme_manager.previous_asset_mappings = {}
@@ -173,7 +185,7 @@ class FrogPilotRequests:
 
     return self.take("updateToggles") is not None, self.take("updateChecks") is not None
 
-  def publish(self, pm, stats_saved_count):
+  def publish(self, pm, stats_saved_count, toggles_json):
     flashing_panda = self.thread_manager.is_thread_alive("flash_panda")
 
     frogpilot_process_state_send = messaging.new_message("frogpilotProcessState")
@@ -188,8 +200,9 @@ class FrogPilotRequests:
     frogpilotProcessState.flashedPanda = self.flashed_panda
     frogpilotProcessState.flashingPanda = flashing_panda
     frogpilotProcessState.flashPandaRequestTime = self.request_times.get("flashPanda", 0)
+    frogpilotProcessState.frogpilotToggles = toggles_json
     frogpilotProcessState.issueReport = self.issue_report
-    frogpilotProcessState.issueReportRequestTime = self.request_times.get("issueReport", 0)
+    frogpilotProcessState.issueReportRequestTime = max(self.request_times.get("issueReport", 0), self.request_times.get("retryIssueReport", 0))
     frogpilotProcessState.modelDownloadProgress = self.model_manager.download_state.progress
     frogpilotProcessState.modelDownloadRequestTime = max(self.request_times.get("downloadAllModels", 0), self.request_times.get("downloadModels", 0))
     frogpilotProcessState.settingsBackup = self.settings_backup
@@ -203,11 +216,10 @@ class FrogPilotRequests:
     pm.send("frogpilotProcessState", frogpilot_process_state_send)
 
 def transition_offroad(frogpilot_planner, theme_manager, thread_manager, time_validated, params, frogpilot_toggles, api):
-  gc.enable()
-  gc.collect()
-
   frogpilot_planner.frogpilot_vcruise.slc.close()
   frogpilot_planner.frogpilot_weather.close()
+
+  frogpilot_planner.speed_limit_filler.save()
 
   if frogpilot_planner.last_gps_position is not None:
     params.put("LastGPSPosition", json.dumps(frogpilot_planner.last_gps_position))
@@ -224,9 +236,11 @@ def transition_offroad(frogpilot_planner, theme_manager, thread_manager, time_va
     thread_manager.run_in_thread(send_stats, (params, frogpilot_toggles, api))
 
 def transition_onroad():
-  config_realtime_process(5, Priority.CTRL_LOW)
+  if not PC:
+    os.sched_setscheduler(0, os.SCHED_FIFO, os.sched_param(Priority.CTRL_LOW))
+  set_core_affinity([5])
 
-  frogpilot_variables.ERROR_LOG_PATH.unlink(missing_ok=True)
+  frogpilot_paths.ERROR_LOG_PATH.unlink(missing_ok=True)
 
 def update_checks(now, model_manager, speed_limit_reader_models, theme_manager, thread_manager, sm, params, cancel_maps_download, frogpilot_toggles, boot_run=False):
   while not (frogpilot_utilities.is_url_pingable("https://github.com") or frogpilot_utilities.is_url_pingable("https://gitlab.com")):
@@ -234,7 +248,7 @@ def update_checks(now, model_manager, speed_limit_reader_models, theme_manager, 
 
   thread_manager.run_in_thread(frogpilot_functions.update_maps, (now, params, cancel_maps_download, sm))
 
-  if frogpilot_toggles.automatic_updates:
+  if not sm["deviceState"].networkMetered and frogpilot_toggles.automatic_updates:
     thread_manager.run_in_thread(frogpilot_functions.update_openpilot, (thread_manager, params))
 
   if not sm["deviceState"].networkMetered:
@@ -244,7 +258,7 @@ def update_checks(now, model_manager, speed_limit_reader_models, theme_manager, 
   with model_manager.download_lock:
     model_manager.update_models(not sm["deviceState"].networkMetered and frogpilot_toggles.automatically_download_models)
 
-  if frogpilot_toggles.speed_limit_controller:
+  if frogpilot_toggles.speed_limit_controller or frogpilot_toggles.speed_limit_filler:
     speed_limit_reader_models.update(sm)
 
 def update_toggles(variables, started, model_manager, theme_manager, thread_manager, time_validated, params):
@@ -261,6 +275,10 @@ def update_toggles(variables, started, model_manager, theme_manager, thread_mana
 
   variables.update(theme_manager.holiday_theme, started)
 
+  if not started:
+    frogpilot_functions.sync_flag_file(frogpilot_paths.HD_PATH, frogpilot_toggles.use_higher_bitrate)
+    frogpilot_functions.sync_flag_file(frogpilot_paths.KONIK_PATH, frogpilot_toggles.use_konik_server)
+
   randomize_theme = frogpilot_toggles.holiday_themes != previous_holiday_themes
   randomize_theme |= frogpilot_toggles.random_themes != previous_random_themes
 
@@ -274,7 +292,7 @@ def frogpilot_thread():
   sm = messaging.SubMaster(["carControl", "carState", "controlsState", "deviceState",
                             "frogpilotCarParams", "frogpilotCarState", "frogpilotDeviceState", "frogpilotModelV2",
                             "frogpilotSelfdriveState", "frogpilotSignReading", "gpsLocation", "gpsLocationExternal",
-                            "liveParameters", "mapdOut", "modelV2", "radarState", "selfdriveState"],
+                            "liveParameters", "longitudinalPlan", "mapdOut", "modelV2", "radarState", "selfdriveState"],
                             poll="modelV2")
 
   params = Params(return_defaults=True)
@@ -293,6 +311,7 @@ def frogpilot_thread():
   frogpilot_toggles = variables.frogpilot_toggles
 
   run_update_checks = False
+  share_speed_limits = True
   started_previously = False
   time_validated = False
   waiting_for_car_params = False
@@ -302,7 +321,7 @@ def frogpilot_thread():
 
   previous_update_checks_period = None
 
-  frogpilot_variables.ERROR_LOG_PATH.unlink(missing_ok=True)
+  frogpilot_paths.ERROR_LOG_PATH.unlink(missing_ok=True)
 
   while True:
     sm.update()
@@ -322,6 +341,7 @@ def frogpilot_thread():
       transition_offroad(frogpilot_planner, theme_manager, thread_manager, time_validated, params, frogpilot_toggles, api)
 
       run_update_checks = True
+      share_speed_limits = True
     elif started and not started_previously:
       frogpilot_planner = FrogPilotPlanner(theme_manager, api)
       frogpilot_tracking = FrogPilotTracking(frogpilot_planner, frogpilot_toggles)
@@ -335,19 +355,24 @@ def frogpilot_thread():
 
     if started and sm.updated["modelV2"]:
       frogpilot_planner.update(now, time_validated, sm, frogpilot_toggles)
-      frogpilot_planner.publish(theme_manager.theme_update_count, sm, pm, frogpilot_toggles, variables.toggles_json)
+      frogpilot_planner.publish(theme_manager.theme_update_count, sm, pm, frogpilot_toggles)
 
       frogpilot_tracking.update(now, time_validated, sm)
     elif not started:
       frogpilot_plan_send = messaging.new_message("frogpilotPlan")
-      frogpilot_plan_send.frogpilotPlan.frogpilotToggles = variables.toggles_json
       frogpilot_plan_send.frogpilotPlan.themeUpdateCount = theme_manager.theme_update_count
       pm.send("frogpilotPlan", frogpilot_plan_send)
 
     started_previously = started
 
+    if share_speed_limits and not started and frogpilot_utilities.is_unmetered_network(sm["deviceState"]):
+      if frogpilot_toggles.speed_limit_filler and frogpilot_toggles.frogpilot_telemetry and not frogpilot_toggles.uploads_disabled:
+        thread_manager.run_in_thread(upload_speed_limits, (params, api))
+
+      share_speed_limits = False
+
     toggles_updated, update_checks_requested = frogpilot_requests.update(now, time_validated, sm, params, frogpilot_toggles, api)
-    frogpilot_requests.publish(pm, stats_saved_count)
+    frogpilot_requests.publish(pm, stats_saved_count, variables.toggles_json)
 
     toggles_updated |= sm["frogpilotDeviceState"].forceOnroadClearedCount > force_onroad_cleared_count
     toggles_updated |= waiting_for_car_params and sm.updated["frogpilotCarParams"]

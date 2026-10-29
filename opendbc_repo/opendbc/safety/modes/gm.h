@@ -35,7 +35,6 @@ static bool gm_pcm_cruise = false;
 // OPGM variables
 static bool gm_cc_long = false;
 static bool gm_has_acc = true;
-static bool gm_pedal_long = false;
 
 static void gm_rx_hook(const CANPacket_t *msg) {
   const int GM_STANDSTILL_THRSLD = 10;  // 0.311kph
@@ -319,7 +318,7 @@ static safety_config gm_init(uint16_t param) {
   gm_has_acc = !GET_FLAG(param, GM_PARAM_NO_ACC);
 
   const uint16_t GM_PARAM_PEDAL_LONG = 64;
-  gm_pedal_long = GET_FLAG(param, GM_PARAM_PEDAL_LONG);
+  const bool gm_pedal_long = GET_FLAG(param, GM_PARAM_PEDAL_LONG);
   gm_pcm_cruise = (gm_hw == GM_CAM) && !gm_cam_long && !gm_pedal_long;
 
   safety_config ret;
@@ -349,6 +348,7 @@ static safety_config gm_init(uint16_t param) {
     SET_RX_CHECKS(gm_no_acc_rx_checks, ret);
   } else if (gm_ev) {
     SET_RX_CHECKS(gm_ev_rx_checks, ret);
+  } else {
   }
 
   // ASCM does not forward any messages

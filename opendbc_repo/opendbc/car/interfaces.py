@@ -24,7 +24,7 @@ from opendbc.car.honda.values import CAR as HONDA, HONDA_BOSCH
 from opendbc.car.hyundai.hyundaicanfd import CanBus as HyundaiCanBus
 from opendbc.car.hyundai.values import CAR as HYUNDAI, CANFD_CAR, HyundaiFlags, HyundaiFrogPilotSafetyFlags
 from opendbc.car.mock.values import CAR as MOCK
-from opendbc.car.subaru.values import CAR as SUBARU, SubaruFlags, SubaruSafetyFlags
+from opendbc.car.subaru.values import CAR as SUBARU, SubaruSafetyFlags
 from opendbc.car.toyota.values import CAR as TOYOTA, NO_DSU_CAR, TSS2_CAR, UNSUPPORTED_DSU_CAR, ToyotaFrogPilotFlags
 from opendbc.car.values import PLATFORMS
 from opendbc.can import CANParser
@@ -177,13 +177,16 @@ class CarInterfaceBase(ABC):
   # FrogPilot variables
   @classmethod
   def get_frogpilot_params(cls, candidate: str, fingerprint: dict[int, dict[int, int]], car_fw: list[structs.CarParams.CarFw], CP: structs.CarParams, frogpilot_toggles: SimpleNamespace):
+    from openpilot.frogpilot.common import frogpilot_utilities
+
     fp_ret = custom.FrogPilotCarParams.new_message()
 
     platform = PLATFORMS[candidate]
 
     if platform not in MOCK:
+      use_nnff = frogpilot_utilities.nnff_supported(candidate) and frogpilot_toggles.nnff_selected
       if CP.lateralTuning.which() == "pid" and CP.steerControlType != structs.CarParams.SteerControlType.angle and \
-         (frogpilot_toggles.force_torque_controller or frogpilot_toggles.nnff or frogpilot_toggles.nnff_lite):
+         (frogpilot_toggles.force_torque_controller or use_nnff or frogpilot_toggles.nnff_lite_selected):
         CarInterfaceBase.configure_torque_tune(candidate, CP.lateralTuning)
 
       if platform in CHRYSLER:
@@ -218,7 +221,7 @@ class CarInterfaceBase(ABC):
           CP.safetyConfigs[-1].safetyParam |= HyundaiFrogPilotSafetyFlags.TACO_TUNE_HACK.value
 
       elif platform in SUBARU:
-        if not (CP.flags & (SubaruFlags.GLOBAL_GEN2 | SubaruFlags.HYBRID)) and frogpilot_toggles.subaru_sng:
+        if CP.autoResumeSng and frogpilot_toggles.subaru_sng:
           CP.safetyConfigs[0].safetyParam |= SubaruSafetyFlags.SNG.value
 
       elif platform in TOYOTA:

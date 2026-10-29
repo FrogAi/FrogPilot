@@ -20,7 +20,7 @@ from openpilot.selfdrive.controls.lib.longcontrol import LongControl
 from openpilot.selfdrive.modeld.modeld import LAT_SMOOTH_SECONDS
 from openpilot.selfdrive.locationd.helpers import PoseCalibrator, Pose
 
-from openpilot.frogpilot.common import frogpilot_variables
+from openpilot.frogpilot.common import frogpilot_utilities, frogpilot_variables
 from openpilot.frogpilot.controls.lib.neural_network_feedforward import LatControlNNFF
 
 State = log.SelfdriveState.OpenpilotState
@@ -66,9 +66,10 @@ class Controls:
       self.LaC = LatControlTorque(self.CP, self.CI, DT_CTRL)
 
     # FrogPilot variables
-    self.sm = self.sm.extend(['frogpilotCarState', 'frogpilotPlan'])
+    self.sm = self.sm.extend(['frogpilotCarState', 'frogpilotPlan', 'frogpilotProcessState'])
 
     self.frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles()
+    self.lat_smooth_seconds = frogpilot_utilities.get_model_lat_smooth_seconds(self.frogpilot_toggles.model)
     self.using_custom_torque_params = False
 
     if self.CP.lateralTuning.which() == "torque" and (self.frogpilot_toggles.nnff or self.frogpilot_toggles.nnff_lite):
@@ -109,12 +110,13 @@ class Controls:
     # Update Torque Params
     if self.CP.lateralTuning.which() == 'torque':
       torque_params = self.sm['liveTorqueParameters']
-      if self.sm.all_checks(['liveTorqueParameters']) and (torque_params.useParams or self.frogpilot_toggles.force_auto_tune):
+      if self.sm.all_checks(['liveTorqueParameters']) and \
+         ((torque_params.useParams and not self.frogpilot_toggles.force_auto_tune_off) or self.frogpilot_toggles.force_auto_tune):
         self.LaC.update_live_torque_params(torque_params.latAccelFactorFiltered, torque_params.latAccelOffsetFiltered,
                                            torque_params.frictionCoefficientFiltered)
 
         # FrogPilot variables
-        self.using_custom_torque_params = False
+        self.using_custom_torque_params = True
       elif (not torque_params.useParams and self.using_custom_torque_params and not self.frogpilot_toggles.force_auto_tune) or \
            self.frogpilot_toggles.use_custom_friction or self.frogpilot_toggles.use_custom_latAccelFactor:
         self.LaC.update_live_torque_params(self.frogpilot_toggles.latAccelFactor, self.CP.lateralTuning.torque.latAccelOffset, self.frogpilot_toggles.friction)
@@ -147,13 +149,17 @@ class Controls:
 
     # accel PID loop
     pid_accel_limits = self.CI.get_pid_accel_limits(self.CP, CS.vEgo, CS.vCruise * CV.KPH_TO_MS)
-    actuators.accel = float(min(self.LoC.update(CC.longActive, CS, long_plan.aTarget, long_plan.shouldStop, pid_accel_limits, self.frogpilot_toggles), self.frogpilot_toggles.max_desired_acceleration))
+
+    # FrogPilot variables
+    pid_accel_limits = (pid_accel_limits[0], min(pid_accel_limits[1], self.frogpilot_toggles.max_desired_acceleration))
+
+    actuators.accel = float(self.LoC.update(CC.longActive, CS, long_plan.aTarget, long_plan.shouldStop, pid_accel_limits, self.frogpilot_toggles))
 
     # Steering PID loop and lateral MPC
     # Reset desired curvature to current to avoid violating the limits on engage
     new_desired_curvature = model_v2.action.desiredCurvature if CC.latActive else self.curvature
     self.desired_curvature, curvature_limited = clip_curvature(CS.vEgo, self.desired_curvature, new_desired_curvature, lp.roll)
-    lat_delay = self.sm["liveDelay"].lateralDelay + self.frogpilot_toggles.lat_smooth_seconds
+    lat_delay = self.sm["liveDelay"].lateralDelay + self.lat_smooth_seconds
 
     actuators.curvature = self.desired_curvature
     steer, steeringAngleDeg, lac_log = self.LaC.update(CC.latActive, CS, self.VM, lp,

@@ -8,12 +8,16 @@ from cereal import messaging, car, log
 from opendbc.car.fingerprints import MIGRATION
 from opendbc.car.toyota.values import EPS_SCALE, ToyotaSafetyFlags
 from opendbc.car.ford.values import CAR as FORD, FordFlags, FordSafetyFlags
-from opendbc.car.hyundai.values import HyundaiSafetyFlags
+from opendbc.car.hyundai.values import HyundaiFrogPilotSafetyFlags, HyundaiSafetyFlags
 from opendbc.car.gm.values import GMSafetyFlags
+from openpilot.common.constants import CV
+from openpilot.selfdrive.car.cruise import V_CRUISE_MAX
 from openpilot.selfdrive.modeld.constants import ModelConstants
 from openpilot.selfdrive.modeld.fill_model_msg import fill_xyz_poly, fill_lane_line_meta
 from openpilot.selfdrive.test.process_replay.vision_meta import meta_from_encode_index
-from openpilot.selfdrive.controls.lib.longitudinal_planner import get_accel_from_plan, CONTROL_N_T_IDX
+from openpilot.selfdrive.controls.lib.longitudinal_mpc_lib.long_mpc import A_CHANGE_COST, CRUISE_MIN_ACCEL, DANGER_ZONE_COST, get_jerk_factor, \
+                                                                           get_T_FOLLOW, J_EGO_COST
+from openpilot.selfdrive.controls.lib.longitudinal_planner import get_accel_from_plan, CONTROL_N_T_IDX, get_max_accel
 from openpilot.system.manager.process_config import managed_processes
 from openpilot.tools.lib.logreader import LogIterable
 
@@ -44,6 +48,10 @@ def migrate_all(lr: LogIterable, manager_states: bool = False, panda_states: boo
     migrate_onroadEvents,
     migrate_driverMonitoringState,
     migrate_longitudinalPlan,
+
+    # FrogPilot variables
+    migrate_frogpilotCarState,
+    migrate_frogpilotPlan,
   ]
   if manager_states:
     migrations.append(migrate_managerState)
@@ -277,6 +285,9 @@ def migrate_pandaStates(msgs):
     "KIA_EV6": HyundaiSafetyFlags.EV_GAS | HyundaiSafetyFlags.CANFD_LKA_STEERING,
     "CHEVROLET_VOLT": GMSafetyFlags.EV,
     "CHEVROLET_BOLT_EUV": GMSafetyFlags.EV | GMSafetyFlags.HW_CAM,
+
+    # FrogPilot variables
+    "HYUNDAI_SONATA": HyundaiFrogPilotSafetyFlags.HAS_LDA_BUTTON,
   }
   # TODO: get new Ford route
   safety_param_migration |= dict.fromkeys((set(FORD) - FORD.with_flags(FordFlags.CANFD)), FordSafetyFlags.LONG_CONTROL)
@@ -470,3 +481,37 @@ def migrate_driverMonitoringState(msgs):
     ops.append((index, msg.as_reader()))
 
   return ops, [], []
+
+
+# FrogPilot variables
+@migration(inputs=["carState"], product="frogpilotCarState")
+def migrate_frogpilotCarState(msgs):
+  add_ops = []
+  for _, msg in msgs:
+    new_msg = messaging.new_message('frogpilotCarState', valid=msg.valid, logMonoTime=msg.logMonoTime)
+    add_ops.append(new_msg.as_reader())
+  return [], add_ops, []
+
+
+# FrogPilot variables
+@migration(inputs=["carState", "selfdriveState"], product="frogpilotPlan")
+def migrate_frogpilotPlan(msgs):
+  add_ops = []
+  selfdrive_state = messaging.new_message('selfdriveState').selfdriveState
+  for _, msg in msgs:
+    if msg.which() == 'selfdriveState':
+      selfdrive_state = msg.selfdriveState
+    else:
+      jerk_factor = get_jerk_factor(personality=selfdrive_state.personality)
+
+      new_msg = messaging.new_message('frogpilotPlan', valid=True, logMonoTime=msg.logMonoTime)
+      new_msg.frogpilotPlan.accelerationJerk = A_CHANGE_COST * jerk_factor
+      new_msg.frogpilotPlan.dangerJerk = DANGER_ZONE_COST
+      new_msg.frogpilotPlan.lateralCheck = True
+      new_msg.frogpilotPlan.maxAcceleration = float(get_max_accel(msg.carState.vEgo))
+      new_msg.frogpilotPlan.minAcceleration = CRUISE_MIN_ACCEL
+      new_msg.frogpilotPlan.speedJerk = J_EGO_COST * jerk_factor
+      new_msg.frogpilotPlan.tFollow = get_T_FOLLOW(personality=selfdrive_state.personality)
+      new_msg.frogpilotPlan.vCruise = min(msg.carState.vCruise, V_CRUISE_MAX) * CV.KPH_TO_MS
+      add_ops.append(new_msg.as_reader())
+  return [], add_ops, []

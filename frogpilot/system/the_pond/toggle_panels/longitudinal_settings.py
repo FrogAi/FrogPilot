@@ -1,3 +1,4 @@
+from openpilot.frogpilot.common import frogpilot_variables
 from openpilot.frogpilot.system.the_pond import utilities
 from openpilot.frogpilot.system.the_pond.toggle_panels import rows
 
@@ -211,7 +212,7 @@ ROWS = [
     "order": 1,
     "path": ("Driving Controls", "GAS / BRAKE", "Advanced Longitudinal Tuning"),
     "title": "Maximum Acceleration",
-    "value": rows.number(0.1, 4, 0.1, unit=" m/s²"),
+    "value": rows.number(0.1, frogpilot_variables.MAX_ACCELERATION, 0.1, unit=" m/s²"),
     "widget": "value"
   },
   {
@@ -222,7 +223,7 @@ ROWS = [
     "order": 2,
     "path": ("Driving Controls", "GAS / BRAKE", "Advanced Longitudinal Tuning"),
     "title": lambda context: rows.car_title(context, "Start Acceleration", context.start_accel),
-    "value": rows.number(0, 4, 0.01, unit=" m/s²", fast=True),
+    "value": rows.number(0, frogpilot_variables.MAX_ACCELERATION, 0.01, unit=" m/s²", fast=True),
     "visible": start_accel_visible,
     "widget": "value"
   },
@@ -249,7 +250,7 @@ ROWS = [
     "order": 4,
     "path": ("Driving Controls", "GAS / BRAKE", "Advanced Longitudinal Tuning"),
     "title": lambda context: rows.car_title(context, "Stop Acceleration", context.stop_accel),
-    "value": rows.number(-4, 0, 0.01, unit=" m/s²", fast=True),
+    "value": rows.number(-frogpilot_variables.MAX_ACCELERATION, 0, 0.01, unit=" m/s²", fast=True),
     "widget": "value"
   },
   {
@@ -322,10 +323,11 @@ ROWS = [
     "widget": "button_toggle"
   },
   {
-    "description": ("<b>Switch to \"Experimental Mode\" for a predicted stop, except while following a detected lead.</b><br><br>It keeps checking " +
-                    "for a possible stop behind that lead and can trigger once the lead is no longer tracked. \"Traffic Mode\" turns this condition " +
-                    "off.<br><br><i><b>Disclaimer</b>: openpilot does not explicitly detect traffic lights or stop signs. In \"Experimental Mode\", " +
-                    "openpilot makes end-to-end driving decisions from camera input, which means it may stop even when there's no clear reason!</i>"),
+    "description": ("<b>Switch to \"Experimental Mode\" when openpilot plans to slow down a lot or stop soon, except while following a detected " +
+                    "lead.</b><br><br>It keeps checking for a possible stop behind that lead and can trigger once the lead is no longer tracked. " +
+                    "\"Traffic Mode\" turns this condition off.<br><br><i><b>Disclaimer</b>: openpilot does not explicitly detect traffic lights or " +
+                    "stop signs. In \"Experimental Mode\", openpilot makes end-to-end driving decisions from camera input, which means it may stop " +
+                    "even when there's no clear reason!</i>"),
     "key": "CEStopLights",
     "order": 2,
     "path": ("Driving Controls", "GAS / BRAKE", "Conditional Experimental Mode"),
@@ -346,9 +348,9 @@ ROWS = [
   },
   {
     "description": ("<b>Switch to \"Experimental Mode\" when you signal below the set speed. Turn on \"Not For Detected Lanes\" to suppress this " +
-                    "when an adjacent lane is detected as you start signalling.</b><br><br>With the button off, any signal below the set speed can " +
+                    "when an adjacent lane is detected as you start signaling.</b><br><br>With the button off, any signal below the set speed can " +
                     "trigger it. With it on, the space beside you must be narrower than the \"Minimum Lane Width\" under \"Lane Changes\" in the " +
-                    "\"STEERING\" panel when you start signalling, or you must be below the \"Minimum Lane Change Speed\". That width starts at " +
+                    "\"STEERING\" panel when you start signaling, or you must be below the \"Minimum Lane Change Speed\". That width starts at " +
                     "zero, so raise it to use lane detection. Lane estimates can miss an adjacent lane."),
     "key": "CESignalSpeed",
     "order": 4,
@@ -422,7 +424,7 @@ ROWS = [
   {
     "actions": {
       "RESET": {
-        "confirm": {"cancel": "No", "confirm": "Yes", "text": "Are you sure you want to completely reset your curvature data?"},
+        "confirm": {"cancel": "No", "confirm": "Yes", "text": "Are you sure you want to completely reset your curve data?"},
         "guard": car_on_guard,
         "messages": {"car_on": "Curve data can't be reset while the car is on. Turn the car off and try again."},
         "run": reset_curve_data
@@ -448,7 +450,7 @@ ROWS = [
   },
   {
     "children": ("Driving Controls", "GAS / BRAKE", "Driving Personalities"),
-    "description": "<b>Change what Aggressive, Standard and Relaxed actually do, so they match how you like to drive.</b>",
+    "description": "<b>Change what Aggressive, Standard, and Relaxed actually do, so they match how you like to drive.</b>",
     "key": "CustomPersonalities",
     "order": 4,
     "path": ("Driving Controls", "GAS / BRAKE"),
@@ -495,7 +497,8 @@ ROWS = [
     "order": 0,
     "path": ("Driving Controls", "GAS / BRAKE", "Driving Personalities", "Aggressive"),
     "title": "Following Distance",
-    "value": rows.number(1, 3, 0.01, labels=rows.unit_labels(1, 3, 0.01, " second", " seconds"), fast=True),
+    "value": rows.number(1, frogpilot_variables.MAX_T_FOLLOW, 0.01,
+                         labels=rows.unit_labels(1, frogpilot_variables.MAX_T_FOLLOW, 0.01, " second", " seconds"), fast=True),
     "widget": "value"
   },
   {
@@ -574,7 +577,8 @@ ROWS = [
     "order": 0,
     "path": ("Driving Controls", "GAS / BRAKE", "Driving Personalities", "Standard"),
     "title": "Following Distance",
-    "value": rows.number(1, 3, 0.01, labels=rows.unit_labels(1, 3, 0.01, " second", " seconds"), fast=True),
+    "value": rows.number(1, frogpilot_variables.MAX_T_FOLLOW, 0.01,
+                         labels=rows.unit_labels(1, frogpilot_variables.MAX_T_FOLLOW, 0.01, " second", " seconds"), fast=True),
     "widget": "value"
   },
   {
@@ -652,7 +656,8 @@ ROWS = [
     "order": 0,
     "path": ("Driving Controls", "GAS / BRAKE", "Driving Personalities", "Relaxed"),
     "title": "Following Distance",
-    "value": rows.number(1, 3, 0.01, labels=rows.unit_labels(1, 3, 0.01, " second", " seconds"), fast=True),
+    "value": rows.number(1, frogpilot_variables.MAX_T_FOLLOW, 0.01,
+                         labels=rows.unit_labels(1, frogpilot_variables.MAX_T_FOLLOW, 0.01, " second", " seconds"), fast=True),
     "widget": "value"
   },
   {
@@ -761,9 +766,9 @@ ROWS = [
   {
     "description": ("<b>openpilot comes to a full stop whenever it thinks it sees a red light or stop sign, whether or not \"Experimental Mode\" is " +
                     "running.</b><br><br>It only kicks in when openpilot is not already tracking a car ahead, so behind a queue at a light your " +
-                    "normal following does the stopping instead. Touching the gas cancels a forced stop. \"Traffic Mode\" turns this " +
-                    "off.<br><br><i><b>Heads up</b>: openpilot never actually reads traffic lights or stop signs. It decides from what the camera " +
-                    "sees, so it can stop when there is no reason to.</i>"),
+                    "normal following does the stopping instead. Touching the gas or pressing RES/+ cancels a forced stop. \"Traffic Mode\" turns " +
+                    "this off.<br><br><i><b>Heads up</b>: openpilot never actually reads traffic lights or stop signs. It decides from what the " +
+                    "camera sees, so it can stop when there is no reason to.</i>"),
     "key": "ForceStops",
     "order": 2,
     "path": ("Driving Controls", "GAS / BRAKE", "Quality of Life"),
@@ -1057,7 +1062,7 @@ ROWS = [
   {
     "children": ("Driving Controls", "GAS / BRAKE", "Speed Limit Controller"),
     "description": ("<b>Hold openpilot's max speed to the posted speed limit.</b><br><br>The limit comes from your downloaded maps, Mapbox, speed " +
-                    "limit signs read by the road camera, or, on supported Ford, Genesis, Hyundai, Kia, Lexus and Toyota models, your dashboard."),
+                    "limit signs read by the road camera, or, on supported Ford, Genesis, Hyundai, Kia, Lexus, and Toyota models, your dashboard."),
     "key": "SpeedLimitController",
     "order": 6,
     "path": ("Driving Controls", "GAS / BRAKE"),
@@ -1141,7 +1146,7 @@ ROWS = [
   },
   {
     "description": ("<b>Fall back to Mapbox for the speed limit when none of your chosen sources have one.</b><br><br>Needs your Public Mapbox Key " +
-                    "and a working internet connection."),
+                    "and a working internet connection. It sends your location to Mapbox to look up the limit."),
     "key": "SLCMapboxFiller",
     "order": 4,
     "path": ("Driving Controls", "GAS / BRAKE", "Speed Limit Controller", "Speed Limit Changes"),

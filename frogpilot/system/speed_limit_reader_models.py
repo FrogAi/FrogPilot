@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import requests
 
-from openpilot.frogpilot.common import frogpilot_api, frogpilot_download_utilities, frogpilot_utilities, frogpilot_variables
+from openpilot.frogpilot.common import frogpilot_api, frogpilot_download_utilities, frogpilot_paths, frogpilot_utilities, frogpilot_variables
 
 ENDPOINT = "/v1/speed-limit-reader"
 
@@ -17,16 +17,16 @@ class SpeedLimitReaderModels:
   def download(self, manifest):
     for file in manifest["files"]:
       url = f"{frogpilot_api.FROGPILOT_API}{ENDPOINT}/{manifest['version']}/{file['name']}"
-      if frogpilot_download_utilities.download_file(frogpilot_variables.SPEED_LIMIT_READER_MODEL_PATH / file["name"], self.download_state, self.session, url) is None:
+      if frogpilot_download_utilities.download_file(frogpilot_paths.SPEED_LIMIT_READER_MODEL_PATH / file["name"], self.download_state, self.session, url) is None:
         return
 
-    frogpilot_utilities.update_json_file(frogpilot_variables.SPEED_LIMIT_READER_MANIFEST_PATH, manifest)
+    frogpilot_utilities.update_json_file(frogpilot_paths.SPEED_LIMIT_READER_MANIFEST_PATH, manifest)
 
   def update(self, sm):
     if not frogpilot_utilities.is_unmetered_network(sm["deviceState"]):
       return
 
-    response = self.api.get(f"{ENDPOINT}/{frogpilot_variables.SPEED_LIMIT_READER_MANIFEST_PATH.name}", session=self.session)
+    response = self.api.get(f"{ENDPOINT}/{frogpilot_paths.SPEED_LIMIT_READER_MANIFEST_PATH.name}", session=self.session)
     if not self.api.succeeded(response):
       return
 
@@ -38,7 +38,7 @@ class SpeedLimitReaderModels:
     if sorted(file["name"] for file in manifest["files"]) != sorted(frogpilot_variables.SPEED_LIMIT_READER_MODEL_FILES):
       return
 
-    if manifest == frogpilot_utilities.load_json_file(frogpilot_variables.SPEED_LIMIT_READER_MANIFEST_PATH):
+    if manifest == frogpilot_utilities.load_json_file(frogpilot_paths.SPEED_LIMIT_READER_MANIFEST_PATH):
       return
 
     self.session.headers["Authorization"] = f"Bearer {self.api.get_token()}"

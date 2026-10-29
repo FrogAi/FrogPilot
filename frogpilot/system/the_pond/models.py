@@ -3,7 +3,7 @@ import shutil
 
 from aiohttp import web
 
-from openpilot.frogpilot.common import frogpilot_utilities, frogpilot_variables
+from openpilot.frogpilot.common import frogpilot_paths, frogpilot_utilities, frogpilot_variables
 from openpilot.frogpilot.system.the_pond import utilities
 
 routes = web.RouteTableDef()
@@ -23,11 +23,11 @@ def download_error(the_pond, missing_models):
 
 
 def get_downloaded_models():
-  return [model["id"] for model in frogpilot_variables.get_models() if (frogpilot_variables.MODELS_PATH / model["id"]).is_dir()]
+  return [model["id"] for model in frogpilot_variables.get_models() if (frogpilot_paths.MODELS_PATH / model["id"]).is_dir()]
 
 
 def get_missing_models():
-  return [model["id"] for model in frogpilot_variables.get_models() if not (frogpilot_variables.MODELS_PATH / model["id"]).is_dir()]
+  return [model["id"] for model in frogpilot_variables.get_models() if not (frogpilot_paths.MODELS_PATH / model["id"]).is_dir()]
 
 
 def get_deletable_models(the_pond):
@@ -61,7 +61,7 @@ async def delete_models(request):
     raise web.HTTPConflict(text="busy")
 
   for model_id in dict.fromkeys(model_ids):
-    await asyncio.to_thread(shutil.rmtree, frogpilot_variables.MODELS_PATH / model_id)
+    await asyncio.to_thread(shutil.rmtree, frogpilot_paths.MODELS_PATH / model_id)
 
   the_pond.send_request("updateToggles")
   return web.Response(status=204)

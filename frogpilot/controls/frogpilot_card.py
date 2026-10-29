@@ -7,7 +7,7 @@ from opendbc.safety import ALTERNATIVE_EXPERIENCE
 from openpilot.common.params import Params
 from openpilot.selfdrive.car.cruise import CRUISE_LONG_PRESS, ButtonType
 
-from openpilot.frogpilot.common import frogpilot_utilities, frogpilot_variables
+from openpilot.frogpilot.common import frogpilot_paths, frogpilot_utilities, frogpilot_variables
 
 EventName = log.OnroadEvent.EventName
 
@@ -71,12 +71,16 @@ class FrogPilotCard:
 
     frogpilotCarState.distancePressed |= self.onroad_distance_button
 
-    if self.CP.brand == "hyundai":
-      for be in carState.buttonEvents:
-        if be.type == ButtonType.lkas and be.pressed and frogpilot_toggles.always_on_lateral_lkas:
-          self.always_on_lateral_allowed = not self.always_on_lateral_allowed
-        elif be.type == ButtonType.mainCruise and be.pressed and frogpilot_toggles.always_on_lateral_main:
-          self.always_on_lateral_allowed = not self.always_on_lateral_allowed
+    if self.CP.brand == "hyundai" and (self.CP.openpilotLongitudinalControl or frogpilot_toggles.always_on_lateral_lkas):
+      safety_model = self.CP.safetyConfigs[-1].safetyModel
+      if not any(panda_state.safetyModel == safety_model for panda_state in sm["pandaStates"]):
+        self.always_on_lateral_allowed = False
+      else:
+        for be in carState.buttonEvents:
+          if be.type == ButtonType.lkas and be.pressed and frogpilot_toggles.always_on_lateral_lkas:
+            self.always_on_lateral_allowed = not self.always_on_lateral_allowed
+          elif be.type == ButtonType.mainCruise and be.pressed and frogpilot_toggles.always_on_lateral_main:
+            self.always_on_lateral_allowed = not self.always_on_lateral_allowed
     elif frogpilot_toggles.always_on_lateral_main:
       self.always_on_lateral_allowed |= sm["carControl"].enabled or not self.cruise_available_previously
       self.always_on_lateral_allowed &= carState.cruiseState.available
@@ -94,7 +98,7 @@ class FrogPilotCard:
     self.always_on_lateral_enabled &= not sm["frogpilotSelfdriveState"].hasDisableEvents or self.frogs_go_moo
     self.always_on_lateral_enabled &= not any(event.name == EventName.tooDistracted for event in sm["onroadEvents"])
     self.always_on_lateral_enabled &= not (carState.brakePressed and carState.vEgo < frogpilot_toggles.always_on_lateral_pause_speed) or carState.standstill
-    self.always_on_lateral_enabled &= not frogpilot_variables.ERROR_LOG_PATH.is_file() or self.frogs_go_moo
+    self.always_on_lateral_enabled &= not frogpilot_paths.ERROR_LOG_PATH.is_file() or self.frogs_go_moo
 
     if any(be.pressed and be.type in (ButtonType.accelCruise, ButtonType.resumeCruise) for be in carState.buttonEvents):
       self.accel_press_count += 1

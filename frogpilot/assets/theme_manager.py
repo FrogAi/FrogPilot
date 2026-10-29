@@ -9,15 +9,14 @@ from dateutil import easter, relativedelta
 from pathlib import Path
 from urllib.parse import quote_plus
 
-from openpilot.frogpilot.common import frogpilot_download_utilities, frogpilot_utilities, frogpilot_variables
+from openpilot.frogpilot.common import frogpilot_download_utilities, frogpilot_paths, frogpilot_utilities, frogpilot_variables
 
-DOWNLOADABLE_PARAMS = {
-  "colors": "DownloadableColors",
-  "distance_icons": "DownloadableDistanceIcons",
-  "icons": "DownloadableIcons",
-  "signals": "DownloadableSignals",
-  "sounds": "DownloadableSounds",
-  "steering_wheels": "DownloadableWheels",
+DEFAULT_THEME_COMPONENTS = {
+  "colors": frogpilot_paths.FROG_THEME_PATH / "colors",
+  "distance_icons": frogpilot_paths.THEME_PACKS_PATH / "frog-animated/distance_icons",
+  "icons": frogpilot_paths.THEME_PACKS_PATH / "frog-animated/icons",
+  "signals": frogpilot_paths.FROG_THEME_PATH / "signals",
+  "sounds": frogpilot_paths.FROG_THEME_PATH / "sounds",
 }
 
 THEME_PACK_COMPONENTS = ("colors", "distance_icons", "icons", "signals", "sounds")
@@ -44,9 +43,7 @@ class ThemeManager:
 
     self.previous_asset_mappings = {}
 
-    self.theme_sizes_path = frogpilot_variables.THEME_SAVE_PATH / "theme_sizes.json"
-
-    self.theme_sizes = frogpilot_utilities.load_json_file(self.theme_sizes_path)
+    self.theme_sizes = frogpilot_utilities.load_json_file(frogpilot_paths.THEME_SIZES_PATH)
 
     self.session = requests.Session()
     self.session.headers.update({
@@ -57,24 +54,19 @@ class ThemeManager:
 
   @staticmethod
   def copy_default_theme():
-    world_frog_day_theme_path = frogpilot_variables.HOLIDAY_THEMES_PATH / "world_frog_day"
+    world_frog_day_theme_path = frogpilot_paths.HOLIDAY_THEMES_PATH / "world_frog_day"
 
-    for theme_subfolder_name, destination_folder_path in [
-      ("colors", frogpilot_variables.FROG_THEME_PATH / "colors"),
-      ("distance_icons", frogpilot_variables.THEME_PACKS_PATH / "frog-animated/distance_icons"),
-      ("icons", frogpilot_variables.THEME_PACKS_PATH / "frog-animated/icons"),
-      ("signals", frogpilot_variables.FROG_THEME_PATH / "signals"),
-      ("sounds", frogpilot_variables.FROG_THEME_PATH / "sounds"),
-    ]:
+    for theme_subfolder_name, destination_folder_path in DEFAULT_THEME_COMPONENTS.items():
       source_folder_path = world_frog_day_theme_path / theme_subfolder_name
-      if not destination_folder_path.exists():
-        shutil.copytree(source_folder_path, destination_folder_path)
+      frogpilot_utilities.delete_path(destination_folder_path)
+      shutil.copytree(source_folder_path, destination_folder_path)
 
     steering_wheel_image_path = world_frog_day_theme_path / "steering_wheel/wheel.svg"
-    steering_wheel_save_path = frogpilot_variables.STEERING_WHEELS_PATH / "frog.svg"
-    if not any(steering_wheel_save_path.with_suffix(extension).exists() for extension in WHEEL_EXTENSIONS):
-      steering_wheel_save_path.parent.mkdir(parents=True, exist_ok=True)
-      shutil.copy2(steering_wheel_image_path, steering_wheel_save_path)
+    steering_wheel_save_path = frogpilot_paths.STEERING_WHEELS_PATH / "frog.svg"
+    for extension in WHEEL_EXTENSIONS:
+      frogpilot_utilities.delete_path(steering_wheel_save_path.with_suffix(extension))
+    steering_wheel_save_path.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(steering_wheel_image_path, steering_wheel_save_path)
 
   def download_theme(self, theme_component, theme_name, repo_url):
     if not repo_url:
@@ -83,19 +75,19 @@ class ThemeManager:
 
     if theme_component == "distance_icons":
       relative_link = f"Distance-Icons/{theme_name}"
-      download_path = frogpilot_variables.THEME_PACKS_PATH / theme_name / theme_component
+      download_path = frogpilot_paths.THEME_PACKS_PATH / theme_name / theme_component
       extension = ".zip"
     elif theme_component == "steering_wheels":
       relative_link = f"Steering-Wheels/{theme_name}"
-      download_path = frogpilot_variables.STEERING_WHEELS_PATH / theme_name
+      download_path = frogpilot_paths.STEERING_WHEELS_PATH / theme_name
       extension = ".gif"
     else:
       relative_link = f"Themes/{theme_name}/{theme_component}"
-      download_path = frogpilot_variables.THEME_PACKS_PATH / theme_name / theme_component
+      download_path = frogpilot_paths.THEME_PACKS_PATH / theme_name / theme_component
       extension = ".zip"
 
     if theme_component == "steering_wheels":
-      theme_path = frogpilot_variables.THEME_SAVE_PATH / f"{theme_name}{extension}"
+      theme_path = frogpilot_paths.THEME_SAVE_PATH / f"{theme_name}{extension}"
     else:
       theme_path = download_path.with_suffix(extension)
 
@@ -181,8 +173,8 @@ class ThemeManager:
           if branch == "Steering-Wheels":
             assets["wheels"].append(path)
             theme_name = Path(path).stem
-            local_files = list(frogpilot_variables.STEERING_WHEELS_PATH.glob(f"{theme_name}.*"))
-            if local_files:
+            local_files = list(frogpilot_paths.STEERING_WHEELS_PATH.glob(f"{theme_name}.*"))
+            if local_files and theme_name != "frog":
               size = file_size(branch, path, item.get("size", 0))
               local_size = self.theme_sizes.get("wheels", {}).get(theme_name)
               if size > 0 and local_size != size:
@@ -193,8 +185,8 @@ class ThemeManager:
             theme_name = Path(path).stem
             assets["themes"].setdefault(theme_name, set()).add(component_name)
 
-            local_path = frogpilot_variables.THEME_PACKS_PATH / theme_name / component_name
-            if local_path.exists():
+            local_path = frogpilot_paths.THEME_PACKS_PATH / theme_name / component_name
+            if local_path.exists() and local_path not in DEFAULT_THEME_COMPONENTS.values():
               size = file_size(branch, path, item.get("size", 0))
               local_size = self.theme_sizes.get("themes", {}).get(theme_name, {}).get(component_name)
               if size > 0 and local_size != size:
@@ -212,8 +204,8 @@ class ThemeManager:
           if key in theme_path:
             assets["themes"].setdefault(theme_name, set()).add(key)
 
-            local_path = frogpilot_variables.THEME_PACKS_PATH / theme_name / key
-            if local_path.exists():
+            local_path = frogpilot_paths.THEME_PACKS_PATH / theme_name / key
+            if local_path.exists() and local_path not in DEFAULT_THEME_COMPONENTS.values():
               expected_size = file_size(branch, item["path"], item.get("size", 0))
               local_size = self.theme_sizes.get("themes", {}).get(theme_name, {}).get(key)
               if expected_size > 0 and local_size != expected_size:
@@ -262,18 +254,18 @@ class ThemeManager:
 
   @staticmethod
   def get_full_themes():
-    if not frogpilot_variables.THEME_PACKS_PATH.exists():
+    if not frogpilot_paths.THEME_PACKS_PATH.exists():
       return []
 
     valid_themes = set()
-    for theme_directory in frogpilot_variables.THEME_PACKS_PATH.iterdir():
+    for theme_directory in frogpilot_paths.THEME_PACKS_PATH.iterdir():
       if not theme_directory.is_dir():
         continue
 
       base_name = theme_directory.name.replace("-animated", "")
 
-      animated_path = frogpilot_variables.THEME_PACKS_PATH / f"{base_name}-animated"
-      base_path = frogpilot_variables.THEME_PACKS_PATH / base_name
+      animated_path = frogpilot_paths.THEME_PACKS_PATH / f"{base_name}-animated"
+      base_path = frogpilot_paths.THEME_PACKS_PATH / base_name
 
       base_valid = all((base_path / asset).is_dir() for asset in {"colors", "sounds"})
       animated_icons_exist = (animated_path / "icons").is_dir()
@@ -308,30 +300,30 @@ class ThemeManager:
   @staticmethod
   def get_theme_asset_path(asset_type, theme):
     if theme in frogpilot_variables.HOLIDAY_GREETINGS:
-      asset_location = frogpilot_variables.HOLIDAY_THEMES_PATH / theme / asset_type
+      asset_location = frogpilot_paths.HOLIDAY_THEMES_PATH / theme / asset_type
     elif f"{theme}_week" in frogpilot_variables.HOLIDAY_GREETINGS:
-      asset_location = frogpilot_variables.HOLIDAY_THEMES_PATH / f"{theme}_week" / asset_type
+      asset_location = frogpilot_paths.HOLIDAY_THEMES_PATH / f"{theme}_week" / asset_type
     else:
-      asset_location = frogpilot_variables.THEME_PACKS_PATH / theme / asset_type
+      asset_location = frogpilot_paths.THEME_PACKS_PATH / theme / asset_type
 
     if not asset_location.exists() or theme == "stock":
-      asset_location = frogpilot_variables.STOCK_THEME_PATH / asset_type
+      asset_location = frogpilot_paths.STOCK_THEME_PATH / asset_type
     return asset_location
 
   @staticmethod
   def get_wheel_path(image, wheel_location=None):
     if wheel_location is None:
       if image == "stock":
-        wheel_location = frogpilot_variables.STOCK_THEME_PATH / "steering_wheel"
+        wheel_location = frogpilot_paths.STOCK_THEME_PATH / "steering_wheel"
       elif image in frogpilot_variables.HOLIDAY_GREETINGS:
-        wheel_location = frogpilot_variables.HOLIDAY_THEMES_PATH / image / "steering_wheel"
+        wheel_location = frogpilot_paths.HOLIDAY_THEMES_PATH / image / "steering_wheel"
       elif f"{image}_week" in frogpilot_variables.HOLIDAY_GREETINGS:
-        wheel_location = frogpilot_variables.HOLIDAY_THEMES_PATH / f"{image}_week" / "steering_wheel"
+        wheel_location = frogpilot_paths.HOLIDAY_THEMES_PATH / f"{image}_week" / "steering_wheel"
       else:
-        wheel_location = frogpilot_variables.STEERING_WHEELS_PATH
+        wheel_location = frogpilot_paths.STEERING_WHEELS_PATH
 
     if not wheel_location.exists():
-      wheel_location = frogpilot_variables.STOCK_THEME_PATH / "steering_wheel"
+      wheel_location = frogpilot_paths.STOCK_THEME_PATH / "steering_wheel"
 
     image_name = image.replace(" ", "_").lower()
     return next((file for file in wheel_location.iterdir() if file.stem.lower() in {image_name, "wheel"}), None)
@@ -350,7 +342,7 @@ class ThemeManager:
         frogpilot_download_utilities.handle_error(None, "Download cancelled...", self.download_state)
         return False
 
-      if (frogpilot_variables.ACTIVE_THEME_PATH / theme_component).resolve() == download_path.resolve():
+      if (frogpilot_paths.ACTIVE_THEME_PATH / theme_component).resolve() == download_path.resolve():
         self.theme_update_count += 1
         self.theme_updated = True
     else:
@@ -358,7 +350,7 @@ class ThemeManager:
 
       active_format_changed = False
       for other_extension in sorted(set(WHEEL_EXTENSIONS) - {extension}):
-        active_wheel = frogpilot_variables.ACTIVE_THEME_PATH / "steering_wheel" / f"wheel{other_extension}"
+        active_wheel = frogpilot_paths.ACTIVE_THEME_PATH / "steering_wheel" / f"wheel{other_extension}"
         active_format_changed |= active_wheel.resolve() == download_path.with_suffix(other_extension).resolve()
 
         frogpilot_utilities.delete_path(download_path.with_suffix(other_extension))
@@ -366,7 +358,7 @@ class ThemeManager:
       if active_format_changed:
         self.update_wheel_image(theme_name)
 
-      if (frogpilot_variables.ACTIVE_THEME_PATH / "steering_wheel" / f"wheel{extension}").resolve() == download_path.with_suffix(extension).resolve():
+      if (frogpilot_paths.ACTIVE_THEME_PATH / "steering_wheel" / f"wheel{extension}").resolve() == download_path.with_suffix(extension).resolve():
         self.theme_update_count += 1
 
     self.update_theme_size(theme_component, theme_name, theme_size)
@@ -418,7 +410,7 @@ class ThemeManager:
     return random.choice(candidates) if candidates else "stock"
 
   def refresh_theme_params(self):
-    self.update_theme_params({component: self.params.get(key).split(",") for component, key in DOWNLOADABLE_PARAMS.items()})
+    self.update_theme_params({component: self.params.get(key).split(",") for component, key in frogpilot_variables.DOWNLOADABLE_PARAMS.items()})
 
   @staticmethod
   def unformat_name(display_name):
@@ -464,8 +456,8 @@ class ThemeManager:
 
       selected_theme = random.choice(available_themes) if available_themes else "stock"
 
-      distance_icons = [path.parent.name for path in frogpilot_variables.THEME_PACKS_PATH.glob("*/distance_icons") if path.is_dir()]
-      wheels = [path.stem for path in frogpilot_variables.STEERING_WHEELS_PATH.glob("*") if path.is_file()]
+      distance_icons = [path.parent.name for path in frogpilot_paths.THEME_PACKS_PATH.glob("*/distance_icons") if path.is_dir()]
+      wheels = [path.stem for path in frogpilot_paths.STEERING_WHEELS_PATH.glob("*") if path.is_file()]
 
       if selected_theme in frogpilot_variables.HOLIDAY_GREETINGS:
         distance_icons.extend(frogpilot_variables.HOLIDAY_GREETINGS)
@@ -509,29 +501,29 @@ class ThemeManager:
       self.theme_updated = True
 
   def update_theme_asset(self, asset_type, theme):
-    save_location = frogpilot_variables.ACTIVE_THEME_PATH / asset_type
+    save_location = frogpilot_paths.ACTIVE_THEME_PATH / asset_type
 
     asset_location = self.get_theme_asset_path(asset_type, theme)
     if save_location.resolve() == asset_location.resolve():
       return False
 
-    frogpilot_utilities.delete_path(save_location)
+    save_location.unlink(missing_ok=True)
 
     save_location.parent.mkdir(parents=True, exist_ok=True)
     save_location.symlink_to(asset_location, target_is_directory=True)
     return True
 
   def update_theme_params(self, downloadable):
-    for component, key in DOWNLOADABLE_PARAMS.items():
+    for component, key in frogpilot_variables.DOWNLOADABLE_PARAMS.items():
       if component == "steering_wheels":
-        existing_assets = {self.format_name(item.name) for item in frogpilot_variables.STEERING_WHEELS_PATH.glob("*") if item.is_file()}
+        existing_assets = {self.format_name(item.name) for item in frogpilot_paths.STEERING_WHEELS_PATH.glob("*") if item.is_file()}
       else:
-        existing_assets = {self.format_name(item.parent.name) for item in frogpilot_variables.THEME_PACKS_PATH.glob(f"*/{component}") if item.is_dir()}
+        existing_assets = {self.format_name(item.parent.name) for item in frogpilot_paths.THEME_PACKS_PATH.glob(f"*/{component}") if item.is_dir()}
 
       self.params.put(key, ",".join(sorted(set(downloadable[component]) - existing_assets)))
 
     downloaded_themes = {}
-    for theme_dir in frogpilot_variables.THEME_PACKS_PATH.iterdir():
+    for theme_dir in frogpilot_paths.THEME_PACKS_PATH.iterdir():
       components = []
       for component in THEME_PACK_COMPONENTS:
         if (theme_dir / component).is_dir():
@@ -542,7 +534,7 @@ class ThemeManager:
         downloaded_themes[theme_name] = sorted(components)
 
     downloaded_wheels = []
-    for wheel_file in frogpilot_variables.STEERING_WHEELS_PATH.iterdir():
+    for wheel_file in frogpilot_paths.STEERING_WHEELS_PATH.iterdir():
       if wheel_file.is_file():
         downloaded_wheels.append(self.format_name(wheel_file.name))
 
@@ -557,7 +549,7 @@ class ThemeManager:
     else:
       self.theme_sizes.setdefault("themes", {}).setdefault(theme_name, {})[theme_component] = file_size
 
-    frogpilot_utilities.update_json_file(self.theme_sizes_path, self.theme_sizes)
+    frogpilot_utilities.update_json_file(frogpilot_paths.THEME_SIZES_PATH, self.theme_sizes)
 
   def update_themes(self, boot_run=False):
     repo_url = frogpilot_download_utilities.get_repository_url(self.session)
@@ -572,7 +564,7 @@ class ThemeManager:
     if not assets:
       return
 
-    downloadable = {component: [] for component in DOWNLOADABLE_PARAMS}
+    downloadable = {component: [] for component in frogpilot_variables.DOWNLOADABLE_PARAMS}
     for theme, components in assets["themes"].items():
       for component in components:
         downloadable[component].append(self.format_name(theme))
@@ -581,7 +573,7 @@ class ThemeManager:
     self.update_theme_params(downloadable)
 
   def update_wheel_image(self, image, random_event=False):
-    wheel_save_location = frogpilot_variables.ACTIVE_THEME_PATH / "steering_wheel"
+    wheel_save_location = frogpilot_paths.ACTIVE_THEME_PATH / "steering_wheel"
 
     if wheel_save_location.is_dir():
       current_wheels = [file.resolve() for file in wheel_save_location.iterdir()]
@@ -589,14 +581,15 @@ class ThemeManager:
       current_wheels = None
 
     if self.holiday_theme != "stock":
-      source_file = self.get_wheel_path(image, frogpilot_variables.HOLIDAY_THEMES_PATH / self.holiday_theme / "steering_wheel")
+      source_file = self.get_wheel_path(image, frogpilot_paths.HOLIDAY_THEMES_PATH / self.holiday_theme / "steering_wheel")
     elif random_event:
-      source_file = self.get_wheel_path(image, frogpilot_variables.RANDOM_EVENTS_PATH / "steering_wheels")
+      source_file = self.get_wheel_path(image, frogpilot_paths.RANDOM_EVENTS_PATH / "steering_wheels")
     elif image == "none":
       if current_wheels == []:
         return False
 
-      frogpilot_utilities.delete_path(wheel_save_location)
+      if wheel_save_location.is_dir():
+        shutil.rmtree(wheel_save_location)
       wheel_save_location.mkdir(parents=True, exist_ok=True)
       return True
     else:
@@ -611,7 +604,8 @@ class ThemeManager:
     if current_wheels == [source_file.resolve()]:
       return False
 
-    frogpilot_utilities.delete_path(wheel_save_location)
+    if wheel_save_location.is_dir():
+      shutil.rmtree(wheel_save_location)
     wheel_save_location.mkdir(parents=True, exist_ok=True)
 
     destination_file = wheel_save_location / f"wheel{source_file.suffix}"
@@ -622,9 +616,10 @@ class ThemeManager:
     if self.wheel_before_random_event is None:
       return False
 
-    wheel_save_location = frogpilot_variables.ACTIVE_THEME_PATH / "steering_wheel"
+    wheel_save_location = frogpilot_paths.ACTIVE_THEME_PATH / "steering_wheel"
 
-    frogpilot_utilities.delete_path(wheel_save_location)
+    if wheel_save_location.is_dir():
+      shutil.rmtree(wheel_save_location)
     wheel_save_location.mkdir(parents=True, exist_ok=True)
 
     for source_file in self.wheel_before_random_event:
@@ -641,13 +636,13 @@ class ThemeManager:
       theme_folder_name = self.unformat_name(display_name)
 
       for component in components:
-        component_path = frogpilot_variables.THEME_PACKS_PATH / theme_folder_name / component
+        component_path = frogpilot_paths.THEME_PACKS_PATH / theme_folder_name / component
         if not component_path.is_dir() or not any(component_path.iterdir()):
           redownloaded |= self.download_theme(component, theme_folder_name, repo_url)
 
     for display_name in downloaded_data.get("steering_wheels", []):
       file_stem = self.unformat_name(display_name)
-      matching_files = list(frogpilot_variables.STEERING_WHEELS_PATH.glob(f"{file_stem}.*"))
+      matching_files = list(frogpilot_paths.STEERING_WHEELS_PATH.glob(f"{file_stem}.*"))
       if not matching_files:
         redownloaded |= self.download_theme("steering_wheels", file_stem, repo_url)
 
@@ -655,7 +650,7 @@ class ThemeManager:
       self.previous_asset_mappings = {}
       self.theme_updated = True
 
-    for dir_path in frogpilot_variables.THEME_SAVE_PATH.glob("**/*"):
+    for dir_path in frogpilot_paths.THEME_SAVE_PATH.glob("**/*"):
       if dir_path.is_dir() and not any(dir_path.iterdir()):
         frogpilot_utilities.delete_path(dir_path)
       elif dir_path.is_file() and (dir_path.name.startswith("tmp") or dir_path.suffix == ".tmp"):

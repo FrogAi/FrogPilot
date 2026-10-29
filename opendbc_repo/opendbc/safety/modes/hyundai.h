@@ -56,6 +56,9 @@ const LongitudinalLimits HYUNDAI_LONG_LIMITS = {
 #define HYUNDAI_LDA_BUTTON_ADDR_CHECK \
   {.msg = {{0x391, 0, 8, 100U, .ignore_checksum = true, .ignore_counter = true, .ignore_quality_flag = true}, { 0 }, { 0 }}}, \
 
+#define HYUNDAI_SCC11_ADDR_CHECK(scc_bus) \
+  {.msg = {{0x420, (scc_bus), 8, 50U, .ignore_checksum = true, .ignore_counter = true, .ignore_quality_flag = true}, { 0 }, { 0 }}}, \
+
 static const CanMsg HYUNDAI_TX_MSGS[] = {
   HYUNDAI_COMMON_TX_MSGS(0)
 };
@@ -139,6 +142,11 @@ static void hyundai_rx_hook(const CANPacket_t *msg) {
       int cruise_engaged = (GET_BYTES(msg, 0, 4) >> 13) & 0x3U;
       hyundai_common_cruise_state_check(cruise_engaged);
     }
+  }
+
+  // FrogPilot variables
+  if (msg->addr == 0x420U) {
+    acc_main_on = GET_BIT(msg, 0U);
   }
 
   if (msg->bus == 0U) {
@@ -325,12 +333,16 @@ static safety_config hyundai_init(uint16_t param) {
     static RxCheck hyundai_cam_scc_rx_checks[] = {
       HYUNDAI_COMMON_RX_CHECKS(false)
       HYUNDAI_SCC12_ADDR_CHECK(2)
+
+      // FrogPilot variables
+      HYUNDAI_SCC11_ADDR_CHECK(2)
     };
 
     // FrogPilot variables
     static RxCheck hyundai_cam_scc_rx_checks_lda[] = {
       HYUNDAI_COMMON_RX_CHECKS(false)
       HYUNDAI_SCC12_ADDR_CHECK(2)
+      HYUNDAI_SCC11_ADDR_CHECK(2)
       HYUNDAI_LDA_BUTTON_ADDR_CHECK
     };
 
@@ -343,18 +355,25 @@ static safety_config hyundai_init(uint16_t param) {
     static RxCheck hyundai_rx_checks[] = {
        HYUNDAI_COMMON_RX_CHECKS(false)
        HYUNDAI_SCC12_ADDR_CHECK(0)
+
+       // FrogPilot variables
+       HYUNDAI_SCC11_ADDR_CHECK(0)
     };
 
     static RxCheck hyundai_fcev_rx_checks[] = {
       HYUNDAI_COMMON_RX_CHECKS(false)
       HYUNDAI_SCC12_ADDR_CHECK(0)
       HYUNDAI_FCEV_GAS_ADDR_CHECK
+
+      // FrogPilot variables
+      HYUNDAI_SCC11_ADDR_CHECK(0)
     };
 
     // FrogPilot variables
     static RxCheck hyundai_rx_checks_lda[] = {
        HYUNDAI_COMMON_RX_CHECKS(false)
        HYUNDAI_SCC12_ADDR_CHECK(0)
+       HYUNDAI_SCC11_ADDR_CHECK(0)
        HYUNDAI_LDA_BUTTON_ADDR_CHECK
     };
 
@@ -362,6 +381,7 @@ static safety_config hyundai_init(uint16_t param) {
       HYUNDAI_COMMON_RX_CHECKS(false)
       HYUNDAI_SCC12_ADDR_CHECK(0)
       HYUNDAI_FCEV_GAS_ADDR_CHECK
+      HYUNDAI_SCC11_ADDR_CHECK(0)
       HYUNDAI_LDA_BUTTON_ADDR_CHECK
     };
 
@@ -390,12 +410,16 @@ static safety_config hyundai_legacy_init(uint16_t param) {
   static RxCheck hyundai_legacy_rx_checks[] = {
     HYUNDAI_COMMON_RX_CHECKS(true)
     HYUNDAI_SCC12_ADDR_CHECK(0)
+
+    // FrogPilot variables
+    HYUNDAI_SCC11_ADDR_CHECK(0)
   };
 
   // FrogPilot variables
   static RxCheck hyundai_legacy_rx_checks_lda[] = {
     HYUNDAI_COMMON_RX_CHECKS(true)
     HYUNDAI_SCC12_ADDR_CHECK(0)
+    HYUNDAI_SCC11_ADDR_CHECK(0)
     HYUNDAI_LDA_BUTTON_ADDR_CHECK
   };
 

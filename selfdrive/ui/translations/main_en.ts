@@ -12,6 +12,23 @@
     </message>
 </context>
 <context>
+    <name>FrogPilotAnnotatedCameraWidget</name>
+    <message numerus="yes">
+        <source>%n minute(s)</source>
+        <translation>
+            <numerusform>%n minute</numerusform>
+            <numerusform>%n minutes</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%n second(s)</source>
+        <translation>
+            <numerusform>%n second</numerusform>
+            <numerusform>%n seconds</numerusform>
+        </translation>
+    </message>
+</context>
+<context>
     <name>InputDialog</name>
     <message numerus="yes">
         <source>Need at least %n character(s)!</source>

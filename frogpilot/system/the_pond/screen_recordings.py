@@ -4,7 +4,7 @@ import re
 
 from aiohttp import web
 
-from openpilot.frogpilot.common import frogpilot_variables
+from openpilot.frogpilot.common import frogpilot_paths, frogpilot_variables
 from openpilot.frogpilot.system.the_pond import dashcam, utilities
 
 CACHE_KINDS = ("thumbnail.jpg", "timelapse.mp4")
@@ -28,14 +28,14 @@ def delete_recording(path):
 
 def get_cache_path(path, kind):
   stat = path.stat()
-  return frogpilot_variables.THE_POND_THUMBNAILS_PATH / f"{CACHE_PREFIX}{stat.st_mtime_ns}-{stat.st_size}-{kind}"
+  return frogpilot_paths.THE_POND_THUMBNAILS_PATH / f"{CACHE_PREFIX}{stat.st_mtime_ns}-{stat.st_size}-{kind}"
 
 
 def get_recording(request):
   name = request.match_info["name"]
   if not name.lower().endswith(".mp4"):
     raise web.HTTPNotFound(text="not_found")
-  return utilities.get_file(frogpilot_variables.SCREEN_RECORDINGS_PATH, name)
+  return utilities.get_file(frogpilot_paths.SCREEN_RECORDINGS_PATH, name)
 
 
 def get_recording_files(path):
@@ -57,7 +57,7 @@ def get_recording_info(file):
 
 
 def get_recording_paths():
-  return {path for path in frogpilot_variables.SCREEN_RECORDINGS_PATH.glob("*.mp4") if path.is_file()}
+  return {path for path in frogpilot_paths.SCREEN_RECORDINGS_PATH.glob("*.mp4") if path.is_file()}
 
 
 async def prepare_preview(the_pond, path):
@@ -85,14 +85,14 @@ async def prepare_thumbnail(the_pond, path):
 
 def remove_stale_files():
   current = set()
-  for path in frogpilot_variables.SCREEN_RECORDINGS_PATH.glob("*"):
+  for path in frogpilot_paths.SCREEN_RECORDINGS_PATH.glob("*"):
     if path.is_file() and path.name.lower().endswith(".mp4"):
       try:
         current.update(get_cache_path(path, kind).name for kind in CACHE_KINDS)
       except FileNotFoundError:
         continue
 
-  for path in frogpilot_variables.THE_POND_THUMBNAILS_PATH.glob(f"{CACHE_PREFIX}*"):
+  for path in frogpilot_paths.THE_POND_THUMBNAILS_PATH.glob(f"{CACHE_PREFIX}*"):
     if path.name not in current:
       path.unlink(missing_ok=True)
 
@@ -108,7 +108,7 @@ async def get_recordings(request):
   await asyncio.to_thread(remove_stale_files)
 
   recordings = []
-  for file in utilities.list_files(frogpilot_variables.SCREEN_RECORDINGS_PATH):
+  for file in utilities.list_files(frogpilot_paths.SCREEN_RECORDINGS_PATH):
     if file["name"].lower().endswith(".mp4"):
       recordings.append(get_recording_info(file))
   return web.json_response(recordings)

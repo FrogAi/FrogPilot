@@ -2,7 +2,7 @@ import asyncio
 import datetime
 import time
 
-from openpilot.frogpilot.common import frogpilot_utilities, frogpilot_variables
+from openpilot.frogpilot.common import frogpilot_paths, frogpilot_utilities
 
 GIGABYTE = 1024 ** 3
 MEGABYTE = 1024 ** 2
@@ -50,7 +50,7 @@ def is_downloading(context):
 
 
 def measure_maps_storage():
-  MAPS_STORAGE["size"] = frogpilot_utilities.get_directory_size(frogpilot_variables.MAPS_PATH)
+  MAPS_STORAGE["size"] = frogpilot_utilities.get_directory_size(frogpilot_paths.MAPS_PATH)
 
 
 def progress(context):
@@ -64,7 +64,7 @@ def progress(context):
 
 
 def remove_maps_visible(context):
-  return idle_visible(context) or state_reason(frogpilot_variables.MAPS_PATH.exists(), "Shown once maps are downloaded")
+  return idle_visible(context) or state_reason(frogpilot_paths.MAPS_PATH.exists(), "Shown once maps are downloaded")
 
 
 def state_reason(satisfied, text):
@@ -74,7 +74,7 @@ def state_reason(satisfied, text):
 
 
 def storage_used(context):
-  if not frogpilot_variables.MAPS_PATH.exists():
+  if not frogpilot_paths.MAPS_PATH.exists():
     return "0 MB"
 
   state = (is_downloading(context), context.params.get("LastMapsUpdate"))

@@ -106,12 +106,12 @@ void FrogPilotOnroadWindow::paintEvent(QPaintEvent *event) {
   p.setClipRegion(marginRegion);
   p.setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing);
 
-  if (showSteering) {
-    paintSteeringTorqueBorder(p);
-  }
-
   if (showBlindspot || showSignal) {
     paintTurnSignalBorder(p);
+  }
+
+  if (showSteering) {
+    paintSteeringTorqueBorder(p);
   }
 
   if (showFPS) {
@@ -128,7 +128,7 @@ void FrogPilotOnroadWindow::paintFPS(QPainter &p) {
   int xPos = (rect.width() - p.fontMetrics().horizontalAdvance(fpsDisplayString)) / 2;
   int yPos = rect.bottom() - 5;
 
-  p.drawText(xPos, yPos, fpsDisplayString);
+  FrogPilotAnnotatedCameraWidget::drawOutlinedText(p, QPointF(xPos, yPos), fpsDisplayString);
 
   p.restore();
 }

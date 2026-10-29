@@ -9,13 +9,13 @@ from openpilot.common.filter_simple import FirstOrderFilter
 from openpilot.common.realtime import DT_MDL
 from openpilot.selfdrive.modeld.constants import ModelConstants
 from openpilot.selfdrive.controls.lib.longcontrol import LongCtrlState
-from openpilot.selfdrive.controls.lib.longitudinal_mpc_lib.long_mpc import LongitudinalMpc
+from openpilot.selfdrive.controls.lib.longitudinal_mpc_lib.long_mpc import CRUISE_MIN_ACCEL, LongitudinalMpc
 from openpilot.selfdrive.controls.lib.longitudinal_mpc_lib.long_mpc import T_IDXS as T_IDXS_MPC
-from openpilot.selfdrive.controls.lib.drive_helpers import CONTROL_N, get_accel_from_plan
+from openpilot.selfdrive.controls.lib.drive_helpers import CONTROL_N, MAX_VEL_ERR, get_accel_from_plan
 from openpilot.selfdrive.car.cruise import V_CRUISE_MAX, V_CRUISE_UNSET
 from openpilot.common.swaglog import cloudlog
 
-from openpilot.frogpilot.common import frogpilot_variables
+from openpilot.frogpilot.common import frogpilot_utilities
 
 LON_MPC_STEP = 0.2  # first step is 0.2s
 A_CRUISE_MAX_VALS = [1.6, 1.2, 0.8, 0.6]
@@ -47,10 +47,6 @@ def limit_accel_in_turns(v_ego, angle_steers, a_target, CP):
   a_y = v_ego ** 2 * angle_steers * CV.DEG_TO_RAD / (CP.steerRatio * CP.wheelbase)
   a_x_allowed = math.sqrt(max(a_total_max ** 2 - a_y ** 2, 0.))
 
-  # FrogPilot variables
-  if abs(a_y) <= frogpilot_variables.MINIMUM_LATERAL_ACCELERATION:
-    a_x_allowed = a_target[1]
-
   return [a_target[0], min(a_target[1], a_x_allowed)]
 
 
@@ -79,12 +75,12 @@ class LongitudinalPlanner:
     self.solverExecutionTime = 0.0
 
   @staticmethod
-  def parse_model(model_msg):
+  def parse_model(model_msg, model_error, v_ego, taco_tune):
     if (len(model_msg.position.x) == ModelConstants.IDX_N and
       len(model_msg.velocity.x) == ModelConstants.IDX_N and
       len(model_msg.acceleration.x) == ModelConstants.IDX_N):
-      x = np.interp(T_IDXS_MPC, ModelConstants.T_IDXS, model_msg.position.x)
-      v = np.interp(T_IDXS_MPC, ModelConstants.T_IDXS, model_msg.velocity.x)
+      x = np.interp(T_IDXS_MPC, ModelConstants.T_IDXS, model_msg.position.x) - model_error * T_IDXS_MPC
+      v = np.interp(T_IDXS_MPC, ModelConstants.T_IDXS, model_msg.velocity.x) - model_error
       a = np.interp(T_IDXS_MPC, ModelConstants.T_IDXS, model_msg.acceleration.x)
       j = np.zeros(len(T_IDXS_MPC))
     else:
@@ -92,6 +88,12 @@ class LongitudinalPlanner:
       v = np.zeros(len(T_IDXS_MPC))
       a = np.zeros(len(T_IDXS_MPC))
       j = np.zeros(len(T_IDXS_MPC))
+
+    # FrogPilot variables
+    if taco_tune:
+      orientation_rates = np.interp(T_IDXS_MPC, ModelConstants.T_IDXS, model_msg.orientationRate.z)
+      v = np.minimum(frogpilot_utilities.calculate_taco_turn_speeds(orientation_rates, v, v_ego), v)
+
     if len(model_msg.meta.disengagePredictions.gasPressProbs) > 1:
       throttle_prob = model_msg.meta.disengagePredictions.gasPressProbs[1]
     else:
@@ -102,7 +104,14 @@ class LongitudinalPlanner:
     mode = 'blended' if sm['selfdriveState'].experimentalMode else 'acc'
 
     # FrogPilot variables
-    self.mpc.mode = 'blended' if sm['frogpilotPlan'].forcingStop else 'acc'
+    pre_tomb_raider_model = frogpilot_utilities.is_pre_tomb_raider_model(frogpilot_toggles.model)
+
+    if sm['frogpilotPlan'].forcingStop:
+      self.mpc.mode = 'blended'
+    elif pre_tomb_raider_model:
+      self.mpc.mode = mode
+    else:
+      self.mpc.mode = 'acc'
 
     if len(sm['carControl'].orientationNED) == 3:
       accel_coast = get_coast_accel(sm['carControl'].orientationNED[1])
@@ -135,6 +144,11 @@ class LongitudinalPlanner:
       accel_clip = [ACCEL_MIN, ACCEL_MAX]
 
     # FrogPilot variables
+    lead_detected = sm['radarState'].leadOne.status or sm['radarState'].leadTwo.status
+
+    if lead_detected:
+      accel_clip[0] = ACCEL_MIN
+
     if sm['frogpilotPlan'].forcingStop:
       accel_clip[0] = ACCEL_MIN
 
@@ -145,14 +159,27 @@ class LongitudinalPlanner:
 
     # Prevent divergence, smooth in current v_ego
     self.v_desired_filter.x = max(0.0, self.v_desired_filter.update(v_ego))
-    x, v, a, j, throttle_prob = self.parse_model(sm['modelV2'])
+
+    # FrogPilot variables
+    if pre_tomb_raider_model:
+      v_model_error = np.clip(sm['modelV2'].temporalPose.trans[0] - v_ego, -MAX_VEL_ERR, MAX_VEL_ERR)
+    else:
+      v_model_error = 0.0
+
+    x, v, a, j, throttle_prob = self.parse_model(sm['modelV2'], v_model_error, v_ego,
+                                                 self.mpc.mode == 'blended' and frogpilot_toggles.taco_tune and not frogpilot_toggles.curve_speed_controller)
     # Don't clip at low speeds since throttle_prob doesn't account for creep
     self.allow_throttle = throttle_prob > ALLOW_THROTTLE_THRESHOLD or v_ego <= MIN_ALLOW_THROTTLE_SPEED
 
     # FrogPilot variables
     self.allow_throttle &= not sm['frogpilotCarState'].forceCoast
 
-    mpc_accel_max = max(accel_clip[1], 0.0) if sm['radarState'].leadOne.status or sm['radarState'].leadTwo.status else accel_clip[1]
+    mpc_accel_max = max(accel_clip[1], 0.0) if lead_detected else accel_clip[1]
+    mpc_accel_max = max(mpc_accel_max, self.a_desired - 0.05)
+
+    mpc_accel_min = sm['frogpilotPlan'].minAcceleration
+    if mode == 'blended' or lead_detected:
+      mpc_accel_min = min(mpc_accel_min, CRUISE_MIN_ACCEL)
 
     if not self.allow_throttle:
       clipped_accel_coast = max(accel_coast, accel_clip[0])
@@ -174,7 +201,7 @@ class LongitudinalPlanner:
 
     self.mpc.set_weights(sm['frogpilotPlan'].accelerationJerk, sm['frogpilotPlan'].dangerJerk, sm['frogpilotPlan'].speedJerk, prev_accel_constraint, personality=sm['selfdriveState'].personality)
     self.mpc.set_cur_state(self.v_desired_filter.x, self.a_desired)
-    self.mpc.update(v_cruise, sm['modelV2'], sm['radarState'], x, v, a, j, sm['frogpilotPlan'].tFollow, accel_clip[0], mpc_accel_max, force_slow_decel, frogpilot_toggles, sm['frogpilotCarState'].trafficModeEnabled, personality=sm['selfdriveState'].personality)
+    self.mpc.update(v_cruise, sm['modelV2'], sm['radarState'], x, v, a, j, sm['frogpilotPlan'].tFollow, mpc_accel_min, mpc_accel_max, force_slow_decel, frogpilot_toggles, sm['frogpilotCarState'].trafficModeEnabled, personality=sm['selfdriveState'].personality)
 
     self.v_desired_trajectory = np.interp(CONTROL_N_T_IDX, T_IDXS_MPC, self.mpc.v_solution)
     self.a_desired_trajectory = np.interp(CONTROL_N_T_IDX, T_IDXS_MPC, self.mpc.a_solution)
@@ -196,7 +223,7 @@ class LongitudinalPlanner:
     output_a_target_e2e = sm['modelV2'].action.desiredAcceleration
     output_should_stop_e2e = sm['modelV2'].action.shouldStop
 
-    if mode == 'acc':
+    if mode == 'acc' or pre_tomb_raider_model:
       output_a_target = output_a_target_mpc
       self.output_should_stop = output_should_stop_mpc
     else:

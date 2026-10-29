@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
   <g transform="matrix(1.045 0 0 1.045 -5.8 -9.7)">
     <g transform="matrix(.9 0 0 .9 -6 -4)">
-      <path d="M96 20c-50 0-82 36-82 80 0 46 36 80 80 80 22 0 30-14 22-30s4-28 22-26c28 4 48-14 48-36 0-40-40-68-90-68" fill="#c68b4e"/>
+      <path d="M96 20c-50 0-82 36-82 80 0 46 36 80 80 80 22 0 30-14 22-30s4-28 22-26c28 4 48-14 48-36 0-40-40-68-90-68" fill="#fff"/>
       <circle cx="62" cy="70" r="14" fill="#ff3b30"/>
       <circle cx="106" cy="54" r="14" fill="#ffd60a"/>
       <circle cx="148" cy="78" r="13" fill="#1ed760"/>

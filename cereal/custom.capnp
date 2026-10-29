@@ -67,11 +67,17 @@ struct FrogPilotModelDataV2 @0x80ae746ee2596b11 {
 struct FrogPilotOnroadEvent @0xa5cd762cd951a455 {
   name @0 :EventName;
 
-  noEntry @1 :Bool;
-  warning @2 :Bool;
-  softDisable @3 :Bool;
-  immediateDisable @4 :Bool;
-  permanent @5 :Bool;
+  # event types
+  enable @1 :Bool;
+  noEntry @2 :Bool;
+  warning @3 :Bool;   # alerts presented only when  enabled or soft disabling
+  userDisable @4 :Bool;
+  softDisable @5 :Bool;
+  immediateDisable @6 :Bool;
+  preEnable @7 :Bool;
+  permanent @8 :Bool; # alerts presented regardless of openpilot state
+  overrideLateral @10 :Bool;
+  overrideLongitudinal @9 :Bool;
 
   enum EventName {
     blockUser @0;
@@ -129,34 +135,31 @@ struct FrogPilotPlan @0xf98d843bfd7004a3 {
   forcingStop @10 :Bool;
   forcingStopLength @11 :Float32;
   frogpilotEvents @12 :List(FrogPilotOnroadEvent);
-  frogpilotToggles @13 :Text;
-  gpsBearing @14 :Float32;
-  increasedStoppedDistance @15 :Float32;
-  laneWidthLeft @16 :Float32;
-  laneWidthRight @17 :Float32;
-  lateralCheck @18 :Bool;
-  maxAcceleration @19 :Float32;
-  minAcceleration @20 :Float32;
-  redLight @21 :Bool;
-  roadCurvature @22 :Float32;
-  slcMapboxIsForward @23 :Bool;
-  slcMapboxSpeedLimit @24 :Float32;
-  slcMapboxWayId @25 :Int64;
-  slcMapSpeedLimit @26 :Float32;
-  slcNextSpeedLimit @27 :Float32;
-  slcOverriddenSpeed @28 :Float32;
-  slcSpeedLimit @29 :Float32;
-  slcSpeedLimitOffset @30 :Float32;
-  slcSpeedLimitSource @31 :Text;
-  speedJerk @32 :Float32;
-  speedLimitChanged @33 :Bool;
-  tFollow @34 :Float32;
-  themeUpdateCount @35 :UInt64;
-  unconfirmedSlcSpeedLimit @36 :Float32;
-  vCruise @37 :Float32;
-  weatherDaytime @38 :Bool;
-  weatherId @39 :Int16;
-  wheelImageUpdateCount @40 :UInt64;
+  gpsBearing @13 :Float32;
+  increasedStoppedDistance @14 :Float32;
+  laneWidthLeft @15 :Float32;
+  laneWidthRight @16 :Float32;
+  lateralCheck @17 :Bool;
+  maxAcceleration @18 :Float32;
+  minAcceleration @19 :Float32;
+  redLight @20 :Bool;
+  roadCurvature @21 :Float32;
+  slcMapboxSpeedLimit @22 :Float32;
+  slcMapSpeedLimit @23 :Float32;
+  slcNextSpeedLimit @24 :Float32;
+  slcOverriddenSpeed @25 :Float32;
+  slcSpeedLimit @26 :Float32;
+  slcSpeedLimitOffset @27 :Float32;
+  slcSpeedLimitSource @28 :Text;
+  speedJerk @29 :Float32;
+  speedLimitChanged @30 :Bool;
+  tFollow @31 :Float32;
+  themeUpdateCount @32 :UInt64;
+  unconfirmedSlcSpeedLimit @33 :Float32;
+  vCruise @34 :Float32;
+  weatherDaytime @35 :Bool;
+  weatherId @36 :Int16;
+  wheelImageUpdateCount @37 :UInt64;
 }
 
 struct FrogPilotProcessState @0x9ccdc8676701b412 {
@@ -169,17 +172,18 @@ struct FrogPilotProcessState @0x9ccdc8676701b412 {
   flashedPanda @6 :Bool;
   flashingPanda @7 :Bool;
   flashPandaRequestTime @8 :UInt64;
-  issueReport @9 :Text;
-  issueReportRequestTime @10 :UInt64;
-  modelDownloadProgress @11 :Text;
-  modelDownloadRequestTime @12 :UInt64;
-  settingsBackup @13 :Text;
-  settingsBackupRequestTime @14 :UInt64;
-  statsSavedCount @15 :UInt64;
-  themeDownloadCount @16 :UInt32;
-  themeDownloadFailedCount @17 :UInt32;
-  themeDownloadProgress @18 :Text;
-  themeDownloadSuccessCount @19 :UInt32;
+  frogpilotToggles @9 :Text;
+  issueReport @10 :Text;
+  issueReportRequestTime @11 :UInt64;
+  modelDownloadProgress @12 :Text;
+  modelDownloadRequestTime @13 :UInt64;
+  settingsBackup @14 :Text;
+  settingsBackupRequestTime @15 :UInt64;
+  statsSavedCount @16 :UInt64;
+  themeDownloadCount @17 :UInt32;
+  themeDownloadFailedCount @18 :UInt32;
+  themeDownloadProgress @19 :Text;
+  themeDownloadSuccessCount @20 :UInt32;
 }
 
 struct FrogPilotRadarState @0xb86e6369214c01c8 {
@@ -192,16 +196,18 @@ struct FrogPilotRadarState @0xb86e6369214c01c8 {
     vRel @2 :Float32;
     aRel @3 :Float32;
     vLead @4 :Float32;
-    dPath @5 :Float32;
-    vLat @6 :Float32;
-    vLeadK @7 :Float32;
-    aLeadK @8 :Float32;
-    fcw @9 :Bool;
-    status @10 :Bool;
-    aLeadTau @11 :Float32;
-    modelProb @12 :Float32;
-    radar @13 :Bool;
-    radarTrackId @14 :Int32 = -1;
+    dPath @6 :Float32;
+    vLat @7 :Float32;
+    vLeadK @8 :Float32;
+    aLeadK @9 :Float32;
+    fcw @10 :Bool;
+    status @11 :Bool;
+    aLeadTau @12 :Float32;
+    modelProb @13 :Float32;
+    radar @14 :Bool;
+    radarTrackId @15 :Int32 = -1;
+
+    aLeadDEPRECATED @5 :Float32;
   }
 }
 
@@ -295,10 +301,13 @@ struct FrogPilotUIRequest @0xcd96dafb67a082d0 {
     lockDoors @10 :Bool;
     refreshTheme @11 :Void;
     restoreSettingsBackup @12 :Text;
-    testAlert @13 :Text;
-    updateChecks @14 :Void;
-    updateToggles @15 :Void;
+    retryIssueReport @13 :Void;
+    testAlert @14 :Text;
+    updateChecks @15 :Void;
+    updateToggles @16 :Void;
   }
+
+  testAlertVolume @17 :Float32;
 
   struct ThemeDownload {
     component @0 :Text;

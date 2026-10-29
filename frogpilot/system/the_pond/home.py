@@ -8,7 +8,7 @@ from openpilot.common.constants import CV
 from openpilot.system.hardware.hw import Paths
 from openpilot.system.loggerd.deleter import MIN_BYTES, MIN_PERCENT
 
-from openpilot.frogpilot.common import frogpilot_variables
+from openpilot.frogpilot.common import frogpilot_utilities, frogpilot_variables
 from openpilot.frogpilot.system.the_pond import dashcam, utilities
 
 routes = web.RouteTableDef()
@@ -97,7 +97,7 @@ async def get_home(request):
   the_pond = request.app[utilities.THE_POND]
   params = the_pond.params
 
-  drive_stats = params.get("ApiCache_DriveStats")
+  drive_stats = params.get("ApiCache_DriveStatsKonik" if frogpilot_utilities.use_konik_server() else "ApiCache_DriveStats")
   frogpilot_stats = params.get("FrogPilotStats")
   is_metric = params.get_bool("IsMetric")
 

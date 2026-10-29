@@ -47,13 +47,13 @@ const uint32_t V4L2_QCOM_BUF_DATA_CORRUPT = 0x00400000;
 const uint32_t V4L2_QCOM_BUF_FLAG_CODECCONFIG = 0x00020000;
 
 struct SwapchainBuffer {
-  int fd;
+  int fd = -1;
 
-  size_t size;
+  size_t size = 0;
 
-  uint32_t height;
-  uint32_t stride;
-  uint32_t width;
+  uint32_t height = 0;
+  uint32_t stride = 0;
+  uint32_t width = 0;
 
   wl_proxy *wl_buffer;
 };
@@ -562,9 +562,9 @@ private:
 };
 
 struct ReplayFrame {
-  bool keyframe;
+  bool keyframe = false;
 
-  int64_t timestamp_us;
+  int64_t timestamp_us = 0;
 
   std::vector<uint8_t> data;
 };

@@ -6,7 +6,7 @@ from openpilot.selfdrive.selfdrived.events import FROGPILOT_EVENT_NAME, FrogPilo
 from openpilot.selfdrive.selfdrived.selfdrived import LONGITUDINAL_PERSONALITY_MAP, State
 from openpilot.selfdrive.selfdrived.state import ACTIVE_STATES
 
-from openpilot.frogpilot.common import frogpilot_variables
+from openpilot.frogpilot.common import frogpilot_paths, frogpilot_variables
 from openpilot.frogpilot.controls.lib.weather_checker import weather_category
 
 class FrogPilotTracking:
@@ -41,7 +41,7 @@ class FrogPilotTracking:
 
     self.model_name = frogpilot_toggles.model_name
 
-    signal_path = frogpilot_variables.FROG_THEME_PATH / "signals"
+    signal_path = frogpilot_paths.FROG_THEME_PATH / "signals"
     signal_frames = 0
     for path in signal_path.glob("*"):
       if path.suffix.lower() in {".png", ".svg"} and "blindspot" not in path.name.lower():
@@ -57,7 +57,7 @@ class FrogPilotTracking:
     totals[key] = totals.get(key, 0) + amount
 
   def frog_theme_active(self, component):
-    return (frogpilot_variables.ACTIVE_THEME_PATH / component).resolve() == (frogpilot_variables.FROG_THEME_PATH / component).resolve()
+    return (frogpilot_paths.ACTIVE_THEME_PATH / component).resolve() == (frogpilot_paths.FROG_THEME_PATH / component).resolve()
 
   def save_stats(self, blocking=False):
     self.add("FrogPilotSeconds", self.tracked_time)
@@ -92,7 +92,7 @@ class FrogPilotTracking:
       self.frogpilot_stats.update({"CurrentMonthsMeters": 0, "Month": now.month})
     self.add("CurrentMonthsMeters", distance_driven)
 
-    if self.frogpilot_weather.sunrise != 0 and self.frogpilot_weather.sunset != 0:
+    if self.frogpilot_weather.weather_id != 0 and self.frogpilot_weather.sunrise != 0 and self.frogpilot_weather.sunset != 0:
       if self.frogpilot_weather.is_daytime:
         self.add("DayTime", DT_MDL)
       else:

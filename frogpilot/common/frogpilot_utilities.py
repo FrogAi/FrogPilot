@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import flatbuffers
 import json
 import math
 import numpy as np
@@ -9,6 +10,7 @@ import shutil
 import subprocess
 import threading
 import time
+import tomllib
 import xattr
 import zipfile
 
@@ -17,13 +19,19 @@ from pathlib import Path
 
 from cereal import log, messaging
 from opendbc.can.parser import CANParser
+from opendbc.car.ford.values import FordSafetyFlags
+from opendbc.car.gm.values import CC_ONLY_CAR, GMFlags
+from opendbc.car.interfaces import TORQUE_SUBSTITUTE_PATH
 from opendbc.car.toyota.carcontroller import DOOR_CONTROL_ADDR, LOCK_CMD, UNLOCK_CMD
-from openpilot.common.realtime import DT_DMON, DT_HW
+from opendbc.car.toyota.values import ToyotaSafetyFlags
+from openpilot.common.realtime import DT_DMON, DT_HW, set_core_affinity
 from openpilot.selfdrive.pandad import can_capnp_to_list
 from openpilot.system import sentry
+from openpilot.system.hardware import PC
+from openpilot.system.version import get_build_metadata
 from panda import Panda
 
-from openpilot.frogpilot.common import frogpilot_variables
+from openpilot.frogpilot.common import frogpilot_paths, frogpilot_variables
 
 class ThreadManager:
   def __init__(self):
@@ -40,6 +48,10 @@ class ThreadManager:
         return
 
       def wrapped_target():
+        set_core_affinity([0, 1, 2, 3])
+        if not PC:
+          os.sched_setscheduler(0, os.SCHED_OTHER, os.sched_param(0))
+
         try:
           target(*args)
         except Exception as exception:
@@ -55,6 +67,13 @@ class ThreadManager:
     with self.thread_lock:
       thread = self.running_threads.get(name)
       return thread is not None and thread.is_alive()
+
+  def join_thread(self, name):
+    with self.thread_lock:
+      thread = self.running_threads.get(name)
+
+    if thread is not None:
+      thread.join()
 
 
 class UpdateProgress:
@@ -135,21 +154,23 @@ class UpdateProgress:
       elapsed = now - self.started
       remaining = self.get_remaining(now)
 
-      eta = None
       if remaining is not None:
         target = min(int(100 * elapsed / (elapsed + remaining)), 99)
         percent = max(percent, min(target, percent + 1))
 
-        if elapsed >= frogpilot_variables.UPDATE_ETA_MIN_SECONDS:
-          eta = round(remaining)
-
-      progress = {"eta": eta, "percent": percent}
+      progress = {"percent": percent}
 
       if progress != published:
         self.params.put("UpdaterDownloadProgress", progress)
         published = progress
 
       time.sleep(frogpilot_variables.UPDATE_PROGRESS_INTERVAL)
+
+    if self.params.get_bool("UpdateAvailable"):
+      while percent < 100:
+        percent += 1
+        self.params.put("UpdaterDownloadProgress", {"percent": percent})
+        time.sleep(frogpilot_variables.UPDATE_PROGRESS_INTERVAL)
 
     self.params.remove("UpdaterDownloadProgress")
 
@@ -160,6 +181,11 @@ class UpdateProgress:
     with open(manifest_path) as manifest:
       self.agnos_size = sum(partition["size"] for partition in json.load(manifest))
     self.agnos_started = time.monotonic()
+
+
+@cache
+def block_user():
+  return get_build_metadata().channel == frogpilot_variables.PR_BRANCH and not is_FrogsGoMoo()
 
 
 def calculate_curve_speed(road_curvature, lateral_acceleration, roll_compensation):
@@ -207,6 +233,18 @@ def calculate_road_curvature(model_data, v_ego, lateral_acceleration, roll_compe
   return float(road_curvature[index]), float(time_to_point[index]), float(np.abs(road_curvature).max())
 
 
+def calculate_taco_turn_speeds(orientation_rates, speeds, v_ego):
+  curvatures = np.asarray(orientation_rates) / np.clip(speeds, 0.3, 100.0)
+  max_lat_accel = np.interp(v_ego, [5, 10, 20], [1.5, 2.0, 3.0])
+  return np.sqrt(max_lat_accel / (np.abs(curvatures) + 1e-3)) - 2.0
+
+
+def can_disable_openpilot_long(CP):
+  if CP.brand == "gm":
+    return CP.carFingerprint in CC_ONLY_CAR and not CP.enableGasInterceptorDEPRECATED
+  return CP.brand in frogpilot_variables.DISABLE_OPENPILOT_LONG_BRANDS
+
+
 def contains_event_type(events, frogpilot_events, *event_types):
   return any(events.contains(event_type) or frogpilot_events.contains(event_type) for event_type in event_types)
 
@@ -215,6 +253,22 @@ def delete_path(path, report=True):
   path = Path(path)
   if path.exists() or path.is_symlink():
     run_cmd(["sudo", "rm", "-rf", str(path)], f"Failed to delete: {path}", report=report)
+
+
+def disable_openpilot_long(CP, FPCP, params, frogpilot_toggles):
+  if CP.brand != "mock" and not can_disable_openpilot_long(CP):
+    params.put_bool_nonblocking("DisableOpenpilotLongitudinal", False)
+
+  if can_disable_openpilot_long(CP) and not CP.alphaLongitudinalAvailable and frogpilot_toggles.disable_openpilot_long:
+    FPCP.openpilotLongitudinalControlDisabled = CP.openpilotLongitudinalControl
+    CP.openpilotLongitudinalControl = False
+
+    if CP.brand == "ford":
+      CP.safetyConfigs[-1].safetyParam &= ~FordSafetyFlags.LONG_CONTROL.value
+    elif CP.brand == "gm":
+      CP.flags &= ~GMFlags.CC_LONG.value
+    elif CP.brand == "toyota":
+      CP.safetyConfigs[0].safetyParam |= ToyotaSafetyFlags.STOCK_LONGITUDINAL.value
 
 
 def extract_zip(zip_file, extract_path):
@@ -255,6 +309,34 @@ def get_directory_size(path):
   return size
 
 
+@cache
+def get_model_lat_smooth_seconds(model_id):
+  models = {model["id"]: model for model in frogpilot_variables.get_models()}
+  return models.get(model_id, frogpilot_variables.DEFAULT_MODEL)["lat_smooth_seconds"]
+
+
+@cache
+def get_nnff_model_files():
+  return [file.stem for file in frogpilot_paths.NNFF_MODELS_PATH.iterdir() if file.is_file()]
+
+
+@cache
+def get_nnff_substitutes():
+  with open(TORQUE_SUBSTITUTE_PATH, "rb") as f:
+    return tomllib.load(f)
+
+
+@cache
+def get_speed_limit_reader_inputs():
+  model_file = frogpilot_paths.SPEED_LIMIT_READER_MODEL_PATH / frogpilot_variables.SPEED_LIMIT_READER_MODEL_FILES[0]
+  if not model_file.is_file():
+    model_file = frogpilot_paths.SPEED_LIMIT_READER_BUNDLED_PATH / frogpilot_variables.SPEED_LIMIT_READER_MODEL_FILES[0]
+
+  model = model_file.read_bytes()
+  net = flatbuffers.table.Table(model, flatbuffers.encode.Get(flatbuffers.packer.uoffset, model, 0))
+  return json.loads(net.String(net.Pos + net.Offset(4)))
+
+
 def get_target_branches(available_branches, current_branch):
   branches = available_branches.split(",")
   if not is_FrogsGoMoo():
@@ -284,7 +366,7 @@ def has_pending_telemetry(path):
 
 @cache
 def is_FrogsGoMoo():
-  return frogpilot_variables.FROGS_GO_MOO_PATH.is_file()
+  return frogpilot_paths.FROGS_GO_MOO_PATH.is_file()
 
 
 def is_FrogsGoMoo_development(build_metadata):
@@ -313,6 +395,11 @@ def is_online(device_state):
 
 def is_openpilot_steering(sm):
   return sm["deviceState"].started and (sm["selfdriveState"].enabled or sm["frogpilotCarState"].alwaysOnLateralEnabled)
+
+
+@cache
+def is_pre_tomb_raider_model(model):
+  return model in frogpilot_variables.PRE_TOMB_RAIDER_MODELS
 
 
 def is_route_preserved(path):
@@ -376,6 +463,12 @@ def lock_doors(lock_doors_timer, params):
     update_can_parser(can_parser, can_sock)
     if can_parser.ts_nanos["DOOR_LOCKS"]["LOCK_STATUS"] > 0 and can_parser.vl["DOOR_LOCKS"]["LOCK_STATUS"] == 0:
       break
+
+
+@cache
+def nnff_supported(car_fingerprint):
+  from openpilot.frogpilot.controls.lib.neural_network_feedforward import get_nn_model_path
+  return get_nn_model_path(car_fingerprint, "") is not None
 
 
 @cache
@@ -472,7 +565,7 @@ def update_can_parser(can_parser, can_sock):
 def update_json_file(path, data):
   temp_path = f"{path}.tmp"
   with open(temp_path, "w") as file:
-    json.dump(data, file, indent=2, sort_keys=True)
+    file.write(json.dumps(data, separators=(",", ":")))
     file.flush()
     os.fsync(file.fileno())
 
@@ -480,8 +573,23 @@ def update_json_file(path, data):
 
 
 @cache
+def use_action_delay(model):
+  return model in frogpilot_variables.ACTION_DELAY_MODELS
+
+
+@cache
+def use_current_speed_stop(model):
+  return model in frogpilot_variables.CURRENT_SPEED_STOP_MODELS
+
+
+@cache
 def use_konik_server():
-  return frogpilot_variables.KONIK_PATH.is_file()
+  return frogpilot_paths.KONIK_PATH.is_file()
+
+
+@cache
+def use_min_stable_delay(model):
+  return model in frogpilot_variables.MIN_STABLE_DELAY_MODELS
 
 
 def wait_for_no_driver(params, sm, time_threshold):

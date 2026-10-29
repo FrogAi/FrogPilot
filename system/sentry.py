@@ -13,7 +13,7 @@ from openpilot.system.hardware import HARDWARE, PC
 from openpilot.common.swaglog import cloudlog
 from openpilot.system.version import get_build_metadata, get_version
 
-from openpilot.frogpilot.common import frogpilot_variables
+from openpilot.frogpilot.common import frogpilot_paths
 
 # FrogPilot variables
 MAX_QUEUED_TOMBSTONES = 50
@@ -48,8 +48,8 @@ def deliver_tombstone(fn: str, message: str, contents: str) -> bool:
 
 def queue_tombstone(fn: str, message: str, contents: str) -> None:
   try:
-    frogpilot_variables.SENTRY_QUEUE_PATH.mkdir(parents=True, exist_ok=True)
-    queued = sorted(frogpilot_variables.SENTRY_QUEUE_PATH.glob("*.json"))
+    frogpilot_paths.SENTRY_QUEUE_PATH.mkdir(parents=True, exist_ok=True)
+    queued = sorted(frogpilot_paths.SENTRY_QUEUE_PATH.glob("*.json"))
     expired_count = max(0, len(queued) + 1 - MAX_QUEUED_TOMBSTONES)
 
     for expired in queued[:expired_count]:
@@ -58,17 +58,17 @@ def queue_tombstone(fn: str, message: str, contents: str) -> None:
     name = datetime.now().strftime("%Y-%m-%d--%H-%M-%S-%f") + ".json"
     report = {"contents": contents, "fn": fn, "message": message}
 
-    (frogpilot_variables.SENTRY_QUEUE_PATH / name).write_text(json.dumps(report))
+    (frogpilot_paths.SENTRY_QUEUE_PATH / name).write_text(json.dumps(report))
     cloudlog.warning(f"queued tombstone for a later connection: {name}")
   except OSError:
     cloudlog.exception("sentry.queue_tombstone")
 
 
 def flush_queued_tombstones() -> None:
-  if not frogpilot_variables.SENTRY_QUEUE_PATH.is_dir():
+  if not frogpilot_paths.SENTRY_QUEUE_PATH.is_dir():
     return
 
-  for path in sorted(frogpilot_variables.SENTRY_QUEUE_PATH.glob("*.json")):
+  for path in sorted(frogpilot_paths.SENTRY_QUEUE_PATH.glob("*.json")):
     try:
       report = json.loads(path.read_text())
     except (OSError, ValueError):
@@ -117,10 +117,10 @@ def set_tag(key: str, value: str) -> None:
 # FrogPilot variables
 def save_exception(exc_text: str, crash_log) -> None:
   log_name = datetime.now().astimezone().strftime("%Y-%m-%d--%H-%M-%S.log")
-  (frogpilot_variables.ERROR_LOGS_PATH / log_name).write_text(exc_text)
+  (frogpilot_paths.ERROR_LOGS_PATH / log_name).write_text(exc_text)
 
   if crash_log:
-    frogpilot_variables.ERROR_LOG_PATH.write_text("\n".join(exc_text.splitlines()[-10:]))
+    frogpilot_paths.ERROR_LOG_PATH.write_text("\n".join(exc_text.splitlines()[-10:]))
 
 
 def init(project: SentryProject) -> bool:

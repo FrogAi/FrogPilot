@@ -4,7 +4,6 @@ import re
 import shutil
 import sys
 import pyray as rl
-from pathlib import Path
 from openpilot.common.basedir import BASEDIR
 from openpilot.system.hardware import HARDWARE, PC
 from openpilot.system.ui.lib.application import BIG_UI, gui_app
@@ -12,6 +11,8 @@ from openpilot.system.ui.lib.scroll_panel import GuiScrollPanel
 from openpilot.system.ui.lib.text_measure import measure_text_cached
 from openpilot.system.ui.widgets import Widget
 from openpilot.system.ui.widgets.button import Button, ButtonStyle
+
+from openpilot.frogpilot.common import frogpilot_paths
 
 if gui_app.big_ui():
   MARGIN = 50
@@ -25,9 +26,6 @@ else:
   FONT_SIZE = 25
   LINE_HEIGHT = 25
   BUTTON_SIZE = rl.Vector2(150, 80)
-
-# FrogPilot variables
-OLD_OPENPILOT = Path("/data/safe_staging/old_openpilot")
 
 DEMO_TEXT = """This is a sample text that will be wrapped and scrolled if necessary.
             The text is long enough to demonstrate scrolling and word wrapping.""" * 30
@@ -75,7 +73,7 @@ class TextWindow(Widget):
 
     # FrogPilot variables
     self._restore_button = Button("Restore", click_callback=self._on_restore_clicked, button_style=ButtonStyle.TRANSPARENT_WHITE_BORDER, font_size=FONT_SIZE)
-    self._restore_button.set_visible(OLD_OPENPILOT.is_dir())
+    self._restore_button.set_visible(frogpilot_paths.OLD_OPENPILOT.is_dir())
 
   @staticmethod
   def _on_button_clicked():
@@ -88,8 +86,8 @@ class TextWindow(Widget):
   def _on_restore_clicked():
     gui_app.request_close()
     shutil.rmtree(BASEDIR)
-    os.rename(OLD_OPENPILOT, BASEDIR)
-    Path("/cache/on_backup").touch()
+    os.rename(frogpilot_paths.OLD_OPENPILOT, BASEDIR)
+    frogpilot_paths.BACKUP_PATH.touch()
     HARDWARE.reboot()
 
   def _render(self, rect: rl.Rectangle):

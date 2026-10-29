@@ -12,7 +12,7 @@ FrogPilotNavigationPanel::FrogPilotNavigationPanel(FrogPilotSettingsWindow *pare
   ipLabel = new LabelControl(tr("Manage Your Settings At"), tr("Offline..."), tr("<b>Open this address in a browser on the same Wi-Fi to reach \"The Pond\", where you manage your drives, recordings, themes, and more from a phone or computer.</b>"));
   settingsList->addItem(ipLabel);
 
-  pairingToggle = new ParamControl("ThePondPairing", tr("Pairing Code"), tr("<b>Ask for a code before a browser can use \"The Pond\".</b><br><br>Without a code, any device on the same Wi-Fi or Tailscale network can open your drives, camera footage, logs, location, and saved places, and can change your settings, unlock your doors, reboot the device, switch branches, type commands into the device's terminal, restore a backup that replaces its software, or sign the device into a Tailscale account. The code shows next to the address above. Turning this off signs every browser out, and turning it back on makes a new code."), "");
+  pairingToggle = new ParamControl("ThePondPairing", tr("Pairing Code"), tr("<b>Ask for a code before a browser can use \"The Pond\".</b><br><br>Without a code, any device on the same Wi-Fi or Tailscale network can open your drives, camera footage, logs, location, and saved places, and can change your settings, unlock your doors, reboot the device, switch branches, run any command on the device from its shell, restore a backup that replaces its software, or sign the device into a Tailscale account. The code shows next to the address above. Turning this off signs every browser out, and turning it back on makes a new code."), "");
   QObject::connect(pairingToggle, &ToggleControl::toggleFlipped, [this](bool state) {
     if (state) {
       params.put("ThePondPairingCode", newPairingCode().toStdString());
@@ -101,15 +101,7 @@ FrogPilotNavigationPanel::FrogPilotNavigationPanel(FrogPilotSettingsWindow *pare
   });
   settingsList->addItem(setupButton);
 
-  speedLimitFillerToggle = new ParamControl("SpeedLimitFiller", tr("Speed Limit Filler"),
-                                            tr("<b>Collect missing or incorrect speed limits automatically while you drive.</b><br><br>"
-                                               "Saved corrections are reused on later drives for the same road and direction, except on roads with conditional speed limits.<br><br>"
-                                               "FrogPilot compares speed limits from your dashboard, where supported, and Mapbox, which needs your Public Mapbox Key and a working internet connection. Downloaded maps are required because "
-                                               "FrogPilot uses their OSM way IDs to identify each road.<br><br>"
-                                               "With \"Share FrogPilot Data\" on, collected road speed limits are also sent to FrogPilot while parked on unmetered "
-                                               "Wi-Fi or Ethernet to help expand speed limit coverage for all FrogPilot users.<br><br>"
-                                               "Need a step-by-step guide? Visit <b>#speed-limit-filler</b> in the FrogPilot Discord!"),
-                                            "");
+  speedLimitFillerToggle = new ParamControl("SpeedLimitFiller", tr("Speed Limit Filler"), tr("<b>Learns speed limits from the signs the camera reads on roads where your downloaded maps have no limit or the wrong one.</b><br><br>Each learned limit is saved for that road and direction and used in place of the map's limit the next time you drive there, and it is forgotten once the map matches the signs. It also keeps a cropped photo of the sign each learned limit came from. Roads with conditional limits, such as ones that change with the time of day or the weather, are skipped. Needs downloaded maps. With \"Share FrogPilot Data\" on, the learned limits, their sign photos, and the roads where the signs matched your map are sent to FrogPilot while parked on unmetered Wi-Fi or Ethernet and used to improve speed limits for everyone using FrogPilot."), "");
   settingsList->addItem(speedLimitFillerToggle);
 
   ScrollView *settingsPanel = new ScrollView(settingsList, this);

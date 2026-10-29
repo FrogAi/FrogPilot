@@ -26,13 +26,18 @@ class CarControllerParams:
 
     # FrogPilot variables
     if taco_tune_hack:
-      low_speed = vEgoRaw < 11.
-      self.STEER_MAX = 384 if low_speed else 330
-      self.STEER_DRIVER_ALLOWANCE = 350 if low_speed else 250
-      self.STEER_DRIVER_MULTIPLIER = 2
-      self.STEER_THRESHOLD = 350 if low_speed else 250
-      self.STEER_DELTA_UP = 3 if low_speed else 2
-      self.STEER_DELTA_DOWN = 10 if low_speed else 3
+      if vEgoRaw < 11.:
+        self.STEER_MAX = 384
+        self.STEER_DRIVER_ALLOWANCE = 350
+        self.STEER_THRESHOLD = 350
+        self.STEER_DELTA_UP = 3
+        self.STEER_DELTA_DOWN = 6
+      else:
+        self.STEER_MAX = 330
+        self.STEER_DRIVER_ALLOWANCE = 250
+        self.STEER_THRESHOLD = 250
+        self.STEER_DELTA_UP = 2
+        self.STEER_DELTA_DOWN = 3
     elif CP.flags & HyundaiFlags.CANFD:
       self.STEER_MAX = 270
       self.STEER_DRIVER_ALLOWANCE = 250

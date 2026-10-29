@@ -4,7 +4,6 @@ import os
 import pickle
 import struct
 import sys
-from pathlib import Path
 
 import numpy as np
 from tinygrad.dtype import dtypes
@@ -12,8 +11,8 @@ from tinygrad.tensor import Tensor
 
 from cereal import log
 from openpilot.common.realtime import DT_MDL
-from openpilot.frogpilot.common import frogpilot_variables
-from openpilot.selfdrive.controls.lib.drive_helpers import get_accel_from_plan, get_curvature_from_plan
+from openpilot.frogpilot.common import frogpilot_paths, frogpilot_variables
+from openpilot.selfdrive.controls.lib.drive_helpers import curv_from_psis, get_accel_from_plan, get_curvature_from_plan
 from openpilot.selfdrive.modeld.constants import Meta, ModelConstants, Plan
 from openpilot.selfdrive.modeld.models.commonmodel_pyx import DrivingModelFrame
 from openpilot.selfdrive.modeld.parse_model_outputs import Parser
@@ -21,9 +20,9 @@ from openpilot.selfdrive.modeld.runners.tinygrad_helpers import qcom_tensor_from
 from openpilot.system.hardware import TICI
 
 LEGACY_META_GROUP_SIZES = {48: 7, 53: 8}
+MIN_STABLE_DELAY = 0.3
 UNGATED_GAS_PRESS_PROBABILITY = 1.
-
-MODEL_RUNNERS_PATH = Path(__file__).parent / "model_runners"
+V_EGO_STOPPING = 0.3
 
 
 class ThneedModel:
@@ -42,7 +41,7 @@ class ThneedModel:
         self.input_dtypes[item["name"]] = np.float32
 
     self.float_pointer = ctypes.POINTER(ctypes.c_float)
-    self.library = ctypes.CDLL(str(MODEL_RUNNERS_PATH / "libthneed_runner.so"))
+    self.library = ctypes.CDLL(str(frogpilot_paths.MODEL_RUNNERS_PATH / "libthneed_runner.so"))
     self.library.thneed_model_create.argtypes = [ctypes.c_char_p]
     self.library.thneed_model_create.restype = ctypes.c_void_p
     self.library.thneed_model_run.argtypes = [ctypes.c_void_p, ctypes.POINTER(self.float_pointer), self.float_pointer]
@@ -130,6 +129,20 @@ class LegacyModelState:
     self.curvature_history = np.zeros((1, history_length, ModelConstants.DESIRED_CURV_WIDTH), dtype=np.float32)
     self.curvature_indices = np.arange(-1, -history_length - 1, -self.history_stride)[::-1]
 
+  def fill_temporal_pose(self, temporal_pose, model_output):
+    if "sim_pose" in model_output:
+      self.parser.parse_mdn("sim_pose", model_output, in_N=0, out_N=0, out_shape=(ModelConstants.POSE_WIDTH,))
+
+      temporal_pose.trans = model_output["sim_pose"][0, :ModelConstants.POSE_WIDTH // 2].tolist()
+      temporal_pose.transStd = model_output["sim_pose_stds"][0, :ModelConstants.POSE_WIDTH // 2].tolist()
+      temporal_pose.rot = model_output["sim_pose"][0, ModelConstants.POSE_WIDTH // 2:].tolist()
+      temporal_pose.rotStd = model_output["sim_pose_stds"][0, ModelConstants.POSE_WIDTH // 2:].tolist()
+    else:
+      temporal_pose.trans = model_output["plan"][0, 0, Plan.VELOCITY].tolist()
+      temporal_pose.transStd = model_output["plan_stds"][0, 0, Plan.VELOCITY].tolist()
+      temporal_pose.rot = model_output["plan"][0, 0, Plan.ORIENTATION_RATE].tolist()
+      temporal_pose.rotStd = model_output["plan_stds"][0, 0, Plan.ORIENTATION_RATE].tolist()
+
   def run(self, bufs, transforms, inputs, prepare_only):
     inputs["desire_pulse"][0] = 0
     self.desire_history[:, :-1] = self.desire_history[:, 1:]
@@ -140,7 +153,7 @@ class LegacyModelState:
     self.numpy_inputs["traffic_convention"][:] = inputs["traffic_convention"]
 
     for name in ["lateral_control_params", "radar_tracks"]:
-      if name in self.numpy_inputs:
+      if name in inputs:
         self.numpy_inputs[name][:] = inputs[name]
 
     images = {name: self.frames[name].prepare(bufs[name], transforms[name].flatten()) for name in self.vision_input_names}
@@ -246,12 +259,11 @@ class LegacyModelState:
 
       inputs["lateral_control_params"] = np.array([v_ego, lateral_delay], dtype=np.float32)
 
-    if "radar_tracks" in self.numpy_inputs:
+    if "radar_tracks" in self.numpy_inputs and sm.updated["liveTracks"]:
       radar_tracks = np.zeros_like(self.numpy_inputs["radar_tracks"]).reshape(-1, 3)
 
-      if sm.updated["liveTracks"]:
-        for radar_track, track in zip(radar_tracks, sm["liveTracks"].points):
-          radar_track[:] = [track.dRel, track.yRel, track.vRel]
+      for radar_track, track in zip(radar_tracks, sm["liveTracks"].points):
+        radar_track[:] = [track.dRel, track.yRel, track.vRel]
 
       inputs["radar_tracks"] = radar_tracks.reshape(self.numpy_inputs["radar_tracks"].shape)
 
@@ -269,6 +281,27 @@ def convert_legacy_meta(meta):
   return stock_meta
 
 
+def get_current_speed_accel_from_plan(speeds, accels, action_t, min_stable_delay):
+  v_now = speeds[0]
+  if action_t < min_stable_delay:
+    v_target = v_now + (action_t / min_stable_delay) * (np.interp(min_stable_delay, ModelConstants.T_IDXS, speeds) - v_now)
+  else:
+    v_target = np.interp(action_t, ModelConstants.T_IDXS, speeds)
+
+  a_target = 2 * (v_target - v_now) / action_t - accels[0]
+  should_stop = v_now < V_EGO_STOPPING and a_target < 0.1
+  return a_target, should_stop
+
+
+def get_stable_curvature_from_plan(yaws, yaw_rates, v_ego, action_t, min_stable_delay):
+  if action_t < min_stable_delay:
+    psi_target = (action_t / min_stable_delay) * np.interp(min_stable_delay, ModelConstants.T_IDXS, yaws)
+  else:
+    psi_target = np.interp(action_t, ModelConstants.T_IDXS, yaws)
+
+  return curv_from_psis(psi_target, yaw_rates[0], v_ego, action_t)
+
+
 def is_legacy_model(model_path):
   if (model_path / "supercombo_metadata.pkl").is_file():
     return True
@@ -278,7 +311,7 @@ def is_legacy_model(model_path):
 
 
 def prepare_model_process(model_path, demo):
-  library_path = str(MODEL_RUNNERS_PATH / "libthneed.so")
+  library_path = str(frogpilot_paths.MODEL_RUNNERS_PATH / "libthneed.so")
   preloaded_libraries = os.environ.get("LD_PRELOAD", "").split()
 
   if (model_path / "supercombo.thneed").is_file() and library_path not in preloaded_libraries:

@@ -155,6 +155,9 @@ static void hyundai_canfd_rx_hook(const CANPacket_t *msg) {
       int cruise_status = ((msg->data[8] >> 4) & 0x7U);
       bool cruise_engaged = (cruise_status == 1) || (cruise_status == 2);
       hyundai_common_cruise_state_check(cruise_engaged);
+
+      // FrogPilot variables
+      acc_main_on = GET_BIT(msg, 66U);
     }
   }
 }

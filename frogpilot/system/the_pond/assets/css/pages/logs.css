@@ -13,6 +13,7 @@
 .logs-console.expanded .logs-term { flex: 1; min-height: 0; }
 .logs-console.expanded .console { flex: 1; height: auto; min-height: 0; }
 .logs-list { margin-top: 8px; }
+.logs-list .empty { padding: 24px var(--pad); }
 .logs-more { margin-top: 12px; }
 .logs-term { display: flex; flex-direction: column; border: 1px solid #222d29; border-radius: var(--r); overflow: hidden; background: #0d1412; }
 .logs-term-bar { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 10px; background: #18211e; border-bottom: 1px solid rgba(255,255,255,.08); }
@@ -23,6 +24,8 @@
 @media (max-width: 719px), (pointer: coarse) {
   .btn.logs-term-btn { min-height: 44px; padding: 0 10px; }
   .logs-term-bar { padding: 8px; }
+  .logs-term-bar .seg { display: flex; flex-basis: 100%; }
+  .logs-term-bar .seg button { flex: 1; }
   .logs-console .keybar { display: flex; gap: 4px; padding: 8px; }
   .logs-console .keybar button { min-width: 44px; }
 }

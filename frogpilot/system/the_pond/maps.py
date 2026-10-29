@@ -3,7 +3,7 @@ import shutil
 
 from aiohttp import web
 
-from openpilot.frogpilot.common import frogpilot_utilities, frogpilot_variables
+from openpilot.frogpilot.common import frogpilot_paths, frogpilot_utilities, frogpilot_variables
 from openpilot.frogpilot.system.the_pond import utilities
 
 SCHEDULES = (0, 1, 2)
@@ -64,7 +64,7 @@ async def get_maps(request):
     "selected": selected_maps.split(",") if selected_maps else [],
     "state_prefix": frogpilot_variables.MAP_STATE_PREFIX,
     "states": frogpilot_variables.MAP_STATES,
-    "storage_used": await asyncio.to_thread(frogpilot_utilities.get_directory_size, frogpilot_variables.MAPS_PATH),
+    "storage_used": await asyncio.to_thread(frogpilot_utilities.get_directory_size, frogpilot_paths.MAPS_PATH),
   })
 
 
@@ -76,7 +76,7 @@ async def remove_maps(request):
 
   the_pond.params.remove("MapsSelected")
   the_pond.params.remove("LastMapsUpdate")
-  await asyncio.to_thread(shutil.rmtree, frogpilot_variables.MAPS_PATH, True)
+  await asyncio.to_thread(shutil.rmtree, frogpilot_paths.MAPS_PATH, True)
   return web.Response(status=204)
 
 

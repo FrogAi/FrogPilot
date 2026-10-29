@@ -138,7 +138,7 @@ AdvancedNetworking::AdvancedNetworking(QWidget* parent, WifiManager* wifi): QWid
   std::vector<QString> tetheringSelection{tr("Off"), tr("Always"), tr("Only Onroad"), tr("Until Reboot")};
 
   tetheringToggle = new ButtonParamControl("TetheringEnabled", tr("Enable Tethering"),
-                                           tr("Share your device's internet connection with other devices, either all the time or only while driving. Internet sharing only works on a paired device with comma prime lite or no comma prime."),
+                                           tr("Share your device's internet connection with other devices all the time, only while driving, or until the device reboots. Internet sharing only works on a paired device with comma prime lite or no comma prime."),
                                            "", tetheringSelection);
   list->addItem(tetheringToggle);
   QObject::connect(tetheringToggle, &MultiButtonControl::buttonClicked, this, &AdvancedNetworking::toggleTethering);

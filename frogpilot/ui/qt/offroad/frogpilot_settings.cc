@@ -178,10 +178,26 @@ FrogPilotSettingsWindow::FrogPilotSettingsWindow(SettingsWindow *parent) : QFram
   carParamsWatcher = new ParamWatcher(this);
   QObject::connect(carParamsWatcher, &ParamWatcher::paramChanged, this, &FrogPilotSettingsWindow::updateVariables);
 
+  higherBitrate = QFile::exists("/cache/use_HD");
+  konikServer = useKonikServer();
+
   QObject::connect(frogpilotUIState(), &FrogPilotUIState::togglesUpdated, this, [this]() {
+    const QJsonObject &frogpilot_toggles = frogpilotUIState()->frogpilot_scene.frogpilot_toggles;
+
     bool metric = params.getBool("IsMetric");
     if (metric != isMetric) {
       emit updateMetric(metric, true);
+    }
+
+    bool higherBitrateEnabled = frogpilot_toggles.value("use_higher_bitrate").toBool();
+    bool konikServerEnabled = frogpilot_toggles.value("use_konik_server").toBool();
+    if (higherBitrateEnabled != higherBitrate || konikServerEnabled != konikServer) {
+      higherBitrate = higherBitrateEnabled;
+      konikServer = konikServerEnabled;
+
+      if (FrogPilotConfirmationDialog::toggleReboot(this)) {
+        FrogPilotConfirmationDialog::softReboot(this);
+      }
     }
   });
   QObject::connect(this, &FrogPilotSettingsWindow::updateMetric, [this](bool metric) {
@@ -322,6 +338,7 @@ void FrogPilotSettingsWindow::updateVariables() {
     canMapGears = frogpilot_toggles.value("can_map_gears").toBool();
     canUseDSUBypass = frogpilot_toggles.value("can_use_dsu_bypass").toBool();
     friction = isTorqueCar ? CP.getLateralTuning().getTorque().getFriction() : 0.0f;
+    hasAutoTune = frogpilot_toggles.value("has_auto_tune").toBool();
     hasBSM = CP.getEnableBsm();
     hasDashSpeedLimits = false;
     hasLKASButton = frogpilot_toggles.value("has_lkas_button").toBool();
@@ -395,18 +412,6 @@ void FrogPilotSettingsWindow::updateVariables() {
     canUsePedal = FPCP.getCanUsePedal();
     canUseSDSU = FPCP.getCanUseSDSU();
     hasDashSpeedLimits = FPCP.getHasDashboardSpeedLimit();
-  }
-
-  std::string liveTorqueParameters = params.get("LiveTorqueParameters");
-  if (!liveTorqueParameters.empty()) {
-    AlignedBuffer aligned_buf;
-    capnp::FlatArrayMessageReader reader(aligned_buf.align(liveTorqueParameters.data(), liveTorqueParameters.size()));
-    cereal::Event::Reader event = reader.getRoot<cereal::Event>();
-    cereal::LiveTorqueParametersData::Reader LTP = event.getLiveTorqueParameters();
-
-    hasAutoTune = LTP.getUseParams();
-  } else {
-    hasAutoTune = false;
   }
 
   drivingPanelButtons->setVisibleButton(0, tuningLevel >= frogpilotToggleLevels.value("DrivingModel").toDouble());

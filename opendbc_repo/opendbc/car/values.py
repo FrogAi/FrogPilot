@@ -19,3 +19,6 @@ Platform = BODY | CHRYSLER | FORD | GM | HONDA | HYUNDAI | MAZDA | MOCK | NISSAN
 BRANDS = get_args(Platform)
 
 PLATFORMS: dict[str, Platform] = {str(platform): platform for brand in BRANDS for platform in brand}
+
+# FrogPilot variables
+GAS_INTERCEPTOR_BRANDS = {"honda", "toyota"}

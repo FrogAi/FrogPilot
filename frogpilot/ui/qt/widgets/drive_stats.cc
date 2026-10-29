@@ -21,7 +21,7 @@ DriveStats::DriveStats(QWidget *parent) : QFrame(parent) {
   std::optional<QString> dongleId = getDongleId();
   if (dongleId.has_value()) {
     QString url = CommaApi::BASE_URL + "/v1.1/devices/" + dongleId.value() + "/stats";
-    RequestRepeater *repeater = new RequestRepeater(this, url, "ApiCache_DriveStats", 30);
+    RequestRepeater *repeater = new RequestRepeater(this, url, useKonikServer() ? "ApiCache_DriveStatsKonik" : "ApiCache_DriveStats", 30);
     QObject::connect(repeater, &RequestRepeater::requestDone, this, &DriveStats::parseResponse);
   }
 

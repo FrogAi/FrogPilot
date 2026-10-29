@@ -163,11 +163,16 @@ class VehicleParamsLearner:
     liveParameters = msg.liveParameters
     liveParameters.posenetValid = True
     liveParameters.sensorValid = sensors_valid
-    liveParameters.steerRatio = float(x[States.STEER_RATIO].item() if not self.frogpilot_toggles.use_custom_steerRatio else self.frogpilot_toggles.steerRatio)
+    liveParameters.steerRatio = float(x[States.STEER_RATIO].item())
     liveParameters.stiffnessFactor = float(x[States.STIFFNESS].item())
     liveParameters.roll = float(self.roll)
     liveParameters.angleOffsetAverageDeg = float(self.avg_angle_offset)
     liveParameters.angleOffsetDeg = float(self.angle_offset)
+
+    # FrogPilot variables
+    if self.frogpilot_toggles.use_custom_steerRatio:
+      liveParameters.steerRatio = self.frogpilot_toggles.steerRatio
+
     liveParameters.steerRatioValid = self.min_sr <= liveParameters.steerRatio <= self.max_sr
     liveParameters.stiffnessFactorValid = 0.2 <= liveParameters.stiffnessFactor <= 5.0
     liveParameters.angleOffsetAverageValid = bool(self.avg_offset_valid)
@@ -268,7 +273,8 @@ def main():
   REPLAY = bool(int(os.getenv("REPLAY", "0")))
 
   pm = messaging.PubMaster(['liveParameters'])
-  sm = messaging.SubMaster(['livePose', 'liveCalibration', 'carState'], poll='livePose')
+  sm = messaging.SubMaster(['livePose', 'liveCalibration', 'carState'], poll='livePose',
+                           ignore_alive=['frogpilotProcessState'], ignore_valid=['frogpilotProcessState'])
 
   params = Params()
   CP = messaging.log_from_bytes(params.get("CarParams", block=True), car.CarParams)
@@ -279,7 +285,7 @@ def main():
   learner = VehicleParamsLearner(CP, steer_ratio, stiffness_factor, np.radians(angle_offset_deg), pInitial)
 
   # FrogPilot variables
-  sm = sm.extend(['frogpilotPlan'])
+  sm = sm.extend(['frogpilotProcessState'])
 
   learner.frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles()
 

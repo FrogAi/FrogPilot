@@ -17,6 +17,7 @@ import cereal.messaging as messaging
 from cereal import car
 from cereal.services import SERVICE_LIST
 from msgq.visionipc import VisionIpcServer, get_endpoint_name as vipc_get_endpoint_name
+from opendbc.car import gen_empty_fingerprint
 from opendbc.car.can_definitions import CanData
 from opendbc.car.car_helpers import get_car, interfaces
 from openpilot.common.params import Params
@@ -29,6 +30,8 @@ from openpilot.selfdrive.test.process_replay.migration import migrate_all
 from openpilot.selfdrive.test.process_replay.capture import ProcessOutputCapture
 from openpilot.tools.lib.logreader import LogIterable
 from openpilot.tools.lib.framereader import FrameReader
+
+from openpilot.frogpilot.common import frogpilot_utilities, frogpilot_variables
 
 # Numpy gives different results based on CPU features after version 19
 NUMPY_TOLERANCE = 1e-2
@@ -336,9 +339,16 @@ def card_fingerprint_callback(rc, pm, msgs, fingerprint):
 
 def get_car_params_callback(rc, pm, msgs, fingerprint):
   params = Params()
+
+  # FrogPilot variables
+  frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles()
+
   if fingerprint:
     CarInterface = interfaces[fingerprint]
     CP = CarInterface.get_non_essential_params(fingerprint)
+
+    # FrogPilot variables
+    FPCP = CarInterface.get_frogpilot_params(fingerprint, gen_empty_fingerprint(), [], CP, frogpilot_toggles)
   else:
     can_msgs = ([CanData(can.address, can.dat, can.src) for can in m.can] for m in msgs if m.which() == "can")
     cached_params_raw = params.get("CarParamsCache")
@@ -354,9 +364,17 @@ def get_car_params_callback(rc, pm, msgs, fingerprint):
       with car.CarParams.from_bytes(cached_params_raw) as _cached_params:
         cached_params = _cached_params
 
-    CP = get_car(can_recv, lambda _msgs: None, lambda obd: None, params.get_bool("AlphaLongitudinalEnabled"), False, cached_params=cached_params).CP
+    CI = get_car(can_recv, lambda _msgs: None, lambda obd: None, params.get_bool("AlphaLongitudinalEnabled"), False, cached_params=cached_params,
+                 frogpilot_toggles=frogpilot_toggles, disable_openpilot_long=frogpilot_utilities.disable_openpilot_long)
+    CP = CI.CP
+
+    # FrogPilot variables
+    FPCP = CI.FPCP
 
   params.put("CarParams", CP.to_bytes())
+
+  # FrogPilot variables
+  params.put("FrogPilotCarParams", FPCP.to_bytes())
 
 
 def card_rcv_callback(msg, cfg, frame):
@@ -421,7 +439,7 @@ CONFIGS = [
       "longitudinalPlan", "livePose", "liveDelay", "liveParameters", "radarState", "modelV2",
       "driverCameraState", "roadCameraState", "wideRoadCameraState", "managerState", "liveTorqueParameters",
       "accelerometer", "gyroscope", "carOutput", "gpsLocationExternal", "gpsLocation", "controlsState",
-      "carControl", "driverAssistance", "alertDebug", "audioFeedback",
+      "carControl", "driverAssistance", "alertDebug", "audioFeedback", "frogpilotCarState", "frogpilotPlan",
     ],
     subs=["selfdriveState", "onroadEvents"],
     ignore=["logMonoTime"],
@@ -435,7 +453,7 @@ CONFIGS = [
     proc_name="controlsd",
     pubs=["liveParameters", "liveTorqueParameters", "modelV2", "selfdriveState",
           "liveCalibration", "livePose", "longitudinalPlan", "carState", "carOutput",
-          "driverMonitoringState", "onroadEvents", "driverAssistance"],
+          "driverMonitoringState", "onroadEvents", "driverAssistance", "frogpilotCarState", "frogpilotPlan"],
     subs=["carControl", "controlsState"],
     ignore=["logMonoTime", ],
     init_callback=get_car_params_callback,
@@ -456,7 +474,7 @@ CONFIGS = [
   ),
   ProcessConfig(
     proc_name="radard",
-    pubs=["liveTracks", "carState", "modelV2"],
+    pubs=["liveTracks", "carState", "modelV2", "frogpilotPlan"],
     subs=["radarState"],
     ignore=["logMonoTime"],
     init_callback=get_car_params_callback,
@@ -464,7 +482,7 @@ CONFIGS = [
   ),
   ProcessConfig(
     proc_name="plannerd",
-    pubs=["modelV2", "carControl", "carState", "controlsState", "liveParameters", "radarState", "selfdriveState"],
+    pubs=["modelV2", "carControl", "carState", "controlsState", "liveParameters", "radarState", "selfdriveState", "frogpilotCarState", "frogpilotPlan"],
     subs=["longitudinalPlan", "driverAssistance"],
     ignore=["logMonoTime", "longitudinalPlan.processingDelay", "longitudinalPlan.solverExecutionTime"],
     init_callback=get_car_params_callback,
@@ -481,7 +499,7 @@ CONFIGS = [
   ),
   ProcessConfig(
     proc_name="dmonitoringd",
-    pubs=["driverStateV2", "liveCalibration", "carState", "modelV2", "selfdriveState"],
+    pubs=["driverStateV2", "liveCalibration", "carState", "modelV2", "selfdriveState", "frogpilotCarState"],
     subs=["driverMonitoringState"],
     ignore=["logMonoTime"],
     should_recv_callback=MessageBasedRcvCallback("driverStateV2"),

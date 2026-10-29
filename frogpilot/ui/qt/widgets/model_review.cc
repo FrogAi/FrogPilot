@@ -56,9 +56,9 @@ FrogPilotModelReview::FrogPilotModelReview(QWidget *parent) : QFrame(parent) {
   ratingLayout->addLayout(ratingButtons);
   ratingLayout->addStretch(1);
 
-  addLabel(ratingLayout, tr("Blacklist this model to remove it from rotation"), 40, this);
+  blacklistLabel = addLabel(ratingLayout, tr("Blacklist this model to remove it from rotation"), 40, this);
 
-  QPushButton *blacklistButton = new QPushButton(tr("Blacklist Model"), this);
+  blacklistButton = new QPushButton(tr("Blacklist Model"), this);
   blacklistButton->setFixedSize(600, 100);
   blacklistButton->setObjectName("blacklistButton");
   QObject::connect(blacklistButton, &QPushButton::clicked, [this]() {
@@ -147,12 +147,27 @@ void FrogPilotModelReview::mousePressEvent(QMouseEvent *e) {
   }
 }
 
+void FrogPilotModelReview::showEvent(QShowEvent *event) {
+  QStringList blacklistedModels = QString::fromStdString(params.get("BlacklistedModels")).split(",", QString::SkipEmptyParts);
+  QDir modelsDir("/data/models/openpilot-0_10_3");
+
+  int selectableModels = blacklistedModels.contains("dark-souls") ? 0 : 1;
+  for (const QString &modelId : frogpilotUIState()->frogpilot_scene.frogpilot_toggles.value("available_models").toObject().keys()) {
+    if (modelsDir.exists(modelId) && !blacklistedModels.contains(modelId)) {
+      selectableModels++;
+    }
+  }
+
+  blacklistButton->setVisible(selectableModels > 1);
+  blacklistLabel->setVisible(selectableModels > 1);
+}
+
 void FrogPilotModelReview::rateDrive(int rating) {
   QJsonObject modelDrivesAndScores = QJsonDocument::fromJson(QByteArray::fromStdString(params.get("ModelDrivesAndScores"))).object();
   QJsonObject modelData = modelDrivesAndScores.value(driveModelName).toObject();
 
   int drives = modelData.value("Drives").toInt() + 1;
-  int score = qRound(double(modelData.value("Score").toInt() * (drives - 1) + rating) / drives);
+  double score = (modelData.value("Score").toDouble() * (drives - 1) + rating) / drives;
 
   modelData["Drives"] = drives;
   modelData["Score"] = score;
@@ -169,7 +184,7 @@ void FrogPilotModelReview::rateDrive(int rating) {
   int totalDrives = 0;
   for (const QString &model : models) {
     QJsonObject data = modelDrivesAndScores.value(model).toObject();
-    int modelScore = data.value("Score").toInt();
+    double modelScore = data.value("Score").toDouble();
     if (modelScore > score || (modelScore == score && model < driveModelName)) {
       rank++;
     }
@@ -177,7 +192,7 @@ void FrogPilotModelReview::rateDrive(int rating) {
   }
 
   modelRankLabel->setText(tr("#%1").arg(rank));
-  modelRatingLabel->setText(tr("%1%").arg(score));
+  modelRatingLabel->setText(tr("%1%").arg(qRound(score)));
   modelDrivesLabel->setText(drives == 1 ? tr("%1 Drive").arg(drives) : tr("%1 Drives").arg(drives));
   totalDrivesLabel->setText(totalDrives == 1 ? tr("%1 Total Drive").arg(totalDrives) : tr("%1 Total Drives").arg(totalDrives));
 

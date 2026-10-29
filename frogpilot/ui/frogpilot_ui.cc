@@ -25,14 +25,6 @@ static void update_state(FrogPilotUIState *fs) {
   }
   if (fpsm.updated("frogpilotPlan")) {
     const cereal::FrogPilotPlan::Reader &frogpilotPlan = fpsm["frogpilotPlan"].getFrogpilotPlan();
-    capnp::Text::Reader toggles = frogpilotPlan.getFrogpilotToggles();
-    QByteArray current_toggles = QByteArray::fromRawData(toggles.cStr(), toggles.size());
-    static QByteArray previous_toggles;
-    if (previous_toggles != current_toggles) {
-      frogpilot_scene.frogpilot_toggles = QJsonDocument::fromJson(current_toggles).object();
-      previous_toggles = QByteArray(toggles.cStr(), toggles.size());
-      emit fs->togglesUpdated();
-    }
     static uint64_t previous_theme_update_count = 0;
     if (previous_theme_update_count != frogpilotPlan.getThemeUpdateCount()) {
       previous_theme_update_count = frogpilotPlan.getThemeUpdateCount();
@@ -41,6 +33,14 @@ static void update_state(FrogPilotUIState *fs) {
   }
   if (fpsm.updated("frogpilotProcessState")) {
     const cereal::FrogPilotProcessState::Reader &frogpilotProcessState = fpsm["frogpilotProcessState"].getFrogpilotProcessState();
+    capnp::Text::Reader toggles = frogpilotProcessState.getFrogpilotToggles();
+    QByteArray current_toggles = QByteArray::fromRawData(toggles.cStr(), toggles.size());
+    static QByteArray previous_toggles;
+    if (previous_toggles != current_toggles) {
+      frogpilot_scene.frogpilot_toggles = QJsonDocument::fromJson(current_toggles).object();
+      previous_toggles = QByteArray(toggles.cStr(), toggles.size());
+      emit fs->togglesUpdated();
+    }
     static uint64_t previous_stats_saved_count = 0;
     if (previous_stats_saved_count != frogpilotProcessState.getStatsSavedCount()) {
       previous_stats_saved_count = frogpilotProcessState.getStatsSavedCount();
@@ -183,6 +183,14 @@ void FrogPilotUIState::restoreSettingsBackup(const QString &name) {
   pm->send("frogpilotUIRequest", msg);
 }
 
+void FrogPilotUIState::retryIssueReport() {
+  MessageBuilder msg;
+  cereal::Event::Builder event = msg.initEvent();
+  event.initFrogpilotUIRequest().setRetryIssueReport();
+  issue_report_request_time = event.getLogMonoTime();
+  pm->send("frogpilotUIRequest", msg);
+}
+
 void FrogPilotUIState::runUpdateChecks() {
   MessageBuilder msg;
   msg.initEvent().initFrogpilotUIRequest().setUpdateChecks();
@@ -216,9 +224,11 @@ void FrogPilotUIState::speedLimitAccepted() {
   pm->send("frogpilotUIEvent", msg);
 }
 
-void FrogPilotUIState::testAlert(const QString &alert) {
+void FrogPilotUIState::testAlert(const QString &alert, float volume) {
   MessageBuilder msg;
-  msg.initEvent().initFrogpilotUIRequest().setTestAlert(alert.toStdString());
+  cereal::FrogPilotUIRequest::Builder request = msg.initEvent().initFrogpilotUIRequest();
+  request.setTestAlert(alert.toStdString());
+  request.setTestAlertVolume(volume);
   pm->send("frogpilotUIRequest", msg);
 }
 

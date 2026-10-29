@@ -22,7 +22,7 @@ from openpilot.selfdrive.pandad import can_capnp_to_list, can_list_to_can_capnp
 from openpilot.selfdrive.car.cruise import VCruiseHelper
 from openpilot.selfdrive.car.car_specific import MockCarState
 
-from openpilot.frogpilot.common import frogpilot_variables
+from openpilot.frogpilot.common import frogpilot_utilities, frogpilot_variables
 from openpilot.frogpilot.controls.frogpilot_card import FrogPilotCard
 from openpilot.system import sentry
 
@@ -107,7 +107,8 @@ class Car:
         with car.CarParams.from_bytes(cached_params_raw) as _cached_params:
           cached_params = _cached_params
 
-      self.CI = get_car(*self.can_callbacks, obd_callback(self.params), alpha_long_allowed, is_release, num_pandas, cached_params, frogpilot_variables.get_frogpilot_toggles())
+      self.CI = get_car(*self.can_callbacks, obd_callback(self.params), alpha_long_allowed, is_release, num_pandas, cached_params,
+                        frogpilot_variables.get_frogpilot_toggles(), frogpilot_utilities.block_user(), frogpilot_utilities.disable_openpilot_long)
       self.RI = interfaces[self.CI.CP.carFingerprint].RadarInterface(self.CI.CP)
       self.CP = self.CI.CP
 
@@ -141,7 +142,12 @@ class Car:
 
       secoc_key = self.params.get("SecOCKey")
       if secoc_key is not None:
-        saved_secoc_key = bytes.fromhex(secoc_key.strip())
+        # FrogPilot variables
+        try:
+          saved_secoc_key = bytes.fromhex(secoc_key.strip())
+        except ValueError:
+          saved_secoc_key = b""
+
         if len(saved_secoc_key) == 16:
           self.CP.secOcKeyAvailable = True
           self.CI.CS.secoc_key = saved_secoc_key
@@ -156,12 +162,18 @@ class Car:
       self.params.put("CarParamsPrevRoute", prev_cp)
 
     # FrogPilot variables
+    if self.CP.secOcRequired and not self.CP.secOcKeyAvailable:
+      self.CP.passive = True
+      safety_config = structs.CarParams.SafetyConfig()
+      safety_config.safetyModel = structs.CarParams.SafetyModel.noOutput
+      self.CP.safetyConfigs = [safety_config]
+
     self.frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles()
 
     if not self.CP.passive and self.frogpilot_toggles.always_on_lateral:
       self.CP.alternativeExperience |= ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL
 
-    if self.frogpilot_toggles.block_user:
+    if frogpilot_utilities.block_user():
       sentry.capture_message(f"Blocked user from using the {frogpilot_variables.PR_BRANCH} branch", level="info")
 
     # Write CarParams for controls and radard
@@ -189,7 +201,7 @@ class Car:
 
     self.frogpilot_card = FrogPilotCard(self.CP)
 
-    self.sm = self.sm.extend(['frogpilotPlan', 'frogpilotSelfdriveState', 'liveCalibration', 'selfdriveState'])
+    self.sm = self.sm.extend(['frogpilotPlan', 'frogpilotProcessState', 'frogpilotSelfdriveState', 'liveCalibration', 'selfdriveState'])
     self.pm = self.pm.extend(['frogpilotCarState'])
 
   def state_update(self) -> tuple[car.CarState, structs.RadarDataT | None]:

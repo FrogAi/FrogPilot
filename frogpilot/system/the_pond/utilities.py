@@ -33,7 +33,7 @@ class ThePond:
     self.params = Params(return_defaults=True)
 
     self.pm = messaging.PubMaster(["thePondRequest"])
-    self.sm = messaging.SubMaster(["deviceState", "frogpilotCarState", "frogpilotDeviceState", "frogpilotPlan", "frogpilotProcessState",
+    self.sm = messaging.SubMaster(["deviceState", "frogpilotCarState", "frogpilotDeviceState", "frogpilotProcessState",
                                    "managerState", "mapdExtendedOut", "pandaStates", "selfdriveState"])
 
     self.connections = weakref.WeakSet()
@@ -50,6 +50,8 @@ class ThePond:
     self.pairing_failures = []
 
     self.reboot_required = set()
+
+    self.shell_used = 0.0
 
     self.storage_usage = None
     self.storage_usage_expiry = 0.0
@@ -165,10 +167,6 @@ def get_job(the_pond, name):
   else:
     state = "done"
   return {**info, "state": state}
-
-
-def is_issue_report_available(params):
-  return frogpilot_variables.REPORT_GIT_REMOTE in (params.get("GitRemote") or "").lower()
 
 
 def is_valid_name(name):

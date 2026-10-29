@@ -83,7 +83,9 @@ private:
   void updateState();
 
   bool forceOpenDescriptions = false;
+  bool higherBitrate = false;
   bool isMetric = false;
+  bool konikServer = false;
   bool panelOpen = false;
 
   FrogPilotButtonsControl *drivingPanelButtons = nullptr;

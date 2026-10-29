@@ -169,6 +169,7 @@ function plural(n, word, many = word + "s") {
   return `${n.toLocaleString("en-US")} ${n === 1 ? word : many}`;
 }
 
+const PIN_WARNINGS_KEY = "thePondPinWarnings";
 const state = { is_metric: false, language: "", locked: false, model: "", paired: false, pairing: false, tuning_level: 0 };
 const shell = { device: null, software: null, vehicle: null };
 let shellPromise = null;
@@ -378,8 +379,8 @@ const NAV = [
 ];
 const TABS = [
   { id: "home", label: "Home", icon: "home" },
-  { id: "drives", label: "Drives", icon: "drives", also: ["drive"] },
   { id: "device", label: "Car", icon: "vehicle", also: ["vehicle"] },
+  { id: "drives", label: "Drives", icon: "drives", also: ["drive"] },
   { id: "software", label: "Updates", icon: "software" }
 ];
 const NETWORK_TYPES = { cell2G: "2G", cell3G: "3G", cell4G: "LTE", cell5G: "5G", ethernet: "Ethernet", none: "Offline", wifi: "Wi-Fi" };
@@ -522,6 +523,56 @@ function openDialog({ icon = "info", tone = "", title, body = "", confirm = "OK"
     const focusTarget = cancel ? dlg.querySelector('[value="cancel"]') : dlg.querySelector("[data-confirm]");
     focusTarget.focus({ preventScroll: true });
   });
+}
+
+async function pinWarning(feature, text) {
+  if (state.pairing) {
+    return true;
+  }
+
+  let warned = [];
+  try {
+    warned = JSON.parse(localStorage.getItem(PIN_WARNINGS_KEY)) || [];
+  } catch {
+    warned = [];
+  }
+
+  if (warned.includes(feature)) {
+    return true;
+  }
+
+  const risk = "Because “Pairing Code” is off, anyone on the same Wi-Fi or Tailscale network can do this too.";
+  const advice = "Set a Pairing Code so only the browsers you pair can.";
+
+  let settingUp = false;
+
+  const ok = await openDialog({
+    icon: "alert",
+    tone: "danger",
+    title: "No Pairing Code is set",
+    body: `<p>${text}</p><p>${risk} ${advice}</p>`,
+    cancel: "Set a Pairing Code",
+    confirm: "Continue anyway",
+    onOpen: dialog => {
+      dialog.querySelector("[data-dialog-cancel]").addEventListener("click", () => {
+        settingUp = true;
+      });
+    }
+  });
+  if (!ok) {
+    if (settingUp) {
+      go("/toggles?key=ThePondPairing");
+    }
+
+    return false;
+  }
+
+  try {
+    localStorage.setItem(PIN_WARNINGS_KEY, JSON.stringify([...warned, feature]));
+  } catch {
+  }
+
+  return true;
 }
 
 function lossList(lost = [], kept = []) {
@@ -1159,6 +1210,7 @@ window.Pond = {
     PAGES[id] = page;
   },
   params: () => new URLSearchParams(location.search),
+  pinWarning,
   plural,
   poll,
   reducedMotion,

@@ -6,12 +6,12 @@ from types import SimpleNamespace
 
 from cereal import log
 import cereal.messaging as messaging
-from opendbc.car.interfaces import ACCEL_MIN
 from openpilot.common.constants import CV
 from openpilot.common.realtime import Ratekeeper, DT_MDL
 from openpilot.selfdrive.car.cruise import V_CRUISE_MAX
 from openpilot.selfdrive.controls.lib.longcontrol import LongCtrlState
-from openpilot.selfdrive.controls.lib.longitudinal_mpc_lib.long_mpc import A_CHANGE_COST, DANGER_ZONE_COST, J_EGO_COST, get_jerk_factor, get_T_FOLLOW
+from openpilot.selfdrive.controls.lib.longitudinal_mpc_lib.long_mpc import (A_CHANGE_COST, CRUISE_MIN_ACCEL, DANGER_ZONE_COST, J_EGO_COST, get_jerk_factor,
+                                                                            get_T_FOLLOW)
 from openpilot.selfdrive.modeld.constants import ModelConstants
 from openpilot.selfdrive.controls.lib.longitudinal_planner import LongitudinalPlanner, get_max_accel
 from openpilot.selfdrive.controls.radard import _LEAD_ACCEL_TAU
@@ -137,17 +137,6 @@ class Plant:
       model_lead.prob = float(prob_lead)
       model_lead.v = [float(v_lead) for _ in ModelConstants.LEAD_T_IDXS]
 
-    frogpilot_car_state = messaging.new_message('frogpilotCarState')
-    frogpilot_plan = messaging.new_message('frogpilotPlan')
-    acceleration_jerk, danger_jerk, speed_jerk = get_jerk_factor(personality=self.personality)
-    frogpilot_plan.frogpilotPlan.accelerationJerk = float(A_CHANGE_COST * acceleration_jerk)
-    frogpilot_plan.frogpilotPlan.dangerJerk = float(DANGER_ZONE_COST * danger_jerk)
-    frogpilot_plan.frogpilotPlan.speedJerk = float(J_EGO_COST * speed_jerk)
-    frogpilot_plan.frogpilotPlan.maxAcceleration = float(get_max_accel(self.speed))
-    frogpilot_plan.frogpilotPlan.minAcceleration = ACCEL_MIN
-    frogpilot_plan.frogpilotPlan.tFollow = float(get_T_FOLLOW(personality=self.personality))
-    frogpilot_plan.frogpilotPlan.vCruise = float(min(v_cruise * 3.6, V_CRUISE_MAX) * CV.KPH_TO_MS)
-
     control.controlsState.longControlState = LongCtrlState.pid if self.enabled else LongCtrlState.off
     ss.selfdriveState.experimentalMode = self.e2e
     ss.selfdriveState.personality = self.personality
@@ -156,6 +145,18 @@ class Plant:
     car_state.carState.standstill = bool(self.speed < 0.01)
     car_state.carState.vCruise = float(v_cruise * 3.6)
     car_control.carControl.orientationNED = [0., float(pitch), 0.]
+
+    # FrogPilot variables
+    frogpilot_car_state = messaging.new_message('frogpilotCarState')
+    frogpilot_plan = messaging.new_message('frogpilotPlan')
+    jerk_factor = get_jerk_factor(personality=ss.selfdriveState.personality)
+    frogpilot_plan.frogpilotPlan.accelerationJerk = float(A_CHANGE_COST * jerk_factor)
+    frogpilot_plan.frogpilotPlan.dangerJerk = float(DANGER_ZONE_COST)
+    frogpilot_plan.frogpilotPlan.speedJerk = float(J_EGO_COST * jerk_factor)
+    frogpilot_plan.frogpilotPlan.maxAcceleration = float(get_max_accel(self.speed))
+    frogpilot_plan.frogpilotPlan.minAcceleration = CRUISE_MIN_ACCEL
+    frogpilot_plan.frogpilotPlan.tFollow = float(get_T_FOLLOW(personality=ss.selfdriveState.personality))
+    frogpilot_plan.frogpilotPlan.vCruise = float(min(v_cruise * 3.6, V_CRUISE_MAX) * CV.KPH_TO_MS)
 
     # ******** get controlsState messages for plotting ***
     sm = {'radarState': radar.radarState,
@@ -178,7 +179,7 @@ class Plant:
 
     # ******** run the car ********
     #print(self.distance, speed)
-    if self.speed <= 0:
+    if self.speed <= 0 or (self.should_stop and self.speed < self.frogpilot_toggles.vEgoStopping and self.acceleration <= 0):
       self.speed = 0
       self.acceleration = 0
     self.distance = self.distance + self.speed * self.ts

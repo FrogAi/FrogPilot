@@ -30,7 +30,7 @@ SoftwarePanel::SoftwarePanel(QWidget* parent) : ListWidget(parent) {
   // FrogPilot variables
   // automatic updates toggle
   ParamControl *automaticUpdatesToggle = new ParamControl("AutomaticUpdates", tr("Automatically Update FrogPilot"),
-                                                       tr("Automatically update FrogPilot when the car is off with an active internet connection. Automatic updates turn off after a FrogPilot backup is restored until you update manually."), "");
+                                                       tr("Automatically update FrogPilot when the car is off and the device is on an unmetered connection, such as Wi-Fi. Automatic updates turn off after a FrogPilot backup is restored until you update manually."), "");
   automaticUpdatesToggle->setVisible(params.getBool("IsReleaseBranch") || isFrogsGoMoo());
   addItem(automaticUpdatesToggle);
 
@@ -211,7 +211,7 @@ void SoftwarePanel::updateLabels() {
   // download update
   QString updater_state = QString::fromStdString(params.get("UpdaterState"));
   bool failed = std::atoi(params.get("UpdateFailedCount").c_str()) > 0;
-  if (updater_state != "idle") {
+  if (updater_state != "idle" || !params.get("UpdaterDownloadProgress").empty()) {
     downloadBtn->setEnabled(false);
     downloadBtn->setValue(formatDownloadProgress(params.get("UpdaterDownloadProgress"), updater_state));
   } else {
@@ -242,7 +242,7 @@ void SoftwarePanel::updateLabels() {
   versionLbl->setText(QString::fromStdString(params.get("UpdaterCurrentDescription")));
   versionLbl->setDescription(QString::fromStdString(params.get("UpdaterCurrentReleaseNotes")));
 
-  installBtn->setVisible(frogpilot_scene.parked && params.getBool("UpdateAvailable"));
+  installBtn->setVisible(frogpilot_scene.parked && params.getBool("UpdateAvailable") && params.get("UpdaterDownloadProgress").empty());
   installBtn->setValue(QString::fromStdString(params.get("UpdaterNewDescription")));
   installBtn->setDescription(QString::fromStdString(params.get("UpdaterNewReleaseNotes")));
 

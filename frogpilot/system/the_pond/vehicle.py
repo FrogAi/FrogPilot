@@ -4,7 +4,7 @@ from aiohttp import web
 
 from cereal import log, messaging
 
-from openpilot.frogpilot.common import frogpilot_utilities, frogpilot_variables
+from openpilot.frogpilot.common import frogpilot_paths, frogpilot_utilities, frogpilot_variables
 from openpilot.frogpilot.system import frogpilot_stats
 from openpilot.frogpilot.system.the_pond import utilities
 
@@ -95,6 +95,10 @@ async def apply_secoc_key(request):
   for key in the_pond.params.get("SecOCKeys"):
     if key["name"] == name:
       the_pond.params.put("SecOCKey", key["value"])
+
+      cache_key_path = frogpilot_paths.PARAMS_CACHE_PATH / "SecOCKey"
+      if cache_key_path.is_file():
+        cache_key_path.write_text(key["value"])
       return web.json_response({"restart_required": the_pond.sm["deviceState"].started})
 
   raise web.HTTPNotFound(text="not_found")

@@ -255,7 +255,10 @@ class CarState(CarStateBase):
 
     if not self.CP.flags & ToyotaFlags.SECOC.value:
       self.fp_ret.ecoGear = cp.vl["GEAR_PACKET"]["ECON_ON"] == 1
-      self.fp_ret.sportGear = cp.vl["GEAR_PACKET"]["SPORT_ON_2" if self.CP.flags & ToyotaFlags.NO_DSU else "SPORT_ON"] == 1
+      if self.CP.flags & ToyotaFlags.NO_DSU:
+        self.fp_ret.sportGear = cp.vl["GEAR_PACKET"]["SPORT_ON_2"] == 1
+      else:
+        self.fp_ret.sportGear = cp.vl["GEAR_PACKET"]["SPORT_ON"] == 1
 
     # ZSS Support - Credit goes to Erich!
     if self.has_zss:

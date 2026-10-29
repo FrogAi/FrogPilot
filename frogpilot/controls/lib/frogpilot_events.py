@@ -8,7 +8,7 @@ from openpilot.common.realtime import DT_MDL
 from openpilot.selfdrive.controls.lib.desire_helper import TurnDirection
 from openpilot.selfdrive.selfdrived.events import ET, EVENT_NAME, FROGPILOT_EVENT_NAME, EventName, FrogPilotEventName, Events
 
-from openpilot.frogpilot.common import frogpilot_variables
+from openpilot.frogpilot.common import frogpilot_paths, frogpilot_variables
 
 DEJA_VU_G_FORCE = 0.75
 GREEN_LIGHT_LOOKAHEAD = 6
@@ -161,7 +161,7 @@ class FrogPilotEvents:
       self.always_on_lateral_allowed_previously = sm["frogpilotCarState"].alwaysOnLateralAllowed
       self.random_event_playing |= any(frogpilot_variables.RANDOM_EVENT_START <= event <= frogpilot_variables.RANDOM_EVENT_END for event in self.events.names)
 
-    if frogpilot_variables.ERROR_LOG_PATH.is_file():
+    if frogpilot_paths.ERROR_LOG_PATH.is_file():
       if frogpilot_toggles.random_events:
         self.events.add(FrogPilotEventName.openpilotCrashedRandomEvent)
       else:

@@ -314,18 +314,7 @@ QString formatDownloadProgress(const std::string &progress, const QString &updat
     return updaterState;
   }
 
-  QString result = QString("%1%").arg(progressObject.value("percent").toInt());
-
-  QJsonValue eta = progressObject.value("eta");
-  if (eta.isDouble()) {
-    int seconds = eta.toInt();
-    if (seconds < 60) {
-      result += QCoreApplication::translate("SoftwarePanel", " · less than a minute left");
-    } else {
-      result += QCoreApplication::translate("SoftwarePanel", " · about %1 min left").arg(qRound(seconds / 60.0));
-    }
-  }
-  return result;
+  return QString("%1%").arg(progressObject.value("percent").toInt());
 }
 
 QString formatDuration(int seconds) {

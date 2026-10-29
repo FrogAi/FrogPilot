@@ -16,7 +16,7 @@ from openpilot.system.hardware import HARDWARE
 from openpilot.system.updated.common import set_consistent_flag
 from openpilot.system.updated.updated import FINALIZED
 
-from openpilot.frogpilot.common import frogpilot_backups, frogpilot_variables
+from openpilot.frogpilot.common import frogpilot_backups, frogpilot_paths, frogpilot_variables
 from openpilot.frogpilot.system.the_pond import tailscale, utilities
 
 BACKUP_EXTENSION = ".tar.zst"
@@ -41,8 +41,8 @@ def get_backup_name(name):
 
 
 def get_settings_backup(name):
-  path = frogpilot_variables.TOGGLE_BACKUPS / name
-  if name in ("", ".", "..") or path.parent != frogpilot_variables.TOGGLE_BACKUPS or not path.is_dir():
+  path = frogpilot_paths.TOGGLE_BACKUPS / name
+  if name in ("", ".", "..") or path.parent != frogpilot_paths.TOGGLE_BACKUPS or not path.is_dir():
     raise web.HTTPNotFound(text="not_found")
   if frogpilot_variables.IN_PROGRESS_BACKUP_SUFFIX in name:
     raise web.HTTPNotFound(text="not_found")
@@ -145,7 +145,7 @@ def read_settings_archive(params, file):
 
 def reset_settings(stock):
   params = Params()
-  params_cache = Params(str(frogpilot_variables.PARAMS_CACHE_PATH))
+  params_cache = Params(str(frogpilot_paths.PARAMS_CACHE_PATH))
 
   for key in params.all_keys():
     key = key.decode()
@@ -162,6 +162,11 @@ def reset_settings(stock):
   for key in frogpilot_variables.RESET_REMOVED_KEYS:
     params.remove(key)
     params_cache.remove(key)
+
+  frogpilot_paths.SPEED_LIMIT_FILLER_PATH.unlink(missing_ok=True)
+
+  if frogpilot_paths.SPEED_LIMIT_FILLER_IMAGES_PATH.exists():
+    shutil.rmtree(frogpilot_paths.SPEED_LIMIT_FILLER_IMAGES_PATH)
 
   if params.get_bool("ThePondPairing"):
     params.put("ThePondPairingCode", utilities.new_pairing_code())
@@ -225,8 +230,8 @@ def is_frogpilot_backup(path):
 
 
 async def create_frogpilot_backup(the_pond, name):
-  destination = frogpilot_variables.FROGPILOT_BACKUPS / f"{name}{BACKUP_EXTENSION}"
-  in_progress_destination = frogpilot_variables.FROGPILOT_BACKUPS / f"{name}{frogpilot_variables.IN_PROGRESS_BACKUP_SUFFIX}{BACKUP_EXTENSION}"
+  destination = frogpilot_paths.FROGPILOT_BACKUPS / f"{name}{BACKUP_EXTENSION}"
+  in_progress_destination = frogpilot_paths.FROGPILOT_BACKUPS / f"{name}{frogpilot_variables.IN_PROGRESS_BACKUP_SUFFIX}{BACKUP_EXTENSION}"
 
   try:
     await utilities.run_heavy_process(the_pond, ["tar", "--use-compress-program=zstd", "-cf", str(in_progress_destination),
@@ -240,7 +245,7 @@ async def create_frogpilot_backup(the_pond, name):
 
 async def restore_frogpilot_backup(the_pond, backup_path):
   cancelled = False
-  extract_path = frogpilot_variables.RESTORE_TEMP_PATH
+  extract_path = frogpilot_paths.RESTORE_TEMP_PATH
   try:
     shutil.rmtree(extract_path, ignore_errors=True)
     extract_path.mkdir(parents=True)
@@ -271,7 +276,7 @@ async def restore_frogpilot_backup(the_pond, backup_path):
 async def install_frogpilot_backup(the_pond, source_root):
   await utilities.run_heavy_process(the_pond, ["rsync", "-a", "--delete", f"{source_root}/", f"{BASEDIR}/"])
   set_consistent_flag(FINALIZED, False)
-  frogpilot_variables.BACKUP_PATH.touch()
+  frogpilot_paths.BACKUP_PATH.touch()
 
 
 async def receive_frogpilot_backup(the_pond, reader):
@@ -280,7 +285,7 @@ async def receive_frogpilot_backup(the_pond, reader):
     raise web.HTTPBadRequest(text="invalid_name")
 
   name = get_backup_name(await field.text())
-  destination = frogpilot_variables.FROGPILOT_BACKUPS / f"{name}{BACKUP_EXTENSION}"
+  destination = frogpilot_paths.FROGPILOT_BACKUPS / f"{name}{BACKUP_EXTENSION}"
   if destination.exists():
     raise web.HTTPConflict(text="name_in_use")
 
@@ -288,8 +293,8 @@ async def receive_frogpilot_backup(the_pond, reader):
   if field is None or field.name != "file":
     raise web.HTTPBadRequest(text="invalid_file")
 
-  frogpilot_variables.FROGPILOT_BACKUPS.mkdir(parents=True, exist_ok=True)
-  in_progress_destination = frogpilot_variables.FROGPILOT_BACKUPS / f"{name}{frogpilot_variables.IN_PROGRESS_BACKUP_SUFFIX}{BACKUP_EXTENSION}"
+  frogpilot_paths.FROGPILOT_BACKUPS.mkdir(parents=True, exist_ok=True)
+  in_progress_destination = frogpilot_paths.FROGPILOT_BACKUPS / f"{name}{frogpilot_variables.IN_PROGRESS_BACKUP_SUFFIX}{BACKUP_EXTENSION}"
   try:
     with open(in_progress_destination, "wb") as file:
       while chunk := await field.read_chunk(utilities.STREAM_CHUNK_SIZE):
@@ -309,10 +314,10 @@ async def receive_frogpilot_backup(the_pond, reader):
 async def create_frogpilot_backup_route(request):
   the_pond = request.app[utilities.THE_POND]
   name = get_backup_name((await utilities.read_json(request)).get("name"))
-  if (frogpilot_variables.FROGPILOT_BACKUPS / f"{name}{BACKUP_EXTENSION}").exists():
+  if (frogpilot_paths.FROGPILOT_BACKUPS / f"{name}{BACKUP_EXTENSION}").exists():
     raise web.HTTPConflict(text="name_in_use")
 
-  frogpilot_variables.FROGPILOT_BACKUPS.mkdir(parents=True, exist_ok=True)
+  frogpilot_paths.FROGPILOT_BACKUPS.mkdir(parents=True, exist_ok=True)
   utilities.start_job(the_pond, "frogpilot_backup", create_frogpilot_backup(the_pond, name), {"kind": "create", "name": name})
   return web.Response(status=202)
 
@@ -322,7 +327,7 @@ async def delete_frogpilot_backups(request):
   job = utilities.get_job(request.app[utilities.THE_POND], "frogpilot_backup")
   if job is not None and job["state"] == "running":
     raise web.HTTPConflict(text="busy")
-  for path in frogpilot_variables.FROGPILOT_BACKUPS.glob("*"):
+  for path in frogpilot_paths.FROGPILOT_BACKUPS.glob("*"):
     if path.is_file():
       path.unlink()
   return web.Response(status=204)
@@ -330,19 +335,19 @@ async def delete_frogpilot_backups(request):
 
 @routes.delete("/api/frogpilot_backups/{name}")
 async def delete_frogpilot_backup(request):
-  utilities.get_file(frogpilot_variables.FROGPILOT_BACKUPS, f"{request.match_info['name']}{BACKUP_EXTENSION}").unlink()
+  utilities.get_file(frogpilot_paths.FROGPILOT_BACKUPS, f"{request.match_info['name']}{BACKUP_EXTENSION}").unlink()
   return web.Response(status=204)
 
 
 @routes.get("/api/frogpilot_backups")
 async def get_frogpilot_backups(request):
-  backups = await asyncio.to_thread(list_backups, frogpilot_variables.FROGPILOT_BACKUPS, f"*{BACKUP_EXTENSION}")
+  backups = await asyncio.to_thread(list_backups, frogpilot_paths.FROGPILOT_BACKUPS, f"*{BACKUP_EXTENSION}")
   return web.json_response({"backups": backups, "job": utilities.get_job(request.app[utilities.THE_POND], "frogpilot_backup")})
 
 
 @routes.get("/api/frogpilot_backups/{name}/download")
 async def download_frogpilot_backup(request):
-  path = utilities.get_file(frogpilot_variables.FROGPILOT_BACKUPS, f"{request.match_info['name']}{BACKUP_EXTENSION}")
+  path = utilities.get_file(frogpilot_paths.FROGPILOT_BACKUPS, f"{request.match_info['name']}{BACKUP_EXTENSION}")
   return web.FileResponse(path, headers={"Content-Disposition": f'attachment; filename="{path.name}"'})
 
 
@@ -359,7 +364,7 @@ async def import_frogpilot_backup(request):
 @routes.post("/api/frogpilot_backups/{name}/restore")
 async def restore_frogpilot_backup_route(request):
   the_pond = request.app[utilities.THE_POND]
-  path = utilities.get_file(frogpilot_variables.FROGPILOT_BACKUPS, f"{request.match_info['name']}{BACKUP_EXTENSION}")
+  path = utilities.get_file(frogpilot_paths.FROGPILOT_BACKUPS, f"{request.match_info['name']}{BACKUP_EXTENSION}")
   if the_pond.sm["deviceState"].started:
     raise web.HTTPConflict(text="car_on")
 
@@ -371,18 +376,18 @@ async def restore_frogpilot_backup_route(request):
 async def create_settings_backup_route(request):
   params = request.app[utilities.THE_POND].params
   name = get_backup_name((await utilities.read_json(request)).get("name"))
-  if (frogpilot_variables.TOGGLE_BACKUPS / name).exists():
+  if (frogpilot_paths.TOGGLE_BACKUPS / name).exists():
     raise web.HTTPConflict(text="name_in_use")
 
-  frogpilot_variables.TOGGLE_BACKUPS.mkdir(parents=True, exist_ok=True)
+  frogpilot_paths.TOGGLE_BACKUPS.mkdir(parents=True, exist_ok=True)
   await asyncio.to_thread(frogpilot_backups.create_settings_backup, params, name)
   return web.Response(status=204)
 
 
 @routes.delete("/api/settings_backups")
 async def delete_settings_backups(request):
-  await asyncio.to_thread(shutil.rmtree, frogpilot_variables.TOGGLE_BACKUPS, True)
-  frogpilot_variables.TOGGLE_BACKUPS.mkdir(parents=True, exist_ok=True)
+  await asyncio.to_thread(shutil.rmtree, frogpilot_paths.TOGGLE_BACKUPS, True)
+  frogpilot_paths.TOGGLE_BACKUPS.mkdir(parents=True, exist_ok=True)
   return web.Response(status=204)
 
 
@@ -394,7 +399,7 @@ async def delete_settings_backup(request):
 
 @routes.get("/api/settings_backups")
 async def get_settings_backups(request):
-  return web.json_response(await asyncio.to_thread(list_backups, frogpilot_variables.TOGGLE_BACKUPS, "*"))
+  return web.json_response(await asyncio.to_thread(list_backups, frogpilot_paths.TOGGLE_BACKUPS, "*"))
 
 
 @routes.get("/api/settings_backups/{name}/changes")
@@ -424,7 +429,7 @@ async def import_settings_backup(request):
   form = await request.post()
 
   name = get_backup_name(form.get("name"))
-  if (frogpilot_variables.TOGGLE_BACKUPS / name).exists():
+  if (frogpilot_paths.TOGGLE_BACKUPS / name).exists():
     raise web.HTTPConflict(text="name_in_use")
 
   upload = form.get("file")
@@ -435,12 +440,12 @@ async def import_settings_backup(request):
   if not settings:
     raise web.HTTPBadRequest(text="invalid_file")
 
-  in_progress_destination = frogpilot_variables.TOGGLE_BACKUPS / f"{name}{frogpilot_variables.IN_PROGRESS_BACKUP_SUFFIX}"
+  in_progress_destination = frogpilot_paths.TOGGLE_BACKUPS / f"{name}{frogpilot_variables.IN_PROGRESS_BACKUP_SUFFIX}"
   shutil.rmtree(in_progress_destination, ignore_errors=True)
   in_progress_destination.mkdir(parents=True)
   for key, value in settings.items():
     (in_progress_destination / key).write_bytes(value)
-  in_progress_destination.rename(frogpilot_variables.TOGGLE_BACKUPS / name)
+  in_progress_destination.rename(frogpilot_paths.TOGGLE_BACKUPS / name)
   return web.Response(status=204)
 
 

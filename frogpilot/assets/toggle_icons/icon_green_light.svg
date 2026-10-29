@@ -1,9 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
   <g transform="matrix(1.2 0 0 1.2 -18.4 -21.2)">
     <g transform="matrix(.8 0 0 .8 -12 20)">
-      <path d="M59 0h82v14h19c5 0 6 3 3 7l-21 26v27h18c5 0 6 3 3 7l-21 26v27h18c5 0 6 3 3 7l-21 26v24c0 3-2 5-5 5h-17v4H80v-4H63c-3 0-5-2-5-5v-24l-21-26c-3-4-2-7 3-7h18v-27L37 81c-3-4-2-7 3-7h18V47L37 21c-3-4-2-7 3-7h19Zm62 39a21 21 0 1 0-42 0 21 21 0 1 0 42 0m0 60a21 21 0 1 0-42 0 21 21 0 1 0 42 0" fill="#8e9aab" fill-rule="evenodd"/>
-      <circle cx="100" cy="39" r="21" fill="#2a2e35"/>
-      <circle cx="100" cy="99" r="21" fill="#2a2e35"/>
+      <path d="M59 0h82v14h19c5 0 6 3 3 7l-21 26v27h18c5 0 6 3 3 7l-21 26v27h18c5 0 6 3 3 7l-21 26v24c0 3-2 5-5 5h-17v4H80v-4H63c-3 0-5-2-5-5v-24l-21-26c-3-4-2-7 3-7h18v-27L37 81c-3-4-2-7 3-7h18V47L37 21c-3-4-2-7 3-7h19Zm62 39a21 21 0 1 0-42 0 21 21 0 1 0 42 0m0 60a21 21 0 1 0-42 0 21 21 0 1 0 42 0" fill="#fff" fill-rule="evenodd"/>
+      <circle cx="100" cy="39" r="21" fill="#393939"/>
+      <circle cx="100" cy="99" r="21" fill="#393939"/>
       <circle cx="100" cy="159" r="21" fill="#1ed760"/>
     </g>
     <path d="M136 108q20 26 0 52M160 90q34 44 0 88" fill="none" stroke="#fff" stroke-linecap="round" stroke-width="10"/>

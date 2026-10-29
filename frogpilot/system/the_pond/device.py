@@ -7,7 +7,7 @@ from openpilot.common.basedir import BASEDIR
 from openpilot.selfdrive.selfdrived.alertmanager import OFFROAD_ALERTS
 from openpilot.system.hardware import HARDWARE
 
-from openpilot.frogpilot.common import frogpilot_utilities, frogpilot_variables
+from openpilot.frogpilot.common import frogpilot_paths, frogpilot_utilities, frogpilot_variables
 from openpilot.frogpilot.system.the_pond import utilities
 
 STORAGE_CACHE_TIME = 10
@@ -16,14 +16,14 @@ routes = web.RouteTableDef()
 
 def get_storage_usage():
   return {
-    "dashcam": {log_root.name: frogpilot_utilities.get_directory_size(log_root) for log_root in frogpilot_variables.LOG_ROOTS},
-    "frogpilot_backups": frogpilot_utilities.get_directory_size(frogpilot_variables.FROGPILOT_BACKUPS),
-    "maps": frogpilot_utilities.get_directory_size(frogpilot_variables.MAPS_PATH),
-    "models": frogpilot_utilities.get_directory_size(frogpilot_variables.MODELS_PATH.parent),
-    "screen_recordings": frogpilot_utilities.get_directory_size(frogpilot_variables.SCREEN_RECORDINGS_PATH),
+    "dashcam": {log_root.name: frogpilot_utilities.get_directory_size(log_root) for log_root in frogpilot_paths.LOG_ROOTS},
+    "frogpilot_backups": frogpilot_utilities.get_directory_size(frogpilot_paths.FROGPILOT_BACKUPS),
+    "maps": frogpilot_utilities.get_directory_size(frogpilot_paths.MAPS_PATH),
+    "models": frogpilot_utilities.get_directory_size(frogpilot_paths.MODELS_PATH.parent),
+    "screen_recordings": frogpilot_utilities.get_directory_size(frogpilot_paths.SCREEN_RECORDINGS_PATH),
     "software": frogpilot_utilities.get_directory_size(BASEDIR),
-    "the_pond": frogpilot_utilities.get_directory_size(frogpilot_variables.THE_POND_PATH),
-    "themes": frogpilot_utilities.get_directory_size(frogpilot_variables.THEME_SAVE_PATH),
+    "the_pond": frogpilot_utilities.get_directory_size(frogpilot_paths.THE_POND_PATH),
+    "themes": frogpilot_utilities.get_directory_size(frogpilot_paths.THEME_SAVE_PATH),
   }
 
 

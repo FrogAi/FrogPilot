@@ -159,11 +159,11 @@ P.act("backups-reset", async button => {
     icon: "alert", tone: "danger", confirmTone: "danger",
     title: stock ? "Reset to stock openpilot?" : "Reset to FrogPilot defaults?",
     body: `<p>${stock ? "FrogPilot's features are turned off and openpilot's own settings are used." : "Every FrogPilot setting goes back to how it shipped."}</p>
-      ${P.lossList(["Saved keys (Mapbox, weather, and Toyota security keys)", "Favorite places", "Discord name", "Timezone", "Map settings", "Tailscale sign-in"], ["Drives", "Backups", "Downloaded themes", "Learned driving data"])}
+      ${P.lossList(["Saved keys (Mapbox, weather, and Toyota security keys)", "Favorite places", "Discord name", "Timezone", "Map settings", "Speed Limit Filler data", "Tailscale sign-in"], ["Drives", "Backups", "Downloaded themes", "Learned driving data"])}
       <p><button type="button" class="btn btn-text btn-small backups-first" data-act="backups-now">${P.ic("plus")}Back up my settings first</button></p>
       <div class="notice danger" data-backup-failure role="alert" hidden>${P.ic("alert")}<span></span></div>`,
     confirm: stock ? "Erase and reset to stock" : "Erase and reset to defaults",
-    requireCheck: "I understand my saved keys, favorite places, Discord name, timezone, map settings, and Tailscale sign-in are erased"
+    requireCheck: "I understand my saved keys, favorite places, Discord name, timezone, map settings, Speed Limit Filler data, and Tailscale sign-in are erased"
   });
   if (!ok) {
     return;
@@ -281,6 +281,10 @@ P.act("frogbackups-new", async () => {
 });
 
 P.act("frogbackups-restore", async b => {
+  if (!await P.pinWarning("frogbackups-restore", "Restoring a FrogPilot backup from The Pond replaces the software the device runs.")) {
+    return;
+  }
+
   const { device } = await P.shell();
   const ok = await P.dialog({ icon: "frogbackups", tone: "danger", confirmTone: "danger", title: `Restore FrogPilot from “${P.esc(b.dataset.name)}”?`, body: `<p>The installed FrogPilot is replaced with the version in this backup, then the device reboots. Wait for The Pond to come back before you start the car.</p>${P.lossList([`The FrogPilot version installed now (${P.esc(device.version)}, ${P.esc(device.branch)})`], ["Your drives, recordings, and settings", "Other backups"])}`, confirm: "Restore and reboot" });
   if (!ok) {

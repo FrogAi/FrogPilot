@@ -13,7 +13,7 @@ from openpilot.system.loggerd.config import SEGMENT_LENGTH
 from openpilot.system.loggerd.deleter import PRESERVE_ATTR_NAME, PRESERVE_ATTR_VALUE
 from openpilot.system.loggerd.uploader import UPLOAD_ATTR_NAME, UPLOAD_ATTR_VALUE
 
-from openpilot.frogpilot.common import frogpilot_utilities, frogpilot_variables
+from openpilot.frogpilot.common import frogpilot_paths, frogpilot_utilities, frogpilot_variables
 from openpilot.frogpilot.system.the_pond import utilities
 
 CAMERA_FILES = {"driver": "dcamera.hevc", "forward": "fcamera.hevc", "low": "qcamera.ts", "wide": "ecamera.hevc"}
@@ -47,7 +47,7 @@ def get_xattr(path, name):
 
 def get_routes(route="*--*"):
   segments = {}
-  for log_root in frogpilot_variables.LOG_ROOTS:
+  for log_root in frogpilot_paths.LOG_ROOTS:
     for path in log_root.glob(f"{route}--*"):
       match = SEGMENT_PATTERN.match(path.name)
       if match is not None and path.is_dir():
@@ -85,6 +85,7 @@ def get_route_info(route, segments, recording):
     "recording": recording,
     "route": route,
     "segment_length": SEGMENT_LENGTH,
+    "segment_numbers": list(segments),
     "segments": len(segments),
     "size": size,
     "video": video,
@@ -161,18 +162,18 @@ def get_drive_source(qlogs):
 
 
 def load_drive(route, qlogs):
-  drive = frogpilot_utilities.load_json_file(frogpilot_variables.THE_POND_DRIVES_PATH / f"{route}.json")
+  drive = frogpilot_utilities.load_json_file(frogpilot_paths.THE_POND_DRIVES_PATH / f"{route}.json")
   return drive if drive.get("source") == get_drive_source(qlogs) else None
 
 
 def save_drive(route, drive):
-  drive_path = frogpilot_variables.THE_POND_DRIVES_PATH / f"{route}.json"
+  drive_path = frogpilot_paths.THE_POND_DRIVES_PATH / f"{route}.json"
   drive_path.parent.mkdir(parents=True, exist_ok=True)
   frogpilot_utilities.update_json_file(drive_path, drive)
 
 
 async def summarize_drive(the_pond, route, qlogs):
-  drive_path = frogpilot_variables.THE_POND_DRIVES_PATH / f"{route}.json"
+  drive_path = frogpilot_paths.THE_POND_DRIVES_PATH / f"{route}.json"
   async with the_pond.file_locks.setdefault(drive_path, asyncio.Lock()):
     drive = load_drive(route, qlogs)
     if drive is None or drive.get("failed"):
@@ -196,15 +197,15 @@ async def summarize_drives(the_pond, drives):
 
 
 def remove_route_files(route):
-  for path in (frogpilot_variables.THE_POND_DRIVES_PATH / f"{route}.json", frogpilot_variables.THE_POND_THUMBNAILS_PATH / f"{route}--thumbnail.jpg",
-               frogpilot_variables.THE_POND_THUMBNAILS_PATH / f"{route}--timelapse.mp4"):
+  for path in (frogpilot_paths.THE_POND_DRIVES_PATH / f"{route}.json", frogpilot_paths.THE_POND_THUMBNAILS_PATH / f"{route}--thumbnail.jpg",
+               frogpilot_paths.THE_POND_THUMBNAILS_PATH / f"{route}--timelapse.mp4"):
     path.unlink(missing_ok=True)
-  for path in frogpilot_variables.THE_POND_VIDEOS_PATH.glob(f"{route}--*.mp4"):
+  for path in frogpilot_paths.THE_POND_VIDEOS_PATH.glob(f"{route}--*.mp4"):
     path.unlink()
 
 
 def remove_stale_files(all_routes):
-  for directory in (frogpilot_variables.THE_POND_DRIVES_PATH, frogpilot_variables.THE_POND_THUMBNAILS_PATH, frogpilot_variables.THE_POND_VIDEOS_PATH):
+  for directory in (frogpilot_paths.THE_POND_DRIVES_PATH, frogpilot_paths.THE_POND_THUMBNAILS_PATH, frogpilot_paths.THE_POND_VIDEOS_PATH):
     for path in directory.glob("*"):
       match = CACHE_FILE_PATTERN.match(path.name)
       if match is not None and match[1] not in all_routes:
@@ -214,7 +215,7 @@ def remove_stale_files(all_routes):
 def delete_driving_data(recording_route):
   deleted = True
   deleted_routes = set()
-  for log_root in frogpilot_variables.LOG_ROOTS:
+  for log_root in frogpilot_paths.LOG_ROOTS:
     if not log_root.is_dir():
       continue
 
@@ -284,7 +285,7 @@ async def create_thumbnail(the_pond, thumbnail_path, source, output_options):
 
 
 async def prepare_preview(the_pond, route, sources):
-  preview_path = frogpilot_variables.THE_POND_THUMBNAILS_PATH / f"{route}--timelapse.mp4"
+  preview_path = frogpilot_paths.THE_POND_THUMBNAILS_PATH / f"{route}--timelapse.mp4"
   async with the_pond.file_locks.setdefault(preview_path, asyncio.Lock()):
     if not preview_path.is_file():
       try:
@@ -298,7 +299,7 @@ async def prepare_preview(the_pond, route, sources):
 
 
 async def prepare_thumbnail(the_pond, route, sources):
-  thumbnail_path = frogpilot_variables.THE_POND_THUMBNAILS_PATH / f"{route}--thumbnail.jpg"
+  thumbnail_path = frogpilot_paths.THE_POND_THUMBNAILS_PATH / f"{route}--thumbnail.jpg"
   async with the_pond.file_locks.setdefault(thumbnail_path, asyncio.Lock()):
     if not thumbnail_path.is_file():
       middle = (len(sources) - 1) / 2
@@ -340,7 +341,7 @@ async def is_readable(path):
 
 
 def trim_video_cache():
-  videos = sorted(frogpilot_variables.THE_POND_VIDEOS_PATH.glob("*.mp4"), key=lambda path: path.stat().st_mtime, reverse=True)
+  videos = sorted(frogpilot_paths.THE_POND_VIDEOS_PATH.glob("*.mp4"), key=lambda path: path.stat().st_mtime, reverse=True)
 
   total_size = 0
   for path in videos:
@@ -414,7 +415,6 @@ async def get_route_details(request):
     "audio": audio,
     "cameras": [camera for camera, file_name in CAMERA_FILES.items() if any((path / file_name).is_file() for path in segments.values())],
     "route_ids": sorted(await asyncio.to_thread(get_routes), reverse=True),
-    "segment_numbers": list(segments),
     "uploaded": uploaded,
   })
 
@@ -513,7 +513,7 @@ async def get_video(request):
     raise web.HTTPConflict(text="recording")
 
   source = path / CAMERA_FILES[camera]
-  video_path = frogpilot_variables.THE_POND_VIDEOS_PATH / f"{path.name}--{camera}.mp4"
+  video_path = frogpilot_paths.THE_POND_VIDEOS_PATH / f"{path.name}--{camera}.mp4"
 
   async with the_pond.file_locks.setdefault(video_path, asyncio.Lock()):
     if not video_path.is_file() or video_path.stat().st_mtime < source.stat().st_mtime:

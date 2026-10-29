@@ -22,7 +22,7 @@ from openpilot.common.swaglog import cloudlog, add_file_handler
 from openpilot.system.version import get_build_metadata, terms_version, training_version
 from openpilot.system.hardware.hw import Paths
 
-from openpilot.frogpilot.common import frogpilot_functions, frogpilot_variables
+from openpilot.frogpilot.common import frogpilot_functions, frogpilot_paths, frogpilot_variables
 
 
 def manager_init() -> None:
@@ -42,7 +42,7 @@ def manager_init() -> None:
     params.put_bool("RecordFront", True)
 
   # FrogPilot variables
-  params_cache = Params(str(frogpilot_variables.PARAMS_CACHE_PATH))
+  params_cache = Params(str(frogpilot_paths.PARAMS_CACHE_PATH))
 
   frogpilot_functions.migrate_params(params, params_cache)
   frogpilot_functions.sync_params_cache(params, params_cache)
@@ -143,7 +143,7 @@ def manager_thread() -> None:
   pm = messaging.PubMaster(['managerState'])
 
   # FrogPilot variables
-  sm = sm.extend(['frogpilotPlan'])
+  sm = sm.extend(['frogpilotProcessState'])
 
   frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles()
 

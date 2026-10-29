@@ -8,7 +8,6 @@ from multiprocessing import Process
 from pathlib import Path
 
 from cereal import messaging
-from openpilot.common.basedir import BASEDIR
 from openpilot.common.constants import CV
 from openpilot.common.params import Params
 from openpilot.common.time_helpers import system_time_valid
@@ -16,9 +15,7 @@ from openpilot.system.athena.registration import register
 from openpilot.system.hardware import HARDWARE, PC
 
 from openpilot.frogpilot.assets.theme_manager import ThemeManager
-from openpilot.frogpilot.common import frogpilot_backups, frogpilot_utilities, frogpilot_variables
-
-MAPD_DOWNLOAD_MENU_PATH = Path(BASEDIR) / "mapd_download_menu.json"
+from openpilot.frogpilot.common import frogpilot_backups, frogpilot_paths, frogpilot_utilities, frogpilot_variables
 
 
 def boot_backup(build_metadata):
@@ -29,7 +26,7 @@ def boot_backup(build_metadata):
 
 
 def cleanup_screen_recordings(limit_bytes):
-  recordings = sorted(frogpilot_variables.SCREEN_RECORDINGS_PATH.glob("*.mp4"), key=lambda recording: recording.stat().st_mtime, reverse=True)
+  recordings = sorted(frogpilot_paths.SCREEN_RECORDINGS_PATH.glob("*.mp4"), key=lambda recording: recording.stat().st_mtime, reverse=True)
 
   total = 0
   for index, recording in enumerate(recordings):
@@ -96,7 +93,7 @@ def download_nearby_maps(latitude, longitude, cancel_download):
   for archive_latitude in range(min_latitude, max_latitude, frogpilot_variables.MAPD_ARCHIVE_SIZE_DEGREES):
     for archive_longitude in range(min_longitude, max_longitude, frogpilot_variables.MAPD_ARCHIVE_SIZE_DEGREES):
       archive_longitude = (archive_longitude + 180) % 360 - 180
-      archive_directory = frogpilot_variables.MAPS_PATH / str(archive_latitude) / str(archive_longitude)
+      archive_directory = frogpilot_paths.MAPS_PATH / str(archive_latitude) / str(archive_longitude)
 
       if any(current_time - tile.stat().st_mtime <= frogpilot_variables.MAPD_MAX_MAP_AGE_DAYS * 24 * 60 * 60 for tile in archive_directory.glob("*")):
         continue
@@ -112,10 +109,10 @@ def download_nearby_maps(latitude, longitude, cancel_download):
       }
 
   if download_menu["nearby"]:
-    frogpilot_utilities.update_json_file(MAPD_DOWNLOAD_MENU_PATH, download_menu)
+    frogpilot_utilities.update_json_file(frogpilot_paths.MAPD_DOWNLOAD_MENU_PATH, download_menu)
     download_maps(",".join(f"nearby.{archive_name}" for archive_name in download_menu["nearby"]), cancel_download)
 
-  frogpilot_utilities.delete_path(MAPD_DOWNLOAD_MENU_PATH, report=False)
+  frogpilot_utilities.delete_path(frogpilot_paths.MAPD_DOWNLOAD_MENU_PATH, report=False)
 
 
 def frogpilot_boot_functions(build_metadata, params):
@@ -142,9 +139,11 @@ def frogpilot_boot_functions(build_metadata, params):
 
   frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles()
 
-  sync_flag_file(frogpilot_variables.HD_PATH, frogpilot_toggles.use_higher_bitrate)
+  flag_files_changed = sync_flag_file(frogpilot_paths.HD_PATH, frogpilot_toggles.use_higher_bitrate)
+  flag_files_changed |= sync_flag_file(frogpilot_paths.KONIK_PATH, frogpilot_toggles.use_konik_server)
 
-  sync_flag_file(frogpilot_variables.KONIK_PATH, frogpilot_toggles.use_konik_server)
+  if flag_files_changed:
+    HARDWARE.reboot()
 
   ThemeManager.copy_default_theme()
   ThemeManager(params).update_active_theme(time_validated=system_time_valid(), frogpilot_toggles=frogpilot_toggles, boot_run=True)
@@ -160,24 +159,24 @@ def frogpilot_boot_functions(build_metadata, params):
     else:
       params.put("DongleId", params.get("StockDongleId"))
 
-  frogpilot_utilities.delete_path(frogpilot_variables.RESTORE_TEMP_PATH)
+  frogpilot_utilities.delete_path(frogpilot_paths.RESTORE_TEMP_PATH)
 
   Process(target=boot_backup, args=(build_metadata,), daemon=True).start()
 
 
 def install_frogpilot():
   paths = [
-    frogpilot_variables.ERROR_LOGS_PATH,
-    frogpilot_variables.HD_LOGS_PATH,
-    frogpilot_variables.KONIK_LOGS_PATH,
-    frogpilot_variables.SCREEN_RECORDINGS_PATH
+    frogpilot_paths.ERROR_LOGS_PATH,
+    frogpilot_paths.HD_LOGS_PATH,
+    frogpilot_paths.KONIK_LOGS_PATH,
+    frogpilot_paths.SCREEN_RECORDINGS_PATH
   ]
   for path in paths:
     path.mkdir(parents=True, exist_ok=True)
 
   cleanup_screen_recordings(10 * 1024 * 1024 * 1024)
 
-  update_boot_logo(frogpilot_variables.FROGPILOT_BOOT_LOGO_PATH)
+  update_boot_logo(frogpilot_paths.FROGPILOT_BOOT_LOGO_PATH)
 
 
 def migrate_params(params, params_cache):
@@ -191,10 +190,6 @@ def migrate_params(params, params_cache):
 
       if value is not None and not isinstance(value, expected_type):
         param_store.remove(key)
-
-  speed_limits = params.get("SpeedLimits")
-  if speed_limits and any(set(limit) - {"shareable"} != {"is_forward", "segment_id", "source", "speed_limit", "tile"} for limit in speed_limits):
-    params.remove("SpeedLimits")
 
   if params.get_bool("IsMetric"):
     metric_conversions = {
@@ -223,7 +218,7 @@ def register_konik():
 
 def run_frogsgomoo(build_metadata):
   if frogpilot_utilities.is_FrogsGoMoo_development(build_metadata):
-    frogpilot_utilities.run_cmd_on_writable_mount("/persist", ["sudo", "python3", frogpilot_variables.FROGS_GO_MOO_PATH], "Failed to run frogsgomoo.py")
+    frogpilot_utilities.run_cmd_on_writable_mount("/persist", ["sudo", "python3", frogpilot_paths.FROGS_GO_MOO_PATH], "Failed to run frogsgomoo.py")
 
 
 def soft_reboot():
@@ -234,14 +229,14 @@ def soft_reboot():
 
 def sync_flag_file(flag_path, enabled):
   if flag_path.is_file() == enabled:
-    return
+    return False
 
   if enabled:
     flag_path.touch()
   else:
     flag_path.unlink()
 
-  HARDWARE.reboot()
+  return True
 
 
 def sync_params_cache(params, params_cache):
@@ -257,7 +252,7 @@ def sync_params_cache(params, params_cache):
 
 
 def uninstall_frogpilot():
-  update_boot_logo(frogpilot_variables.STOCK_BOOT_LOGO_PATH)
+  update_boot_logo(frogpilot_paths.STOCK_BOOT_LOGO_PATH)
 
   HARDWARE.uninstall()
 
@@ -266,8 +261,8 @@ def update_boot_logo(target_logo):
   if PC:
     return
 
-  if frogpilot_variables.BOOT_LOGO_PATH.read_bytes() != target_logo.read_bytes():
-    frogpilot_utilities.run_cmd_on_writable_mount("/", ["sudo", "cp", target_logo, frogpilot_variables.BOOT_LOGO_PATH], "Failed to replace boot logo")
+  if frogpilot_paths.BOOT_LOGO_PATH.read_bytes() != target_logo.read_bytes():
+    frogpilot_utilities.run_cmd_on_writable_mount("/", ["sudo", "cp", target_logo, frogpilot_paths.BOOT_LOGO_PATH], "Failed to replace boot logo")
 
 
 def update_maps(now, params, cancel_download, sm, manual_update=False):
@@ -293,7 +288,7 @@ def update_maps(now, params, cancel_download, sm, manual_update=False):
   schedule = params.get("PreferredSchedule")
 
   last_maps_update = params.get("LastMapsUpdate")
-  maps_downloaded = frogpilot_variables.MAPS_PATH.exists() and bool(last_maps_update)
+  maps_downloaded = frogpilot_paths.MAPS_PATH.exists() and bool(last_maps_update)
 
   if maps_downloaded and (schedule == 0 or (schedule == 1 and not is_sunday) or (schedule == 2 and not is_first)) and not manual_update:
     return
@@ -304,7 +299,7 @@ def update_maps(now, params, cancel_download, sm, manual_update=False):
   if maps_downloaded and last_maps_update == todays_date and not manual_update:
     return
 
-  frogpilot_utilities.delete_path(MAPD_DOWNLOAD_MENU_PATH, report=False)
+  frogpilot_utilities.delete_path(frogpilot_paths.MAPD_DOWNLOAD_MENU_PATH, report=False)
 
   if download_maps(maps_selected, cancel_download):
     params.put("LastMapsUpdate", todays_date)
@@ -330,6 +325,9 @@ def update_openpilot(thread_manager, params):
 
     wait_until_offroad()
 
+    if frogpilot_paths.BACKUP_PATH.is_file():
+      return False
+
     return signal_updater("-SIGHUP", "Failed to download update...") and params.get_bool("UpdateAvailable")
 
   if params.get("UpdaterState") != "idle":
@@ -344,5 +342,8 @@ def update_openpilot(thread_manager, params):
     continue
 
   wait_until_offroad()
+
+  if frogpilot_paths.BACKUP_PATH.is_file():
+    return
 
   HARDWARE.reboot()

@@ -14,7 +14,7 @@ from openpilot.common.swaglog import cloudlog
 from openpilot.system import micd
 from openpilot.system.hardware import HARDWARE
 
-from openpilot.frogpilot.common import frogpilot_variables
+from openpilot.frogpilot.common import frogpilot_paths, frogpilot_variables
 
 SAMPLE_RATE = 48000
 SAMPLE_BUFFER = 4096 # (approx 100ms)
@@ -102,7 +102,7 @@ class Soundd:
 
     self.sound_source = None
 
-    self.random_events_directory = frogpilot_variables.RANDOM_EVENTS_PATH / "sounds"
+    self.random_events_directory = frogpilot_paths.RANDOM_EVENTS_PATH / "sounds"
 
     self.update_frogpilot_sounds()
 
@@ -168,7 +168,7 @@ class Soundd:
         written_frames += frames_to_write
         self.current_sound_frame += frames_to_write
 
-    return ret * self.alert_volumes.get(self.current_alert, self.current_volume)
+    return ret * self.get_alert_volume()
 
   def callback(self, data_out: np.ndarray, frames: int, time, status) -> None:
     if status:
@@ -183,10 +183,18 @@ class Soundd:
 
   def get_audible_alert(self, sm):
     # FrogPilot variables
-    test_alerts = [msg.frogpilotUIRequest.testAlert for msg in messaging.drain_sock(self.ui_request_sock) if msg.frogpilotUIRequest.which() == 'testAlert']
-    if test_alerts:
-      self.update_alert(getattr(AudibleAlert, test_alerts[-1]))
-    elif not self.openpilot_crashed_played and frogpilot_variables.ERROR_LOG_PATH.is_file():
+    test_requests = [msg.frogpilotUIRequest for msg in messaging.drain_sock(self.ui_request_sock) if msg.frogpilotUIRequest.which() == 'testAlert']
+    if test_requests:
+      test_alert = getattr(AudibleAlert, test_requests[-1].testAlert)
+      test_volume = test_requests[-1].testAlertVolume
+
+      if test_volume <= 100:
+        self.alert_volumes[test_alert] = test_volume / 100.0
+      else:
+        self.alert_volumes.pop(test_alert, None)
+
+      self.update_alert(test_alert)
+    elif not self.openpilot_crashed_played and frogpilot_paths.ERROR_LOG_PATH.is_file():
       self.update_alert(FrogPilotAudibleAlert.fart if self.frogpilot_toggles.random_events else AudibleAlert.prompt)
       self.openpilot_crashed_played = True
     elif sm.updated['selfdriveState']:
@@ -223,7 +231,7 @@ class Soundd:
     sm = messaging.SubMaster(['selfdriveState', 'soundPressure'])
 
     # FrogPilot variables
-    sm = sm.extend(['frogpilotSelfdriveState', 'frogpilotPlan'])
+    sm = sm.extend(['frogpilotSelfdriveState', 'frogpilotPlan', 'frogpilotProcessState'])
 
     with self.get_stream(sd) as stream:
       rk = Ratekeeper(20)
@@ -252,6 +260,13 @@ class Soundd:
           stream = self.update_frogpilot_sounds(sd, stream)
 
   # FrogPilot variables
+  def get_alert_volume(self):
+    volume = self.alert_volumes.get(self.current_alert, self.current_volume)
+    if self.current_alert in (AudibleAlert.promptDistracted, AudibleAlert.warningSoft, AudibleAlert.warningImmediate):
+      volume = max(volume, self.current_volume)
+
+    return volume
+
   def update_frogpilot_sounds(self, sd=None, stream=None):
     volumes = {
       AudibleAlert.engage: self.frogpilot_toggles.engage_volume,
@@ -270,7 +285,7 @@ class Soundd:
     }
     self.alert_volumes = {alert: volume / 100.0 for alert, volume in volumes.items() if volume <= 100}
 
-    self.sound_directory = frogpilot_variables.ACTIVE_THEME_PATH / "sounds"
+    self.sound_directory = frogpilot_paths.ACTIVE_THEME_PATH / "sounds"
 
     try:
       sound_inode = self.sound_directory.stat().st_ino

@@ -2,9 +2,9 @@
   <g transform="matrix(1.038 0 0 1.038 -0.04 -0.17)">
     <g transform="matrix(1 0 0 1 -.167 1.1)">
       <g transform="matrix(1.127 0 0 1.127 -17.5 -8.4)">
-        <path d="M92.4 135.4a60 60 0 1 1 51.5-55.2" fill="none" stroke="#8e9aab" stroke-linecap="round" stroke-width="15"/>
-        <path d="M24 76h120M84 76v60" stroke="#8e9aab" stroke-width="13.5"/>
-        <circle cx="84" cy="76" r="19.65" fill="#8e9aab"/>
+        <path d="M92.4 135.4a60 60 0 1 1 51.5-55.2" fill="none" stroke="#fff" stroke-linecap="round" stroke-width="15"/>
+        <path d="M24 76h120M84 76v60" stroke="#fff" stroke-width="13.5"/>
+        <circle cx="84" cy="76" r="19.65" fill="#fff"/>
       </g>
       <g transform="matrix(.74 0 0 .74 106 106)">
         <path d="M10 34h52a6 6 0 0 1 6 7l-5 46a6 6 0 0 1-6 5H15a6 6 0 0 1-6-5L4 41a6 6 0 0 1 6-7ZM15 46H57v5H15ZM15 58H57v5H15ZM15 70H57v5H15ZM15 80H57v5H15Z" fill="#ff3b30" fill-rule="evenodd"/>

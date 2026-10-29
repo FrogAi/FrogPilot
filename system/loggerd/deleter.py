@@ -9,7 +9,7 @@ from openpilot.system.loggerd.config import get_available_bytes, get_available_p
 from openpilot.system.loggerd.uploader import get_directory_sort, listdir_by_creation
 from openpilot.system.loggerd.xattr_cache import getxattr
 
-from openpilot.frogpilot.common import frogpilot_utilities, frogpilot_variables
+from openpilot.frogpilot.common import frogpilot_paths, frogpilot_utilities
 
 MIN_BYTES = 5 * 1024 * 1024 * 1024
 MIN_PERCENT = 10
@@ -55,8 +55,8 @@ def deleter_thread(exit_event: threading.Event):
 
     if out_of_percent or out_of_bytes:
       # FrogPilot variables
-      if Path(Paths.log_root()) in frogpilot_variables.LOG_ROOTS:
-        log_roots = frogpilot_variables.LOG_ROOTS
+      if Path(Paths.log_root()) in frogpilot_paths.LOG_ROOTS:
+        log_roots = frogpilot_paths.LOG_ROOTS
       else:
         log_roots = [Paths.log_root()]
       dirs = [os.path.join(log_root, d) for log_root in log_roots for d in listdir_by_creation(log_root)]

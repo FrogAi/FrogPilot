@@ -47,7 +47,14 @@ OnroadAlerts::Alert OnroadAlerts::getAlert(const SubMaster &sm, uint64_t started
 
   // FrogPilot variables
   static QString crash_log_path = "/data/error_logs/error.txt";
-  if (QFile::exists(crash_log_path)) {
+  bool crashed = QFile::exists(crash_log_path);
+  if (displayFerg && !crashed) {
+    displayFerg = false;
+    update();
+  }
+
+  bool stock_alert = selfdrive_frame >= started_frame && ss.getAlertSize() != cereal::SelfdriveState::AlertSize::NONE && !fpss.getHasPriorityAlert();
+  if (crashed && !stock_alert && fpss.getAlertSize() != cereal::FrogPilotSelfdriveState::AlertSize::FULL) {
     bool random_events = frogpilot_toggles.value(QLatin1String("random_events")).toBool();
     if (random_events && enableFerg) {
       a = {};
@@ -64,7 +71,6 @@ OnroadAlerts::Alert OnroadAlerts::getAlert(const SubMaster &sm, uint64_t started
            cereal::SelfdriveState::AlertSize::MID,
            cereal::SelfdriveState::AlertStatus::CRITICAL};
     }
-    return a;
   }
 
   if (!sm.updated("selfdriveState") && (sm.frame - started_frame) > 5 * UI_FREQ && !frogpilot_toggles.value(QLatin1String("force_onroad")).toBool()) {

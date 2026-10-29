@@ -97,7 +97,7 @@ function modelRow(m, data) {
     m.id === data.selected && !inUse ? "Selected" : "",
     m.isDefault ? "Default" : "",
     m.available ? "" : "Not downloaded",
-    m.available && data.randomizer ? `${P.plural(m.drives, "drive")}${m.score != null ? ` · rated ${m.score}%` : ""}` : "",
+    m.available && data.randomizer ? `${P.plural(m.drives, "drive")}${m.score != null ? ` · rated ${Math.round(m.score)}%` : ""}` : "",
     blacklisted && data.randomizer ? "Left out of random picks" : ""
   ].filter(Boolean).join(" · ");
   const acts = [];

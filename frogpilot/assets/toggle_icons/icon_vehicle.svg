@@ -1,15 +1,15 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
   <g transform="translate(-1.3 8.7)">
     <g transform="matrix(.66 0 0 .66 0 -20)">
-      <path d="M52 40h96c10 0 16 6 20 16l12 34c10 2 16 10 16 22v38H4v-38c0-12 6-20 16-22l12-34c4-10 10-16 20-16" fill="#3aa0ff"/>
+      <path d="M52 40h96c10 0 16 6 20 16l12 34c10 2 16 10 16 22v38H4v-38c0-12 6-20 16-22l12-34c4-10 10-16 20-16" fill="#fff"/>
       <path d="M54 56h92l10 32H44Z" fill="#292929"/>
-      <path d="M22 108h36v16H22Zm120 0h36v16h-36Z" fill="#e8eef5"/>
+      <path d="M22 108h36v16H22Zm120 0h36v16h-36Z" fill="#ff3b30"/>
       <path d="M76 116h48" stroke="#292929" stroke-linecap="round" stroke-width="12"/>
-      <path d="M14 150h38v22a8 8 0 0 1-8 8H22a8 8 0 0 1-8-8Zm134 0h38v22a8 8 0 0 1-8 8h-22a8 8 0 0 1-8-8Z" fill="#8e9aab"/>
+      <path d="M14 150h38v22a8 8 0 0 1-8 8H22a8 8 0 0 1-8-8Zm134 0h38v22a8 8 0 0 1-8 8h-22a8 8 0 0 1-8-8Z" fill="#adadad"/>
     </g>
     <g transform="rotate(-45 230.51 -119.48)">
-      <path d="M-10-30a28 28 0 1 0 20 0v22a10 10 0 0 1-20 0Z" fill="#c9d1dc"/>
-      <path d="M-10 14h20v40a10 10 0 0 1-20 0Z" fill="#c9d1dc"/>
+      <path d="M-10-30a28 28 0 1 0 20 0v22a10 10 0 0 1-20 0Z" fill="#adadad"/>
+      <path d="M-10 14h20v40a10 10 0 0 1-20 0Z" fill="#adadad"/>
     </g>
   </g>
 </svg>

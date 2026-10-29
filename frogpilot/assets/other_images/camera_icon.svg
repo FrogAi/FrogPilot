@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
   <g transform="matrix(1.2 0 0 1.2 -17.9 -28.5)">
-    <path d="M70 50h60l12 20h28a14 14 0 0 1 14 14v70a14 14 0 0 1-14 14H30a14 14 0 0 1-14-14V84a14 14 0 0 1 14-14h28Z" fill="#c9d1dc"/>
-    <circle cx="100" cy="118" r="38" fill="#3a3f47"/>
-    <circle cx="100" cy="118" r="22" fill="#1b1d21"/>
+    <path d="M70 50h60l12 20h28a14 14 0 0 1 14 14v70a14 14 0 0 1-14 14H30a14 14 0 0 1-14-14V84a14 14 0 0 1 14-14h28Z" fill="#fff"/>
+    <circle cx="100" cy="118" r="38" fill="#393939"/>
+    <circle cx="100" cy="118" r="22" fill="#1c1c1c"/>
     <circle cx="92" cy="110" r="6" fill="#fff"/>
   </g>
 </svg>

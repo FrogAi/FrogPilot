@@ -11,16 +11,20 @@ class FrogPilotAnnotatedCameraWidget : public QWidget {
 public:
   explicit FrogPilotAnnotatedCameraWidget(CameraWidget *nvg, QWidget *parent = 0);
 
+  static void drawOutlinedText(QPainter &p, const QPointF &position, const QString &text);
+
   void mousePressEvent(QMouseEvent *mouseEvent) override;
   bool needsAdjacentPaths() const;
   void paintAdjacentPaths(QPainter &p);
   void paintBlindSpotPath(QPainter &p);
   void paintFrogPilotWidgets(QPainter &p);
-  void paintLeadMetrics(QPainter &p, bool adjacent, QPointF *chevron, const cereal::RadarState::LeadData::Reader &lead_data);
+  void paintLeadMetrics(QPainter &p, bool adjacent, QPointF *chevron, float leadDistance, float vLead);
   void paintPathEdges(QPainter &p);
   void paintRainbowPath(QLinearGradient &bg, float lin_grad_point);
+  void paintWorldWidgets(QPainter &p);
   void updateState(const UIState &s, const FrogPilotUIState &fs);
 
+  bool driverView = false;
   bool hideBottomIcons = false;
   bool isCruiseSet = false;
   bool rightHandDM = false;
@@ -61,7 +65,6 @@ protected:
 
 private:
   QLinearGradient adjacentPathGradient(float hue);
-  void drawOutlinedText(QPainter &p, const QPointF &position, const QString &text);
   void paintCEMStatus(QPainter &p, const QPoint &position);
   void paintCompass(QPainter &p, const QPoint &position);
   void paintCurveSpeedControl(QPainter &p);
@@ -158,6 +161,7 @@ private:
   QRect sourcesRect;
   QRect speedLimitRect;
   QRect standstillTimerRect;
+  QRect staticSignalRect;
 
   QSharedPointer<FrogPilotMovie> cemIcon;
   QSharedPointer<FrogPilotMovie> weatherIcon;

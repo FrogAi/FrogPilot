@@ -2,8 +2,8 @@ import asyncio
 
 from openpilot.system.hardware import HARDWARE
 
-from openpilot.frogpilot.common import frogpilot_utilities
-from openpilot.frogpilot.system.the_pond import backups, utilities
+from openpilot.frogpilot.common import frogpilot_utilities, frogpilot_variables
+from openpilot.frogpilot.system.the_pond import backups
 
 BUSY_MESSAGE = "Something else is already running. Wait for it to finish and try again."
 
@@ -77,7 +77,7 @@ async def reflash_panda(context, body):
 
 
 def report_visible(context):
-  return context.branch_reason(utilities.is_issue_report_available(context.params))
+  return context.branch_reason(frogpilot_variables.get_frogpilot_toggles(context.the_pond.sm).issue_report_available)
 
 
 async def reset_settings(the_pond, stock):
@@ -194,8 +194,8 @@ ROWS = [
       }
     },
     "description": ("<b>Put every FrogPilot setting back to the value it shipped with, along with some of openpilot's own settings.</b><br><br>Those " +
-                    "openpilot settings are \"Enable openpilot\", \"Disengage on Accelerator Pedal\", \"Driving Personality\" and \"Cellular " +
-                    "Metered\". This also clears your accepted terms, your completed training and your language, so you go through first-time setup " +
+                    "openpilot settings are \"Enable openpilot\", \"Disengage on Accelerator Pedal\", \"Driving Personality\", and \"Cellular " +
+                    "Metered\". This also clears your accepted terms, your completed training, and your language, so you go through first-time setup " +
                     "again in English the next time the device starts. It also erases your saved keys (Mapbox, weather, and Toyota security keys), " +
                     "favorite places, Discord name, timezone, map settings, FrogPilot driving stats, Speed Limit Filler data, saved car details, SSH " +
                     "keys, and the browsers paired with \"The Pond\" (making a new pairing code if pairing is on), turns SSH off, signs out of " +
@@ -223,7 +223,7 @@ ROWS = [
       }
     },
     "description": ("<b>Put every setting back to what plain openpilot uses, turning FrogPilot's own features off rather than back to FrogPilot's " +
-                    "defaults.</b><br><br>This also clears your accepted terms, your completed training and your language, so you go through " +
+                    "defaults.</b><br><br>This also clears your accepted terms, your completed training, and your language, so you go through " +
                     "first-time setup again in English the next time the device starts. It also erases your saved keys (Mapbox, weather, and Toyota " +
                     "security keys), favorite places, Discord name, timezone, map settings, FrogPilot driving stats, Speed Limit Filler data, saved " +
                     "car details, SSH keys, and the browsers paired with \"The Pond\" (making a new pairing code if pairing is on), turns SSH off, " +

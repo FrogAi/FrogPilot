@@ -29,17 +29,17 @@ FrogPilotDevicePanel::FrogPilotDevicePanel(FrogPilotSettingsWindow *parent, bool
   const std::vector<std::tuple<QString, QString, QString, QString>> deviceToggles {
     {"DeviceManagement", tr("Device Settings"), tr("<b>Change how the device powers off, handles heat, and records your drives.</b>"), "../../frogpilot/assets/toggle_icons/icon_device.svg"},
     {"DeviceShutdown", tr("Device Shutdown Timer"), tr("<b>How long the device stays on after you finish driving before it shuts itself off.</b><br><br>Shorter times use less of your car's battery. The lowest setting is 5 minutes."), ""},
-    {"NoLogging", tr("Disable Logging"), tr("<b>Stop the device from recording your drives.</b><br><br>No driving logs or camera footage are saved, so you won't be able to review your drives later or send a useful bug report. Screen recordings and the device's own system logs are still saved."), ""},
-    {"NoUploads", tr("Disable Uploads"), tr("<b>Stop the device from uploading your drives to \"comma connect\" or Konik and from sharing FrogPilot driving logs and speed limit sign clips.</b><br><br>Your drives are still saved on the device. comma uses uploads for debugging and official support, so turning this on limits the help they can give. Files that comma connect or Konik asks the device to upload, usage stats, Speed Limit Filler data, device registration, crash reports, and weather and Mapbox lookups are not affected. \"Disable Onroad Only\" pauses uploads while you drive and lets them finish once you park, but only while the device is on Wi-Fi or Ethernet."), ""},
+    {"NoLogging", tr("Disable Logging"), tr("<b>Stop the device from recording your drives.</b><br><br>No driving logs or camera footage are saved, so you won't be able to review your drives later or send a useful bug report, and FrogPilot driving logs are no longer shared. Screen recordings, speed limit sign photos, and the device's own system logs are still saved."), ""},
+    {"NoUploads", tr("Disable Uploads"), tr("<b>Stop the device from uploading your drives to \"comma connect\" or Konik and from sharing FrogPilot driving logs, speed limit sign clips, and learned speed limits.</b><br><br>Your drives are still saved on the device. comma uses uploads for debugging and official support, so turning this on limits the help they can give. Files that comma connect or Konik asks the device to upload, usage stats, device registration, crash reports, and weather and Mapbox lookups are not affected. \"Disable Onroad Only\" pauses uploads while you drive and lets them finish once you park, but only while the device is on Wi-Fi or Ethernet."), ""},
     {"HigherBitrate", tr("High-Quality Recording"), tr("<b>Record your drives in higher video quality.</b><br><br>This row only appears once \"Disable Uploads\" is on and \"Disable Onroad Only\" is off, since the larger files are not meant to be uploaded. The device needs to reboot for it to take effect."), ""},
     {"LowVoltageShutdown", tr("Low-Voltage Cutoff"), tr("<b>Shut the device down when your car's battery drops below the voltage you pick.</b><br><br>This only happens while parked, and keeps the device from draining the battery too far to start the car."), ""},
     {"IncreaseThermalLimits", tr("Raise Temperature Limits"), tr("<b>Let the device run about 6 degrees Celsius hotter than normal before openpilot disengages because of the heat.</b><br><br>Normally openpilot disengages and will not re-engage once the device gets hot, and drops back to the offroad screen if it keeps climbing. This only makes the first happen later: the device still drops back to the offroad screen at the normal temperature. Running the device that hot can shorten its life or damage it, so only use this if you understand the risk."), ""},
-    {"UseKonikServer", tr("Use Konik Server"), tr("<b>Upload your drives to \"stable.konik.ai\" instead of \"connect.comma.ai\".</b><br><br>Registering with Konik sends the device's IMEI and serial number. The device needs to reboot for this to take effect."), ""},
+    {"UseKonikServer", tr("Use Konik Server"), tr("<b>Upload your drives to \"stable.konik.ai\" instead of \"connect.comma.ai\".</b><br><br>Device registration and remote access go through Konik too. Registering with Konik sends the device's IMEI and serial number. The device needs to reboot for this to take effect."), ""},
 
     {"ScreenManagement", tr("Screen Settings"), tr("<b>Change how bright the screen is, how long it stays on, and whether you can record it.</b>"), "../../frogpilot/assets/toggle_icons/icon_light.svg"},
     {"InstantReplay", tr("Capture Recent Footage"), tr("<b>Save what just happened on your driving screen.</b><br><br>Choose how far back to keep, then tap \"CAPTURE\" to save a moment you want to review or share. There's no need to remember to start recording beforehand."), ""},
     {"ScreenBrightness", tr("Screen Brightness (Offroad)"), tr("<b>How bright the screen is while you're not driving.</b><br><br>\"Auto\" only follows the light around you while you are driving. While you are parked it is a fixed 50%, whatever the light is like."), ""},
-    {"ScreenBrightnessOnroad", tr("Screen Brightness (Onroad)"), tr("<b>How bright the screen is while you're driving.</b><br><br>\"Auto\" matches the light around you, and \"Screen Off\" keeps the display dark until you tap it. A tap brightens anything below 5% to 5% until the screen times out."), ""},
+    {"ScreenBrightnessOnroad", tr("Screen Brightness (Onroad)"), tr("<b>How bright the screen is while you're driving.</b><br><br>\"Auto\" matches the light around you, and \"Screen Off\" keeps the display dark until you tap it, an alert shows, or openpilot engages or disengages. A tap or wake-up brightens anything below 5% to 5% until the screen times out."), ""},
     {"ScreenRecorder", tr("Screen Recorder"), tr("<b>Add a button to the driving screen that records what's on it.</b><br><br>Your recordings are saved on the device and can be renamed or deleted under \"Screen Recordings\" in the \"DATA\" panel."), ""},
     {"ScreenTimeout", tr("Screen Timeout (Offroad)"), tr("<b>How long the screen stays on after you tap it while not driving.</b>"), ""},
     {"ScreenTimeoutOnroad", tr("Screen Timeout (Onroad)"), tr("<b>How long the screen stays on after you tap it while driving.</b>"), ""},
@@ -174,46 +174,11 @@ FrogPilotDevicePanel::FrogPilotDevicePanel(FrogPilotSettingsWindow *parent, bool
   QObject::connect(static_cast<FrogPilotButtonToggleControl*>(toggles["NoUploads"]), &FrogPilotButtonToggleControl::buttonClicked, this, &FrogPilotDevicePanel::updateToggles);
   QObject::connect(static_cast<ToggleControl*>(toggles["NoUploads"]), &ToggleControl::toggleFlipped, this, &FrogPilotDevicePanel::updateToggles);
 
-  std::function<void()> updateHigherBitrate = [this]() {
-    bool useHigherBitrate = params.getBool("HigherBitrate") && params.getBool("NoUploads") && !params.getBool("DisableOnroadUploads");
+  QObject::connect(static_cast<ToggleControl*>(toggles["HigherBitrate"]), &ToggleControl::toggleFlipped, frogpilotUIState(), &FrogPilotUIState::updateToggles);
+  QObject::connect(static_cast<FrogPilotButtonToggleControl*>(toggles["NoUploads"]), &FrogPilotButtonToggleControl::buttonClicked, frogpilotUIState(), &FrogPilotUIState::updateToggles);
+  QObject::connect(static_cast<ToggleControl*>(toggles["NoUploads"]), &ToggleControl::toggleFlipped, frogpilotUIState(), &FrogPilotUIState::updateToggles);
 
-    QFile toggleFile("/cache/use_HD");
-    if (toggleFile.exists() == useHigherBitrate) {
-      return;
-    }
-
-    if (useHigherBitrate) {
-      toggleFile.open(QIODevice::WriteOnly);
-      toggleFile.close();
-    } else {
-      toggleFile.remove();
-    }
-
-    if (FrogPilotConfirmationDialog::toggleReboot(this)) {
-      FrogPilotConfirmationDialog::softReboot(this);
-    }
-  };
-  QObject::connect(static_cast<ToggleControl*>(toggles["HigherBitrate"]), &ToggleControl::toggleFlipped, updateHigherBitrate);
-  QObject::connect(static_cast<FrogPilotButtonToggleControl*>(toggles["NoUploads"]), &FrogPilotButtonToggleControl::buttonClicked, updateHigherBitrate);
-  QObject::connect(static_cast<ToggleControl*>(toggles["NoUploads"]), &ToggleControl::toggleFlipped, updateHigherBitrate);
-
-  QObject::connect(static_cast<ToggleControl*>(toggles["UseKonikServer"]), &ToggleControl::toggleFlipped, [this](bool state) {
-    if (!FrogPilotConfirmationDialog::toggleReboot(this)) {
-      return;
-    }
-
-    if (!isOpenpilotSteering()) {
-      QFile toggleFile("/cache/use_konik");
-      if (state) {
-        toggleFile.open(QIODevice::WriteOnly);
-        toggleFile.close();
-      } else {
-        toggleFile.remove();
-      }
-    }
-
-    FrogPilotConfirmationDialog::softReboot(this);
-  });
+  QObject::connect(static_cast<ToggleControl*>(toggles["UseKonikServer"]), &ToggleControl::toggleFlipped, frogpilotUIState(), &FrogPilotUIState::updateToggles);
 
   openDescriptions(forceOpenDescriptions, toggles);
 

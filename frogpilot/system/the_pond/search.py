@@ -2,15 +2,9 @@ import re
 
 from aiohttp import web
 from functools import cache
-from pathlib import Path
 
-from openpilot.common.basedir import BASEDIR
-
-from openpilot.frogpilot.common import frogpilot_variables
+from openpilot.frogpilot.common import frogpilot_paths, frogpilot_variables
 from openpilot.frogpilot.system.the_pond import backups, toggles, utilities
-
-FROGPILOT_PANELS_PATH = Path(BASEDIR) / "frogpilot/ui/qt/offroad"
-STOCK_PANELS_PATH = Path(BASEDIR) / "selfdrive/ui/qt"
 
 STRING = r'"(?:[^"\\]|\\.)*"'
 TRANSLATED = rf"tr\(((?:\s*{STRING})+)\s*\)"
@@ -64,7 +58,7 @@ def plain_text(literals):
 
 
 def get_panel_paths():
-  frogpilot_window = (FROGPILOT_PANELS_PATH / "frogpilot_settings.cc").read_text(encoding="utf-8")
+  frogpilot_window = (frogpilot_paths.FROGPILOT_PANELS_PATH / "frogpilot_settings.cc").read_text(encoding="utf-8")
   frogpilot_classes = dict(VARIABLE_CLASS.findall(frogpilot_window))
 
   sections = PANEL_SECTION.findall(block(frogpilot_window, "panelInfo = {"))
@@ -79,7 +73,7 @@ def get_panel_paths():
       else:
         panel_paths[frogpilot_classes[variable]] = ["FrogPilot", section]
 
-  settings_window = (STOCK_PANELS_PATH / "offroad/settings.cc").read_text(encoding="utf-8")
+  settings_window = (frogpilot_paths.STOCK_PANELS_PATH / "offroad/settings.cc").read_text(encoding="utf-8")
   stock_classes = dict(VARIABLE_CLASS.findall(settings_window))
   for name, variable in STOCK_PANEL.findall(block(settings_window, "panels = {")):
     panel_paths[stock_classes.get(variable, variable)] = [name]
@@ -210,7 +204,8 @@ def get_settings():
   tuning_levels = toggles.get_tuning_levels()
 
   panel_paths = get_panel_paths()
-  sources = [*sorted(FROGPILOT_PANELS_PATH.glob("*.cc")), *sorted((STOCK_PANELS_PATH / "offroad").glob("*.cc")), STOCK_PANELS_PATH / "network/networking.cc"]
+  sources = [*sorted(frogpilot_paths.FROGPILOT_PANELS_PATH.glob("*.cc")), *sorted((frogpilot_paths.STOCK_PANELS_PATH / "offroad").glob("*.cc")),
+             frogpilot_paths.STOCK_PANELS_PATH / "network/networking.cc"]
 
   panel_files = []
   rows = {}

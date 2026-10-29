@@ -5,6 +5,7 @@
 // Stock longitudinal
 #define TOYOTA_BASE_TX_MSGS \
   {0x191, 0, 8, .check_relay = true}, {0x412, 0, 8, .check_relay = true}, {0x1D2, 0, 8, .check_relay = false},  /* LKAS + LTA + PCM cancel cmd */  \
+  /* FrogPilot variables */ \
   {0x750, 0, 8, .check_relay = false}, \
 
 #define TOYOTA_COMMON_TX_MSGS \

@@ -122,7 +122,7 @@ void hyundai_common_cruise_buttons_check(const int cruise_button, const bool mai
   }
 
   // FrogPilot variables
-  if (main_button && !main_button_prev) {
+  if (main_button && !main_button_prev && hyundai_longitudinal) {
     acc_main_on = !acc_main_on;
   }
   main_button_prev = main_button;

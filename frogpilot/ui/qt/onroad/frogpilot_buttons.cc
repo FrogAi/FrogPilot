@@ -52,11 +52,12 @@ void DrivingPersonalityButton::paintEvent(QPaintEvent *event) {
   QPainter p(this);
   p.setRenderHint(QPainter::Antialiasing);
 
-  drawIcon(p, rect().center() + QPoint(UI_BORDER_SIZE / 2, 0), currentGif ? currentGif->currentPixmap() : currentImg, Qt::transparent, 1.0);
+  QPoint center(rightHandDM ? width() / 2 - UI_BORDER_SIZE / 2 : width() / 2 + UI_BORDER_SIZE / 2, height() / 2);
+  drawIcon(p, center, currentGif ? currentGif->currentPixmap() : currentImg, Qt::transparent, 1.0);
 }
 
 InstantReplayButton::InstantReplayButton(QWidget *parent) : QPushButton(parent) {
-  setFixedSize(btn_size, btn_size / 3);
+  setFixedSize(btn_size, btn_size / 3 + 10);
 
   QObject::connect(this, &QPushButton::clicked, &ScreenRecorder::saveReplay);
   QObject::connect(uiState(), &UIState::uiUpdate, this, &InstantReplayButton::updateState);
@@ -87,10 +88,10 @@ void InstantReplayButton::paintEvent(QPaintEvent *event) {
   p.setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing);
 
   p.setBrush(blackColor(166));
-  p.setPen(QPen(QColor(0, 150, 255), 6));
+  p.setPen(QPen(QColor(0, 150, 255), 8));
 
-  QRect button_rect = rect().adjusted(10, 4, -10, -4);
-  p.drawRoundedRect(button_rect, 20, 20);
+  QRect button_rect = rect().adjusted(10, 5, -10, -5);
+  p.drawRoundedRect(button_rect, 24, 24);
 
   p.setFont(fitInterFont(25, QFont::DemiBold, button_rect.width() - 16, {text()}));
   p.setPen(Qt::white);
@@ -98,7 +99,7 @@ void InstantReplayButton::paintEvent(QPaintEvent *event) {
 }
 
 ScreenRecorderButton::ScreenRecorderButton(QWidget *parent) : QPushButton(parent) {
-  setFixedSize(btn_size, 2 * (btn_size / 3) + UI_BORDER_SIZE / 2);
+  setFixedSize(btn_size, btn_size / 3 + 10);
 
   QObject::connect(this, &QPushButton::clicked, [this] {
     if (ScreenRecorder::active()) {
@@ -137,7 +138,7 @@ void ScreenRecorderButton::paintEvent(QPaintEvent *event) {
   }
 
   const int centering_offset = 10;
-  QRect button_rect(centering_offset, btn_size / 3, btn_size - centering_offset * 2, btn_size / 3);
+  QRect button_rect = rect().adjusted(centering_offset, 5, -centering_offset, -5);
   p.drawRoundedRect(button_rect, 24, 24);
 
   QRect text_rect = button_rect.adjusted(centering_offset, 0, -centering_offset, 0);

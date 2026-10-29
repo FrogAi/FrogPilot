@@ -3,7 +3,6 @@ import math
 from aiohttp import web
 from functools import cache
 
-from cereal import log, messaging
 from openpilot.common.params import Params, ParamKeyType
 
 from openpilot.frogpilot.common import frogpilot_utilities, frogpilot_variables
@@ -193,6 +192,7 @@ class Context:
     self.can_use_sdsu = False
     self.car_detected = False
     self.car_fingerprint = ""
+    self.has_auto_tune = True
     self.has_bsm = True
     self.has_dash_speed_limits = True
     self.has_lkas_button = True
@@ -241,11 +241,6 @@ class Context:
       self.has_dash_speed_limits = frogpilot_car_params.get("hasDashboardSpeedLimit", False)
       self.openpilot_longitudinal_control_disabled = frogpilot_car_params.get("openpilotLongitudinalControlDisabled", False)
 
-    self.has_auto_tune = False
-    msg_bytes = params.get("LiveTorqueParameters")
-    if msg_bytes:
-      self.has_auto_tune = messaging.log_from_bytes(msg_bytes, log.Event).liveTorqueParameters.useParams
-
     self.cookies = []
     self.notice = None
     self.reasons = {}
@@ -263,6 +258,7 @@ class Context:
     self.can_disable_openpilot_long = frogpilot_toggles.can_disable_openpilot_long
     self.can_map_gears = frogpilot_toggles.can_map_gears
     self.can_use_dsu_bypass = frogpilot_toggles.can_use_dsu_bypass
+    self.has_auto_tune = frogpilot_toggles.has_auto_tune
     self.has_bsm = car_params["enableBsm"]
     self.has_dash_speed_limits = False
     self.has_lkas_button = frogpilot_toggles.has_lkas_button

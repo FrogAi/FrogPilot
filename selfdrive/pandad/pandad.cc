@@ -114,7 +114,8 @@ void can_send_thread(std::vector<Panda *> pandas, bool fake_send) {
 
     // FrogPilot variables
     for (const cereal::CanData::Reader &can : event.getSendcan()) {
-      if (can.getAddress() == 0x750) {
+      const capnp::Data::Reader &dat = can.getDat();
+      if (can.getAddress() == 0x750 && dat.size() >= 4 && dat[0] == 0x40 && dat[1] == 0x05 && dat[2] == 0x30 && dat[3] == 0x11) {
         last_door_lock_command_time.store(nanos_since_boot());
         Panda *internal_panda = pandas[0];
         const std::optional<health_t> state = internal_panda->get_state();

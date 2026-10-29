@@ -232,6 +232,9 @@ static bool honda_tx_hook(const CANPacket_t *msg) {
 
     // FrogPilot variables
     if (honda_clarity_brake_msg) {
+      if (honda_brake != 0) {
+        tx = false;
+      }
       honda_brake = (msg->data[6] << 2) + ((msg->data[7] >> 6) & 0x3U);
     }
 

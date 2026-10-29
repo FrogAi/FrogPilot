@@ -438,6 +438,10 @@ P.act("tailscale-install", async b => {
 });
 
 P.act("tailscale-login", async b => {
+  if (!await P.pinWarning("tailscale", "Signing in to Tailscale from The Pond lets that Tailscale account reach the device from anywhere.")) {
+    return;
+  }
+
   try {
     await P.busy(b, P.request("POST", "/api/tailscale/login"));
   } catch (error) {

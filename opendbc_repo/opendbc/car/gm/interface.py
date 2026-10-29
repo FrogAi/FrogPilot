@@ -261,6 +261,7 @@ class CarInterface(CarInterfaceBase):
       CarInterfaceBase.configure_torque_tune(candidate, ret.lateralTuning)
 
     if ret.enableGasInterceptorDEPRECATED and candidate not in ALT_ACCS:
+      ret.alphaLongitudinalAvailable = False
       ret.autoResumeSng = True
       ret.minEnableSpeed = -1
       ret.networkLocation = NetworkLocation.fwdCamera
@@ -285,6 +286,7 @@ class CarInterface(CarInterfaceBase):
         ret.safetyConfigs[0].safetyParam |= GMSafetyFlags.HW_ASCM_LONG.value
 
     elif candidate in CC_ONLY_CAR:
+      ret.alphaLongitudinalAvailable = False
       ret.flags |= GMFlags.CC_LONG.value
       ret.longitudinalActuatorDelay = 1.  # TODO: measure this
       ret.longitudinalTuning.kiBP = [0.]

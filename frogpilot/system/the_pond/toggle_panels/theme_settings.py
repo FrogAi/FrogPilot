@@ -63,7 +63,7 @@ def startup_alert(context):
 ROWS = [
   {
     "children": ("Theme and Appearance", "THEME", "Custom Themes"),
-    "description": ("<b>Swap openpilot's colors, icons, sounds, turn signal animations, steering wheel picture and personality button for a theme " +
+    "description": ("<b>Swap openpilot's colors, icons, sounds, turn signal animations, steering wheel picture, and personality button for a theme " +
                     "pack you download.</b><br><br>You mix and match freely, so one theme's colors can run alongside another's sounds. Packs are " +
                     "made by other drivers, and you can build your own with the \"Theme Maker\" in \"The Pond\"."),
     "key": "CustomThemes",
@@ -87,7 +87,7 @@ ROWS = [
     "widget": "theme_asset"
   },
   {
-    "description": ("<b>Change the settings, home and flag buttons on openpilot's sidebar.</b><br><br>\"Stock\" puts the normal three back. A pack " +
+    "description": ("<b>Change the settings, home, and flag buttons on openpilot's sidebar.</b><br><br>\"Stock\" puts the normal three back. A pack " +
                     "replaces all three at once and nothing else, so every other icon openpilot draws stays stock."),
     "display": lambda context: theme_name(context, "IconPack"),
     "key": "IconPack",
@@ -100,7 +100,7 @@ ROWS = [
   },
   {
     "description": ("<b>Change the icons on the driving personality button, the one you tap on the driving screen to switch between Aggressive, " +
-                    "Standard and Relaxed.</b><br><br>Each pack draws four icons: one each for Aggressive, Standard and Relaxed, plus one that takes " +
+                    "Standard, and Relaxed.</b><br><br>Each pack draws four icons: one each for Aggressive, Standard, and Relaxed, plus one that takes " +
                     "over while Traffic Mode is on. This row only appears while that button is switched on under \"Driving Personality Button\"."),
     "display": lambda context: theme_name(context, "DistanceIconPack"),
     "key": "DistanceIconPack",
@@ -141,7 +141,7 @@ ROWS = [
   },
   {
     "description": ("<b>Play an animation across the driving screen for as long as your turn signal is on.</b><br><br>The animation runs toward " +
-                    "whichever side you signalled. \"None\" turns it off, and each downloaded pack brings its own animation."),
+                    "whichever side you signaled. \"None\" turns it off, and each downloaded pack brings its own animation."),
     "display": lambda context: theme_name(context, "SignalAnimation"),
     "key": "SignalAnimation",
     "link": "themes",
@@ -162,9 +162,9 @@ ROWS = [
     "widget": "text"
   },
   {
-    "description": ("<b>Dress openpilot up for thirteen holidays through the year, swapping the colors, icons, sounds, turn signals, steering wheel " +
+    "description": ("<b>Dress openpilot up for thirteen holidays through the year, swapping the colors, icons, sounds, turn signals, steering wheel, " +
                     "and personality button all at once.</b><br><br>Smaller ones like April Fools or Cinco de Mayo run on the day itself. Easter, " +
-                    "Halloween, Thanksgiving and Christmas start on the Monday of that week and finish on the day, so they last anywhere from one " +
+                    "Halloween, Thanksgiving, and Christmas start on the Monday of that week and finish on the day, so they last anywhere from one " +
                     "day to a full week depending on where the date falls.<br><br>While a holiday is running it replaces the themes you picked, and " +
                     "your own choices come back the next day."),
     "key": "HolidayThemes",
@@ -197,7 +197,7 @@ ROWS = [
   },
   {
     "description": ("<b>Start every drive with a theme picked at random from the built-in Frog theme and the packs you have already " +
-                    "downloaded.</b><br><br>A downloaded pack only joins the mix once you have its colors, icons and sounds, and the same theme can " +
+                    "downloaded.</b><br><br>A downloaded pack only joins the mix once you have its colors, icons, and sounds, and the same theme can " +
                     "come up twice in a row. With \"Include Holiday Themes\" on, the holiday themes are in the mix too. While this is on, the rows " +
                     "inside \"Custom Themes\" stop offering \"SELECT\", and turning it back off gives you your own picks again."),
     "key": "RandomThemes",

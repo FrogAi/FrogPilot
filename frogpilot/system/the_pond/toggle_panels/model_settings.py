@@ -35,8 +35,9 @@ def select_model_visible(context):
 ROWS = [
   {
     "description": ("<b>Download new driving models on their own as they are released, so they are ready when you want to try one.</b><br><br>This " +
-                    "runs whenever the device is online, including while you are driving. It also grabs every model that is not already on the " +
-                    "device, not just newly released ones, so anything you removed with \"Delete Driving Models\" comes back."),
+                    "runs whenever the device is on Wi-Fi or another unmetered connection, including while you are driving. It also grabs every " +
+                    "model that is not already on the device, not just newly released ones, so anything you removed with \"Delete Driving Models\" " +
+                    "comes back."),
     "key": "AutomaticallyDownloadModels",
     "order": 0,
     "path": ("Driving Controls", "DRIVING MODEL"),
@@ -46,7 +47,8 @@ ROWS = [
   {
     "description": ("<b>Remove driving models you have downloaded to free up storage.</b><br><br>\"DELETE\" lets you pick which ones, \"DELETE ALL\" " +
                     "removes the rest. The model you are currently using and the one FrogPilot ships with are always kept. Turn \"Automatically " +
-                    "Download New Models\" off first, or anything you delete is downloaded again within the hour."),
+                    "Download New Models\" off first, or anything you delete is downloaded again within the hour whenever the device is on Wi-Fi or " +
+                    "another unmetered connection."),
     "id": "DeleteModel",
     "key": None,
     "link": "models",
@@ -69,7 +71,7 @@ ROWS = [
     "widget": "buttons"
   },
   {
-    "description": ("<b>Stop the \"Model Randomizer\" from picking driving models you did not get on with.</b><br><br>Blocking a model here has no " +
+    "description": ("<b>Stop the \"Model Randomizer\" from picking driving models you did not like.</b><br><br>Blocking a model here has no " +
                     "effect on choosing it yourself under \"Select Driving Model\"."),
     "id": "ManageBlacklistedModels",
     "key": "BlacklistedModels",
@@ -84,7 +86,7 @@ ROWS = [
   {
     "children": ("Driving Controls", "DRIVING MODEL", "Manage Model Ratings"),
     "description": ("<b>See how you rated each driving model and how many drives you gave it, or wipe those ratings and start " +
-                    "fresh.</b><br><br>These are for your own comparison. The \"Model Randomizer\" picks at random and does not favour your " +
+                    "fresh.</b><br><br>These are for your own comparison. The \"Model Randomizer\" picks at random and does not favor your " +
                     "higher-rated models."),
     "id": "ManageScores",
     "key": "ModelDrivesAndScores",

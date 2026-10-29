@@ -6,8 +6,8 @@
         <path d="M82 8h28a6 6 0 0 1 6 7l-4 92a6 6 0 0 1-6 6H86a6 6 0 0 1-6-6l-4-92a6 6 0 0 1 6-7ZM86 22H106v5H86ZM86 36H106v5H86ZM86 50H106v5H86ZM86 64H106v5H86ZM86 78H106v5H86ZM86 92H106v5H86Z" fill="#1ed760" fill-rule="evenodd"/>
       </g>
       <g transform="translate(150 150) rotate(-45)">
-        <path d="M-10-30a28 28 0 1 0 20 0v22a10 10 0 0 1-20 0Z" fill="#c9d1dc"/>
-        <path d="M-10 14h20v40a10 10 0 0 1-20 0Z" fill="#c9d1dc"/>
+        <path d="M-10-30a28 28 0 1 0 20 0v22a10 10 0 0 1-20 0Z" fill="#adadad"/>
+        <path d="M-10 14h20v40a10 10 0 0 1-20 0Z" fill="#adadad"/>
       </g>
     </g>
   </g>

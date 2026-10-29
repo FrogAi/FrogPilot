@@ -111,6 +111,11 @@ class TestHyundaiSafety(HyundaiButtonBase, common.CarSafetyTest, common.DriverTo
     values = {"CR_Lkas_StrToqReq": torque, "CF_Lkas_ActToi": steer_req}
     return self.packer.make_can_msg_safety("LKAS11", 0, values)
 
+  # FrogPilot variables
+  def _acc_state_msg(self, main_on):
+    values = {"MainMode_ACC": main_on}
+    return self.packer.make_can_msg_safety("SCC11", self.SCC_BUS, values)
+
 
 class TestHyundaiSafetyAltLimits(TestHyundaiSafety):
   MAX_RATE_UP = 2

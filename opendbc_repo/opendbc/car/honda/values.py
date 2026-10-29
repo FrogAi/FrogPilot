@@ -40,9 +40,6 @@ class CarControllerParams:
   STEER_DELTA_DOWN = 3
   STEER_GLOBAL_MIN_SPEED = 3 * CV.MPH_TO_MS
 
-  # FrogPilot variables
-  PEDAL_ACCEL_MAX = 3.0
-
   def __init__(self, CP):
     self.STEER_MAX = CP.lateralParams.torqueBP[-1]
     # mirror of list (assuming first item is zero) for interp of signed request
@@ -377,6 +374,9 @@ HONDA_BOSCH_RADARLESS = CAR.with_flags(HondaFlags.BOSCH_RADARLESS)
 HONDA_BOSCH_CANFD = CAR.with_flags(HondaFlags.BOSCH_CANFD)
 HONDA_BOSCH_ALT_RADAR = CAR.with_flags(HondaFlags.BOSCH_ALT_RADAR)
 HONDA_BOSCH_TJA_CONTROL = CAR.with_flags(HondaFlags.BOSCH_TJA_CONTROL)
+
+# FrogPilot variables
+HONDA_NIDEC_BRAKE_LIGHT_CARS = {CAR.HONDA_CIVIC, CAR.HONDA_ODYSSEY}
 
 
 DBC = CAR.create_dbc_map()

@@ -53,7 +53,21 @@ void ExperimentalButton::updateState(const UIState &s) {
   const FrogPilotUIState &fs = *frogpilotUIState();
   const cereal::CarState::Reader &carState = (*s.sm)["carState"].getCarState();
 
-  steering_angle_deg = fs.frogpilot_scene.frogpilot_toggles.value(QLatin1String("rotating_wheel")).toBool() ? -carState.getSteeringAngleDeg() : 0;
+  QColor current_background_color = backgroundColor();
+  if (current_background_color != background_color) {
+    background_color = current_background_color;
+    update();
+  }
+
+  int current_steering_angle_deg = 0;
+  if (fs.frogpilot_scene.frogpilot_toggles.value(QLatin1String("rotating_wheel")).toBool()) {
+    current_steering_angle_deg = -carState.getSteeringAngleDeg();
+  }
+
+  if (current_steering_angle_deg != steering_angle_deg) {
+    steering_angle_deg = current_steering_angle_deg;
+    update();
+  }
 
   uint64_t current_wheel_image_update_count = (*fs.sm)["frogpilotPlan"].getFrogpilotPlan().getWheelImageUpdateCount();
   if (current_wheel_image_update_count != wheel_image_update_count) {

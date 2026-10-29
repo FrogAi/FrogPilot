@@ -3,22 +3,23 @@ import asyncio
 import hashlib
 import hmac
 import ipaddress
+import re
 import socket
 import subprocess
 import time
 
 from aiohttp import web
-from pathlib import Path
 
 from openpilot.system.hardware import HARDWARE, PC
 
-from openpilot.frogpilot.common import frogpilot_utilities, frogpilot_variables
+from openpilot.frogpilot.common import frogpilot_paths, frogpilot_utilities, frogpilot_variables
 from openpilot.frogpilot.system.the_pond import (backups, dashcam, device, doors, home, keys, maps, models, screen_recordings, search, software, tailscale,
                                                  theme_maker, themes, toggles, tools, utilities, vehicle)
 
 API_VERSION = 1
 
-ASSETS_PATH = Path(__file__).parent / "assets"
+ASSET_CACHE_CONTROL = "public, max-age=31536000, immutable"
+ASSET_LINK_PATTERN = re.compile(r'((?:href|src)="/assets/[^"?]+)"')
 
 COMPRESSED_EXTENSIONS = (".css", ".js", ".svg")
 
@@ -30,6 +31,8 @@ CONTENT_SECURITY_POLICY = "; ".join((
   "object-src 'none'",
   "worker-src 'self' blob:",
 ))
+
+HOTSPOT_SUBNET = "192.168.43.0/24"
 
 IP_ADDRESS_INTERFACES = ("wlan0", "eth0")
 
@@ -44,6 +47,7 @@ PAIRING_WINDOW = 10 * 60
 
 SERVICE_TYPE = "_thepond._tcp"
 
+HOTSPOT_RETURN_RULE = ["PREROUTING", "-s", HOTSPOT_SUBNET, "!", "-d", HOTSPOT_SUBNET, "-p", "tcp", "--dport", "80", "-j", "RETURN"]
 PORT_REDIRECT_RULE = ["PREROUTING", "-p", "tcp", "--dport", "80", "-j", "REDIRECT", "--to-ports", str(frogpilot_variables.THE_POND_PORT)]
 
 async def is_allowed_host(host):
@@ -115,7 +119,7 @@ async def compress_responses(request, handler):
 
 
 async def add_security_headers(request, response):
-  response.headers["Cache-Control"] = "no-cache"
+  response.headers["Cache-Control"] = ASSET_CACHE_CONTROL if request.path.startswith("/assets/") and "v" in request.query else "no-cache"
   response.headers["Content-Security-Policy"] = CONTENT_SECURITY_POLICY
   response.headers["Referrer-Policy"] = "no-referrer"
   response.headers["X-Content-Type-Options"] = "nosniff"
@@ -142,10 +146,20 @@ async def get_state(request):
   return web.json_response(state)
 
 
+def get_asset_version():
+  digest = hashlib.sha256()
+  for path in sorted(frogpilot_paths.THE_POND_ASSETS_PATH.rglob("*")):
+    if path.is_file():
+      info = path.stat()
+      digest.update(f"{path.relative_to(frogpilot_paths.THE_POND_ASSETS_PATH)}:{info.st_size}:{info.st_mtime_ns}".encode())
+  return digest.hexdigest()[:12]
+
+
 async def index(request):
   if request.path.startswith("/api/"):
     raise web.HTTPNotFound(text="not_found")
-  return web.FileResponse(ASSETS_PATH / "index.html")
+  html = ASSET_LINK_PATTERN.sub(rf'\1?v={get_asset_version()}"', (frogpilot_paths.THE_POND_ASSETS_PATH / "index.html").read_text())
+  return web.Response(text=html, content_type="text/html")
 
 
 async def pair(request):
@@ -232,6 +246,7 @@ async def watch_lock(app):
   while True:
     the_pond.update()
     watch_drive(the_pond)
+    await tools.close_idle_shell(the_pond)
     await asyncio.sleep(LOCK_CHECK_INTERVAL)
 
 
@@ -249,6 +264,8 @@ async def background_tasks(app):
 
 async def port_redirect(app):
   if not PC:
+    if subprocess.run(["sudo", "iptables-legacy", "-t", "nat", "-C", *HOTSPOT_RETURN_RULE], capture_output=True).returncode != 0:
+      subprocess.run(["sudo", "iptables-legacy", "-t", "nat", "-I", *HOTSPOT_RETURN_RULE], capture_output=True, check=True)
     if subprocess.run(["sudo", "iptables-legacy", "-t", "nat", "-C", *PORT_REDIRECT_RULE], capture_output=True).returncode != 0:
       subprocess.run(["sudo", "iptables-legacy", "-t", "nat", "-A", *PORT_REDIRECT_RULE], capture_output=True, check=True)
 
@@ -256,6 +273,7 @@ async def port_redirect(app):
 
   if not PC:
     subprocess.run(["sudo", "iptables-legacy", "-t", "nat", "-D", *PORT_REDIRECT_RULE], capture_output=True, check=True)
+    subprocess.run(["sudo", "iptables-legacy", "-t", "nat", "-D", *HOTSPOT_RETURN_RULE], capture_output=True, check=True)
 
 
 def create_app():
@@ -287,14 +305,14 @@ def create_app():
   app.add_routes(tools.routes)
   app.add_routes(vehicle.routes)
 
-  app.router.add_static("/assets", ASSETS_PATH)
+  app.router.add_static("/assets", frogpilot_paths.THE_POND_ASSETS_PATH)
   app.router.add_get("/{tail:.*}", index)
   return app
 
 
 def main():
-  frogpilot_utilities.delete_path(frogpilot_variables.THE_POND_VIDEOS_PATH)
-  for path in frogpilot_variables.THE_POND_THUMBNAILS_PATH.glob(".*"):
+  frogpilot_utilities.delete_path(frogpilot_paths.THE_POND_VIDEOS_PATH)
+  for path in frogpilot_paths.THE_POND_THUMBNAILS_PATH.glob(".*"):
     path.unlink()
   dashcam.remove_stale_files(dashcam.get_routes())
   screen_recordings.remove_stale_files()

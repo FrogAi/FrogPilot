@@ -3,8 +3,9 @@ import numpy as np
 
 from openpilot.common.constants import CV
 from openpilot.common.realtime import DT_MDL
+from openpilot.selfdrive.controls.lib.longitudinal_mpc_lib.long_mpc import CRUISE_MIN_ACCEL
 
-from openpilot.frogpilot.common import frogpilot_variables
+from openpilot.frogpilot.common import frogpilot_utilities, frogpilot_variables
 from openpilot.frogpilot.controls.lib.curve_speed_controller import CurveSpeedController
 from openpilot.frogpilot.controls.lib.speed_limit_controller import SpeedLimitController
 
@@ -51,7 +52,7 @@ class FrogPilotVCruise:
 
       self.slc_offset = self.slc.offset
       self.slc_target = self.slc.target
-    elif frogpilot_toggles.show_speed_limits or frogpilot_toggles.speed_limit_filler:
+    elif frogpilot_toggles.show_speed_limits:
       self.slc.update_limits(self.frogpilot_planner.gps_position, now, time_validated, v_ego, sm)
 
       self.slc_offset = 0
@@ -68,10 +69,9 @@ class FrogPilotVCruise:
 
     taco_target = v_cruise
     if long_control_active and frogpilot_toggles.taco_tune and not frogpilot_toggles.curve_speed_controller:
-      max_lat_accel = np.interp(v_ego, [5, 10, 20], [1.5, 2.0, 3.0])
-      curvatures = np.asarray(sm["modelV2"].orientationRate.z) / np.clip(sm["modelV2"].velocity.x, 0.3, 100.0)
-      max_v = np.sqrt(max_lat_accel / (np.abs(curvatures) + 1e-3)) - 2.0
-      taco_target = max_v.min()
+      turn_speeds = np.maximum(frogpilot_utilities.calculate_taco_turn_speeds(sm["modelV2"].orientationRate.z, sm["modelV2"].velocity.x, v_ego), 0.0)
+      turn_distances = np.maximum(np.asarray(sm["modelV2"].position.x) - v_ego * frogpilot_variables.TACO_LAG_TIME, 0.0)
+      taco_target = np.sqrt(turn_speeds ** 2 - 2 * CRUISE_MIN_ACCEL * turn_distances).min()
       targets.append(taco_target)
 
     taco_active = taco_target < v_cruise
