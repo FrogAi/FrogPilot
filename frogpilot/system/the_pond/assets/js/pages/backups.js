@@ -188,14 +188,14 @@ async function importBackup(input) {
   const form = new FormData();
   form.append("name", name);
   form.append("file", file);
-  const handle = P.job({ label: `Importing ${P.esc(file.name)}` });
+  const handle = P.job({ label: `Importing ${P.fileLabel(file.name)}` });
   try {
     await P.request("POST", "/api/settings_backups/import", form);
   } catch (error) {
-    handle.fail(error, `Couldn't import ${P.esc(file.name)}`, SETTINGS_ERRORS);
+    handle.fail(error, `Couldn't import ${P.fileLabel(file.name)}`, SETTINGS_ERRORS);
     return;
   }
-  handle.done(`“${P.esc(name)}” added. Restore it to see what changes.`);
+  handle.done(`“${P.fileLabel(name)}” added. Restore it to see what changes.`);
   if (location.pathname === "/backups") {
     P.refresh();
   }
@@ -211,14 +211,14 @@ async function importFrogpilotBackup(input) {
   const form = new FormData();
   form.append("name", name);
   form.append("file", file);
-  const handle = P.job({ label: `Importing ${P.esc(file.name)}` });
+  const handle = P.job({ label: `Importing ${P.fileLabel(file.name)}` });
   try {
     await P.request("POST", "/api/frogpilot_backups/import", form);
   } catch (error) {
-    handle.fail(error, `Couldn't import ${P.esc(file.name)}`, FROGPILOT_IMPORT_ERRORS);
+    handle.fail(error, `Couldn't import ${P.fileLabel(file.name)}`, FROGPILOT_IMPORT_ERRORS);
     return;
   }
-  handle.done(`“${P.esc(name)}” added`);
+  handle.done(`“${P.fileLabel(name)}” added`);
   if (location.pathname === "/backups") {
     P.refresh();
   }
@@ -227,7 +227,7 @@ async function importFrogpilotBackup(input) {
 async function track(kind, name) {
   tracking = true;
   const restore = kind === "restore";
-  const handle = P.job({ label: restore ? "Restoring FrogPilot" : "Backing up FrogPilot", detail: restore ? "The device reboots when it's done" : `<span class="mono">${P.esc(name)}</span>` });
+  const handle = P.job({ label: restore ? "Restoring FrogPilot" : "Backing up FrogPilot", detail: restore ? "The device reboots when it's done" : `<span class="mono">${P.fileLabel(name)}</span>` });
   let job;
   try {
     job = await P.poll(async () => {
@@ -256,7 +256,7 @@ async function track(kind, name) {
     return;
   }
   if (job?.state === "done") {
-    handle.done("FrogPilot backed up", `<span class="mono">${P.esc(name)}</span>`);
+    handle.done("FrogPilot backed up", `<span class="mono">${P.fileLabel(name)}</span>`);
   } else {
     handle.finish();
     P.toast(restore ? "Couldn't restore FrogPilot" : "Couldn't back up FrogPilot", "The job failed on the device", "alert");

@@ -1864,7 +1864,7 @@ P.act("tm-import", async button => {
     P.toast("Couldn't import the theme", "Choose the theme's .zip file", "alert");
     return;
   }
-  const handle = P.job({ label: `Importing ${esc(file.name)}` });
+  const handle = P.job({ label: `Importing ${P.fileLabel(file.name)}` });
   try {
     const { key } = await P.busy(near(button), enqueue(() => P.request("POST", "/api/user_themes/import", fileForm([["name", name], ["file", file, file.name]]))));
     handle.done(`Imported “${esc(name)}”`);

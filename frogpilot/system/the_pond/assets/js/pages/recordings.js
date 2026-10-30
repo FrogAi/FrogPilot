@@ -59,7 +59,7 @@ async function renameRecording(item, name) {
     P.fail(error, "Couldn't rename the recording", { invalid_name: "Use letters, numbers, spaces, dots, dashes, and underscores" });
     return;
   }
-  P.toast(`Renamed to “${P.esc(name)}”`);
+  P.toast(`Renamed to “${P.fileLabel(name)}”`);
   P.go(RECORDINGS.href(result.name), { replace: true });
 }
 

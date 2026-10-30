@@ -1,0 +1,18 @@
+.nav-close { margin: -8px -10px -8px auto; }
+.nav-map { height: 340px; margin-top: 4px; border-radius: 16px; overflow: hidden; background: var(--mist); }
+.nav-no-results { padding: 14px 0 0; }
+.nav-place { margin-bottom: 12px; }
+.nav-preview { scroll-margin-top: 92px; }
+.nav-preview:empty { display: none; }
+.nav-privacy { margin-top: 8px; }
+.nav-results { margin-top: 6px; }
+.nav-route-hint { margin-top: 12px; }
+.nav-routes { margin-top: 14px; }
+.nav-search { display: flex; gap: 10px; }
+.nav-search .search { flex: 1; min-width: 0; }
+.nav-stats { margin-top: 16px; }
+
+@media (max-width: 719px) {
+  .nav-map { height: 260px; }
+  .nav-preview { scroll-margin-top: 72px; }
+}

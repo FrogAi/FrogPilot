@@ -3,6 +3,7 @@
 
 const BUSY_DONE_TIME = 1500;
 const BUSY_FAILED_TIME = 2000;
+const MAP_STYLE = "mapbox://styles/frogsgomoo/cmcfv151j000o01rcdxebhl76";
 const NB = "\u00a0";
 const POLL_INTERVAL = 1000;
 const RESTART_TIMEOUT = 300000;
@@ -82,6 +83,10 @@ function ic(name, cls = "") {
 
 function esc(value) {
   return String(value ?? "").replace(/[&<>"']/g, ch => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[ch]);
+}
+
+function fileLabel(name) {
+  return esc(name).replace(/[-_]/g, "$&<wbr>");
 }
 
 function now() {
@@ -320,9 +325,29 @@ function saveLink(url) {
   link.remove();
 }
 
+let mapboxScript = null;
+
+function loadMapbox() {
+  if (!mapboxScript) {
+    mapboxScript = new Promise((resolve, reject) => {
+      const style = document.createElement("link");
+      style.rel = "stylesheet";
+      style.href = "/assets/vendor/mapbox-gl/mapbox-gl.css";
+      document.head.append(style);
+      const script = document.createElement("script");
+      script.src = "/assets/vendor/mapbox-gl/mapbox-gl.js";
+      script.onload = resolve;
+      script.onerror = () => reject(new Error("Couldn't load /assets/vendor/mapbox-gl/mapbox-gl.js"));
+      document.head.append(script);
+    });
+  }
+  return mapboxScript;
+}
+
 async function download(url, name) {
   const controller = new AbortController();
-  const handle = job({ label: `Downloading ${esc(name)}`, progress: 0, cancel: () => controller.abort() });
+  const shownName = fileLabel(name);
+  const handle = job({ label: `Downloading ${shownName}`, progress: 0, cancel: () => controller.abort() });
   try {
     const response = await send(url, { signal: controller.signal });
     const total = Number(response.headers.get("Content-Length")) || 0;
@@ -340,13 +365,13 @@ async function download(url, name) {
     }
     const disposition = response.headers.get("Content-Disposition") || "";
     saveBlob(new Blob(chunks, { type: response.headers.get("Content-Type") || "" }), disposition.match(/filename="([^"]+)"/)?.[1] || name);
-    handle.done(`${esc(name)} saved to your downloads`);
+    handle.done(`${shownName} saved to your downloads`);
   } catch (error) {
     if (controller.signal.aborted) {
-      handle.done(`Download of ${esc(name)} canceled`);
+      handle.done(`Download of ${shownName} canceled`);
       return;
     }
-    handle.fail(error, `Couldn't download ${esc(name)}`);
+    handle.fail(error, `Couldn't download ${shownName}`);
   }
 }
 
@@ -650,13 +675,13 @@ function job({ label, detail = "", progress = null, cancel = null }) {
   const el = document.createElement("div");
   el.className = "toast";
   el.setAttribute("role", "status");
-  el.innerHTML = `<div class="row"><span class="spinner" aria-hidden="true"></span><b>${label}</b><span data-detail>${detail}</span>${cancel ? `<button type="button" data-cancel>Cancel</button>` : ""}</div><div class="progress" ${progress === null ? "hidden" : ""}><i></i></div>`;
+  el.innerHTML = `<div class="row"><span class="spinner" aria-hidden="true"></span><div class="toast-text"><b>${label}</b><span data-detail>${detail}</span></div>${cancel ? `<button type="button" data-cancel>Cancel</button>` : ""}</div><div class="progress" ${progress === null ? "hidden" : ""}><i></i></div>`;
   document.getElementById("toasts").append(el);
   const bar = el.querySelector(".progress");
   const handle = {
     progress,
     label(text) {
-      el.querySelector(".row > b").innerHTML = text;
+      el.querySelector(".toast-text > b").innerHTML = text;
     },
     update(text, value = null) {
       showPercent(el.querySelector("[data-detail]"), text);
@@ -1181,6 +1206,7 @@ document.addEventListener("keydown", e => {
 });
 
 window.Pond = {
+  MAP_STYLE,
   NAV,
   NB,
   NETWORK_TYPES,
@@ -1199,11 +1225,13 @@ window.Pond = {
   duration,
   esc,
   fail,
+  fileLabel,
   fmt,
   get,
   go,
   ic,
   job,
+  loadMapbox,
   lossList,
   now,
   page: (id, page) => {

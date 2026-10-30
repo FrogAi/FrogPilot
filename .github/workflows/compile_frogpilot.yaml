@@ -92,18 +92,28 @@ jobs:
             sh -c 'mount --bind "$RUNNER_TEMP/build" /data/openpilot && exec setpriv --reuid="$SUDO_UID" --regid="$SUDO_GID" --init-groups bash -e -c "$BUILD"'
 
       - name: Prepare release
+        env:
+          PREPARE: |
+            source /etc/profile
+
+            python3 "$RUNNER_TEMP/build/release/prepare_release.py" "$RUNNER_TEMP/build" "$RUNNER_TEMP/release"
         run: |
           mkdir "$RUNNER_TEMP/release"
           mv "$RUNNER_TEMP/build/.git" "$RUNNER_TEMP/release"
 
-          source /etc/profile
-          python3 "$RUNNER_TEMP/build/release/prepare_release.py" "$RUNNER_TEMP/build" "$RUNNER_TEMP/release"
+          sudo -E unshare --mount \
+            sh -c 'mount --bind "$RUNNER_TEMP/release" /data/openpilot && exec setpriv --reuid="$SUDO_UID" --regid="$SUDO_GID" --init-groups bash -e -c "$PREPARE"'
 
           cd "$RUNNER_TEMP/release"
           if ${{ inputs.publish_staging }} &&
              git rev-parse --verify --quiet "refs/remotes/public/$BRANCH_STAGING:.github/update_date" > /dev/null
           then
-            git show "refs/remotes/public/$BRANCH_STAGING:.github/update_date" > .github/update_date
+            public_repo="${PUBLIC_REPO#https://github.com/}"
+            public_repo="${public_repo%.git}"
+
+            curl --fail --silent --show-error \
+              "https://raw.githubusercontent.com/$public_repo/$BRANCH_STAGING/.github/update_date" \
+              > .github/update_date
           fi
 
           if ${{ inputs.not_vetted }}; then

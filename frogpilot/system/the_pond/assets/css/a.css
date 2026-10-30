@@ -250,8 +250,7 @@ dialog.dlg[open] { animation: dlg-in .26s var(--ease); }
 .app:has(.select-bar) ~ .toasts { bottom: 86px; }
 .toast { background: var(--pond-night); color: var(--on-deep); border-radius: 16px; padding: 12px 14px 12px 16px; box-shadow: var(--pop-shadow); display: grid; gap: 8px; animation: dlg-in .26s var(--ease); }
 .toast .row { display: flex; align-items: center; gap: 10px; }
-.toast .row b { flex: 0 1 auto; font-weight: 700; font-size: 14.5px; }
-.toast .row b + span { flex: 1 1 0; }
+.toast .row b { font-weight: 700; font-size: 14.5px; }
 .toast .row button { margin-left: auto; }
 .toast .row span { font-size: 13.5px; color: var(--on-deep-2); font-variant-numeric: tabular-nums; }
 .toast .progress { background: rgba(var(--hi-rgb), .16); height: 6px; }
@@ -427,7 +426,7 @@ dialog.dlg[open] { animation: dlg-in .26s var(--ease); }
 .code-boxes input { width: 52px; height: 62px; text-align: center; font-family: var(--display); font-size: 28px; border-radius: 14px; border: 0; background: var(--card); box-shadow: 0 0 0 1px var(--line-2) inset; font-variant-numeric: tabular-nums; }
 .code-boxes input:focus { outline: 2.5px solid var(--season); outline-offset: 2px; }
 .code-boxes .gap { width: 10px; }
-.spinner { width: 22px; height: 22px; border-radius: 50%; border: 2.5px solid var(--mist-2); border-top-color: var(--pond); animation: spin .9s linear infinite; }
+.spinner { width: 22px; height: 22px; flex: none; border-radius: 50%; border: 2.5px solid var(--mist-2); border-top-color: var(--pond); animation: spin .9s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
 .sheet-dlg { width: 100%; max-width: 100%; margin: auto 0 0; padding: 0; border: 0; border-radius: 26px 26px 0 0; background: var(--mist); max-height: 86dvh; overflow: auto; color: var(--ink); }

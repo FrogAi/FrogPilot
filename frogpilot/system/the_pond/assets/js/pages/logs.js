@@ -248,7 +248,7 @@ P.act("logs-view", async b => {
   try {
     text = await P.get(fileURL(b));
   } catch (error) {
-    P.fail(error, `Couldn't open ${P.esc(b.dataset.name)}`);
+    P.fail(error, `Couldn't open ${P.fileLabel(b.dataset.name)}`);
     return;
   }
   view.innerHTML = `<div class="panel-body logs-view"><div class="logs-view-head"><b class="mono">${P.esc(b.dataset.name)}</b><button class="icon-btn" aria-label="Close log" data-act="logs-close">${P.ic("x")}</button></div><pre class="code-box">${P.esc(text)}</pre></div>`;
@@ -335,7 +335,7 @@ P.act("logs-rename", async b => {
     P.fail(error, "Couldn't rename the log", NAME_ERRORS);
     return;
   }
-  P.toast("Log renamed", `<span class="mono">${P.esc(name)}.log</span>`);
+  P.toast("Log renamed", `<span class="mono">${P.fileLabel(name)}.log</span>`);
   reloadFiles("tmux");
 });
 
@@ -349,7 +349,7 @@ P.act("logs-save", async b => {
     P.fail(error, "Couldn't save the console");
     return;
   }
-  P.toast("Console saved", `<span class="mono">${P.esc(saved.name)}</span>`);
+  P.toast("Console saved", `<span class="mono">${P.fileLabel(saved.name)}</span>`);
   await reloadFiles("tmux");
   b.disabled = false;
 });

@@ -46,7 +46,6 @@ const EVENT_KINDS = {
 };
 const GROUP_LABELS = { largest: "Largest first", longest: "Longest first", name: "By name" };
 const LOGS = [["qlog", "Logs (qlog)"], ["rlog", "Full logs (rlog)"]];
-const MAP_STYLE = "mapbox://styles/frogsgomoo/cmcfv151j000o01rcdxebhl76";
 const SAVING_CHECK_INTERVAL = 2000;
 const THUMB_MAP_HEIGHT = 200;
 const THUMB_MAP_WIDTH = 320;
@@ -58,7 +57,6 @@ const lengths = new Map();
 
 let current = null;
 let list = null;
-let mapboxScript = null;
 let player = null;
 let previewing = null;
 let theater = false;
@@ -941,25 +939,8 @@ function svgMap(holder, path, width = 400, height = 300) {
   };
 }
 
-function loadMapbox() {
-  if (!mapboxScript) {
-    mapboxScript = new Promise((resolve, reject) => {
-      const style = document.createElement("link");
-      style.rel = "stylesheet";
-      style.href = "/assets/vendor/mapbox-gl/mapbox-gl.css";
-      document.head.append(style);
-      const script = document.createElement("script");
-      script.src = "/assets/vendor/mapbox-gl/mapbox-gl.js";
-      script.onload = resolve;
-      script.onerror = () => reject(new Error("Couldn't load /assets/vendor/mapbox-gl/mapbox-gl.js"));
-      document.head.append(script);
-    });
-  }
-  return mapboxScript;
-}
-
 async function mapboxMap(holder, path, key, signal, onFail) {
-  await loadMapbox();
+  await P.loadMapbox();
   if (signal.aborted) {
     return null;
   }
@@ -969,7 +950,7 @@ async function mapboxMap(holder, path, key, signal, onFail) {
   const color = name => styles.getPropertyValue(name).trim();
   const bounds = coordinates.reduce((box, coordinate) => box.extend(coordinate), new mapboxgl.LngLatBounds(coordinates[0], coordinates[0]));
   mapboxgl.accessToken = key;
-  const map = new mapboxgl.Map({ bounds, container: holder, fitBoundsOptions: { maxZoom: 16, padding: 30 }, style: MAP_STYLE });
+  const map = new mapboxgl.Map({ bounds, container: holder, fitBoundsOptions: { maxZoom: 16, padding: 30 }, style: P.MAP_STYLE });
   let car = coordinates[0];
   let loaded = false;
   const fail = () => {
