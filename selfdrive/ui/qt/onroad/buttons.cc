@@ -1,22 +1,18 @@
 #include "selfdrive/ui/qt/onroad/buttons.h"
 
-#include <QMovie>
+#include <QFileInfo>
 #include <QPainter>
 
 #include "selfdrive/ui/qt/util.h"
 
-void drawIcon(QPainter &p, const QPoint &center, const QPixmap &img, const QBrush &bg, float opacity, const int &angle) {
+void drawIcon(QPainter &p, const QPoint &center, const QPixmap &img, const QBrush &bg, float opacity) {
   p.setRenderHint(QPainter::Antialiasing);
   p.setOpacity(1.0);  // bg dictates opacity of ellipse
   p.setPen(Qt::NoPen);
   p.setBrush(bg);
   p.drawEllipse(center, btn_size / 2, btn_size / 2);
-  p.save();
-  p.translate(center);
-  p.rotate(angle);
   p.setOpacity(opacity);
-  p.drawPixmap(-QPoint(img.width() / 2, img.height() / 2), img);
-  p.restore();
+  p.drawPixmap(center - QPoint(img.width() / 2, img.height() / 2), img);
   p.setOpacity(1.0);
 }
 
@@ -36,18 +32,33 @@ void ExperimentalButton::showEvent(QShowEvent *event) {
   updateTheme();
 }
 
+void ExperimentalButton::hideEvent(QHideEvent *event) {
+  wheel_gif.reset();
+
+  QPushButton::hideEvent(event);
+}
+
 void ExperimentalButton::updateTheme() {
-  loadImage("../../frogpilot/assets/active_theme/steering_wheel/wheel", wheel_img, wheel_gif, QSize(img_size, img_size), this);
+  if (isVisible()) {
+    loadImage("../../frogpilot/assets/active_theme/steering_wheel/wheel", wheel_img, wheel_gif, QSize(img_size, img_size), this);
+  } else {
+    wheel_gif.reset();
+  }
+
+  const QString wheel_source = QFileInfo("../../frogpilot/assets/active_theme/steering_wheel/wheel.png").canonicalFilePath();
+  const QString stock_source = QFileInfo("../../frogpilot/assets/stock_theme/steering_wheel/wheel.png").canonicalFilePath();
+  wheel_is_stock = wheel_source == stock_source;
 }
 
 void ExperimentalButton::changeMode() {
   const auto cp = (*uiState()->sm)["carParams"].getCarParams();
   bool can_change = hasLongitudinalControl(cp) && params.getBool("ExperimentalModeConfirmed");
   if (can_change) {
-    if (frogpilotUIState()->frogpilot_toggles.value("conditional_experimental_mode").toBool()) {
-      int conditional_status = frogpilotUIState()->frogpilot_scene.conditional_status;
-      int override_value = (conditional_status == 1 || conditional_status == 2) ? 0 : experimental_mode ? 1 : 2;
-      params_memory.putInt("CEStatus", override_value);
+    // FrogPilot variables
+    const QJsonObject &frogpilot_toggles = frogpilotUIState()->frogpilot_toggles;
+
+    if (frogpilot_toggles.value("conditional_experimental_mode").toBool() || frogpilot_toggles.value("slc_fallback_experimental_mode").toBool()) {
+      frogpilotUIState()->experimentalModePressed();
     } else {
       params.putBool("ExperimentalMode", !experimental_mode);
     }
@@ -64,85 +75,66 @@ void ExperimentalButton::updateState(const UIState &s, const FrogPilotUIState &f
   }
 
   // FrogPilot variables
-  SubMaster &fpsm = *(fs.sm);
+  const cereal::CarState::Reader &carState = (*s.sm)["carState"].getCarState();
 
-  use_stock_wheel = frogpilot_toggles.value("wheel_image").toString() == "stock";
-
-  if (frogpilot_toggles.value("rotating_wheel").toBool() && steering_angle != -fpsm["carState"].getCarState().getSteeringAngleDeg()) {
-    steering_angle = -fpsm["carState"].getCarState().getSteeringAngleDeg();
-
+  int steering_angle = frogpilot_toggles.value(QLatin1String("rotating_wheel")).toBool() ? -carState.getSteeringAngleDeg() : 0;
+  QColor color = backgroundColor();
+  if (steering_angle != steering_angle_deg || color != background_color) {
+    background_color = color;
+    steering_angle_deg = steering_angle;
     update();
-  } else if (!frogpilot_toggles.value("rotating_wheel").toBool()) {
-    steering_angle = 0;
   }
 
-  if (params_memory.getBool("UpdateWheelImage")) {
-    loadImage("../../frogpilot/assets/active_theme/steering_wheel/wheel", wheel_img, wheel_gif, QSize(img_size, img_size), this);
-
-    params_memory.remove("UpdateWheelImage");
+  uint64_t current_wheel_image_update_count = (*fs.sm)["frogpilotPlan"].getFrogpilotPlan().getWheelImageUpdateCount();
+  if (current_wheel_image_update_count != wheel_image_update_count) {
+    wheel_image_update_count = current_wheel_image_update_count;
+    updateTheme();
   }
 }
 
-void ExperimentalButton::updateBackgroundColor() {
-  UIState &s = *uiState();
-  UIScene &scene = s.scene;
-  FrogPilotUIState &fs = *frogpilotUIState();
-  FrogPilotUIScene &frogpilot_scene = fs.frogpilot_scene;
+QColor ExperimentalButton::backgroundColor() const {
+  const UIScene &scene = uiState()->scene;
+  const FrogPilotUIScene &frogpilot_scene = frogpilotUIState()->frogpilot_scene;
 
-  static const QMap<QString, QColor> status_color_map {
-    {"default", QColor(0, 0, 0, 166)},
-    {"always_on_lateral_active", bg_colors[STATUS_ALWAYS_ON_LATERAL_ACTIVE]},
-    {"conditional_overridden", bg_colors[STATUS_CONDITIONAL_OVERRIDDEN]},
-    {"experimental_mode_enabled", bg_colors[STATUS_EXPERIMENTAL_MODE_ENABLED]},
-    {"navigation_active", bg_colors[STATUS_NAVIGATION_ACTIVE]},
-    {"traffic_mode_enabled", bg_colors[STATUS_TRAFFIC_MODE_ENABLED]}
-  };
-
-  if (isDown() || !engageable) {
-    background_color = status_color_map["default"];
-    return;
+  if (!isDown() && engageable) {
+    if (frogpilot_scene.always_on_lateral_active) {
+      return bg_colors[STATUS_ALWAYS_ON_LATERAL_ACTIVE];
+    } else if (frogpilot_scene.conditional_status == 1) {
+      return bg_colors[STATUS_CEM_DISABLED];
+    } else if (experimental_mode) {
+      return bg_colors[STATUS_EXPERIMENTAL_MODE_ENABLED];
+    } else if (scene.navigate_on_openpilot) {
+      return bg_colors[STATUS_NAVIGATION_ACTIVE];
+    } else if (frogpilot_scene.traffic_mode_enabled) {
+      return bg_colors[STATUS_TRAFFIC_MODE_ENABLED];
+    }
   }
-
-  if (frogpilot_scene.always_on_lateral_active) {
-    background_color = status_color_map["always_on_lateral_active"];
-  } else if (frogpilot_scene.conditional_status == 1) {
-    background_color = status_color_map["conditional_overridden"];
-  } else if (experimental_mode) {
-    background_color = status_color_map["experimental_mode_enabled"];
-  } else if (scene.navigate_on_openpilot) {
-    background_color = status_color_map["navigation_active"];
-  } else if (frogpilot_scene.traffic_mode_enabled) {
-    background_color = status_color_map["traffic_mode_enabled"];
-  } else {
-    background_color = status_color_map["default"];
-  }
+  return QColor(0, 0, 0, 166);
 }
 
 void ExperimentalButton::paintEvent(QPaintEvent *event) {
-  updateBackgroundColor();
-
   QPainter p(this);
-  p.setRenderHint(QPainter::Antialiasing);
+  QPixmap img = experimental_mode ? experimental_img : engage_img;
 
-  QPainterPath clip_path;
-  clip_path.addEllipse(QPoint(btn_size / 2, btn_size / 2), btn_size / 2, btn_size / 2);
-  p.setClipPath(clip_path);
-
-  if (use_stock_wheel) {
-    QPixmap img = experimental_mode ? experimental_img : engage_img;
-    drawIcon(p, QPoint(btn_size / 2, btn_size / 2), img, background_color, (isDown() || !engageable) ? 0.6 : 1.0, steering_angle);
-  } else if (wheel_gif) {
-    drawIcon(p, QPoint(btn_size / 2, btn_size / 2), wheel_gif->currentPixmap(), background_color, (isDown() || !engageable) ? 0.6 : 1.0, steering_angle);
-  } else if (!wheel_img.isNull()) {
-    drawIcon(p, QPoint(btn_size / 2, btn_size / 2), wheel_img, background_color, (isDown() || !engageable) ? 0.6 : 1.0, steering_angle);
+  // FrogPilot variables
+  if (!wheel_is_stock) {
+    img = wheel_gif ? wheel_gif->currentPixmap() : wheel_img;
+  }
+  if (img.isNull()) {
+    return;
   }
 
-  p.setClipping(false);
+  p.setClipRegion(QRegion(QRect(0, 0, btn_size, btn_size), QRegion::Ellipse));
+  p.translate(btn_size / 2, btn_size / 2);
+  p.rotate(steering_angle_deg);
+  p.translate(-btn_size / 2, -btn_size / 2);
+
+  drawIcon(p, QPoint(btn_size / 2, btn_size / 2), img, backgroundColor(), (isDown() || !engageable) ? 0.6 : 1.0);
 }
 
 // MapSettingsButton
 MapSettingsButton::MapSettingsButton(QWidget *parent) : QPushButton(parent) {
-  setFixedSize(btn_size, btn_size + UI_BORDER_SIZE);
+  setFixedSize(btn_size, btn_size + UI_BORDER_SIZE + 10);
   settings_img = loadPixmap("../assets/navigation/icon_directions_outlined.svg", {img_size, img_size});
 
   // hidden by default, made visible if map is created (has prime or mapbox token)
@@ -152,5 +144,5 @@ MapSettingsButton::MapSettingsButton(QWidget *parent) : QPushButton(parent) {
 
 void MapSettingsButton::paintEvent(QPaintEvent *event) {
   QPainter p(this);
-  drawIcon(p, QPoint(btn_size / 2, btn_size / 2 + (road_name_ui ? 0 : UI_BORDER_SIZE)), settings_img, QColor(0, 0, 0, 166), isDown() ? 0.6 : 1.0);
+  drawIcon(p, QPoint(btn_size / 2, btn_size / 2 + (road_name_ui ? 0 : UI_BORDER_SIZE + 10)), settings_img, QColor(0, 0, 0, 166), isDown() ? 0.6 : 1.0);
 }

@@ -14,6 +14,8 @@
 #include "selfdrive/ui/qt/util.h"
 #include "selfdrive/ui/qt/widgets/input.h"
 
+#include "frogpilot/ui/qt/offroad/telemetry_page.h"
+
 TrainingGuide::TrainingGuide(QWidget *parent) : QFrame(parent) {
   setAttribute(Qt::WA_OpaquePaintEvent);
 }
@@ -185,6 +187,9 @@ void OnboardingWindow::updateActiveScreen() {
     setCurrentIndex(0);
   } else if (!training_done) {
     setCurrentIndex(1);
+  // FrogPilot variables
+  } else if (!telemetry_confirmed) {
+    setCurrentIndex(3);
   } else {
     emit onboardingDone();
   }
@@ -230,5 +235,16 @@ OnboardingWindow::OnboardingWindow(QWidget *parent) : QStackedWidget(parent) {
       background-color: #4F4F4F;
     }
   )");
+
+  // FrogPilot variables
+  telemetry_confirmed = params.getBool("FrogPilotTelemetryConfirmed");
+
+  FrogPilotTelemetryPage *telemetryPage = new FrogPilotTelemetryPage(this);
+  addWidget(telemetryPage);
+  connect(telemetryPage, &FrogPilotTelemetryPage::answered, [=]() {
+    telemetry_confirmed = true;
+    updateActiveScreen();
+  });
+
   updateActiveScreen();
 }

@@ -14,8 +14,17 @@ from openpilot.system.hardware.hw import Paths
 from openpilot.common.swaglog import cloudlog
 from openpilot.system.version import get_build_metadata
 
+from openpilot.frogpilot.common import frogpilot_paths
+
 MAX_SIZE = 1_000_000 * 100  # allow up to 100M
 MAX_TOMBSTONE_FN_LEN = 62  # 85 - 23 ("<dongle id>/crash/")
+
+# FrogPilot variables
+QUEUE_FLUSH_INTERVAL = 60
+
+STACKTRACES_AWK = ('/^[^ ]/ {p = 0} /^Stacktrace:/ {p = 1; print "--- stack trace ---"; next} ' +
+                   '/^ThreadStacktrace:/ {p = 2; print "--- thread stack trace ---"; next} ' +
+                   'p == 2 && (/^         / || /^ \\.$/ || /^ No locals\\.$/ || /^ No symbol table info available\\.$/) {next} p {print substr($0, 2)}')
 
 TOMBSTONE_DIR = "/data/tombstones/"
 APPORT_DIR = "/var/crash/"
@@ -35,8 +44,15 @@ def clear_apport_folder():
 
 
 def get_apport_stacktrace(fn):
+  # FrogPilot variables
+  shutil.rmtree(frogpilot_paths.CRASH_RETRACE_PATH, ignore_errors=True)
+  frogpilot_paths.CRASH_RETRACE_PATH.mkdir()
+
+  retraced_fn = frogpilot_paths.CRASH_RETRACE_PATH / "retraced.crash"
+
   try:
-    cmd = f'apport-retrace -s <(cat <(echo "Package: openpilot") "{fn}")'
+    cmd = (f'TMPDIR={frogpilot_paths.CRASH_RETRACE_PATH} env -u PYTHONPATH apport-retrace -c -o {retraced_fn} <(cat <(echo "Package: openpilot") "{fn}") && ' +
+           f"awk '{STACKTRACES_AWK}' {retraced_fn}")
     return subprocess.check_output(cmd, shell=True, encoding='utf8', timeout=30, executable='/bin/bash')
   except subprocess.CalledProcessError:
     return "Error getting stacktrace"
@@ -116,7 +132,10 @@ def report_tombstone_apport(fn):
     crash_function = " ".join(x for x in crash_function.split(' ')[1:] if not x.startswith('0x'))
     crash_function = re.sub(r'\(.*?\)', '', crash_function)
 
-  contents = stacktrace + "\n\n" + contents
+  # FrogPilot variables
+  stacktrace, thread_header, thread_stacktrace = stacktrace.partition("--- thread stack trace ---\n")
+
+  contents = stacktrace + "\n\n" + contents + "\n" + thread_header + thread_stacktrace
   message = message + " - " + crash_function
   sentry.report_tombstone(fn, message, contents)
 
@@ -141,11 +160,14 @@ def report_tombstone_apport(fn):
 
 
 def main() -> NoReturn:
-  should_report = sentry.init(sentry.SentryProject.SELFDRIVE_NATIVE)
+  should_report = sentry.init(sentry.SentryProject.SELFDRIVE_NATIVE, native=True)
 
   # Clear apport folder on start, otherwise duplicate crashes won't register
   clear_apport_folder()
   initial_tombstones = set(get_tombstones())
+
+  # FrogPilot variables
+  last_queue_flush = 0.0
 
   while True:
     now_tombstones = set(get_tombstones())
@@ -169,6 +191,12 @@ def main() -> NoReturn:
         cloudlog.exception(f"Error reporting tombstone {fn}")
 
     initial_tombstones = now_tombstones
+
+    # FrogPilot variables
+    if should_report and time.monotonic() - last_queue_flush > QUEUE_FLUSH_INTERVAL:
+      last_queue_flush = time.monotonic()
+      sentry.flush_queued_tombstones()
+
     time.sleep(5)
 
 

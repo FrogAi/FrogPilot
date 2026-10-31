@@ -6,7 +6,7 @@ import panda.tests.safety.common as common
 from panda.tests.safety.common import CANPackerPanda
 
 
-class TestNissanSafety(common.PandaCarSafetyTest, common.AngleSteeringSafetyTest):
+class TestNissanSafety(common.PandaCarSafetyTest, common.AngleSteeringSafetyTest, common.AlwaysOnLateralSafetyTest):
 
   TX_MSGS = [[0x169, 0], [0x2b1, 0], [0x4cc, 0], [0x20b, 2], [0x280, 2]]
   STANDSTILL_THRESHOLD = 0
@@ -17,6 +17,9 @@ class TestNissanSafety(common.PandaCarSafetyTest, common.AngleSteeringSafetyTest
 
   EPS_BUS = 0
   CRUISE_BUS = 2
+
+  # FrogPilot variables
+  PRO_PILOT_BUS = 1
 
   # Angle control limits
   DEG_TO_CAN = 100
@@ -78,11 +81,31 @@ class TestNissanSafety(common.PandaCarSafetyTest, common.AngleSteeringSafetyTest
         tx = self._tx(self._acc_button_cmd(**args))
         self.assertEqual(tx, should_tx)
 
-  # FrogPilot tests
-  def _toggle_aol(self, toggle_on):
-    # PRO_PILOT, CRUISE_ON is the main on button for X-Trail/Rogue/Altima
-    values = {"CRUISE_ON": 1 if toggle_on else 0}
-    return self.packer.make_can_msg_panda("PRO_PILOT", 2, values)
+  # FrogPilot variables
+  def _acc_state_msg(self, on):
+    values = {"CRUISE_ON": on}
+
+    return self.packer.make_can_msg_panda("PRO_PILOT", self.PRO_PILOT_BUS, values)
+
+  def _lkas_press_msg(self, pressed):
+    return None
+
+  def _rx_check_msgs(self):
+    return [self._angle_meas_msg(0), self._pcm_status_msg(False), self._speed_msg(0), self._user_brake_msg(False), self._user_gas_msg(0)]
+
+  def test_pro_pilot_rx_check(self):
+    for pro_pilot in (False, True):
+      self._reset_safety_hooks()
+      self.safety.set_timer(int(2e6))
+
+      for msg in self._rx_check_msgs():
+        self._rx(msg)
+
+      if pro_pilot:
+        self._rx(self._acc_state_msg(False))
+
+      self.safety.safety_tick_current_safety_config()
+      self.assertEqual(pro_pilot, self.safety.safety_config_valid())
 
 
 class TestNissanSafetyAltEpsBus(TestNissanSafety):
@@ -90,6 +113,9 @@ class TestNissanSafetyAltEpsBus(TestNissanSafety):
 
   EPS_BUS = 1
   CRUISE_BUS = 1
+
+  # FrogPilot variables
+  PRO_PILOT_BUS = 2
 
   def setUp(self):
     self.packer = CANPackerPanda("nissan_x_trail_2017_generated")
@@ -103,7 +129,7 @@ class TestNissanLeafSafety(TestNissanSafety):
   def setUp(self):
     self.packer = CANPackerPanda("nissan_leaf_2018_generated")
     self.safety = libpanda_py.libpanda
-    self.safety.set_safety_hooks(Panda.SAFETY_NISSAN, 0)
+    self.safety.set_safety_hooks(Panda.SAFETY_NISSAN, Panda.FLAG_NISSAN_LEAF)
     self.safety.init_tests()
 
   def _user_brake_msg(self, brake):
@@ -118,11 +144,23 @@ class TestNissanLeafSafety(TestNissanSafety):
   def test_acc_buttons(self):
     pass
 
-  # FrogPilot tests
-  def _toggle_aol(self, toggle_on):
-    # CRUISE_THROTTLE, CRUISE_AVAILABLE is the main on button for Leaf
-    values = {"CRUISE_AVAILABLE": 1 if toggle_on else 0}
+  # FrogPilot variables
+  def _acc_state_msg(self, on):
+    values = {"CRUISE_AVAILABLE": on}
+
     return self.packer.make_can_msg_panda("CRUISE_THROTTLE", 0, values)
+
+  def _rx_check_msgs(self):
+    return [*super()._rx_check_msgs(), libpanda_py.make_CANPacket(0x1cc, 0, bytes(4))]
+
+  def test_pro_pilot_rx_check(self):
+    self.safety.set_timer(int(2e6))
+
+    for msg in self._rx_check_msgs():
+      self._rx(msg)
+
+    self.safety.safety_tick_current_safety_config()
+    self.assertTrue(self.safety.safety_config_valid())
 
 
 if __name__ == "__main__":

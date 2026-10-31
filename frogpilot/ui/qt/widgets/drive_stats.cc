@@ -10,19 +10,18 @@ static QLabel *newLabel(const QString &text, const QString &type) {
 
 DriveStats::DriveStats(QWidget *parent) : QFrame(parent) {
   isMetric = params.getBool("IsMetric");
-  konik = useKonikServer();
 
   QVBoxLayout *main_layout = new QVBoxLayout(this);
   main_layout->setContentsMargins(50, 25, 50, 20);
 
-  addStatsLayouts(konik ? tr("ALL TIME (KONIK)") : tr("ALL TIME"), all);
-  addStatsLayouts(konik ? tr("PAST WEEK (KONIK)") : tr("PAST WEEK"), week);
+  addStatsLayouts(useKonikServer() ? tr("ALL TIME (KONIK)") : tr("ALL TIME"), all);
+  addStatsLayouts(useKonikServer() ? tr("PAST WEEK (KONIK)") : tr("PAST WEEK"), week);
   addStatsLayouts(tr("FROGPILOT"), frogPilot, true);
 
   std::optional<QString> dongleId = getDongleId();
   if (dongleId.has_value()) {
     QString url = CommaApi::BASE_URL + "/v1.1/devices/" + dongleId.value() + "/stats";
-    RequestRepeater *repeater = new RequestRepeater(this, url, "ApiCache_DriveStats", 30);
+    RequestRepeater *repeater = new RequestRepeater(this, url, useKonikServer() ? "ApiCache_DriveStatsKonik" : "ApiCache_DriveStats", 30);
     QObject::connect(repeater, &RequestRepeater::requestDone, this, &DriveStats::parseResponse);
   }
 
@@ -45,13 +44,13 @@ void DriveStats::showEvent(QShowEvent *event) {
   updateStats();
 }
 
-void DriveStats::addStatsLayouts(const QString &title, StatsLabels &labels, bool FrogPilot) {
+void DriveStats::addStatsLayouts(const QString &title, StatsLabels &labels, bool frogpilot) {
   QGridLayout *grid_layout = new QGridLayout;
   grid_layout->setVerticalSpacing(10);
   grid_layout->setContentsMargins(0, 10, 0, 10);
 
   int row = 0;
-  grid_layout->addWidget(newLabel(title, FrogPilot ? "frogpilot_title" : "title"), row++, 0, 1, 3);
+  grid_layout->addWidget(newLabel(title, frogpilot ? "frogpilot_title" : "title"), row++, 0, 1, 3);
   grid_layout->addItem(new QSpacerItem(0, 10), row++, 0, 1, 1);
 
   grid_layout->addWidget(labels.routes = newLabel("0", "number"), row, 0, Qt::AlignLeft);
@@ -78,6 +77,13 @@ void DriveStats::parseResponse(const QString &response, bool success) {
     return;
   }
   stats = doc;
+
+  const QJsonValue minutes = doc.object()["all"].toObject()["minutes"];
+  const char *minutesKey = useKonikServer() ? "KonikMinutes" : "openpilotMinutes";
+  if (minutes.isDouble() && params.getInt(minutesKey) != int(minutes.toDouble())) {
+    params.putIntNonBlocking(minutesKey, minutes.toDouble());
+  }
+
   updateStats();
 }
 
@@ -103,6 +109,4 @@ void DriveStats::updateStats() {
   updateStatsForLabel(json["all"].toObject(), all);
   updateStatsForLabel(json["week"].toObject(), week);
   updateFrogPilotStatsForLabel(frogPilot);
-
-  params.putIntNonBlocking(konik ? "KonikMinutes" : "openpilotMinutes", json["all"].toObject()["minutes"].toDouble());
 }

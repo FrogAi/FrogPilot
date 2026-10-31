@@ -790,8 +790,13 @@ int Localizer::locationd_thread() {
 
       if (cnt % 1200 == 0 && gpsOK) {  // once a minute
         VectorXd posGeo = this->get_position_geodetic();
+
+        // FrogPilot variables
+        cereal::LiveLocationKalman::Reader location_msg = location_msg_builder.getRoot<cereal::Event>().getLiveLocationKalman().asReader();
+        double bearing = RAD2DEG(location_msg.getCalibratedOrientationNED().getValue()[2]);
+
         std::string lastGPSPosJSON = util::string_format(
-          "{\"latitude\": %.15f, \"longitude\": %.15f, \"altitude\": %.15f}", posGeo(0), posGeo(1), posGeo(2));
+          "{\"latitude\": %.15f, \"longitude\": %.15f, \"altitude\": %.15f, \"bearing\": %.15f}", posGeo(0), posGeo(1), posGeo(2), bearing);
         params.putNonBlocking("LastGPSPosition", lastGPSPosJSON);
       }
       cnt++;

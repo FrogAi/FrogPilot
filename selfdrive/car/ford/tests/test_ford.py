@@ -1,12 +1,16 @@
+import collections
 import random
+import types
 from collections.abc import Iterable
 
 import capnp
 from hypothesis import settings, given, strategies as st
 from parameterized import parameterized
 
-from cereal import car
+from cereal import car, custom
+from openpilot.common.conversions import Conversions as CV
 from openpilot.selfdrive.car.fw_versions import build_fw_dict
+from openpilot.selfdrive.car.ford.carstate import CarState
 from openpilot.selfdrive.car.ford.values import CAR, FW_QUERY_CONFIG, FW_PATTERN, get_platform_codes
 from openpilot.selfdrive.car.ford.fingerprints import FW_VERSIONS
 
@@ -141,3 +145,19 @@ class TestFordFW:
     live_fw[(0x760, None)] = {b"M1MC-2D053-XX\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"}
     candidates = FW_QUERY_CONFIG.match_fw_to_car_fuzzy(live_fw, '', {expected_fingerprint: offline_fw})
     assert len(candidates) == 0, "Should not match new model year hint"
+
+
+# FrogPilot variables
+class TestFordSpeedMismatch:
+  @parameterized.expand([("pcm_faster", 2.1, True), ("pcm_slower", -2.1, True), ("within_delta", 1.9, False)])
+  def test_speed_mismatch(self, _, speed_delta, speed_sensors_disagree):
+    CP = car.CarParams.new_message(carFingerprint=CAR.FORD_ESCAPE_MK4)
+    CS = CarState(CP, custom.FrogPilotCarParams.new_message())
+
+    cp = types.SimpleNamespace(vl=collections.defaultdict(lambda: collections.defaultdict(int)))
+    cp.vl["BrakeSysFeatures"]["Veh_V_ActlBrk"] = 36.0
+    cp.vl["EngVehicleSpThrottle2"]["Veh_V_ActlEng"] = 36.0 + speed_delta * CV.MS_TO_KPH
+
+    _, fp_ret = CS.update(cp, cp, types.SimpleNamespace())
+
+    assert fp_ret.speedSensorsDisagree == speed_sensors_disagree

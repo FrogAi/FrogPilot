@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import unittest
 import numpy as np
-from panda import Panda
+from panda import ALTERNATIVE_EXPERIENCE, Panda
 import panda.tests.safety.common as common
 from panda.tests.libpanda import libpanda_py
 from panda.tests.safety.common import CANPackerPanda
@@ -62,7 +62,7 @@ class TestTeslaSafety(common.PandaCarSafetyTest):
     return self.packer.make_can_msg_panda("DAS_control", bus, values)
 
 
-class TestTeslaSteeringSafety(TestTeslaSafety, common.AngleSteeringSafetyTest):
+class TestTeslaSteeringSafety(TestTeslaSafety, common.AngleSteeringSafetyTest, common.AlwaysOnLateralSafetyTest):
   TX_MSGS = [[0x488, 0], [0x45, 0], [0x45, 2]]
   RELAY_MALFUNCTION_ADDRS = {0: (0x488,)}
   FWD_BLACKLISTED_ADDRS = {2: [0x488]}
@@ -88,6 +88,37 @@ class TestTeslaSteeringSafety(TestTeslaSafety, common.AngleSteeringSafetyTest):
     values = {"EPAS_internalSAS": angle}
     return self.packer.make_can_msg_panda("EPAS_sysStatus", 0, values)
 
+  # FrogPilot variables
+  def _acc_state_msg(self, on):
+    if on:
+      self._rx(self._pcm_status_msg(True))
+      return self._pcm_status_msg(False)
+
+    return self._user_brake_msg(True)
+
+  def _lkas_press_msg(self, pressed):
+    return None
+
+  def test_always_on_lateral_needs_engagement(self):
+    self.safety.set_alternative_experience(ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL)
+
+    self._rx(self._pcm_status_msg(False))
+    self._rx(self._user_brake_msg(False))
+    self.assertFalse(self.safety.get_lateral_allowed())
+
+    self._rx(self._acc_state_msg(True))
+    self._rx(self._user_brake_msg(True))
+    self._rx(self._user_brake_msg(False))
+    self.assertFalse(self.safety.get_lateral_allowed())
+
+  def test_always_on_lateral_held_brake(self):
+    self.safety.set_alternative_experience(ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL)
+
+    self._rx(self._user_brake_msg(True))
+    self._rx(self._pcm_status_msg(True))
+    self._rx(self._pcm_status_msg(False))
+    self.assertTrue(self.safety.get_lateral_allowed())
+
   def test_acc_buttons(self):
     """
       FWD (cancel) always allowed.
@@ -106,12 +137,6 @@ class TestTeslaSteeringSafety(TestTeslaSafety, common.AngleSteeringSafetyTest):
         self.safety.set_controls_allowed(controls_allowed)
         tx = self._tx(self._control_lever_cmd(btn))
         self.assertEqual(tx, should_tx)
-
-  # FrogPilot tests
-  def _toggle_aol(self, toggle_on):
-    # DI_state, DI_cruiseState is the cruise state, 1 is standby
-    values = {"DI_cruiseState": 1 if toggle_on else 0}
-    return self.packer.make_can_msg_panda("DI_state", 0, values)
 
 
 class TestTeslaRavenSteeringSafety(TestTeslaSteeringSafety):

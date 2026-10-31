@@ -36,8 +36,6 @@ class CarControllerParams:
   BOSCH_GAS_LOOKUP_BP = [-0.2, 2.0]  # 2m/s^2
   BOSCH_GAS_LOOKUP_V = [0, 1600]
 
-  PEDAL_ACCEL_MAX = 3.0  # m/s^2, max acceleration pedal value except in Sport Max Accel mode
-
   def __init__(self, CP):
     self.STEER_MAX = CP.lateralParams.torqueBP[-1]
     # mirror of list (assuming first item is zero) for interp of signed request values
@@ -197,8 +195,8 @@ class CAR(Platforms):
     flags=HondaFlags.NIDEC_ALT_SCM_MESSAGES,
   )
   HONDA_CLARITY = HondaNidecPlatformConfig(
-    [HondaCarDocs("Honda Clarity 2018-22", "All", min_steer_speed=3. * CV.MPH_TO_MS)],
-    CarSpecs(mass=4052. * CV.LB_TO_KG, wheelbase=2.75, centerToFrontRatio=0.41, steerRatio=16.50, tireStiffnessFactor=1.),
+    [HondaCarDocs("Honda Clarity 2018-21", "All", min_steer_speed=3. * CV.MPH_TO_MS)],
+    CarSpecs(mass=4052 * CV.LB_TO_KG, wheelbase=2.75, steerRatio=16.5, centerToFrontRatio=0.43),
     dbc_dict('honda_clarity_hybrid_2018_can_generated', 'acura_ilx_2016_nidec'),
   )
   HONDA_CRV = HondaNidecPlatformConfig(
@@ -336,6 +334,9 @@ HONDA_NIDEC_ALT_PCM_ACCEL = CAR.with_flags(HondaFlags.NIDEC_ALT_PCM_ACCEL)
 HONDA_NIDEC_ALT_SCM_MESSAGES = CAR.with_flags(HondaFlags.NIDEC_ALT_SCM_MESSAGES)
 HONDA_BOSCH = CAR.with_flags(HondaFlags.BOSCH)
 HONDA_BOSCH_RADARLESS = CAR.with_flags(HondaFlags.BOSCH_RADARLESS)
+
+# FrogPilot variables
+HONDA_NIDEC_BRAKE_LIGHT_CARS = {CAR.HONDA_CIVIC, CAR.HONDA_ODYSSEY, CAR.HONDA_ODYSSEY_CHN}
 
 
 DBC = CAR.create_dbc_map()

@@ -6,34 +6,31 @@ class FrogPilotDriveSummary : public QFrame {
   Q_OBJECT
 
 public:
-  explicit FrogPilotDriveSummary(QWidget *parent = nullptr, bool random_events = false);
+  explicit FrogPilotDriveSummary(QWidget *parent = nullptr, bool randomEvents = false);
 
 signals:
   void panelClosed();
 
 protected:
-  void showEvent(QShowEvent *event) override;
   void hideEvent(QHideEvent *event) override;
-  void mousePressEvent(QMouseEvent *e);
+  void mousePressEvent(QMouseEvent *e) override;
+  void showEvent(QShowEvent *event) override;
 
 private:
-  QWidget *createStatBox(const QString &title, QLabel **valueLabel, QWidget *parent);
+  void updateStats();
 
-  bool displayRandomEvents;
+  QWidget *createStatBox(const QString &title, QLabel **valueLabel);
+
+  bool displayRandomEvents = false;
 
   Params params;
 
   QJsonObject previousStats;
 
-  QLabel *experimentalModeTimeValue;
-  QLabel *frogPilotMetersValue;
-  QLabel *engagementValue;
-  QLabel *titleLabel;
-  QLabel *trackedTimeValue;
+  QLabel *experimentalModeTimeValue = nullptr;
+  QLabel *frogPilotMetersValue = nullptr;
+  QLabel *engagementValue = nullptr;
+  QLabel *trackedTimeValue = nullptr;
 
-  QMap<QString, QLabel*> randomEventLabels;
-
-  QMap<QString, QString> randomEventsMap;
-
-  QVBoxLayout *eventsListLayout;
+  QVBoxLayout *eventsListLayout = nullptr;
 };

@@ -8,9 +8,12 @@ from cereal import log, car
 from cereal.messaging import SubMaster
 from openpilot.common.basedir import BASEDIR
 from openpilot.common.params import Params
+from openpilot.selfdrive.car.tests.test_car_interfaces import Toggles
 from openpilot.selfdrive.controls.lib.events import Alert, EVENTS, ET
 from openpilot.selfdrive.controls.lib.alertmanager import set_offroad_alert
 from openpilot.selfdrive.test.process_replay.process_replay import CONFIGS
+
+from openpilot.frogpilot.common import frogpilot_variables
 
 AlertSize = log.ControlsState.AlertSize
 
@@ -61,9 +64,12 @@ class TestAlerts:
                       ImageFont.truetype(regular_font_path, 66)],
     }
 
+    frogpilot_toggles = Toggles(holiday_greeting="", startup_alert_bottom=frogpilot_variables.get_default_value("StartupMessageBottom"),
+                                startup_alert_top=frogpilot_variables.get_default_value("StartupMessageTop"))
+
     for alert in ALERTS:
       if not isinstance(alert, Alert):
-        alert = alert(self.CP, self.CS, self.sm, metric=False, soft_disable_time=100)
+        alert = alert(self.CP, self.CS, self.sm, metric=False, soft_disable_time=100, frogpilot_toggles=frogpilot_toggles)
 
       # for full size alerts, both text fields wrap the text,
       # so it's unlikely that they  would go past the max width

@@ -21,6 +21,9 @@ class CarState(CarStateBase):
     self.prev_distance_button = 0
     self.distance_button = 0
 
+    # FrogPilot variables
+    self.main_on_at_start = True
+
   def update(self, cp, cp_cam, frogpilot_toggles):
 
     ret = car.CarState.new_message()
@@ -113,7 +116,10 @@ class CarState(CarStateBase):
 
     # FrogPilot CarState functions
     self.lkas_previously_enabled = self.lkas_enabled
-    self.lkas_enabled = not self.lkas_disabled
+    self.lkas_enabled = cp.vl["MSG_05"]["LKAS_BUTTON"] == 1
+
+    if cp.vl["CRZ_CTRL"]["CRZ_READY"] == 1:
+      self.main_on_at_start = ret.cruiseState.available and not ret.cruiseState.enabled and self.main_on_at_start
 
     return ret, fp_ret
 
@@ -141,6 +147,9 @@ class CarState(CarStateBase):
         ("GEAR", 20),
         ("BSM", 10),
       ]
+
+      # FrogPilot variables
+      messages.append(("MSG_05", 10))
 
     return CANParser(DBC[CP.carFingerprint]["pt"], messages, 0)
 

@@ -1,11 +1,19 @@
 from hypothesis import given, settings, strategies as st
+from parameterized import parameterized
+from types import SimpleNamespace
 
 from cereal import car
+from opendbc.can.packer import CANPacker
+from openpilot.selfdrive.car import gen_empty_fingerprint
 from openpilot.selfdrive.car.fw_versions import build_fw_dict
+from openpilot.selfdrive.car.toyota.carcontroller import CarController
+from openpilot.selfdrive.car.toyota.carstate import CarState
 from openpilot.selfdrive.car.toyota.fingerprints import FW_VERSIONS
-from openpilot.selfdrive.car.toyota.values import CAR, DBC, TSS2_CAR, ANGLE_CONTROL_CAR, RADAR_ACC_CAR, \
+from openpilot.selfdrive.car.toyota.interface import CarInterface
+from openpilot.selfdrive.car.toyota.values import CAR, DBC, TSS2_CAR, ANGLE_CONTROL_CAR, RADAR_ACC_CAR, SECOC_CAR, \
                                                   FW_QUERY_CONFIG, PLATFORM_CODE_ECUS, FUZZY_EXCLUDED_PLATFORMS, \
                                                   get_platform_codes
+from openpilot.selfdrive.pandad import can_list_to_can_capnp
 
 Ecu = car.CarParams.Ecu
 ECU_NAME = {v: k for k, v in Ecu.schema.enumerants.items()}
@@ -28,7 +36,7 @@ class TestToyotaInterfaces:
     # We make some assumptions about TSS2 platforms,
     # like looking up certain signals only in this DBC
     for car_model, dbc in DBC.items():
-      if car_model in TSS2_CAR:
+      if car_model in TSS2_CAR and car_model not in SECOC_CAR:
         assert dbc["pt"] == "toyota_nodsu_pt_generated"
 
   def test_essential_ecus(self, subtests):
@@ -164,3 +172,35 @@ class TestToyotaFingerprint:
         platforms_with_shared_codes |= {str(platform), *matches}
 
     assert platforms_with_shared_codes == FUZZY_EXCLUDED_PLATFORMS, (len(platforms_with_shared_codes), len(FW_VERSIONS))
+
+
+# FrogPilot tests
+class TestToyotaLkasButton:
+  @parameterized.expand([(CAR.LEXUS_ES_TSS2,), (CAR.TOYOTA_PRIUS,)])
+  def test_lkas_presses(self, car_model):
+    toggles = SimpleNamespace(cluster_offset=1.0, disable_openpilot_long=False, force_mph_dashboard=False, sng_hack=False, toyota_dsu_bypass=False)
+    CP = CarInterface.get_params(car_model, gen_empty_fingerprint(), [], False, toggles, False)
+    FPCP = CarInterface.get_frogpilot_params(car_model, gen_empty_fingerprint(), [], CP, toggles)
+    CI = CarInterface(CP, FPCP, CarController, CarState)
+    packer = CANPacker(DBC[car_model]["pt"])
+
+    def pressed(lkas_hud, cruise_active=0):
+      can = can_list_to_can_capnp([
+        packer.make_can_msg("LKAS_HUD", 2, lkas_hud),
+        packer.make_can_msg("PCM_CRUISE", 0, {"CRUISE_ACTIVE": cruise_active}),
+      ])
+      CS, _ = CI.update(car.CarControl.new_message(), [can], toggles)
+
+      return any(be.pressed and be.type == car.CarState.ButtonEvent.Type.lkas for be in CS.buttonEvents)
+
+    assert not pressed({"LKAS_STATUS": 1})
+    assert pressed({"LKAS_STATUS": 0})
+    assert pressed({"LDA_ON_MESSAGE": 1, "LKAS_STATUS": 1})
+    assert not pressed({"LDA_ON_MESSAGE": 1, "LKAS_STATUS": 2})
+
+    for camera_turned_off in ("LDA_MALFUNCTION", "LDA_UNAVAILABLE", "TWO_BEEPS"):
+      assert not pressed({camera_turned_off: 1, "LKAS_STATUS": 0}), camera_turned_off
+      assert not pressed({"LKAS_STATUS": 1}), camera_turned_off
+
+    assert not pressed({"LKAS_STATUS": 0}, cruise_active=1)
+    assert pressed({"LDA_ON_MESSAGE": 2, "LKAS_STATUS": 1}, cruise_active=1)

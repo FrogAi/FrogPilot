@@ -103,6 +103,9 @@ class CarState(CarStateBase):
     self.acc_state = cp_cam.vl["DAS_control"]["DAS_accState"]
     self.das_control_counters.extend(cp_cam.vl_all["DAS_control"]["DAS_controlCounter"])
 
+    # FrogPilot variables
+    fp_ret.steeringDisengage = self.steer_warning == "EAC_ERROR_HANDS_ON" and self.hands_on_level >= 3
+
     return ret, fp_ret
 
   @staticmethod

@@ -27,7 +27,7 @@ private:
   QHBoxLayout* split;
 
   // FrogPilot variables
-  void resizeEvent(QResizeEvent *event);
+  void resizeEvent(QResizeEvent *event) override;
 
   FrogPilotOnroadWindow *frogpilot_onroad;
 

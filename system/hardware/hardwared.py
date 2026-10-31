@@ -25,7 +25,7 @@ from openpilot.system.hardware.power_monitoring import PowerMonitoring
 from openpilot.system.hardware.fan_controller import TiciFanController
 from openpilot.system.version import terms_version, training_version
 
-from openpilot.frogpilot.common.frogpilot_variables import get_frogpilot_toggles
+from openpilot.frogpilot.common import frogpilot_variables
 
 ThermalStatus = log.DeviceState.ThermalStatus
 NetworkType = log.DeviceState.NetworkType
@@ -47,6 +47,9 @@ THERMAL_BANDS = OrderedDict({
   ThermalStatus.red: ThermalBand(88.0, 107.),
   ThermalStatus.danger: ThermalBand(94.0, None),
 })
+
+# FrogPilot variables
+INCREASED_THERMAL_BANDS = THERMAL_BANDS | {ThermalStatus.yellow: ThermalBand(75.0, 102.0), ThermalStatus.red: ThermalBand(94.0, 107.)}
 
 # Override to highest thermal band when offroad and above this temp
 OFFROAD_DANGER_TEMP = 75
@@ -207,7 +210,12 @@ def hardware_thread(end_event, hw_queue) -> None:
   fan_controller = None
 
   # FrogPilot variables
-  frogpilot_toggles = get_frogpilot_toggles()
+  frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles()
+
+  force_onroad_cleared_count = 0
+  force_onroad_cleared_time = 0.
+
+  unforced_off_ts: float | None = None
 
   while not end_event.is_set():
     sm.update(PANDA_STATES_TIMEOUT)
@@ -283,8 +291,8 @@ def hardware_thread(end_event, hw_queue) -> None:
     if fan_controller is not None:
       msg.deviceState.fanSpeedPercentDesired = fan_controller.update(all_comp_temp, onroad_conditions["ignition"])
 
-    if frogpilot_toggles.increase_thermal_limits:
-      all_comp_temp -= (THERMAL_BANDS[ThermalStatus.danger].min_temp - THERMAL_BANDS[ThermalStatus.red].min_temp)
+    # FrogPilot variables
+    thermal_bands = INCREASED_THERMAL_BANDS if frogpilot_toggles.increase_thermal_limits else THERMAL_BANDS
 
     is_offroad_for_5_min = (started_ts is None) and ((not started_seen) or (off_ts is None) or (time.monotonic() - off_ts > 60 * 5))
     if is_offroad_for_5_min and offroad_comp_temp > OFFROAD_DANGER_TEMP:
@@ -292,12 +300,12 @@ def hardware_thread(end_event, hw_queue) -> None:
       # we want to cool down first before increasing load
       thermal_status = ThermalStatus.danger
     else:
-      current_band = THERMAL_BANDS[thermal_status]
-      band_idx = list(THERMAL_BANDS.keys()).index(thermal_status)
+      current_band = thermal_bands[thermal_status]
+      band_idx = list(thermal_bands.keys()).index(thermal_status)
       if current_band.min_temp is not None and all_comp_temp < current_band.min_temp:
-        thermal_status = list(THERMAL_BANDS.keys())[band_idx - 1]
+        thermal_status = list(thermal_bands.keys())[band_idx - 1]
       elif current_band.max_temp is not None and all_comp_temp > current_band.max_temp:
-        thermal_status = list(THERMAL_BANDS.keys())[band_idx + 1]
+        thermal_status = list(thermal_bands.keys())[band_idx + 1]
 
     # **** starting logic ****
 
@@ -344,9 +352,22 @@ def hardware_thread(end_event, hw_queue) -> None:
     if started_ts is None:
       should_start = should_start and all(startup_conditions.values())
 
+    # FrogPilot variables
     # Handle force offroad/onroad
-    should_start |= frogpilot_toggles.force_onroad
+    force_onroad = frogpilot_toggles.force_onroad and params.get_bool("ForceOnroad")
+    if force_onroad and onroad_conditions["ignition"]:
+      params.put_bool("ForceOnroad", False)
+      force_onroad_cleared_count += 1
+      force_onroad_cleared_time = time.monotonic()
+
+    if should_start:
+      unforced_off_ts = None
+    elif unforced_off_ts is None:
+      unforced_off_ts = time.monotonic()
+
+    should_start |= force_onroad and onroad_conditions["device_temp_good"]
     should_start &= not frogpilot_toggles.force_offroad
+    should_start &= time.monotonic() - force_onroad_cleared_time >= 1
 
     if should_start != should_start_prev or (count == 0):
       params.put_bool("IsEngaged", False)
@@ -399,7 +420,7 @@ def hardware_thread(end_event, hw_queue) -> None:
     msg.deviceState.somPowerDrawW = som_power_draw
 
     # Check if we need to shut down
-    if power_monitor.should_shutdown(onroad_conditions["ignition"], in_car, off_ts, started_seen, frogpilot_toggles):
+    if power_monitor.should_shutdown(onroad_conditions["ignition"], in_car, unforced_off_ts, started_seen, frogpilot_toggles):
       cloudlog.warning(f"shutting device down, offroad since {off_ts}")
       params.put_bool("DoShutdown", True)
 
@@ -413,8 +434,10 @@ def hardware_thread(end_event, hw_queue) -> None:
     msg.deviceState.thermalStatus = thermal_status
     pm.send("deviceState", msg)
 
+    # FrogPilot variables
     fpmsg = messaging.new_message('frogpilotDeviceState')
 
+    fpmsg.frogpilotDeviceState.forceOnroadClearedCount = force_onroad_cleared_count
     fpmsg.frogpilotDeviceState.freeSpace = round(get_available_bytes(default=32.0 * (2 ** 30)) / (2 ** 30))
     fpmsg.frogpilotDeviceState.usedSpace = round(get_used_bytes(default=0.0) / (2 ** 30))
 
@@ -465,8 +488,7 @@ def hardware_thread(end_event, hw_queue) -> None:
     should_start_prev = should_start
 
     # Update FrogPilot variables
-    if sm['frogpilotPlan'].togglesUpdated:
-      frogpilot_toggles = get_frogpilot_toggles()
+    frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles(sm)
 
 def main():
   hw_queue = queue.Queue(maxsize=1)

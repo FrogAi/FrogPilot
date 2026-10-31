@@ -29,7 +29,7 @@ const int GM_STANDSTILL_THRSLD = 10;  // 0.311kph
 
 // panda interceptor threshold needs to be equivalent to openpilot threshold to avoid controls mismatches
 // If thresholds are mismatched then it is possible for panda to see the gas fall and rise while openpilot is in the pre-enabled state
-const int GM_GAS_INTERCEPTOR_THRESHOLD = 515; // (675 + 355) / 2 ratio between offset and gain from dbc file
+const int GM_GAS_INTERCEPTOR_THRESHOLD = 550; // DBC gains: round((((16.1 + 75.909) / 0.125677) + ((16.1 + 76.601) / 0.251976)) / 2) = 550
 #define GM_GET_INTERCEPTOR(msg) (((GET_BYTE((msg), 0) << 8) + GET_BYTE((msg), 1) + (GET_BYTE((msg), 2) << 8) + GET_BYTE((msg), 3)) / 2U) // avg between 2 tracks
 
 const CanMsg GM_ASCM_TX_MSGS[] = {{0x180, 0, 4}, {0x409, 0, 7}, {0x40A, 0, 7}, {0x2CB, 0, 8}, {0x370, 0, 6},  // pt bus
@@ -39,7 +39,7 @@ const CanMsg GM_ASCM_TX_MSGS[] = {{0x180, 0, 4}, {0x409, 0, 7}, {0x40A, 0, 7}, {
 const CanMsg GM_CAM_TX_MSGS[] = {{0x180, 0, 4}, {0x200, 0, 6}, {0x1E1, 0, 7},  // pt bus
                                  {0x1E1, 2, 7}, {0x184, 2, 8}};  // camera bus
 
-const CanMsg GM_CAM_LONG_TX_MSGS[] = {{0x180, 0, 4}, {0x315, 0, 5}, {0x2CB, 0, 8}, {0x370, 0, 6}, {0x200, 0, 6},  // pt bus
+const CanMsg GM_CAM_LONG_TX_MSGS[] = {{0x180, 0, 4}, {0x315, 0, 5}, {0x2CB, 0, 8}, {0x370, 0, 6}, {0x200, 0, 6}, {0x1E1, 0, 7},  // pt bus
                                       {0x184, 2, 8}};  // camera bus
 
 const CanMsg GM_SDGM_TX_MSGS[] = {{0x180, 0, 4}, {0x1E1, 0, 7},  // pt bus
@@ -110,6 +110,9 @@ enum {
   GM_BTN_RESUME = 2,
   GM_BTN_SET = 3,
   GM_BTN_CANCEL = 6,
+
+  // FrogPilot variables
+  GM_BTN_MAIN = 5,
 };
 
 typedef enum {
@@ -125,6 +128,9 @@ bool gm_pedal_long = false;
 bool gm_cc_long = false;
 bool gm_skip_relay_check = false;
 bool gm_force_ascm = false;
+
+// FrogPilot variables
+bool gm_main_press_sent = false;
 
 static void handle_gm_wheel_buttons(const CANPacket_t *to_push) {
   int button = (GET_BYTE(to_push, 5) & 0x70U) >> 4;
@@ -181,10 +187,6 @@ static void gm_rx_hook(const CANPacket_t *to_push) {
       brake_pressed = GET_BIT(to_push, 40U);
     }
 
-    if (addr == 0xC9) {
-      acc_main_on = GET_BIT(to_push, 29U) != 0U;
-    }
-
     if (addr == 0x1C4) {
       if (!enable_gas_interceptor) {
         gas_pressed = GET_BYTE(to_push, 5) != 0U;
@@ -225,6 +227,11 @@ static void gm_rx_hook(const CANPacket_t *to_push) {
       stock_ecu_detected = true;
     }
     generic_rx_checks(stock_ecu_detected);
+
+    // FrogPilot variables
+    if (addr == 0xC9) {
+      acc_main_on = GET_BIT(to_push, 29U);
+    }
   }
 }
 
@@ -276,7 +283,7 @@ static bool gm_tx_hook(const CANPacket_t *to_send) {
   }
 
   // BUTTONS: used for resume spamming and cruise cancellation with stock longitudinal
-  if ((addr == 0x1E1) && (gm_pcm_cruise || gm_pedal_long || gm_cc_long)) {
+  if ((addr == 0x1E1) && (gm_pcm_cruise || gm_pedal_long || gm_cc_long || gm_cam_long)) {
     int button = (GET_BYTE(to_send, 5) >> 4) & 0x7U;
 
     bool allowed_btn = (button == GM_BTN_CANCEL) && cruise_engaged_prev;
@@ -284,6 +291,13 @@ static bool gm_tx_hook(const CANPacket_t *to_send) {
     if (gm_cc_long) {
       allowed_btn |= cruise_engaged_prev && get_longitudinal_allowed() && ((button == GM_BTN_SET) || (button == GM_BTN_RESUME) || (button == GM_BTN_UNPRESS));
     }
+
+    // FrogPilot variables
+    bool main_press = acc_main_on && (button == GM_BTN_MAIN) && !controls_allowed && !cruise_engaged_prev && !gm_main_press_sent;
+    if (main_press) {
+      gm_main_press_sent = true;
+    }
+    allowed_btn |= main_press;
 
     if (!allowed_btn) {
       tx = false;
@@ -364,6 +378,10 @@ static safety_config gm_init(uint16_t param) {
   if (enable_gas_interceptor) {
     SET_RX_CHECKS(gm_interceptor_rx_checks, ret);
   }
+
+  // FrogPilot variables
+  gm_main_press_sent = false;
+
   return ret;
 }
 

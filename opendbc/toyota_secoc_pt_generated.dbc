@@ -58,7 +58,7 @@ BO_ 119 ENG2F41: 6 CGW
  SG_ ENG2F41S : 47|8@0+ (1,0) [0|0] "" Vector__XXX
 
 BO_ 120 ENG2F42: 4 CGW
- SG_ FAVLMCHH : 7|16@0- (2,0) [0|0] "N" Vector__XX228X
+ SG_ FAVLMCHH : 7|16@0- (2,0) [0|0] "N" Vector__XXX
  SG_ CCRNG : 23|1@0+ (1,0) [0|0] "" Vector__XXX
  SG_ FDRVTYPD : 22|3@0+ (1,0) [0|0] "" Vector__XXX
  SG_ GEARHD : 18|1@0+ (1,0) [0|0] "" Vector__XXX
@@ -212,6 +212,7 @@ BO_ 956 GEAR_PACKET: 8 XXX
  SG_ SPORT_GEAR_ON : 33|1@0+ (1,0) [0|1] "" XXX
  SG_ SPORT_GEAR : 38|3@0+ (1,0) [0|7] "" XXX
  SG_ ECON_ON : 40|1@0+ (1,0) [0|1] "" XXX
+ SG_ SPORT_ON_2 : 55|1@0+ (1,0) [0|1] "" XXX
  SG_ B_GEAR_ENGAGED : 41|1@0+ (1,0) [0|1] "" XXX
  SG_ DRIVE_ENGAGED : 47|1@0+ (1,0) [0|1] "" XXX
 
@@ -435,8 +436,8 @@ CM_ SG_ 581 GAS_PEDAL "it seems slightly filtered";
 CM_ SG_ 608 STEER_TORQUE_DRIVER "driver torque";
 CM_ SG_ 608 STEER_OVERRIDE "set when driver torque exceeds a certain value";
 CM_ SG_ 614 ANGLE "set to measured angle when ipas control isn't active";
-CM_ SG_ 800 SLOPE_ANGLE "potentially used by the PCM to compensate for road pitch";
-CM_ SG_ 800 ACCEL "filtered ego acceleration";
+CM_ SG_ 800 ASLP "potentially used by the PCM to compensate for road pitch";
+CM_ SG_ 800 GVC "filtered ego acceleration";
 CM_ SG_ 835 ACC_TYPE "if 2, car is likely to have a permanent low speed lockout. 1 is ok";
 CM_ SG_ 835 RADAR_DIRTY "Display Clean Radar Sensor message on HUD";
 CM_ SG_ 835 ACC_MALFUNCTION "display ACC fault on dash if set to 1";
@@ -519,6 +520,7 @@ VAL_ 956 GEAR 0 "D" 1 "S" 8 "N" 16 "R" 32 "P";
 VAL_ 956 SPORT_GEAR_ON 0 "off" 1 "on";
 VAL_ 956 SPORT_GEAR 1 "S1" 2 "S2" 3 "S3" 4 "S4" 5 "S5" 6 "S6";
 VAL_ 956 ECON_ON 0 "off" 1 "on";
+VAL_ 956 SPORT_ON_2 0 "off" 1 "on";
 VAL_ 956 B_GEAR_ENGAGED 0 "off" 1 "on";
 VAL_ 956 DRIVE_ENGAGED 0 "off" 1 "on";
 VAL_ 1005 REVERSE_CAMERA_GUIDELINES 3 "No guidelines" 2 "Static guidelines" 1 "Active guidelines";

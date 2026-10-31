@@ -32,6 +32,9 @@ class CarState(CarStateBase):
 
     self.single_pedal_mode = False
 
+    # FrogPilot variables
+    self.cruise_main_off_seen = False
+
   def update(self, pt_cp, cam_cp, loopback_cp, frogpilot_toggles):
     ret = car.CarState.new_message()
     fp_ret = custom.FrogPilotCarState.new_message()
@@ -95,7 +98,8 @@ class CarState(CarStateBase):
 
     if self.CP.enableGasInterceptor:
       ret.gas = (pt_cp.vl["GAS_SENSOR"]["INTERCEPTOR_GAS"] + pt_cp.vl["GAS_SENSOR"]["INTERCEPTOR_GAS2"]) / 2.
-      threshold = 10 if self.CP.carFingerprint in CAMERA_ACC_CAR else 4 # Panda 515 threshold = 10.88. Set lower to avoid panda blocking messages and GasInterceptor faulting.
+      # Panda 550 threshold = 16.1. Set lower to avoid panda blocking messages and GasInterceptor faulting.
+      threshold = 10 if self.CP.carFingerprint in CAMERA_ACC_CAR else 4
       if self.CP.carFingerprint == CAR.CHEVROLET_VOLT:
         threshold = 2.25
       ret.gasPressed = ret.gas > threshold
@@ -171,16 +175,14 @@ class CarState(CarStateBase):
         ret.rightBlindspot = cam_cp.vl["BCMBlindSpotMonitor"]["RightBSM"] == 1
 
     # FrogPilot CarState functions
-    self.lkas_previously_enabled = self.lkas_enabled
-    if self.CP.carFingerprint in SDGM_CAR:
-      self.lkas_enabled = cam_cp.vl["ASCMSteeringButton"]["LKAButton"]
-    else:
-      self.lkas_enabled = pt_cp.vl["ASCMSteeringButton"]["LKAButton"]
-
     if self.CP.transmissionType == TransmissionType.direct:
       self.single_pedal_mode |= ret.regenBraking and ret.gearShifter == GearShifter.manumatic
+      fp_ret.pedalInterceptorNoBrake = bool(self.CP.flags & GMFlags.PEDAL_LONG.value) and self.CP.openpilotLongitudinalControl and not self.single_pedal_mode
 
     fp_ret.sportGear = pt_cp.vl["SportMode"]["SportMode"] == 1
+
+    if pt_cp.can_valid and not ret.cruiseState.available:
+      self.cruise_main_off_seen = True
 
     return ret, fp_ret
 

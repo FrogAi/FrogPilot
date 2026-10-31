@@ -3,12 +3,20 @@ from hypothesis import settings, given, strategies as st
 import pytest
 
 from cereal import car
+from opendbc.can.packer import CANPacker
+from opendbc.can.parser import CANParser
+from openpilot.selfdrive.car import gen_empty_fingerprint
+from openpilot.selfdrive.car.car_helpers import interfaces
 from openpilot.selfdrive.car.fw_versions import build_fw_dict
 from openpilot.selfdrive.car.hyundai.values import CAMERA_SCC_CAR, CANFD_CAR, CAN_GEARS, CAR, CHECKSUM, DATE_FW_ECUS, \
                                          HYBRID_CAR, EV_CAR, FW_QUERY_CONFIG, LEGACY_SAFETY_MODE_CAR, CANFD_FUZZY_WHITELIST, \
                                          UNSUPPORTED_LONGITUDINAL_CAR, PLATFORM_CODE_ECUS, HYUNDAI_VERSION_REQUEST_LONG, \
-                                         get_platform_codes
+                                         get_platform_codes, DBC
 from openpilot.selfdrive.car.hyundai.fingerprints import FW_VERSIONS
+from openpilot.selfdrive.car.hyundai.hyundaicanfd import CanBus
+from openpilot.selfdrive.car.tests.test_car_interfaces import TOGGLES
+from openpilot.selfdrive.pandad import can_list_to_can_capnp
+from panda import ALTERNATIVE_EXPERIENCE
 
 Ecu = car.CarParams.Ecu
 ECU_NAME = {v: k for k, v in Ecu.schema.enumerants.items()}
@@ -216,3 +224,135 @@ class TestHyundaiFingerprint:
         platforms_with_shared_codes.add(platform)
 
     assert platforms_with_shared_codes == excluded_platforms
+
+
+# FrogPilot variables
+class TestAlwaysOnLateral:
+  def test_lane_keep_dashboard(self):
+    can_fingerprint = gen_empty_fingerprint()
+    can_fingerprint[2][0x485] = 4
+
+    for candidate, fingerprint, enabled, lat_active, expected in (
+      (CAR.HYUNDAI_SANTA_FE_2022, can_fingerprint, False, True,
+       {("LKAS11", "CF_Lkas_FcwOpt_USM"): 2, ("LKAS11", "CF_Lkas_LdwsSysState"): 3, ("LFAHDA_MFC", "LFA_Icon_State"): 2}),
+      (CAR.HYUNDAI_SANTA_FE_2022, can_fingerprint, True, False,
+       {("LKAS11", "CF_Lkas_FcwOpt_USM"): 2, ("LKAS11", "CF_Lkas_LdwsSysState"): 3, ("LFAHDA_MFC", "LFA_Icon_State"): 2}),
+      (CAR.HYUNDAI_SANTA_FE_2022, can_fingerprint, False, False,
+       {("LKAS11", "CF_Lkas_FcwOpt_USM"): 1, ("LKAS11", "CF_Lkas_LdwsSysState"): 4, ("LFAHDA_MFC", "LFA_Icon_State"): 0}),
+      (CAR.HYUNDAI_TUCSON_4TH_GEN, gen_empty_fingerprint(), False, True,
+       {("LFA", "LKA_ICON"): 2, ("LFAHDA_CLUSTER", "HDA_ICON"): 0, ("LFAHDA_CLUSTER", "LFA_ICON"): 2}),
+      (CAR.HYUNDAI_TUCSON_4TH_GEN, gen_empty_fingerprint(), True, False,
+       {("LFA", "LKA_ICON"): 2, ("LFAHDA_CLUSTER", "HDA_ICON"): 1, ("LFAHDA_CLUSTER", "LFA_ICON"): 2}),
+      (CAR.HYUNDAI_TUCSON_4TH_GEN, gen_empty_fingerprint(), False, False,
+       {("LFA", "LKA_ICON"): 1, ("LFAHDA_CLUSTER", "HDA_ICON"): 0, ("LFAHDA_CLUSTER", "LFA_ICON"): 0}),
+    ):
+      CarInterface, CarController, CarState = interfaces[candidate]
+      CP = CarInterface.get_params(candidate, fingerprint, [], False, TOGGLES, docs=False)
+      FPCP = CarInterface.get_frogpilot_params(candidate, fingerprint, [], CP, TOGGLES)
+      CI = CarInterface(CP, FPCP, CarController, CarState)
+
+      CC = car.CarControl.new_message(enabled=enabled, latActive=lat_active)
+      CC.hudControl.leftLaneVisible = True
+      CC.hudControl.rightLaneVisible = True
+
+      CI.update(CC, [], TOGGLES)
+      _, can_sends = CI.apply(CC.as_reader(), 0, TOGGLES)
+
+      messages = {message for message, _ in expected}
+      parser = CANParser(DBC[candidate]["pt"], [(message, 0) for message in messages], 0)
+      parser.update_strings([can_list_to_can_capnp(can_sends, msgtype="sendcan")], sendcan=True)
+
+      for (message, signal), value in expected.items():
+        assert parser.vl[message][signal] == value, (candidate, enabled, lat_active, message, signal)
+
+  def test_lkas_button_forced(self):
+    lfa_button_fingerprint = gen_empty_fingerprint()
+    lfa_button_fingerprint[0][0x391] = 8
+
+    for candidate, fingerprint, experimental_long, forced in (
+      (CAR.HYUNDAI_IONIQ_5, gen_empty_fingerprint(), False, True),
+      (CAR.HYUNDAI_IONIQ_5, gen_empty_fingerprint(), True, True),
+      (CAR.HYUNDAI_SANTA_FE_2022, gen_empty_fingerprint(), False, False),
+      (CAR.HYUNDAI_SANTA_FE_2022, gen_empty_fingerprint(), True, False),
+      (CAR.HYUNDAI_SANTA_FE_2022, lfa_button_fingerprint, False, True),
+      (CAR.HYUNDAI_SONATA, lfa_button_fingerprint, False, False),
+      (CAR.HYUNDAI_SONATA, lfa_button_fingerprint, True, True),
+    ):
+      CarInterface, _, _ = interfaces[candidate]
+      CP = CarInterface.get_params(candidate, fingerprint, [], experimental_long, TOGGLES, docs=False)
+      FPCP = CarInterface.get_frogpilot_params(candidate, fingerprint, [], CP, TOGGLES)
+
+      assert FPCP.alwaysOnLateralLKASButton == forced, (candidate, experimental_long)
+
+  def test_main_cruise_dashboard(self):
+    for always_on_lateral, main_cruise_on, main_mode in ((False, False, 1), (True, False, 0), (True, True, 1)):
+      CarInterface, CarController, CarState = interfaces[CAR.HYUNDAI_SONATA]
+      CP = CarInterface.get_params(CAR.HYUNDAI_SONATA, gen_empty_fingerprint(), [], True, TOGGLES, docs=False)
+      FPCP = CarInterface.get_frogpilot_params(CAR.HYUNDAI_SONATA, gen_empty_fingerprint(), [], CP, TOGGLES)
+      if always_on_lateral:
+        CP.alternativeExperience |= ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL
+      CI = CarInterface(CP, FPCP, CarController, CarState)
+
+      CC = car.CarControl.new_message()
+      CI.update(CC, [], TOGGLES)
+      CI.CS.main_cruise_on = main_cruise_on
+      _, can_sends = CI.apply(CC.as_reader(), 0, TOGGLES)
+
+      parser = CANParser(DBC[CAR.HYUNDAI_SONATA]["pt"], [("SCC11", 0)], 0)
+      parser.update_strings([can_list_to_can_capnp(can_sends, msgtype="sendcan")], sendcan=True)
+
+      assert parser.vl["SCC11"]["MainMode_ACC"] == main_mode, (always_on_lateral, main_cruise_on)
+
+  def test_main_cruise_reset(self):
+    CarInterface, CarController, CarState = interfaces[CAR.HYUNDAI_SONATA]
+    CP = CarInterface.get_params(CAR.HYUNDAI_SONATA, gen_empty_fingerprint(), [], True, TOGGLES, docs=False)
+    FPCP = CarInterface.get_frogpilot_params(CAR.HYUNDAI_SONATA, gen_empty_fingerprint(), [], CP, TOGGLES)
+    CS = CarState(CP, FPCP)
+
+    assert not CS.update_main_cruise([0, 1])
+
+    CS.car_safety_mode_set = True
+    assert not CS.update_main_cruise([1])
+    assert CS.update_main_cruise([0, 1, 0])
+
+    CS.rx_checks_invalid = True
+    assert not CS.update_main_cruise([0])
+    assert CS.update_main_cruise([1])
+
+    CS.rx_checks_invalid = False
+    assert CS.update_main_cruise([0])
+
+    CS.car_safety_mode_set = False
+    assert not CS.update_main_cruise([0])
+
+  def test_main_cruise_toggle(self):
+    for candidate, experimental_long, always_on_lateral, toggles in (
+      (CAR.HYUNDAI_SONATA, True, True, True),
+      (CAR.HYUNDAI_SONATA, True, False, False),
+      (CAR.HYUNDAI_SONATA, False, True, False),
+      (CAR.HYUNDAI_IONIQ_5, True, True, True),
+    ):
+      CarInterface, CarController, CarState = interfaces[candidate]
+      CP = CarInterface.get_params(candidate, gen_empty_fingerprint(), [], experimental_long, TOGGLES, docs=False)
+      FPCP = CarInterface.get_frogpilot_params(candidate, gen_empty_fingerprint(), [], CP, TOGGLES)
+      if always_on_lateral:
+        CP.alternativeExperience |= ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL
+      CI = CarInterface(CP, FPCP, CarController, CarState)
+      CI.CS.car_safety_mode_set = True
+
+      packer = CANPacker(DBC[candidate]["pt"])
+      if candidate in CANFD_CAR:
+        message, bus, signal = CI.CS.cruise_btns_msg_canfd, CanBus(CP).ECAN, "ADAPTIVE_CRUISE_MAIN_BTN"
+      else:
+        message, bus, signal = "CLU11", 0, "CF_Clu_CruiseSwMain"
+
+      available = []
+      for main_button in (0, 1, 1, 0, 1, 0):
+        msgs = [packer.make_can_msg(message, bus, {signal: main_button})]
+        if candidate not in CANFD_CAR:
+          msgs.append(packer.make_can_msg("SCC11", 0, {"MainMode_ACC": 1}))
+        CS, _ = CI.update(car.CarControl.new_message(), [can_list_to_can_capnp(msgs)], TOGGLES)
+        available.append(CS.cruiseState.available)
+
+      expected = [False, True, True, True, False, False] if toggles else [True] * 6
+      assert available == expected, (candidate, experimental_long, always_on_lateral)

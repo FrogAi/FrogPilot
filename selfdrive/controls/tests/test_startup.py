@@ -48,8 +48,8 @@ CX5_FW_VERSIONS = [
   (FROGPILOT_EVENT_NAME[FrogPilotEventName.customStartupAlert], TOYOTA.TOYOTA_COROLLA, COROLLA_FW_VERSIONS, "toyota"),
 
   # dashcamOnly car
-  (EVENT_NAME[EventName.startupNoControl], MAZDA.MAZDA_CX5, CX5_FW_VERSIONS, "mazda"),
-  (EVENT_NAME[EventName.startupNoControl], MAZDA.MAZDA_CX5, CX5_FW_VERSIONS, "mazda"),
+  (FROGPILOT_EVENT_NAME[FrogPilotEventName.customStartupAlert], MAZDA.MAZDA_CX5, CX5_FW_VERSIONS, "mazda"),
+  (FROGPILOT_EVENT_NAME[FrogPilotEventName.customStartupAlert], MAZDA.MAZDA_CX5, CX5_FW_VERSIONS, "mazda"),
 
   # unrecognized car with no fw
   (EVENT_NAME[EventName.startupNoFw], None, None, ""),

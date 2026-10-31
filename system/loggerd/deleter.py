@@ -5,8 +5,9 @@ import threading
 from openpilot.system.hardware.hw import Paths
 from openpilot.common.swaglog import cloudlog
 from openpilot.system.loggerd.config import get_available_bytes, get_available_percent
-from openpilot.system.loggerd.uploader import listdir_by_creation
-from openpilot.system.loggerd.xattr_cache import getxattr
+from openpilot.system.loggerd.uploader import get_directory_sort, listdir_by_creation
+
+from openpilot.frogpilot.common import frogpilot_utilities
 
 MIN_BYTES = 5 * 1024 * 1024 * 1024
 MIN_PERCENT = 10
@@ -19,7 +20,15 @@ PRESERVE_COUNT = 5
 
 
 def has_preserve_xattr(d: str) -> bool:
-  return getxattr(os.path.join(Paths.log_root(), d), PRESERVE_ATTR_NAME) == PRESERVE_ATTR_VALUE
+  return frogpilot_utilities.has_preserve_attr(d, PRESERVE_ATTR_NAME, PRESERVE_ATTR_VALUE)
+
+
+# FrogPilot variables
+def get_log_dirs():
+  dirs = []
+  for log_root in frogpilot_utilities.get_log_roots():
+    dirs += [os.path.join(log_root, d) for d in listdir_by_creation(log_root)]
+  return sorted(dirs, key=lambda d: get_directory_sort(os.path.basename(d)))
 
 
 def get_preserved_segments(dirs_by_creation: list[str]) -> list[str]:
@@ -50,15 +59,14 @@ def deleter_thread(exit_event):
     out_of_percent = get_available_percent(default=MIN_PERCENT + 1) < MIN_PERCENT
 
     if out_of_percent or out_of_bytes:
-      dirs = listdir_by_creation(Paths.log_root())
+      dirs = get_log_dirs()
 
       # skip deleting most recent N preserved segments (and their prior segment)
       preserved_dirs = get_preserved_segments(dirs)
 
       # remove the earliest directory we can
-      for delete_dir in sorted(dirs, key=lambda d: (d in DELETE_LAST, d in preserved_dirs)):
-        delete_path = os.path.join(Paths.log_root(), delete_dir)
-
+      for delete_path in sorted(dirs, key=lambda d: (os.path.basename(d) in DELETE_LAST, d in preserved_dirs or frogpilot_utilities.is_route_preserved(d),
+                                                     frogpilot_utilities.has_pending_telemetry(d))):
         if any(name.endswith(".lock") for name in os.listdir(delete_path)):
           continue
 

@@ -19,6 +19,22 @@ const float MAX_PITCH = 50;
 const float MIN_PITCH = 0;
 const float MAP_SCALE = 2;
 
+// FrogPilot variables
+const std::array<std::string, 12> styleUrls = {
+  "mapbox://styles/commaai/clkqztk0f00ou01qyhsa5bzpj",     // Stock openpilot
+  "mapbox://styles/frogsgomoo/cmcfv151j000o01rcdxebhl76",  // FrogsGoMoo's Personalized Style
+  "mapbox://styles/mapbox/streets-v11",                    // Mapbox Streets
+  "mapbox://styles/mapbox/outdoors-v11",                   // Mapbox Outdoors
+  "mapbox://styles/mapbox/light-v10",                      // Mapbox Light
+  "mapbox://styles/mapbox/dark-v10",                       // Mapbox Dark
+  "mapbox://styles/mapbox/navigation-day-v1",              // Mapbox Navigation Day
+  "mapbox://styles/mapbox/navigation-night-v1",            // Mapbox Navigation Night
+  "mapbox://styles/mapbox/satellite-v9",                   // Mapbox Satellite
+  "mapbox://styles/mapbox/satellite-streets-v11",          // Mapbox Satellite Streets
+  "mapbox://styles/mapbox/traffic-night-v2",               // Mapbox Traffic Night
+  "mapbox://styles/mike854/clt0hm8mw01ok01p4blkr27jp"      // Mike854's Personalized Style
+};
+
 MapWindow::MapWindow(const QMapLibre::Settings &settings) : m_settings(settings), velocity_filter(0, 10, 0.05, false) {
   QObject::connect(uiState(), &UIState::uiUpdate, this, &MapWindow::updateState);
 
@@ -110,6 +126,8 @@ void MapWindow::initLayers() {
     // TODO: remove, symbol-sort-key does not seem to matter outside of each layer
     m_map->setLayoutProperty("carPosLayer", "symbol-sort-key", 0);
   }
+
+  // FrogPilot variables
   // Credit goes to jakethesnake420!
   if (!m_map->layerExists("buildingsLayer")) {
     qDebug() << "Initializing buildingsLayer";
@@ -155,6 +173,17 @@ void MapWindow::initLayers() {
     m_map->setLayoutProperty("buildingsLayer", "visibility", "visible");
   }
 
+  for (const QString &pin : {"favorite", "home", "work"}) {
+    if (!m_map->layerExists(pin + "PinLayer")) {
+      m_map->addImage(pin + "_marker", QImage("../assets/navigation/icon_" + pin + ".svg"));
+      m_map->addLayer(pin + "PinLayer", QVariantMap{{"type", "symbol"}, {"source", pin + "PinSource"}});
+      m_map->setLayoutProperty(pin + "PinLayer", "icon-allow-overlap", true);
+      m_map->setLayoutProperty(pin + "PinLayer", "icon-anchor", "center");
+      m_map->setLayoutProperty(pin + "PinLayer", "icon-image", pin + "_marker");
+      m_map->setLayoutProperty(pin + "PinLayer", "icon-size", 0.25);
+    }
+  }
+
   updateFavoritesMarkers();
 }
 
@@ -173,6 +202,7 @@ void MapWindow::updateState(const UIState &s) {
   }
   prev_time_valid = sm.valid("clocks");
 
+  // FrogPilot variables
   if (sm.updated("modelV2")) {
     // set path color on change, and show map on rising edge of navigate on openpilot
     bool nav_enabled = sm["modelV2"].getModelV2().getNavEnabled() &&
@@ -310,53 +340,9 @@ void MapWindow::updateState(const UIState &s) {
     model_rcv_frame = sm.rcv_frame("uiPlan");
   }
 
-  if (!m_map->layerExists("favoritesPinLayer")) {
-    m_map->addImage("favorite_marker", QImage("../assets/navigation/icon_favorite.svg"));
-    m_map->addLayer("favoritesPinLayer", QVariantMap{{"type", "symbol"}, {"source", "favoritesPinSource"}});
-    m_map->setLayoutProperty("favoritesPinLayer", "icon-allow-overlap", true);
-    m_map->setLayoutProperty("favoritesPinLayer", "icon-anchor", "center");
-    m_map->setLayoutProperty("favoritesPinLayer", "icon-image", "favorite_marker");
-    m_map->setLayoutProperty("favoritesPinLayer", "icon-size", 0.25);
-  }
-
-  if (!m_map->layerExists("homePinLayer")) {
-    m_map->addImage("home_marker", QImage("../assets/navigation/icon_home.svg"));
-    m_map->addLayer("homePinLayer", QVariantMap{{"type", "symbol"}, {"source", "homePinSource"}});
-    m_map->setLayoutProperty("homePinLayer", "icon-allow-overlap",  true);
-    m_map->setLayoutProperty("homePinLayer", "icon-anchor", "center");
-    m_map->setLayoutProperty("homePinLayer", "icon-image", "home_marker");
-    m_map->setLayoutProperty("homePinLayer", "icon-size", 0.25);
-  }
-
-  if (!m_map->layerExists("workPinLayer")) {
-    m_map->addImage("work_marker", QImage("../assets/navigation/icon_work.svg"));
-    m_map->addLayer("workPinLayer", QVariantMap{{"type", "symbol"}, {"source", "workPinSource"}});
-    m_map->setLayoutProperty("workPinLayer", "icon-allow-overlap", true);
-    m_map->setLayoutProperty("workPinLayer", "icon-anchor", "center");
-    m_map->setLayoutProperty("workPinLayer", "icon-image", "work_marker");
-    m_map->setLayoutProperty("workPinLayer", "icon-size", 0.25);
-  }
-
   // Map Styling - Credit goes to OPKR!
-  static int previous_map_style = 0;
-
   int map_style = frogpilotUIState()->frogpilot_toggles.value("map_style").toInt();
   if (map_style != previous_map_style) {
-    std::array<std::string, 12> styleUrls = {
-      "mapbox://styles/commaai/clkqztk0f00ou01qyhsa5bzpj",     // Stock openpilot
-      "mapbox://styles/frogsgomoo/cmcfv151j000o01rcdxebhl76",  // FrogsGoMoo's Personalized Style
-      "mapbox://styles/mapbox/streets-v11",                    // Mapbox Streets
-      "mapbox://styles/mapbox/outdoors-v11",                   // Mapbox Outdoors
-      "mapbox://styles/mapbox/light-v10",                      // Mapbox Light
-      "mapbox://styles/mapbox/dark-v10",                       // Mapbox Dark
-      "mapbox://styles/mapbox/navigation-day-v1",              // Mapbox Navigation Day
-      "mapbox://styles/mapbox/navigation-night-v1",            // Mapbox Navigation Night
-      "mapbox://styles/mapbox/satellite-v9",                   // Mapbox Satellite
-      "mapbox://styles/mapbox/satellite-streets-v11",          // Mapbox Satellite Streets
-      "mapbox://styles/mapbox/traffic-night-v2",               // Mapbox Traffic Night
-      "mapbox://styles/mike854/clt0hm8mw01ok01p4blkr27jp"      // Mike854's Personalized Style
-    };
-
     m_map->setStyleUrl(QString::fromStdString(styleUrls[map_style]));
   }
   previous_map_style = map_style;
@@ -386,12 +372,22 @@ void MapWindow::initializeGL() {
 
   m_map->setMargins({0, 350, 0, 50});
   m_map->setPitch(MIN_PITCH);
-  m_map->setStyleUrl("mapbox://styles/commaai/clkqztk0f00ou01qyhsa5bzpj");
+
+  // FrogPilot variables
+  previous_map_style = frogpilotUIState()->frogpilot_toggles.value("map_style").toInt();
+
+  m_map->setStyleUrl(QString::fromStdString(styleUrls[previous_map_style]));
 
   QObject::connect(m_map.data(), &QMapLibre::Map::mapChanged, [=](QMapLibre::Map::MapChange change) {
     // set global animation duration to 0 ms so visibility changes are instant
     if (change == QMapLibre::Map::MapChange::MapChangeDidFinishLoadingStyle) {
       m_map->setTransitionOptions(0, 0);
+
+      // FrogPilot variables
+      if (last_valid_nav_dest) {
+        route_rcv_frame = 0;
+      }
+      previous_favorites.clear();
     }
     if (change == QMapLibre::Map::MapChange::MapChangeDidFinishLoadingMap) {
       loaded_once = true;
@@ -492,8 +488,10 @@ void MapWindow::pinchTriggered(QPinchGesture *gesture) {
 void MapWindow::offroadTransition(bool offroad) {
   if (offroad) {
     clearRoute();
-    uiState()->scene.navigate_on_openpilot = false;
     routing_problem = false;
+
+    // FrogPilot variables
+    uiState()->scene.navigate_on_openpilot = false;
   } else {
     auto dest = coordinate_from_param("NavDestination");
     emit requestVisible(dest.has_value());
@@ -518,17 +516,15 @@ void MapWindow::updateDestinationMarker() {
 
 // FrogPilot functions
 void MapWindow::updateFavoritesMarkers() {
-  std::string favorites_param = Params().get("FavoriteDestinations");
-  if (favorites_param.empty()) {
-    m_map->setLayoutProperty("favoritesPinLayer", "visibility", "none");
-    m_map->setLayoutProperty("homePinLayer", "visibility", "none");
-    m_map->setLayoutProperty("workPinLayer", "visibility", "none");
+  std::string favorites_param = params.get("FavoriteDestinations");
+  if (favorites_param == previous_favorites) {
     return;
   }
+  previous_favorites = favorites_param;
 
   QJsonDocument doc = QJsonDocument::fromJson(QByteArray::fromStdString(favorites_param));
   if (!doc.isArray()) {
-    m_map->setLayoutProperty("favoritesPinLayer", "visibility", "none");
+    m_map->setLayoutProperty("favoritePinLayer", "visibility", "none");
     m_map->setLayoutProperty("homePinLayer", "visibility", "none");
     m_map->setLayoutProperty("workPinLayer", "visibility", "none");
     return;
@@ -546,9 +542,9 @@ void MapWindow::updateFavoritesMarkers() {
       double latitude = favorite["latitude"].toDouble();
       double longitude = favorite["longitude"].toDouble();
 
-      if (favorite.contains("is_home") && favorite["is_home"].toBool()) {
+      if (favorite["is_home"].toBool()) {
         home_coordinates = QMapLibre::Coordinate(latitude, longitude);
-      } else if (favorite.contains("is_work") && favorite["is_work"].toBool()) {
+      } else if (favorite["is_work"].toBool()) {
         work_coordinates = QMapLibre::Coordinate(latitude, longitude);
       } else {
         QVariantMap feature;
@@ -574,7 +570,7 @@ void MapWindow::updateFavoritesMarkers() {
   }
 
   if (favorite_features.isEmpty()) {
-    m_map->setLayoutProperty("favoritesPinLayer", "visibility", "none");
+    m_map->setLayoutProperty("favoritePinLayer", "visibility", "none");
   } else {
     QVariantMap feature_collection;
     feature_collection["type"] = "FeatureCollection";
@@ -586,8 +582,8 @@ void MapWindow::updateFavoritesMarkers() {
     QVariantMap source;
     source["type"] = "geojson";
     source["data"] = geojson_bytes;
-    m_map->updateSource("favoritesPinSource", source);
-    m_map->setLayoutProperty("favoritesPinLayer", "visibility", "visible");
+    m_map->updateSource("favoritePinSource", source);
+    m_map->setLayoutProperty("favoritePinLayer", "visibility", "visible");
   }
 
   if (home_coordinates.has_value()) {

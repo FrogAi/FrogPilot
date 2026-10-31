@@ -44,6 +44,8 @@ class CarControllerParams:
 class FordFlags(IntFlag):
   # Static flags
   CANFD = 1
+
+  # FrogPilot variables
   ALT_STEER_ANGLE = 2
 
 
@@ -102,14 +104,14 @@ class CAR(Platforms):
     [FordCarDocs("Ford Bronco Sport 2021-23")],
     CarSpecs(mass=1625, wheelbase=2.67, steerRatio=17.7),
   )
+
+  # FrogPilot variables
   FORD_EDGE_MK2 = FordPlatformConfig(
-    [
-    FordCarDocs("Ford Edge 2022"),
-    FordCarDocs("Ford Fusion Retrofited 2013-2019"),
-    ],
-    CarSpecs(mass=1691, steerRatio=15.3, wheelbase=2.824),
+    [FordCarDocs("Ford Fusion Retrofitted 2013-19")],
+    CarSpecs(mass=1691, wheelbase=2.85, steerRatio=15.3),
     flags=FordFlags.ALT_STEER_ANGLE,
   )
+
   FORD_ESCAPE_MK4 = FordPlatformConfig(
     [
       FordCarDocs("Ford Escape 2020-22", hybrid=True, plug_in_hybrid=True),

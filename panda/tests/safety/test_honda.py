@@ -2,7 +2,7 @@
 import unittest
 import numpy as np
 
-from panda import Panda
+from panda import ALTERNATIVE_EXPERIENCE, Panda
 from panda.tests.libpanda import libpanda_py
 import panda.tests.safety.common as common
 from panda.tests.safety.common import CANPackerPanda, MAX_WRONG_COUNTERS
@@ -165,7 +165,7 @@ class HondaPcmEnableBase(common.PandaCarSafetyTest):
             self.assertEqual(controls_allowed, self.safety.get_controls_allowed())
 
 
-class HondaBase(common.PandaCarSafetyTest):
+class HondaBase(common.AlwaysOnLateralSafetyTest, common.PandaCarSafetyTest):
   MAX_BRAKE = 255
   PT_BUS: int | None = None  # must be set when inherited
   STEER_BUS: int | None = None  # must be set when inherited
@@ -250,12 +250,19 @@ class HondaBase(common.PandaCarSafetyTest):
     self.assertTrue(self._tx(self._send_steer_msg(0x0000)))
     self.assertFalse(self._tx(self._send_steer_msg(0x1000)))
 
-  # FrogPilot tests
-  def _toggle_aol(self, toggle_on):
-    # SCM_FEEDBACK, bit 28 is MAIN_ON
-    values = {"MAIN_ON": 1 if toggle_on else 0, "COUNTER": self.cnt_acc_state % 4}
-    self.__class__.cnt_acc_state += 1
-    return self.packer.make_can_msg_panda("SCM_FEEDBACK", self.PT_BUS, values)
+  # FrogPilot variables
+  def _lkas_press_msg(self, pressed):
+    values = {"COUNTER": self.cnt_button % 4, "CRUISE_SETTING": int(pressed)}
+    self.__class__.cnt_button += 1
+
+    return self.packer.make_can_msg_panda("SCM_BUTTONS", self.PT_BUS, values)
+
+  def test_always_on_lateral_steer(self):
+    self.safety.set_alternative_experience(ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL)
+
+    for main_on in (True, False):
+      self._rx(self._acc_state_msg(main_on))
+      self.assertEqual(main_on, self._tx(self._send_steer_msg(0x1000)))
 
 
 # ********************* Honda Nidec **********************
@@ -393,6 +400,13 @@ class TestHondaNidecPcmAltSafety(TestHondaNidecPcmSafety):
     self.__class__.cnt_button += 1
     return self.packer.make_can_msg_panda("SCM_BUTTONS", bus, values)
 
+  # FrogPilot variables
+  def _lkas_press_msg(self, pressed):
+    values = {"COUNTER": self.cnt_button % 4, "CRUISE_SETTING": int(pressed), "MAIN_ON": self.safety.get_acc_main_on()}
+    self.__class__.cnt_button += 1
+
+    return self.packer.make_can_msg_panda("SCM_BUTTONS", self.PT_BUS, values)
+
 
 class TestHondaNidecAltGasInterceptorSafety(common.GasInterceptorSafetyTest, HondaButtonEnableBase, TestHondaNidecSafetyBase):
   """
@@ -418,6 +432,44 @@ class TestHondaNidecAltGasInterceptorSafety(common.GasInterceptorSafetyTest, Hon
     values = {"CRUISE_BUTTONS": buttons, "MAIN_ON": main_on, "COUNTER": self.cnt_button % 4}
     self.__class__.cnt_button += 1
     return self.packer.make_can_msg_panda("SCM_BUTTONS", bus, values)
+
+  # FrogPilot variables
+  def _lkas_press_msg(self, pressed):
+    values = {"COUNTER": self.cnt_button % 4, "CRUISE_SETTING": int(pressed), "MAIN_ON": self.safety.get_acc_main_on()}
+    self.__class__.cnt_button += 1
+
+    return self.packer.make_can_msg_panda("SCM_BUTTONS", self.PT_BUS, values)
+
+
+# FrogPilot tests
+class TestHondaNidecClaritySafety(TestHondaNidecPcmSafety):
+
+  def setUp(self):
+    self.packer = CANPackerPanda("honda_clarity_hybrid_2018_can_generated")
+    self.safety = libpanda_py.libpanda
+    self.safety.set_safety_hooks(Panda.SAFETY_HONDA_NIDEC, Panda.FLAG_HONDA_CLARITY)
+    self.safety.init_tests()
+
+  def _send_brake_msg(self, brake, aeb_req=0, bus=0):
+    values = {"COMPUTER_BRAKE_ALT": brake, "AEB_REQ_1": aeb_req}
+    return self.packer.make_can_msg_panda("BRAKE_COMMAND", bus, values)
+
+  def test_computer_brake_blocked(self):
+    for controls_allowed in (True, False):
+      self.safety.set_controls_allowed(controls_allowed)
+      for brake in (1, self.MAX_BRAKE):
+        values = {"COMPUTER_BRAKE": brake}
+        self.assertFalse(self._tx(self.packer.make_can_msg_panda("BRAKE_COMMAND", 0, values)))
+
+  def test_fwd_brake_threshold(self):
+    self.safety.set_controls_allowed(True)
+
+    for openpilot_brake in (129, 130, 131):
+      for stock_brake, fwd_brake in ((openpilot_brake - 1, False), (openpilot_brake, True)):
+        self.safety.set_honda_fwd_brake(False)
+        self.assertTrue(self._tx(self._send_brake_msg(openpilot_brake)))
+        self.assertTrue(self._rx(self._rx_brake_msg(stock_brake, aeb_req=1)))
+        self.assertEqual(fwd_brake, self.safety.get_honda_fwd_brake(), (openpilot_brake, stock_brake))
 
 
 

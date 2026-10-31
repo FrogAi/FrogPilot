@@ -208,6 +208,11 @@ void pcm_cruise_check(bool cruise_engaged);
 
 void safety_tick(const safety_config *safety_config);
 
+// FrogPilot variables
+bool get_lateral_allowed(void);
+
+void always_on_lateral_rx_checks(void);
+
 // This can be set by the safety hooks
 bool controls_allowed = false;
 bool relay_malfunction = false;
@@ -222,11 +227,15 @@ bool cruise_engaged_prev = false;
 struct sample_t vehicle_speed;
 bool vehicle_moving = false;
 bool acc_main_on = false;  // referred to as "ACC off" in ISO 15622:2018
-bool lkas_on = false;
-bool lkas_pressed_prev = false;
 int cruise_button_prev = 0;
-int cruise_main_prev = 0;
 bool safety_rx_checks_invalid = false;
+
+// FrogPilot variables
+bool acc_main_on_prev = false;
+bool data_integrity_fault = false;
+bool lkas_button_pressed = false;
+bool lkas_button_pressed_prev = false;
+bool lkas_on = false;
 
 // for safety modes with torque steering control
 int desired_torque_last = 0;       // last desired steer torque
@@ -265,12 +274,13 @@ struct sample_t angle_meas;         // last 6 steer angles/curvatures
 // This flag allows AEB to be commanded from openpilot.
 #define ALT_EXP_ALLOW_AEB 16
 
+// FrogPilot variables
+#define ALT_EXP_ALWAYS_ON_LATERAL 32
+#define ALT_EXP_ALWAYS_ON_LATERAL_LKAS_BUTTON 64
+
 int alternative_experience = 0;
 
 // time since safety mode has been changed
 uint32_t safety_mode_cnt = 0U;
 // allow 1s of transition timeout after relay changes state before assessing malfunctioning
 const uint32_t RELAY_TRNS_TIMEOUT = 1U;
-
-// Always on Lateral
-#define ALT_EXP_ALWAYS_ON_LATERAL 32

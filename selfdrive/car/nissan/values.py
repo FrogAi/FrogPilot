@@ -49,7 +49,7 @@ class CAR(Platforms):
   # Leaf with ADAS ECU found behind instrument cluster instead of glovebox
   # Currently the only known difference between them is the inverted seatbelt signal.
   NISSAN_LEAF_IC = NissanPlatformConfig(
-    [NissanCarDocs("Nissan Leaf 2018-23 - Instrument Cluster", video_link="https://youtu.be/vaMbtAh_0cY")],
+    [NissanCarDocs("Nissan Leaf Instrument Cluster 2018-23", video_link="https://youtu.be/vaMbtAh_0cY")],
     NISSAN_LEAF.specs,
     dbc_dict('nissan_leaf_2018_generated', None),
   )

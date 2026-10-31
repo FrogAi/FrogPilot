@@ -6,31 +6,41 @@ class FrogPilotOnroadWindow : public QWidget {
   Q_OBJECT
 
 public:
-  FrogPilotOnroadWindow(QWidget* parent = 0);
+  explicit FrogPilotOnroadWindow(QWidget *parent = 0);
 
   void updateState(const UIState &s, const FrogPilotUIState &fs);
 
-  double fps;
+  float fps = 0.0f;
 
   QColor bg;
 
 private:
-  void paintEvent(QPaintEvent *event);
-  void paintFPS(QPainter &p, const QRect &rect);
-  void paintSteeringTorqueBorder(QPainter &p, const QRect &rect);
-  void paintTurnSignalBorder(QPainter &p, const QRect &rect);
+  void paintEvent(QPaintEvent *event) override;
+  void paintFPS(QPainter &p);
+  void paintSteeringTorqueBorder(QPainter &p);
+  void paintTurnSignalBorder(QPainter &p);
+  void resetFPSStats();
+  void resizeEvent(QResizeEvent *event) override;
 
-  bool blindSpotLeft;
-  bool blindSpotRight;
-  bool flickerActive;
-  bool showBlindspot;
-  bool showFPS;
-  bool showSignal;
-  bool showSteering;
-  bool turnSignalLeft;
-  bool turnSignalRight;
+  bool showBlindspot = false;
+  bool showFPS = false;
+  bool showSignal = false;
+  bool showSteering = false;
 
-  float steer;
+  float avgFPS = 0.0f;
+  float maxFPS = 0.0f;
+  float minFPS = 99.9f;
+  float smoothedSteer = 0.0f;
+  float torque = 0.0f;
 
-  QTimer *signalTimer;
+  QColor leftBorderColor;
+  QColor rightBorderColor;
+
+  QElapsedTimer flickerTimer;
+
+  QRect rect;
+
+  QRegion marginRegion;
+
+  QString fpsDisplayString;
 };

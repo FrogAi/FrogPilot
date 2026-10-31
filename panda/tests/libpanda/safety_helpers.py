@@ -50,6 +50,9 @@ def setup_safety_helpers(ffi):
   void set_honda_alt_brake_msg(bool c);
   void set_honda_bosch_long(bool c);
   int get_honda_hw(void);
+
+  // FrogPilot variables
+  bool get_lateral_allowed(void);
   """)
 
 class PandaSafety(Protocol):
@@ -100,5 +103,8 @@ class PandaSafety(Protocol):
   def set_honda_alt_brake_msg(self, c: bool) -> None: ...
   def set_honda_bosch_long(self, c: bool) -> None: ...
   def get_honda_hw(self) -> int: ...
+
+  # FrogPilot variables
+  def get_lateral_allowed(self) -> bool: ...
 
 

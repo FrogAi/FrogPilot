@@ -1,5 +1,6 @@
 import unittest
 
+from panda import ALTERNATIVE_EXPERIENCE
 import panda.tests.safety.common as common
 from panda.tests.libpanda import libpanda_py
 from panda.tests.safety.common import make_msg
@@ -72,31 +73,17 @@ class HyundaiButtonBase:
       self.assertEqual(controls_allowed, self.safety.get_controls_allowed())
       self._rx(self._button_msg(Buttons.NONE))
 
-  # FrogPilot tests
-  def _toggle_aol(self, toggle_on):
-    """
-      Simulates toggling the main cruise button. The safety model requires a
-      press and release to change the main cruise state. This function
-      resets the safety model to a known state before each call.
-    """
-    if not hasattr(self, "_aol_state"):
-      self._aol_state = False
+  # FrogPilot variables
+  def test_main_cruise_button(self):
+    self._rx(self._acc_state_msg(True))
 
-    # Already in the requested state
-    if toggle_on == self._aol_state:
-      return None
-
-    # Toggle: press + release sequence
-    self._rx(self._button_msg(Buttons.NONE, main_button=1))
-    self._rx(self._button_msg(Buttons.NONE, main_button=0))
-
-    self._aol_state = toggle_on
-    return None  # avoid duplicate message in harness
+    for main_button in (1, 0, 1, 0):
+      self._rx(self._button_msg(Buttons.NONE, main_button=main_button))
+      self.assertTrue(self.safety.get_acc_main_on())
 
 
 class HyundaiLongitudinalBase(common.LongitudinalAccelSafetyTest):
   # pylint: disable=no-member,abstract-method
-  __test__ = False
 
   DISABLED_ECU_UDS_MSG: tuple[int, int]
   DISABLED_ECU_ACTUATION_MSG: tuple[int, int]
@@ -176,3 +163,42 @@ class HyundaiLongitudinalBase(common.LongitudinalAccelSafetyTest):
     self.assertFalse(self.safety.get_relay_malfunction())
     self._rx(make_msg(bus, addr, 8))
     self.assertTrue(self.safety.get_relay_malfunction())
+
+  # FrogPilot variables
+  def _press_main_cruise(self):
+    self._rx(self._button_msg(Buttons.NONE, main_button=1))
+    self._rx(self._button_msg(Buttons.NONE))
+
+  def test_main_cruise_acc_enable(self):
+    self._reset_safety_hooks()
+    self._press_main_cruise()
+
+    for acc_enabled in (True, False, True):
+      self._rx(self._acc_state_msg(acc_enabled))
+      self.assertEqual(acc_enabled, self.safety.get_acc_main_on())
+
+  def test_main_cruise_button(self):
+    self._reset_safety_hooks()
+    self.safety.set_alternative_experience(ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL)
+    self._rx(self._acc_state_msg(True))
+    self.assertFalse(self.safety.get_acc_main_on())
+
+    for main_on in (True, False, True):
+      for main_button in (1, 1, 0):
+        self._rx(self._button_msg(Buttons.NONE, main_button=main_button))
+        self.assertEqual(main_on, self.safety.get_acc_main_on())
+        self.assertEqual(main_on, self.safety.get_lateral_allowed())
+
+  def test_main_cruise_reset_on_rx_checks_invalid(self):
+    self._reset_safety_hooks()
+    self._rx(self._acc_state_msg(True))
+    self._press_main_cruise()
+    self.assertTrue(self.safety.get_acc_main_on())
+
+    self.safety.set_timer(int(2e6))
+    self.safety.safety_tick_current_safety_config()
+    self._rx(self._button_msg(Buttons.NONE))
+    self.assertFalse(self.safety.get_acc_main_on())
+
+    self._press_main_cruise()
+    self.assertTrue(self.safety.get_acc_main_on())

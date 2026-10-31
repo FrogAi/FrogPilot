@@ -13,10 +13,12 @@ public:
   void clear();
 
   // FrogPilot variables
-  bool displayFerg;
-  bool enableFerg;
+  bool isShowing() const { return alert.size != cereal::ControlsState::AlertSize::NONE; }
 
-  int alertHeight;
+  bool displayFerg = false;
+  bool enableFerg = false;
+
+  int alertHeight = 0;
 
   const QMap<cereal::FrogPilotControlsState::AlertStatus, QColor> frogpilot_alert_colors = {
     {cereal::FrogPilotControlsState::AlertStatus::NORMAL, QColor(0x15, 0x15, 0x15, 0xf1)},
@@ -51,7 +53,5 @@ protected:
   Alert alert = {};
 
   // FrogPilot variables
-  bool sidebarsOpen;
-
-  QPixmap ferg = loadPixmap("../../frogpilot/assets/random_events/icons/ferg.png", {1080, 720});
+  QPixmap ferg;
 };

@@ -1,55 +1,59 @@
 #!/usr/bin/env python3
 import os
 import requests
+import shutil
+import subprocess
 import sys
 
 from pathlib import Path
 
-from openpilot.common.basedir import BASEDIR
+from openpilot.frogpilot.common import frogpilot_download_utilities, frogpilot_paths, frogpilot_utilities, frogpilot_variables
 
-from openpilot.frogpilot.assets.download_functions import download_file, verify_download
-from openpilot.frogpilot.assets.model_manager import CANCEL_DOWNLOAD_PARAM, DOWNLOAD_PROGRESS_PARAM, MODEL_DOWNLOAD_PARAM
-from openpilot.frogpilot.common.frogpilot_utilities import delete_file, run_cmd
-from openpilot.frogpilot.common.frogpilot_variables import MODELS_PATH
-
-METADATA_SCRIPT = Path(BASEDIR) / "frogpilot/tinygrad_modeld/get_model_metadata.py"
-TINYGRAD_REPO_PATH = Path(BASEDIR) / "tinygrad_repo"
-
-MODELS_SOURCE = "https://api.github.com/repos/FrogAi/FrogPilot-Resources/contents/uncompiled?ref=Models"
-MODELS_SOURCE_RAW = "https://raw.githubusercontent.com/FrogAi/FrogPilot-Resources/Models/uncompiled"
-
-COMPILED_DIR = Path(MODELS_PATH) / "compiled"
-UNCOMPILED_DIR = Path(MODELS_PATH) / "uncompiled_downloads"
+MODELS_SOURCE = f"https://api.github.com/repos/{frogpilot_variables.RESOURCES_REPO}/contents/uncompiled?ref=Models"
+MODELS_SOURCE_RAW = f"{frogpilot_download_utilities.GITHUB_URL}/Models/uncompiled"
 
 def compile_model(onnx_path):
   onnx_path = Path(onnx_path).resolve()
-  compiled_path = COMPILED_DIR / f"{onnx_path.stem}_tinygrad.pkl"
+  compiled_path = frogpilot_paths.COMPILED_DIR / f"{onnx_path.stem}_tinygrad.pkl"
 
   env = os.environ.copy()
-  env["PYTHONPATH"] = f"{env.get('PYTHONPATH','')}:{TINYGRAD_REPO_PATH}"
+  if env.get("PYTHONPATH"):
+    env["PYTHONPATH"] += f":{frogpilot_paths.TINYGRAD_REPO_PATH}"
+  else:
+    env["PYTHONPATH"] = str(frogpilot_paths.TINYGRAD_REPO_PATH)
 
-  run_cmd([sys.executable, str(TINYGRAD_REPO_PATH / "examples/openpilot/compile3.py"), str(onnx_path), str(compiled_path)], f"{onnx_path.name} compiled successfully!", "Failed to compile the model...", env=env)
-  run_cmd([sys.executable, str(METADATA_SCRIPT), str(onnx_path)], f"Successfully extracted metadata from {onnx_path.name}!", f"Failed to extract metadata from {onnx_path.name}...")
+  compile_script = frogpilot_paths.TINYGRAD_REPO_PATH / "examples/openpilot/compile3.py"
+  subprocess.run([sys.executable, str(compile_script), str(onnx_path), str(compiled_path)], check=True, env=env)
+  print(f"{onnx_path.name} compiled successfully!")
 
-  delete_file(onnx_path)
+  subprocess.run([sys.executable, str(frogpilot_paths.METADATA_SCRIPT), str(onnx_path)], check=True)
+  print(f"Successfully extracted metadata from {onnx_path.name}!")
+
+  metadata_path = onnx_path.with_name(f"{onnx_path.stem}_metadata.pkl")
+  shutil.move(metadata_path, frogpilot_paths.COMPILED_DIR / metadata_path.name)
+
+  frogpilot_utilities.delete_path(onnx_path)
 
 def download_models():
+  download_state = frogpilot_download_utilities.DownloadState()
+
   session = requests.Session()
   session.headers.update({"Accept-Language": "en"})
   session.headers.update({"User-Agent": "frogpilot-model-compiler/1.0 (https://github.com/FrogAi/FrogPilot)"})
 
-  COMPILED_DIR.mkdir(parents=True, exist_ok=True)
-  UNCOMPILED_DIR.mkdir(parents=True, exist_ok=True)
+  frogpilot_paths.COMPILED_DIR.mkdir(parents=True, exist_ok=True)
+  frogpilot_paths.UNCOMPILED_DIR.mkdir(parents=True, exist_ok=True)
 
   local_paths = []
   for name in list_remote_onnx_files(session):
     url = f"{MODELS_SOURCE_RAW}/{name}"
-    destination = UNCOMPILED_DIR / name
+    destination = frogpilot_paths.UNCOMPILED_DIR / name
 
-    download_file(CANCEL_DOWNLOAD_PARAM, destination, DOWNLOAD_PROGRESS_PARAM, url, MODEL_DOWNLOAD_PARAM, session)
+    if download_state.download_file(destination, session, url) is None:
+      raise RuntimeError(f"Failed to download {name}: {download_state.progress}")
 
-    if not verify_download(destination, url, session):
-      continue
+    if not frogpilot_download_utilities.verify_download(destination, url, session):
+      raise RuntimeError(f"Failed to verify {name}")
 
     print(f"{name} downloaded!")
 
@@ -68,8 +72,8 @@ def main():
   for path in downloaded_models:
     compile_model(path)
 
-  if UNCOMPILED_DIR.exists():
-    delete_file(UNCOMPILED_DIR)
+  if frogpilot_paths.UNCOMPILED_DIR.exists():
+    frogpilot_utilities.delete_path(frogpilot_paths.UNCOMPILED_DIR)
 
 if __name__ == "__main__":
   main()

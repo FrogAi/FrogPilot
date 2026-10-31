@@ -215,6 +215,13 @@ static void honda_rx_hook(const CANPacket_t *to_push) {
       controls_allowed = false;
     }
     cruise_button_prev = button;
+
+    // FrogPilot variables
+    if (addr == 0x1A6) {
+      lkas_button_pressed = ((GET_BYTE(to_push, 5) & 0x0CU) >> 2) == 1U;
+    } else {
+      lkas_button_pressed = ((GET_BYTE(to_push, 0) & 0x0CU) >> 2) == 1U;
+    }
   }
 
   // user brake signal on 0x17C reports applied brake from computer brake on accord
@@ -241,7 +248,6 @@ static void honda_rx_hook(const CANPacket_t *to_push) {
   if ((addr == 0x201) && (len == 6) && enable_gas_interceptor) {
     int gas_interceptor = HONDA_GET_INTERCEPTOR(to_push);
     gas_pressed = gas_interceptor > HONDA_GAS_INTERCEPTOR_THRESHOLD;
-    gas_interceptor_prev = gas_interceptor;
   }
 
   if (!enable_gas_interceptor) {
@@ -320,6 +326,9 @@ static bool honda_tx_hook(const CANPacket_t *to_send) {
 
     // FrogPilot variables
     if (honda_clarity_brake_msg) {
+      if (honda_brake != 0) {
+        tx = false;
+      }
       honda_brake = (GET_BYTE(to_send, 6) << 2) + ((GET_BYTE(to_send, 7) >> 6) & 0x3U);
     }
 
@@ -361,10 +370,7 @@ static bool honda_tx_hook(const CANPacket_t *to_send) {
 
   // STEER: safety check
   if ((addr == 0xE4) || (addr == 0x194)) {
-    // FrogPilot variables
-    bool aol_allowed = acc_main_on && (alternative_experience & ALT_EXP_ALWAYS_ON_LATERAL);
-
-    if (!(controls_allowed || aol_allowed)) {
+    if (!get_lateral_allowed()) {
       bool steer_applied = GET_BYTE(to_send, 0) | GET_BYTE(to_send, 1);
       if (steer_applied) {
         tx = false;

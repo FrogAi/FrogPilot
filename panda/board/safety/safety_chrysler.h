@@ -37,6 +37,8 @@ typedef struct {
   const int DAS_6;
   const int LKAS_COMMAND;
   const int CRUISE_BUTTONS;
+
+  // FrogPilot variables
   const int CRUISE_BUTTONS_ALT;
 } ChryslerAddrs;
 
@@ -50,6 +52,8 @@ const ChryslerAddrs CHRYSLER_ADDRS = {
   .DAS_6            = 0x2A6,  // LKAS HUD and auto headlight control from DASM
   .LKAS_COMMAND     = 0x292,  // LKAS controls from DASM
   .CRUISE_BUTTONS   = 0x23B,  // Cruise control buttons
+
+  // FrogPilot variables
   .CRUISE_BUTTONS_ALT = 0x23B,  // Cruise control buttons
 };
 
@@ -63,6 +67,8 @@ const ChryslerAddrs CHRYSLER_RAM_DT_ADDRS = {
   .DAS_6            = 0xFA,   // LKAS HUD and auto headlight control from DASM
   .LKAS_COMMAND     = 0xA6,   // LKAS controls from DASM
   .CRUISE_BUTTONS   = 0xB1,   // Cruise control buttons
+
+  // FrogPilot variables
   .CRUISE_BUTTONS_ALT = 0xB1,   // Cruise control buttons
 };
 
@@ -76,6 +82,8 @@ const ChryslerAddrs CHRYSLER_RAM_HD_ADDRS = {
   .DAS_6            = 0x275,  // LKAS HUD and auto headlight control from DASM
   .LKAS_COMMAND     = 0x276,  // LKAS controls from DASM
   .CRUISE_BUTTONS   = 0x23A,  // Cruise control buttons
+
+  // FrogPilot variables
   .CRUISE_BUTTONS_ALT = 0x23B,  // Cruise control buttons
 };
 
@@ -87,16 +95,17 @@ const CanMsg CHRYSLER_TX_MSGS[] = {
 
 const CanMsg CHRYSLER_RAM_DT_TX_MSGS[] = {
   {CHRYSLER_RAM_DT_ADDRS.CRUISE_BUTTONS, 2, 3},
-  {CHRYSLER_RAM_DT_ADDRS.CRUISE_BUTTONS_ALT, 2, 3},
   {CHRYSLER_RAM_DT_ADDRS.LKAS_COMMAND, 0, 8},
   {CHRYSLER_RAM_DT_ADDRS.DAS_6, 0, 8},
 };
 
 const CanMsg CHRYSLER_RAM_HD_TX_MSGS[] = {
   {CHRYSLER_RAM_HD_ADDRS.CRUISE_BUTTONS, 2, 3},
-  {CHRYSLER_RAM_HD_ADDRS.CRUISE_BUTTONS_ALT, 2, 3},
   {CHRYSLER_RAM_HD_ADDRS.LKAS_COMMAND, 0, 8},
   {CHRYSLER_RAM_HD_ADDRS.DAS_6, 0, 8},
+
+  // FrogPilot variables
+  {CHRYSLER_RAM_HD_ADDRS.CRUISE_BUTTONS_ALT, 2, 3},
 };
 
 RxCheck chrysler_rx_checks[] = {
@@ -106,6 +115,9 @@ RxCheck chrysler_rx_checks[] = {
   {.msg = {{514, 0, 8, .check_checksum = false, .max_counter = 0U, .frequency = 100U}, { 0 }, { 0 }}},
   {.msg = {{CHRYSLER_ADDRS.ECM_5, 0, 8, .check_checksum = true, .max_counter = 15U, .frequency = 50U}, { 0 }, { 0 }}},
   {.msg = {{CHRYSLER_ADDRS.DAS_3, 0, 8, .check_checksum = true, .max_counter = 15U, .frequency = 50U}, { 0 }, { 0 }}},
+
+  // FrogPilot variables
+  {.msg = {{0x330, 0, 8, .check_checksum = false, .max_counter = 0U, .frequency = 1U}, { 0 }, { 0 }}},
 };
 
 RxCheck chrysler_ram_dt_rx_checks[] = {
@@ -114,6 +126,10 @@ RxCheck chrysler_ram_dt_rx_checks[] = {
   {.msg = {{CHRYSLER_RAM_DT_ADDRS.ESP_8, 0, 8, .check_checksum = true, .max_counter = 15U, .frequency = 50U}, { 0 }, { 0 }}},
   {.msg = {{CHRYSLER_RAM_DT_ADDRS.ECM_5, 0, 8, .check_checksum = true, .max_counter = 15U, .frequency = 50U}, { 0 }, { 0 }}},
   {.msg = {{CHRYSLER_RAM_DT_ADDRS.DAS_3, 2, 8, .check_checksum = true, .max_counter = 15U, .frequency = 50U}, { 0 }, { 0 }}},
+
+  // FrogPilot variables
+  {.msg = {{0xDD, 0, 8, .check_checksum = false, .max_counter = 0U, .frequency = 1U}, { 0 }, { 0 }}},
+  {.msg = {{0x28A, 0, 8, .check_checksum = false, .max_counter = 0U, .frequency = 1U}, { 0 }, { 0 }}},
 };
 
 RxCheck chrysler_ram_hd_rx_checks[] = {
@@ -122,6 +138,10 @@ RxCheck chrysler_ram_hd_rx_checks[] = {
   {.msg = {{CHRYSLER_RAM_HD_ADDRS.ESP_8, 0, 8, .check_checksum = true, .max_counter = 15U, .frequency = 50U}, { 0 }, { 0 }}},
   {.msg = {{CHRYSLER_RAM_HD_ADDRS.ECM_5, 0, 8, .check_checksum = true, .max_counter = 15U, .frequency = 50U}, { 0 }, { 0 }}},
   {.msg = {{CHRYSLER_RAM_HD_ADDRS.DAS_3, 2, 8, .check_checksum = true, .max_counter = 15U, .frequency = 50U}, { 0 }, { 0 }}},
+
+  // FrogPilot variables
+  {.msg = {{0x28A, 0, 8, .check_checksum = false, .max_counter = 0U, .frequency = 1U}, { 0 }, { 0 }}},
+  {.msg = {{0x330, 0, 8, .check_checksum = false, .max_counter = 0U, .frequency = 1U}, { 0 }, { 0 }}},
 };
 
 
@@ -192,9 +212,11 @@ static void chrysler_rx_hook(const CANPacket_t *to_push) {
   // enter controls on rising edge of ACC, exit controls on ACC off
   const int das_3_bus = (chrysler_platform == CHRYSLER_PACIFICA) ? 0 : 2;
   if ((bus == das_3_bus) && (addr == chrysler_addrs->DAS_3)) {
-    acc_main_on = GET_BIT(to_push, 20U);
     bool cruise_engaged = GET_BIT(to_push, 21U);
     pcm_cruise_check(cruise_engaged);
+
+    // FrogPilot variables
+    acc_main_on = GET_BIT(to_push, 20U);
   }
 
   // TODO: use the same message for both
@@ -219,6 +241,19 @@ static void chrysler_rx_hook(const CANPacket_t *to_push) {
   }
 
   generic_rx_checks((bus == 0) && (addr == chrysler_addrs->LKAS_COMMAND));
+
+  // FrogPilot variables
+  if ((chrysler_platform != CHRYSLER_RAM_DT) && (bus == 0) && (addr == 0x330)) {
+    lkas_button_pressed = GET_BIT(to_push, 53U);
+  }
+
+  if ((chrysler_platform == CHRYSLER_RAM_DT) && (bus == 0) && (addr == 0xDD)) {
+    lkas_button_pressed = GET_BIT(to_push, 53U);
+  }
+
+  if ((chrysler_platform != CHRYSLER_PACIFICA) && (bus == 0) && (addr == 0x28A)) {
+    lkas_button_pressed = GET_BIT(to_push, 57U);
+  }
 }
 
 static bool chrysler_tx_hook(const CANPacket_t *to_send) {
@@ -241,7 +276,7 @@ static bool chrysler_tx_hook(const CANPacket_t *to_send) {
   }
 
   // FORCE CANCEL: only the cancel button press is allowed
-  if ((addr == chrysler_addrs->CRUISE_BUTTONS) || (addr == CHRYSLER_RAM_HD_ADDRS.CRUISE_BUTTONS_ALT)) {
+  if ((addr == chrysler_addrs->CRUISE_BUTTONS) || (addr == chrysler_addrs->CRUISE_BUTTONS_ALT)) {
     const bool is_cancel = GET_BYTE(to_send, 0) == 1U;
     const bool is_resume = GET_BYTE(to_send, 0) == 0x10U;
     const bool allowed = is_cancel || (is_resume && controls_allowed);

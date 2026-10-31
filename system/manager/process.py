@@ -7,6 +7,7 @@ import subprocess
 from collections.abc import Callable, ValuesView
 from abc import ABC, abstractmethod
 from multiprocessing import Process
+from types import SimpleNamespace
 
 from setproctitle import setproctitle
 
@@ -19,6 +20,9 @@ from openpilot.common.swaglog import cloudlog
 
 WATCHDOG_FN = "/dev/shm/wd_"
 ENABLE_WATCHDOG = os.getenv("NO_WATCHDOG") is None
+
+# FrogPilot variables
+WATCHDOG_CORE_DUMP_TIMEOUT = 20
 
 
 def launcher(proc: str, name: str) -> None:
@@ -66,7 +70,7 @@ def join_process(process: Process, timeout: float) -> None:
 class ManagerProcess(ABC):
   daemon = False
   sigkill = False
-  should_run: Callable[[bool, Params, car.CarParams], bool]
+  should_run: Callable[[bool, Params, car.CarParams, SimpleNamespace], bool]
   proc: Process | None = None
   enabled = True
   name = ""
@@ -75,6 +79,9 @@ class ManagerProcess(ABC):
   watchdog_max_dt: int | None = None
   watchdog_seen = False
   shutting_down = False
+
+  # FrogPilot variables
+  watchdog_abort_time = 0.0
 
   @abstractmethod
   def prepare(self) -> None:
@@ -104,8 +111,14 @@ class ManagerProcess(ABC):
 
     if dt > self.watchdog_max_dt:
       if self.watchdog_seen and ENABLE_WATCHDOG:
-        cloudlog.error(f"Watchdog timeout for {self.name} (exitcode {self.proc.exitcode}) restarting ({started=})")
-        self.restart()
+        # FrogPilot variables
+        if self.watchdog_abort_time == 0:
+          cloudlog.error(f"Watchdog timeout for {self.name} (exitcode {self.proc.exitcode}) restarting ({started=})")
+          self.signal(signal.SIGABRT)
+          self.watchdog_abort_time = time.monotonic()
+        elif self.proc.exitcode is not None or time.monotonic() - self.watchdog_abort_time > WATCHDOG_CORE_DUMP_TIMEOUT:
+          self.watchdog_abort_time = 0.0
+          self.restart()
     else:
       self.watchdog_seen = True
 
@@ -238,7 +251,7 @@ class DaemonProcess(ManagerProcess):
     self.params = None
 
   @staticmethod
-  def should_run(started, params, CP, classic_model, tinygrad_model, frogpilot_toggles):
+  def should_run(started, params, CP, frogpilot_toggles):
     return True
 
   def prepare(self) -> None:
@@ -274,13 +287,13 @@ class DaemonProcess(ManagerProcess):
 
 
 def ensure_running(procs: ValuesView[ManagerProcess], started: bool, params=None, CP: car.CarParams=None,
-                   not_run: list[str] | None=None, classic_model=False, tinygrad_model=False, frogpilot_toggles=None) -> list[ManagerProcess]:
+                   not_run: list[str] | None=None, frogpilot_toggles=None) -> list[ManagerProcess]:
   if not_run is None:
     not_run = []
 
   running = []
   for p in procs:
-    if p.enabled and p.name not in not_run and p.should_run(started, params, CP, classic_model, tinygrad_model, frogpilot_toggles):
+    if p.enabled and p.name not in not_run and p.should_run(started, params, CP, frogpilot_toggles):
       running.append(p)
     else:
       p.stop(block=False)

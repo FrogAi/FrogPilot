@@ -24,7 +24,7 @@ from openpilot.selfdrive.modeld.fill_model_msg import fill_model_msg, fill_pose_
 from openpilot.selfdrive.modeld.constants import ModelConstants
 from openpilot.selfdrive.modeld.models.commonmodel_pyx import ModelFrame, CLContext
 
-from openpilot.frogpilot.common.frogpilot_variables import METADATAS_PATH, MODELS_PATH, get_frogpilot_toggles
+from openpilot.frogpilot.common import frogpilot_paths, frogpilot_utilities, frogpilot_variables
 
 PROCESS_NAME = "selfdrive.modeld.modeld"
 SEND_RAW_PRED = os.getenv('SEND_RAW_PRED')
@@ -32,8 +32,6 @@ SEND_RAW_PRED = os.getenv('SEND_RAW_PRED')
 MODEL_PATHS = {
   ModelRunner.THNEED: Path(__file__).parent / 'models/supercombo.thneed',
   ModelRunner.ONNX: Path(__file__).parent / 'models/supercombo.onnx'}
-
-METADATA_PATH = Path(__file__).parent / 'models/supercombo_metadata.pkl'
 
 class FrameMeta:
   frame_id: int = 0
@@ -54,13 +52,15 @@ class ModelState:
 
   def __init__(self, context: CLContext, model: str, model_version: str):
     # FrogPilot variables
-    MODEL_PATHS[ModelRunner.THNEED] = MODELS_PATH / f'{model}.thneed'
+    MODEL_PATHS[ModelRunner.THNEED] = frogpilot_paths.MODELS_PATH / f'{model}.thneed'
 
-    with open(METADATAS_PATH / f'supercombo_metadata_{model_version}.pkl', 'rb') as f:
+    with open(frogpilot_paths.METADATAS_PATH / f'supercombo_metadata_{model_version}.pkl', 'rb') as f:
       model_metadata = pickle.load(f)
 
     input_shapes = model_metadata.get('input_shapes')
     self.use_desired_curvature = 'lateral_control_params' in input_shapes and 'prev_desired_curv' in input_shapes
+
+    self.desired_curvature_head = frogpilot_utilities.use_desired_curvature_head(model)
 
     self.frame = ModelFrame(context)
     self.wide_frame = ModelFrame(context)
@@ -73,10 +73,15 @@ class ModelState:
     self.inputs = {
       'desire': np.zeros(ModelConstants.DESIRE_LEN * (ModelConstants.HISTORY_BUFFER_LEN+1), dtype=np.float32),
       'traffic_convention': np.zeros(ModelConstants.TRAFFIC_CONVENTION_LEN, dtype=np.float32),
-      **({'lateral_control_params': np.zeros(ModelConstants.LATERAL_CONTROL_PARAMS_LEN, dtype=np.float32)} if self.use_desired_curvature else {}),
-      **({'prev_desired_curv': np.zeros(ModelConstants.PREV_DESIRED_CURV_LEN * (ModelConstants.HISTORY_BUFFER_LEN+1), dtype=np.float32)} if self.use_desired_curvature else {}),
+      'lateral_control_params': np.zeros(ModelConstants.LATERAL_CONTROL_PARAMS_LEN, dtype=np.float32),
+      'prev_desired_curv': np.zeros(ModelConstants.PREV_DESIRED_CURV_LEN * (ModelConstants.HISTORY_BUFFER_LEN+1), dtype=np.float32),
       'features_buffer': np.zeros(ModelConstants.HISTORY_BUFFER_LEN * ModelConstants.FEATURE_LEN, dtype=np.float32),
     }
+
+    # FrogPilot variables
+    if not self.use_desired_curvature:
+      del self.inputs['lateral_control_params']
+      del self.inputs['prev_desired_curv']
 
     self.output_slices = model_metadata['output_slices']
     net_output_size = model_metadata['output_shapes']['outputs'][1]
@@ -136,10 +141,10 @@ class ModelState:
 
 def main(demo=False):
   # FrogPilot variables
-  frogpilot_toggles = get_frogpilot_toggles()
+  frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles()
 
   model_name = frogpilot_toggles.model
-  model_version = frogpilot_toggles.model_version
+  model_version = frogpilot_utilities.get_model_version(model_name)
 
   cloudlog.warning("modeld init")
 
@@ -179,7 +184,7 @@ def main(demo=False):
 
   # messaging
   pm = PubMaster(["modelV2", "drivingModelData", "cameraOdometry", "frogpilotModelV2"])
-  sm = SubMaster(["deviceState", "carState", "roadCameraState", "liveCalibration", "driverMonitoringState", "carControl", "liveDelay", "frogpilotPlan"])
+  sm = SubMaster(["deviceState", "carState", "roadCameraState", "liveCalibration", "driverMonitoringState", "carControl", "frogpilotPlan"])
 
   publish_state = PublishState()
   params = Params()
@@ -204,6 +209,9 @@ def main(demo=False):
     with car.CarParams.from_bytes(params.get("CarParams", block=True)) as msg:
       CP = msg
   cloudlog.info("modeld got CarParams: %s", CP.carName)
+
+  # TODO this needs more thought, use .2s extra for now to estimate other delays
+  steer_delay = CP.steerActuatorDelay + .2
 
   DH = DesireHelper()
 
@@ -244,10 +252,12 @@ def main(demo=False):
     desire = DH.desire
     is_rhd = sm["driverMonitoringState"].isRHD
     frame_id = sm["roadCameraState"].frameId
+
+    # FrogPilot variables
     v_ego = max(sm["carState"].vEgo, 0.)
-    steer_delay = sm["liveDelay"].lateralDelay + .2
-    if model.use_desired_curvature:
-      lateral_control_params = np.array([v_ego, steer_delay], dtype=np.float32)
+    steer_delay = frogpilot_toggles.steerActuatorDelay + frogpilot_variables.LATERAL_DELAY_OFFSET
+
+    lateral_control_params = np.array([v_ego, steer_delay], dtype=np.float32)
     if sm.updated["liveCalibration"] and sm.seen['roadCameraState'] and sm.seen['deviceState']:
       device_from_calib_euler = np.array(sm["liveCalibration"].rpyCalib, dtype=np.float32)
       dc = DEVICE_CAMERAS[(str(sm['deviceState'].deviceType), str(sm['roadCameraState'].sensor))]
@@ -278,7 +288,7 @@ def main(demo=False):
     inputs:dict[str, np.ndarray] = {
       'desire': vec_desire,
       'traffic_convention': traffic_convention,
-      **({'lateral_control_params': lateral_control_params} if model.use_desired_curvature else {}),
+      'lateral_control_params': lateral_control_params,
       }
 
     mt1 = time.perf_counter()
@@ -293,7 +303,8 @@ def main(demo=False):
       posenet_send = messaging.new_message('cameraOdometry')
       fill_model_msg(drivingdata_send, modelv2_send, model_output, v_ego, steer_delay,
                      publish_state, meta_main.frame_id, meta_extra.frame_id, frame_id,
-                     frame_drop_ratio, meta_main.timestamp_eof, model_execution_time, live_calib_seen)
+                     frame_drop_ratio, meta_main.timestamp_eof, model_execution_time, live_calib_seen,
+                     model.desired_curvature_head)
 
       desire_state = modelv2_send.modelV2.meta.desireState
       l_lane_change_prob = desire_state[log.Desire.laneChangeLeft]
@@ -302,6 +313,7 @@ def main(demo=False):
       DH.update(sm['carState'], sm['carControl'].latActive, lane_change_prob, sm['frogpilotPlan'], frogpilot_toggles)
       modelv2_send.modelV2.meta.laneChangeState = DH.lane_change_state
       modelv2_send.modelV2.meta.laneChangeDirection = DH.lane_change_direction
+      frogpilot_modelv2_send.valid = modelv2_send.valid
       frogpilot_modelv2_send.frogpilotModelV2.turnDirection = DH.turn_direction
       drivingdata_send.drivingModelData.meta.laneChangeState = DH.lane_change_state
       drivingdata_send.drivingModelData.meta.laneChangeDirection = DH.lane_change_direction
@@ -315,8 +327,8 @@ def main(demo=False):
     last_vipc_frame_id = meta_main.frame_id
 
     # Update FrogPilot variables
-    if sm['frogpilotPlan'].togglesUpdated:
-      frogpilot_toggles = get_frogpilot_toggles()
+    frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles(sm)
+
 
 if __name__ == "__main__":
   try:

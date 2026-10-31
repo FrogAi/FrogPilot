@@ -67,8 +67,6 @@ class ToyotaFlags(IntFlag):
 
 class ToyotaFrogPilotFlags(IntFlag):
   DSU_BYPASS = 1
-  RADAR_CAN_FILTER = 2
-  SMART_DSU = 4
   ZSS = 8
 
 class Footnote(Enum):
@@ -616,3 +614,8 @@ STOP_AND_GO_CAR = TSS2_CAR | {CAR.TOYOTA_PRIUS, CAR.TOYOTA_PRIUS_V, CAR.TOYOTA_R
                               CAR.TOYOTA_SIENNA, CAR.LEXUS_CTH, CAR.LEXUS_NX, CAR.TOYOTA_MIRAI, CAR.TOYOTA_AVALON_2019}
 
 DBC = CAR.create_dbc_map()
+
+# FrogPilot variables
+def dsu_bypass_enabled(CP, candidate, frogpilot_toggles):
+  dsu_bypass_supported = not (CP.flags & ToyotaFlags.SMART_DSU) and not CP.enableDsu and candidate not in (NO_DSU_CAR | UNSUPPORTED_DSU_CAR)
+  return dsu_bypass_supported and frogpilot_toggles.toyota_dsu_bypass

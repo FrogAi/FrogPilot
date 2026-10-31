@@ -1,0 +1,167 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="200" height="200" viewBox="0 0 200 200">
+  <defs>
+    <path id="chill-mode-p0" d="M278.364 122.673c3.765 3.872 6.054 9.391 6.136 14.792v63.097c-.081 5.401-2.371 10.918-6.136 14.79-3.872 3.767-9.392 6.055-14.793 6.136h-4.309v16.929c-.134 2.754-1.837 5.703-4.155 7.197-2.452 1.261-5.858 1.26-8.311-.001-2.316-1.493-4.019-4.442-4.153-7.196v-16.929H57.357v16.929c-.134 2.754-1.838 5.704-4.154 7.197-2.453 1.261-5.859 1.261-8.311 0-2.317-1.494-4.02-4.443-4.154-7.197v-16.929h-4.311c-5.4-.081-10.919-2.369-14.791-6.136-3.765-3.872-6.054-9.391-6.136-14.792v-63.097c.081-5.401 2.371-10.918 6.136-14.79 3.872-3.767 9.393-6.055 14.793-6.137h4.309V87.024c-.312-8.305 2.696-16.753 8.212-22.996 5.629-6.141 13.868-10.042 22.181-10.587l157.851.003c8.313.545 16.439 4.444 22.068 10.584 5.516 6.244 8.524 14.691 8.212 22.996v29.512h4.311c5.401.082 10.919 2.37 14.791 6.137M60.911 75.581c-2.764 3.201-3.979 7.036-3.561 11.244l.007 31.531c3.434 1.537 6.286 3.666 8.758 7.067 2.397 3.454 3.801 7.833 3.861 12.037v29.554h160.048v-29.548c.06-4.204 1.464-8.589 3.86-12.043 2.473-3.402 5.324-5.531 8.759-7.067V86.988c.417-4.209-.791-8.206-3.554-11.407-2.651-3.298-6.138-5.149-10.304-5.522H71.215c-4.166.374-7.652 2.224-10.304 5.522M33.383 203.605c.858.967 1.757 1.339 3.048 1.265h16.926v-67.405c.075-1.291-.297-2.187-1.264-3.045-.857-.966-1.757-1.34-3.047-1.265H36.429c-1.29-.075-2.134.351-3.047 1.264-.912.913-1.338 1.757-1.263 3.047v63.094c-.075 1.291.297 2.187 1.264 3.045m36.593 1.265h160.048v-21.239H69.976zm197.905-67.405c.075-1.291-.297-2.187-1.263-3.046-.86-.966-1.758-1.339-3.048-1.264h-12.617c-1.29-.075-2.187.297-3.045 1.264-.967.858-1.34 1.757-1.265 3.047v67.404h16.928c1.291.074 2.188-.298 3.045-1.264.967-.858 1.34-1.757 1.265-3.047z" fill="#fff"/>
+  </defs>
+  <g id="frames" data-loop="false">
+    <g id="frame-0" data-ms="40">
+      <animate attributeName="display" values="inline;none" keyTimes="0;0.0227" dur="1760ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.952 0 0 .952 4.76 -6.67)">
+      <g transform="translate(0 -26)">
+      <use xlink:href="#chill-mode-p0" transform="matrix(.6 0 0 .6 10 22)"/>
+      </g>
+      </g>
+    </g>
+    <g id="frame-1" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.0227;0.0455" dur="1760ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.952 0 0 .952 4.76 -6.67)">
+      <g transform="translate(0 -25.64)">
+      <use xlink:href="#chill-mode-p0" transform="matrix(.6 0 0 .6 10 22)"/>
+      </g>
+      </g>
+    </g>
+    <g id="frame-2" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.0455;0.0682" dur="1760ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.952 0 0 .952 4.76 -6.67)">
+      <g transform="translate(0 -24.58)">
+      <use xlink:href="#chill-mode-p0" transform="matrix(.6 0 0 .6 10 22)"/>
+      </g>
+      </g>
+    </g>
+    <g id="frame-3" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.0682;0.0909" dur="1760ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.952 0 0 .952 4.76 -6.67)">
+      <g transform="translate(0 -22.8)">
+      <use xlink:href="#chill-mode-p0" transform="matrix(.6 0 0 .6 10 22)"/>
+      </g>
+      </g>
+    </g>
+    <g id="frame-4" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.0909;0.1136" dur="1760ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.952 0 0 .952 4.76 -6.67)">
+      <g transform="translate(0 -20.31)">
+      <use xlink:href="#chill-mode-p0" transform="matrix(.6 0 0 .6 10 22)"/>
+      </g>
+      </g>
+    </g>
+    <g id="frame-5" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.1136;0.1364" dur="1760ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.952 0 0 .952 4.76 -6.67)">
+      <g transform="translate(0 -17.11)">
+      <use xlink:href="#chill-mode-p0" transform="matrix(.6 0 0 .6 10 22)"/>
+      </g>
+      </g>
+    </g>
+    <g id="frame-6" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.1364;0.1591" dur="1760ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.952 0 0 .952 4.76 -6.67)">
+      <g transform="translate(0 -13.2)">
+      <use xlink:href="#chill-mode-p0" transform="matrix(.6 0 0 .6 10 22)"/>
+      </g>
+      </g>
+    </g>
+    <g id="frame-7" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.1591;0.1818" dur="1760ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.952 0 0 .952 4.76 -6.67)">
+      <g transform="translate(0 -8.57)">
+      <use xlink:href="#chill-mode-p0" transform="matrix(.6 0 0 .6 10 22)"/>
+      </g>
+      </g>
+    </g>
+    <g id="frame-8" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.1818;0.2045" dur="1760ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.952 0 0 .952 4.76 -6.67)">
+      <g transform="translate(0 -3.24)">
+      <use xlink:href="#chill-mode-p0" transform="matrix(.6 0 0 .6 10 22)"/>
+      </g>
+      </g>
+    </g>
+    <g id="frame-9" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.2045;0.2273" dur="1760ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.952 0 0 .952 4.76 -6.67)">
+      <g transform="translate(0 -1.56)">
+      <use xlink:href="#chill-mode-p0" transform="matrix(.6 0 0 .6 10 22)"/>
+      </g>
+      </g>
+    </g>
+    <g id="frame-10" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.2273;0.25" dur="1760ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.952 0 0 .952 4.76 -6.67)">
+      <g transform="translate(0 -4.65)">
+      <use xlink:href="#chill-mode-p0" transform="matrix(.6 0 0 .6 10 22)"/>
+      </g>
+      </g>
+    </g>
+    <g id="frame-11" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.25;0.2727" dur="1760ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.952 0 0 .952 4.76 -6.67)">
+      <g transform="translate(0 -6.59)">
+      <use xlink:href="#chill-mode-p0" transform="matrix(.6 0 0 .6 10 22)"/>
+      </g>
+      </g>
+    </g>
+    <g id="frame-12" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.2727;0.2955" dur="1760ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.952 0 0 .952 4.76 -6.67)">
+      <g transform="translate(0 -6.91)">
+      <use xlink:href="#chill-mode-p0" transform="matrix(.6 0 0 .6 10 22)"/>
+      </g>
+      </g>
+    </g>
+    <g id="frame-13" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.2955;0.3182" dur="1760ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.952 0 0 .952 4.76 -6.67)">
+      <g transform="translate(0 -5.53)">
+      <use xlink:href="#chill-mode-p0" transform="matrix(.6 0 0 .6 10 22)"/>
+      </g>
+      </g>
+    </g>
+    <g id="frame-14" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.3182;0.3409" dur="1760ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.952 0 0 .952 4.76 -6.67)">
+      <g transform="translate(0 -2.8)">
+      <use xlink:href="#chill-mode-p0" transform="matrix(.6 0 0 .6 10 22)"/>
+      </g>
+      </g>
+    </g>
+    <g id="frame-15" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.3409;0.3636" dur="1760ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.952 0 0 .952 4.76 -6.67)">
+      <g transform="translate(0 0)">
+      <use xlink:href="#chill-mode-p0" transform="matrix(.6 0 0 .6 10 22)"/>
+      </g>
+      </g>
+    </g>
+    <g id="frame-16" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.3636;0.3864" dur="1760ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.952 0 0 .952 4.76 -6.67)">
+      <g transform="translate(0 0)">
+      <use xlink:href="#chill-mode-p0" transform="matrix(.6 0 0 .6 10 22)"/>
+      </g>
+      </g>
+    </g>
+    <g id="frame-17" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.3864;0.4091" dur="1760ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.952 0 0 .952 4.76 -6.67)">
+      <g transform="translate(0 0)">
+      <use xlink:href="#chill-mode-p0" transform="matrix(.6 0 0 .6 10 22)"/>
+      </g>
+      </g>
+    </g>
+    <g id="frame-18" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.4091;0.4318" dur="1760ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.952 0 0 .952 4.76 -6.67)">
+      <g transform="translate(0 0)">
+      <use xlink:href="#chill-mode-p0" transform="matrix(.6 0 0 .6 10 22)"/>
+      </g>
+      </g>
+    </g>
+    <g id="frame-19" data-ms="1000">
+      <animate attributeName="display" values="none;inline" keyTimes="0;0.4318" dur="1760ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.952 0 0 .952 4.76 -6.67)">
+      <g transform="translate(0 0)">
+      <use xlink:href="#chill-mode-p0" transform="matrix(.6 0 0 .6 10 22)"/>
+      </g>
+      </g>
+    </g>
+  </g>
+</svg>

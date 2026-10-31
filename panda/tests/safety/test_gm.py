@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import itertools
 import unittest
 from panda import Panda
 from panda.tests.libpanda import libpanda_py
@@ -11,6 +12,9 @@ class Buttons:
   RES_ACCEL = 2
   DECEL_SET = 3
   CANCEL = 6
+
+  # FrogPilot variables
+  MAIN = 5
 
 
 class GmLongitudinalBase(common.PandaCarSafetyTest, common.LongitudinalGasBrakeSafetyTest):
@@ -69,7 +73,7 @@ class GmLongitudinalBase(common.PandaCarSafetyTest, common.LongitudinalGasBrakeS
     self.assertFalse(self.safety.get_controls_allowed())
 
 
-class TestGmSafetyBase(common.PandaCarSafetyTest, common.DriverTorqueSteeringSafetyTest):
+class TestGmSafetyBase(common.PandaCarSafetyTest, common.DriverTorqueSteeringSafetyTest, common.AlwaysOnLateralSafetyTest):
   STANDSTILL_THRESHOLD = 10 * 0.0311
   # Ensures ASCM is off on ASCM cars, and relay is not malfunctioning for camera-ACC cars
   RELAY_MALFUNCTION_ADDRS = {0: (0x180,)}  # ASCMLKASteeringCmd
@@ -140,11 +144,14 @@ class TestGmSafetyBase(common.PandaCarSafetyTest, common.DriverTorqueSteeringSaf
     values = {"ACCButtons": buttons}
     return self.packer.make_can_msg_panda("ASCMSteeringButton", self.BUTTONS_BUS, values)
 
-  # FrogPilot tests
-  def _toggle_aol(self, toggle_on):
-    # ECMEngineStatus, bit 29 is CruiseMainOn
-    values = {"CruiseMainOn": 1 if toggle_on else 0}
+  # FrogPilot variables
+  def _acc_state_msg(self, on):
+    values = {"CruiseMainOn": on}
+
     return self.packer.make_can_msg_panda("ECMEngineStatus", 0, values)
+
+  def _lkas_press_msg(self, pressed):
+    return None
 
 
 class TestGmAscmSafety(GmLongitudinalBase, TestGmSafetyBase):
@@ -203,6 +210,27 @@ class TestGmCameraSafetyBase(TestGmSafetyBase):
     values = {"BrakePressed": brake}
     return self.packer.make_can_msg_panda("ECMEngineStatus", 0, values)
 
+  # FrogPilot variables
+  def test_main_button(self):
+    main_press = self.packer.make_can_msg_panda("ASCMSteeringButton", 0, {"ACCButtons": Buttons.MAIN})
+
+    for acc_main_on, controls_allowed, cruise_engaged in itertools.product((True, False), repeat=3):
+      self._rx(self._acc_state_msg(acc_main_on))
+      self.safety.set_controls_allowed(controls_allowed)
+      self.safety.set_cruise_engaged_prev(cruise_engaged)
+
+      self.assertEqual(acc_main_on and not controls_allowed and not cruise_engaged, self._tx(main_press))
+
+  def test_main_button_once(self):
+    main_press = self.packer.make_can_msg_panda("ASCMSteeringButton", 0, {"ACCButtons": Buttons.MAIN})
+
+    for _ in range(2):
+      self._reset_safety_hooks()
+      self._rx(self._acc_state_msg(True))
+
+      self.assertTrue(self._tx(main_press))
+      self.assertFalse(self._tx(main_press))
+
 
 class TestGmCameraSafety(TestGmCameraSafetyBase):
   TX_MSGS = [[0x180, 0], [0x200, 0], [0x1E1, 0],  # pt bus
@@ -233,7 +261,7 @@ class TestGmCameraSafety(TestGmCameraSafetyBase):
 
 
 class TestGmCameraLongitudinalSafety(GmLongitudinalBase, TestGmCameraSafetyBase):
-  TX_MSGS = [[0x180, 0], [0x315, 0], [0x2CB, 0], [0x370, 0], [0x200, 0],  # pt bus
+  TX_MSGS = [[0x180, 0], [0x315, 0], [0x2CB, 0], [0x370, 0], [0x200, 0], [0x1E1, 0],  # pt bus
              [0x184, 2]]  # camera bus
   FWD_BLACKLISTED_ADDRS = {2: [0x180, 0x2CB, 0x370, 0x315], 0: [0x184]}  # block LKAS, ACC messages and PSCMStatus
   BUTTONS_BUS = 0  # rx only
@@ -288,6 +316,14 @@ class TestGmSdgmSafety(TestGmSafetyBase):
       self._rx(self._pcm_status_msg(enabled))
       self.assertEqual(enabled, self._tx(self._button_msg(Buttons.CANCEL)))
 
+  # FrogPilot tests
+  def test_camera_bus_buttons(self):
+    for bus, controls_allowed in ((0, False), (2, True)):
+      self.safety.set_controls_allowed(False)
+      self._rx(self.packer.make_can_msg_panda("ASCMSteeringButton", bus, {"ACCButtons": Buttons.DECEL_SET}))
+      self._rx(self.packer.make_can_msg_panda("ASCMSteeringButton", bus, {"ACCButtons": Buttons.UNPRESS}))
+      self.assertEqual(controls_allowed, self.safety.get_controls_allowed(), bus)
+
 ##### OPGM TESTS #####
 
 def interceptor_msg(gas, addr):
@@ -300,7 +336,7 @@ def interceptor_msg(gas, addr):
 
 
 class TestGmInterceptorSafety(common.GasInterceptorSafetyTest, TestGmCameraSafety):
-  INTERCEPTOR_THRESHOLD = 515
+  INTERCEPTOR_THRESHOLD = 550
 
   def setUp(self):
     self.packer = CANPackerPanda("gm_global_a_powertrain_generated")
@@ -370,6 +406,14 @@ class TestGmInterceptorSafety(common.GasInterceptorSafetyTest, TestGmCameraSafet
         self.assertEqual(pedal_alive, self.safety.safety_config_valid())
         self.assertEqual(pedal_alive, self.safety.get_controls_allowed())
 
+  # FrogPilot tests
+  def test_ascm_long_limits(self):
+    self.safety.set_safety_hooks(Panda.SAFETY_GM, Panda.FLAG_GM_HW_CAM | Panda.FLAG_GM_HW_CAM_LONG | Panda.FLAG_GM_HW_ASCM_LONG | Panda.FLAG_GM_GAS_INTERCEPTOR)
+    self.safety.set_controls_allowed(True)
+
+    for gas, allowed in ((3072, True), (3073, False)):
+      self.assertEqual(allowed, self._tx(self.packer.make_can_msg_panda("ASCMGasRegenCmd", 0, {"GasRegenCmd": gas})), gas)
+
   def test_fwd_hook(self):
     pass
 
@@ -434,6 +478,22 @@ class TestGmCcLongitudinalSafety(TestGmCameraSafety):
     self.assertTrue(self.safety.get_cruise_engaged_prev())
     for btn in range(8):
       self.assertEqual(btn == Buttons.CANCEL, self._tx(self._button_msg(btn)))
+
+  def test_pcm_status_rx_check(self):
+    for pcm_status_alive in (True, False):
+      with self.subTest(pcm_status_alive=pcm_status_alive):
+        self.setUp()
+        self._rx(self._pcm_status_msg(True))
+        for t in range(1, 4):
+          self.safety.set_timer(int(t * 1e6))
+          for msg in ("EBCMWheelSpdRear", "PSCMStatus", "ASCMSteeringButton", "EBCMBrakePedalPosition", "AcceleratorPedal2", "ECMEngineStatus"):
+            self._rx(self.packer.make_can_msg_panda(msg, 0, {}))
+          if pcm_status_alive:
+            self._rx(self._pcm_status_msg(True))
+          self.safety.safety_tick_current_safety_config()
+        self.assertEqual(pcm_status_alive, self.safety.safety_config_valid())
+        self.assertEqual(pcm_status_alive, self.safety.get_controls_allowed())
+        self.assertEqual(pcm_status_alive, self._tx(self._button_msg(Buttons.RES_ACCEL)))
 
 
 if __name__ == "__main__":

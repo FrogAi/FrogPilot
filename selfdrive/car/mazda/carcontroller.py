@@ -7,6 +7,9 @@ from openpilot.selfdrive.car.mazda.values import CarControllerParams, Buttons
 
 VisualAlert = car.CarControl.HUDControl.VisualAlert
 
+# FrogPilot variables
+MAIN_OFF_FRAMES = 300
+
 
 class CarController(CarControllerBase):
   def __init__(self, dbc_name, CP, VM):
@@ -15,6 +18,9 @@ class CarController(CarControllerBase):
     self.packer = CANPacker(dbc_name)
     self.brake_counter = 0
     self.frame = 0
+
+    # FrogPilot variables
+    self.main_off_frames = 0
 
   def update(self, CC, CS, now_nanos, frogpilot_toggles):
     can_sends = []
@@ -61,6 +67,13 @@ class CarController(CarControllerBase):
     new_actuators = CC.actuators.as_builder()
     new_actuators.steer = apply_steer / CarControllerParams.STEER_MAX
     new_actuators.steerOutputCan = apply_steer
+
+    # FrogPilot variables
+    if CS.main_on_at_start and self.main_off_frames < MAIN_OFF_FRAMES and frogpilot_toggles.always_on_lateral:
+      if self.frame % 10 == 0:
+        can_sends.append(mazdacan.create_button_cmd(self.packer, self.CP, CS.crz_btns_counter, Buttons.CANCEL))
+
+      self.main_off_frames += 1
 
     self.frame += 1
     return new_actuators, can_sends

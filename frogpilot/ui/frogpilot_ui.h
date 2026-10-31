@@ -1,51 +1,33 @@
 #pragma once
 
-#include <iostream>
 #include <memory>
-
-#include <QObject>
 
 #include "cereal/messaging/messaging.h"
 #include "selfdrive/ui/qt/network/wifi_manager.h"
 
 #include "frogpilot/ui/qt/widgets/frogpilot_controls.h"
 
-struct RadarTrackData {
-  QPointF calibrated_point;
-};
-
 struct FrogPilotUIScene {
-  bool always_on_lateral_active;
-  bool downloading_update;
-  bool enabled;
-  bool frogpilot_panel_active;
-  bool map_open;
-  bool online;
-  bool parked;
-  bool reverse;
-  bool sidebars_open;
-  bool standstill;
-  bool traffic_mode_enabled;
-  bool use_stock_colors;
-  bool wake_up_screen;
+  bool always_on_lateral_active = false;
+  bool downloading_update = false;
+  bool driver_camera_active = false;
+  bool enabled = false;
+  bool frogpilot_panel_active = false;
+  bool map_open = false;
+  bool online = false;
+  bool parked = false;
+  bool reverse = false;
+  bool standstill = false;
+  bool traffic_mode_enabled = false;
+  bool wake_up_screen = false;
 
-  float lane_width_left;
-  float lane_width_right;
+  float lane_width_left = 0;
+  float lane_width_right = 0;
 
-  int conditional_status;
-  int driver_camera_timer;
-  int model_length;
-  int started_timer;
+  int conditional_status = 0;
+  int model_length = 0;
 
-  std::vector<RadarTrackData> live_radar_tracks;
-
-  QColor lane_lines_color;
-  QColor lead_marker_color;
-  QColor path_color;
-  QColor path_edges_color;
-  QColor sidebar_color1;
-  QColor sidebar_color2;
-  QColor sidebar_color3;
+  std::vector<QPointF> live_radar_tracks;
 
   QJsonObject frogpilot_toggles;
 
@@ -61,22 +43,60 @@ class FrogPilotUIState : public QObject {
 public:
   explicit FrogPilotUIState(QObject *parent = nullptr);
 
+  void cancelModelDownload();
+  void cancelThemeDownload();
+  void downloadAllModels();
+  void downloadModels(const QStringList &models);
+  void downloadTheme(const QString &component, const QStringList &themes);
+  void experimentalModePressed();
+  void flashPanda();
+  void reportIssue(const QString &report);
+  void requestAccountLink();
+  void requestAccountUrl(const QString &purpose);
+  void runUpdateChecks();
+  void screenRecorderEvent(cereal::FrogPilotCarEvent::EventName event);
+  void setDistanceButtonPressed(bool pressed);
+  void setTethering(int mode);
+  void speedLimitAccepted();
+  void testAlert(const QString &alert, float volume);
+  void unlinkAccount();
   void update();
+  void updateToggles();
 
   std::unique_ptr<SubMaster> sm;
 
-  FrogPilotUIScene frogpilot_scene;
+  FrogPilotUIScene frogpilot_scene = {};
 
   Params params_memory{"/dev/shm/params"};
 
   QJsonObject &frogpilot_toggles = frogpilot_scene.frogpilot_toggles;
 
-  WifiManager *wifi;
+  uint64_t account_link_request_time = 0;
+  uint64_t account_url_request_time = 0;
+  uint64_t download_model_request_time = 0;
+  uint64_t download_theme_request_time = 0;
+  uint64_t flash_panda_request_time = 0;
+  uint64_t issue_report_request_time = 0;
+
+  WifiManager *wifi = nullptr;
 
 signals:
+  void cameraFrameReceived();
+  void statsSaved();
   void themeUpdated();
+  void togglesUpdated();
+
+private:
+  bool distance_button_pressed = false;
+
+  int driver_camera_timer = 0;
+  int tethering_mode = 0;
+
+  std::unique_ptr<PubMaster> pm;
 };
 
 FrogPilotUIState *frogpilotUIState();
 
-void update_theme(FrogPilotUIState *fs);
+bool isOpenpilotSteering();
+
+QString formatShortTime(const QTime &time);

@@ -5,13 +5,16 @@ from cereal import car
 from openpilot.common.filter_simple import FirstOrderFilter
 from openpilot.common.numpy_fast import clip, interp
 from openpilot.common.realtime import DT_CTRL
-from openpilot.selfdrive.car import carlog, apply_meas_steer_torque_limits, apply_std_steer_angle_limits, common_fault_avoidance, create_gas_interceptor_command, make_can_msg, rate_limit
+from openpilot.common.swaglog import cloudlog
+from openpilot.selfdrive.car import apply_meas_steer_torque_limits, apply_std_steer_angle_limits, common_fault_avoidance, create_gas_interceptor_command, \
+                                    make_can_msg
 from openpilot.selfdrive.car.secoc import add_mac, build_sync_mac
 from openpilot.selfdrive.car.interfaces import CarControllerBase
 from openpilot.selfdrive.car.toyota import toyotacan
 from openpilot.selfdrive.car.toyota.values import CAR, STATIC_DSU_MSGS, NO_STOP_TIMER_CAR, TSS2_CAR, \
                                         MIN_ACC_SPEED, PEDAL_TRANSITION, CarControllerParams, ToyotaFlags, \
                                         UNSUPPORTED_DSU_CAR, STOP_AND_GO_CAR
+from openpilot.selfdrive.controls.lib.drive_helpers import rate_limit
 from openpilot.selfdrive.controls.lib.pid import PIDController
 from opendbc.can.packer import CANPacker
 
@@ -48,6 +51,7 @@ LOCK_CMD = b"\x40\x05\x30\x11\x00\x80\x00\x00"
 UNLOCK_CMD = b"\x40\x05\x30\x11\x00\x40\x00\x00"
 
 PARK = car.CarState.GearShifter.park
+SNG_INTERCEPTOR_GAS = 0.12
 
 def get_long_tune(CP, params):
   kiBP = [2., 5.]
@@ -118,7 +122,7 @@ class CarController(CarControllerBase):
 
         expected_mac = build_sync_mac(self.secoc_key, int(CS.secoc_synchronization['TRIP_CNT']), int(CS.secoc_synchronization['RESET_CNT']))
         if int(CS.secoc_synchronization['AUTHENTICATOR']) != expected_mac:
-          carlog.error("SecOC synchronization MAC mismatch, wrong key?")
+          cloudlog.error("SecOC synchronization MAC mismatch, wrong key?")
 
     # *** steer torque ***
     new_steer = int(round(actuators.steer * self.params.STEER_MAX))
@@ -201,8 +205,8 @@ class CarController(CarControllerBase):
       pedal_offset = interp(CS.out.vEgo, [0.0, 2.3, MIN_ACC_SPEED + PEDAL_TRANSITION], [-.4, 0.0, 0.2])
       pedal_command = PEDAL_SCALE * (self.accel + pedal_offset)
       interceptor_gas_cmd = clip(pedal_command, 0., MAX_INTERCEPTOR_GAS)
-    elif self.CP.enableGasInterceptor and CC.longActive and self.CP.carFingerprint in STOP_AND_GO_CAR and self.accel > 0.0:
-      interceptor_gas_cmd = 0.12 if CS.out.standstill else 0.
+    elif self.CP.enableGasInterceptor and CC.longActive and CS.out.standstill and actuators.accel > 0.0:
+      interceptor_gas_cmd = SNG_INTERCEPTOR_GAS
     else:
       interceptor_gas_cmd = 0.
 
@@ -295,22 +299,18 @@ class CarController(CarControllerBase):
 
         pcm_accel_cmd = clip(pcm_accel_cmd, self.params.ACCEL_MIN, self.params.ACCEL_MAX)
 
+        main_accel_cmd = 0. if self.CP.flags & ToyotaFlags.SECOC.value else pcm_accel_cmd
+        can_sends.append(toyotacan.create_accel_command(self.packer, main_accel_cmd, pcm_cancel_cmd, self.permit_braking, self.standstill_req, lead,
+                                                        CS.acc_type, fcw_alert, self.distance_button, frogpilot_toggles.reverse_cruise_increase))
         if self.CP.flags & ToyotaFlags.SECOC.value:
-          can_sends.append(toyotacan.create_accel_command(self.packer, 0, pcm_cancel_cmd, self.permit_braking, self.standstill_req, lead,
-                                                          CS.acc_type, fcw_alert, self.distance_button, frogpilot_toggles.reverse_cruise_increase))
-
           acc_cmd_2 = toyotacan.create_accel_command_2(self.packer, pcm_accel_cmd)
           acc_cmd_2 = add_mac(self.secoc_key,
                               int(CS.secoc_synchronization['TRIP_CNT']),
                               int(CS.secoc_synchronization['RESET_CNT']),
                               self.secoc_acc_message_counter,
                               acc_cmd_2)
-          can_sends.append(acc_cmd_2)
-
           self.secoc_acc_message_counter += 1
-        else:
-          can_sends.append(toyotacan.create_accel_command(self.packer, pcm_accel_cmd, pcm_cancel_cmd, self.permit_braking, self.standstill_req, lead,
-                                                          CS.acc_type, fcw_alert, self.distance_button, frogpilot_toggles.reverse_cruise_increase))
+          can_sends.append(acc_cmd_2)
 
         self.accel = pcm_accel_cmd
 
@@ -320,7 +320,8 @@ class CarController(CarControllerBase):
         if self.CP.carFingerprint in UNSUPPORTED_DSU_CAR:
           can_sends.append(toyotacan.create_acc_cancel_command(self.packer))
         else:
-          can_sends.append(toyotacan.create_accel_command(self.packer, 0, pcm_cancel_cmd, True, False, lead, CS.acc_type, False, self.distance_button, frogpilot_toggles.reverse_cruise_increase))
+          can_sends.append(toyotacan.create_accel_command(self.packer, 0, pcm_cancel_cmd, True, False, lead, CS.acc_type, False, self.distance_button,
+                                                          frogpilot_toggles.reverse_cruise_increase))
 
     # *** hud ui ***
     if self.CP.carFingerprint != CAR.TOYOTA_PRIUS_V:
@@ -339,7 +340,7 @@ class CarController(CarControllerBase):
       if self.frame % 20 == 0 or send_ui:
         can_sends.append(toyotacan.create_ui_command(self.packer, steer_alert, pcm_cancel_cmd, hud_control.leftLaneVisible,
                                                      hud_control.rightLaneVisible, hud_control.leftLaneDepart,
-                                                     hud_control.rightLaneDepart, CC.enabled, CS.lkas_hud, lat_active))
+                                                     hud_control.rightLaneDepart, lat_active, CS.lkas_hud))
 
       if (self.frame % 100 == 0 or send_ui) and (self.CP.enableDsu or self.CP.flags & ToyotaFlags.DISABLE_RADAR.value):
         can_sends.append(toyotacan.create_fcw_command(self.packer, fcw_alert))
