@@ -54,7 +54,7 @@ class TestVCruiseHelper:
     self.v_cruise_helper = VCruiseHelper(self.CP)
 
     # FrogPilot variables
-    self.frogpilot_toggles = SimpleNamespace(conditional_experimental_mode=False, cruise_increase=1, cruise_increase_long=5,
+    self.frogpilot_toggles = SimpleNamespace(conditional_experimental_mode=False, cslc=False, cruise_increase=1, cruise_increase_long=5,
                                              set_speed_limit=False, set_speed_offset=0)
 
     self.reset_cruise_speed_state()

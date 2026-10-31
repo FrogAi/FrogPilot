@@ -237,6 +237,7 @@ class Context:
 
     self.can_disable_openpilot_long = True
     self.can_map_gears = True
+    self.can_use_cslc = False
     self.can_use_dsu_bypass = False
     self.can_use_pedal = False
     self.can_use_sdsu = False
@@ -257,6 +258,7 @@ class Context:
     self.has_starting_state = True
     self.has_zss = False
     self.is_angle_car = False
+    self.is_cslc = False
     self.is_gm = True
     self.is_gm_cc_only = False
     self.is_hkg = True
@@ -308,6 +310,7 @@ class Context:
 
     self.can_disable_openpilot_long = frogpilot_toggles.can_disable_openpilot_long
     self.can_map_gears = frogpilot_toggles.can_map_gears
+    self.can_use_cslc = frogpilot_toggles.can_use_cslc
     self.can_use_dsu_bypass = frogpilot_toggles.can_use_dsu_bypass
     self.has_auto_tune = frogpilot_toggles.has_auto_tune
     self.has_bsm = car_params["enableBsm"]
@@ -316,7 +319,7 @@ class Context:
     self.has_nnff_log = frogpilot_toggles.has_nnff
     self.has_openpilot_longitudinal = frogpilot_utilities.has_openpilot_longitudinal(self.params, car_params)
     self.has_distance_button = frogpilot_toggles.has_distance_button or self.has_openpilot_longitudinal
-    self.has_pcm_cruise = car_params["pcmCruise"]
+    self.has_pcm_cruise = car_params["pcmCruise"] and not frogpilot_toggles.cslc
     self.has_pedal = car_params["enableGasInterceptor"]
     self.has_radar = not car_params["radarUnavailable"]
     self.has_sdsu = frogpilot_toggles.has_sdsu
@@ -324,6 +327,7 @@ class Context:
     self.has_starting_state = car_params["startingState"]
     self.has_zss = frogpilot_toggles.has_zss
     self.is_angle_car = car_params["steerControlType"] == "angle"
+    self.is_cslc = frogpilot_toggles.cslc
     self.is_gm = car_make == "gm"
     self.is_gm_cc_only = frogpilot_toggles.is_gm_cc_only
     self.is_hkg = car_make == "hyundai"

@@ -288,6 +288,54 @@ class TestGmSdgmSafety(TestGmSafetyBase):
       self._rx(self._pcm_status_msg(enabled))
       self.assertEqual(enabled, self._tx(self._button_msg(Buttons.CANCEL)))
 
+class TestGmCameraCslcSafety(TestGmCameraSafety):
+  def setUp(self):
+    super().setUp()
+    self.safety.set_safety_hooks(Panda.SAFETY_GM, Panda.FLAG_GM_HW_CAM | Panda.FLAG_GM_CSLC)
+    self.safety.init_tests()
+
+  def test_buttons(self):
+    for enabled in (True, False):
+      self._rx(self._pcm_status_msg(enabled))
+      self.safety.set_controls_allowed(1)
+
+      for btn in range(8):
+        self.assertEqual(enabled and btn in (Buttons.RES_ACCEL, Buttons.DECEL_SET, Buttons.CANCEL), self._tx(self._button_msg(btn)))
+
+  def test_buttons_without_controls_allowed(self):
+    self._rx(self._pcm_status_msg(True))
+    self.safety.set_controls_allowed(0)
+
+    for btn in range(8):
+      self.assertEqual(btn == Buttons.CANCEL, self._tx(self._button_msg(btn)))
+
+
+class TestGmSdgmCslcSafety(TestGmSdgmSafety):
+  TX_MSGS = [[0x180, 0], [0x1E1, 0],  # pt bus
+             [0x184, 2], [0x1E1, 2]]  # camera bus
+  BUTTONS_BUS = 2  # tx
+
+  def setUp(self):
+    super().setUp()
+    self.safety.set_safety_hooks(Panda.SAFETY_GM, Panda.FLAG_GM_HW_SDGM | Panda.FLAG_GM_CSLC)
+    self.safety.init_tests()
+
+  def test_buttons(self):
+    for enabled in (True, False):
+      self._rx(self._pcm_status_msg(enabled))
+      self.safety.set_controls_allowed(1)
+
+      for btn in range(8):
+        self.assertEqual(enabled and btn in (Buttons.RES_ACCEL, Buttons.DECEL_SET, Buttons.CANCEL), self._tx(self._button_msg(btn)))
+
+  def test_buttons_without_controls_allowed(self):
+    self._rx(self._pcm_status_msg(True))
+    self.safety.set_controls_allowed(0)
+
+    for btn in range(8):
+      self.assertEqual(btn == Buttons.CANCEL, self._tx(self._button_msg(btn)))
+
+
 ##### OPGM TESTS #####
 
 def interceptor_msg(gas, addr):

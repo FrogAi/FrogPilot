@@ -30,7 +30,7 @@ class Car:
 
   def __init__(self, CI=None):
     self.can_sock = messaging.sub_sock('can', timeout=20)
-    self.sm = messaging.SubMaster(['pandaStates', 'carControl', 'liveCalibration', 'onroadEvents', 'frogpilotControlsState', 'frogpilotPlan'])
+    self.sm = messaging.SubMaster(['pandaStates', 'carControl', 'controlsState', 'liveCalibration', 'onroadEvents', 'frogpilotControlsState', 'frogpilotPlan'])
     self.pm = messaging.PubMaster(['sendcan', 'carState', 'carParams', 'carOutput', 'frogpilotCarParams', 'frogpilotCarState'])
 
     self.can_rcv_cum_timeout_counter = 0
@@ -207,6 +207,10 @@ class Car:
       self.params.put_bool_nonblocking("ControlsReady", True)
 
     if self.sm.all_alive(['carControl']):
+      # FrogPilot variables
+      self.CI.CC.experimental_mode = self.sm['controlsState'].experimentalMode
+      self.CI.CC.planned_speed = self.sm['frogpilotPlan'].vCruise
+
       # send car controls over can
       now_nanos = self.can_log_mono_time if REPLAY else int(time.monotonic() * 1e9)
       self.last_actuators_output, can_sends = self.CI.apply(CC, now_nanos, self.frogpilot_toggles)

@@ -1,3 +1,5 @@
+import math
+
 from openpilot.common.conversions import Conversions as CV
 from openpilot.common.realtime import DT_CTRL
 from openpilot.selfdrive.car import make_can_msg
@@ -215,3 +217,72 @@ def create_gm_cc_spam_command(packer, controller, CS, actuators, is_metric):
     return [create_buttons(packer, CanBus.POWERTRAIN, idx, cruiseBtn)]
   else:
     return []
+
+
+# FrogPilot variables
+def create_buttons_five(packer, bus, idx, button):
+  if button == CruiseButtons.RES_ACCEL:
+    acc_always_one = 1
+    acc_by_five = 2
+    checksum = 251
+  else:
+    acc_always_one = 0
+    acc_by_five = 3
+    checksum = 250
+
+  values = {
+    "ACCButtons": button,
+    "RollingCounter": idx,
+    "ACCAlwaysOne": acc_always_one,
+    "ACCByFive": acc_by_five,
+    "SteeringButtonChecksum": checksum + idx * 0x4ef - ((button - 1) << 4),
+  }
+  return packer.make_can_msg("ASCMSteeringButton", bus, values)
+
+
+def create_cslc_buttons(packer, frame, CS, set_speed, accel, experimental_mode, sdgm, is_metric):
+  if is_metric:
+    conversion = CV.MS_TO_KPH
+    min_cruise_speed = 25
+    min_cruise_speed_five = 25
+  else:
+    conversion = CV.MS_TO_MPH
+    min_cruise_speed = 16
+    min_cruise_speed_five = 20
+
+  if sdgm:
+    frames_total = 30
+    message_count = 23
+    next_counter = 1
+  else:
+    frames_total = 12
+    message_count = 3
+    next_counter = 2
+
+  if frame % frames_total not in (0, 3):
+    return []
+
+  cruise_speed = int(round(CS.out.cruiseState.speed * conversion))
+  idx = (CS.buttons_counter + next_counter) % 4
+
+  if experimental_mode:
+    # 1.01 factor to match cluster speed better
+    target_speed = int(round((CS.out.vEgo * 1.01 + 4.6 * accel + 0.7 * accel ** 3 - 1 / 35 * accel ** 5) * conversion))
+  else:
+    target_speed = int(round(set_speed * conversion))
+
+    if target_speed + 5 < CS.out.vEgo * conversion:
+      target_speed -= 10  # 10 lower to increase deceleration until with 5
+
+  if sdgm and target_speed <= math.floor((cruise_speed - 1) / 5) * 5 and cruise_speed > min_cruise_speed_five:
+    message = create_buttons_five(packer, CanBus.CAMERA, idx, CruiseButtons.DECEL_SET)
+  elif sdgm and target_speed >= math.ceil((cruise_speed + 1) / 5) * 5:
+    message = create_buttons_five(packer, CanBus.CAMERA, idx, CruiseButtons.RES_ACCEL)
+  elif target_speed < cruise_speed and cruise_speed > min_cruise_speed:
+    message = create_buttons(packer, CanBus.CAMERA, idx, CruiseButtons.DECEL_SET)
+  elif target_speed > cruise_speed:
+    message = create_buttons(packer, CanBus.CAMERA, idx, CruiseButtons.RES_ACCEL)
+  else:
+    return []
+
+  return [message] * message_count

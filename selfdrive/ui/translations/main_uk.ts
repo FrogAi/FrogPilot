@@ -4713,6 +4713,14 @@ Only continue if you know what they do.</source>
         <source>&lt;b&gt;The make of the car openpilot is using.&lt;/b&gt; If openpilot doesn't recognize your car, pick it here and openpilot uses it instead. To always use the car you pick, turn on "Disable Automatic Fingerprint Detection" ("Advanced" tuning level).</source>
         <translation>&lt;b&gt;Марка автомобіля, яку використовує openpilot.&lt;/b&gt; Якщо openpilot не розпізнає ваш автомобіль, виберіть його тут, і openpilot використовуватиме саме його. Щоб завжди використовувати вибраний автомобіль, увімкніть «Вимкнути автоматичне визначення автомобіля» (рівень налаштування «Розширений»).</translation>
     </message>
+    <message>
+        <source>GM CSLC</source>
+        <translation>GM CSLC</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Let your car's own adaptive cruise keep control of the gas and brakes, while openpilot presses the cruise buttons to match its planned speed.&lt;/b&gt;&lt;br&gt;&lt;br&gt;That speed follows your set speed, Curve Speed Controller, Speed Limit Controller, and Experimental Mode. Works on cars with adaptive cruise built into the camera or the Safety Data Gateway Module, and replaces openpilot Longitudinal Control on those cars.</source>
+        <translation>&lt;b&gt;Дозвольте штатному адаптивному круїз-контролю автомобіля й надалі керувати газом і гальмами, а openpilot натискатиме кнопки круїз-контролю, щоб досягти запланованої ним швидкості.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Ця швидкість залежить від заданої швидкості, Регулятора швидкості в поворотах, Регулятора обмеження швидкості та Експериментального режиму. Працює на автомобілях з адаптивним круїз-контролем, вбудованим у камеру або Safety Data Gateway Module, і замінює на цих автомобілях поздовжнє керування openpilot.</translation>
+    </message>
 </context>
 <context>
     <name>FrogPilotVisualsPanel</name>

@@ -4709,6 +4709,14 @@ Only continue if you know what they do.</source>
         <source>&lt;b&gt;The make of the car openpilot is using.&lt;/b&gt; If openpilot doesn't recognize your car, pick it here and openpilot uses it instead. To always use the car you pick, turn on "Disable Automatic Fingerprint Detection" ("Advanced" tuning level).</source>
         <translation>&lt;b&gt;openpilot이 사용 중인 차량의 제조사입니다.&lt;/b&gt; openpilot이 차량을 인식하지 못하면 여기에서 선택하세요. openpilot이 선택한 차량을 대신 사용합니다. 선택한 차량을 항상 사용하려면 "핑거프린트 자동 인식 비활성화"("고급" 튜닝 수준)를 켜세요.</translation>
     </message>
+    <message>
+        <source>GM CSLC</source>
+        <translation>GM CSLC</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Let your car's own adaptive cruise keep control of the gas and brakes, while openpilot presses the cruise buttons to match its planned speed.&lt;/b&gt;&lt;br&gt;&lt;br&gt;That speed follows your set speed, Curve Speed Controller, Speed Limit Controller, and Experimental Mode. Works on cars with adaptive cruise built into the camera or the Safety Data Gateway Module, and replaces openpilot Longitudinal Control on those cars.</source>
+        <translation>&lt;b&gt;차량 자체의 어댑티브 크루즈가 가속과 제동을 계속 제어하고, openpilot은 계획한 속도에 맞추도록 크루즈 버튼을 누릅니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;이 속도는 설정 속도, 커브 속도 제어, 제한 속도 제어, 실험 모드를 따릅니다. 어댑티브 크루즈가 카메라 또는 Safety Data Gateway Module에 내장된 차량에서 작동하며, 이러한 차량에서는 openpilot 가감속 제어를 대체합니다.</translation>
+    </message>
 </context>
 <context>
     <name>FrogPilotVisualsPanel</name>

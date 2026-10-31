@@ -4709,6 +4709,14 @@ Only continue if you know what they do.</source>
         <source>&lt;b&gt;The make of the car openpilot is using.&lt;/b&gt; If openpilot doesn't recognize your car, pick it here and openpilot uses it instead. To always use the car you pick, turn on "Disable Automatic Fingerprint Detection" ("Advanced" tuning level).</source>
         <translation>&lt;b&gt;openpilot 正在使用的車輛品牌。&lt;/b&gt;若 openpilot 無法辨識您的車輛，請在此選擇，openpilot 就會改用您選擇的車輛。若要一律使用您選擇的車輛，請開啟「停用車輛指紋自動偵測」（「進階」調校等級）。</translation>
     </message>
+    <message>
+        <source>GM CSLC</source>
+        <translation>GM CSLC</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Let your car's own adaptive cruise keep control of the gas and brakes, while openpilot presses the cruise buttons to match its planned speed.&lt;/b&gt;&lt;br&gt;&lt;br&gt;That speed follows your set speed, Curve Speed Controller, Speed Limit Controller, and Experimental Mode. Works on cars with adaptive cruise built into the camera or the Safety Data Gateway Module, and replaces openpilot Longitudinal Control on those cars.</source>
+        <translation>&lt;b&gt;讓車輛原廠的主動式巡航控制繼續控制油門與煞車，同時由 openpilot 按下巡航按鈕，以符合其規劃的速度。&lt;/b&gt;&lt;br&gt;&lt;br&gt;此速度取決於設定速度、彎道速度控制器、速限控制器與實驗模式。適用於主動式巡航控制整合在攝影機或 Safety Data Gateway Module 中的車輛，並在這些車輛上取代 openpilot 縱向控制。</translation>
+    </message>
 </context>
 <context>
     <name>FrogPilotVisualsPanel</name>

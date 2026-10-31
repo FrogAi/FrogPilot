@@ -4709,6 +4709,14 @@ Only continue if you know what they do.</source>
         <source>&lt;b&gt;The make of the car openpilot is using.&lt;/b&gt; If openpilot doesn't recognize your car, pick it here and openpilot uses it instead. To always use the car you pick, turn on "Disable Automatic Fingerprint Detection" ("Advanced" tuning level).</source>
         <translation>&lt;b&gt;ยี่ห้อรถที่ openpilot ใช้อยู่&lt;/b&gt; หาก openpilot ไม่รู้จักรถของคุณ ให้เลือกที่นี่ แล้ว openpilot จะใช้รถที่เลือกแทน หากต้องการให้ใช้รถที่เลือกเสมอ ให้เปิด "ปิดการตรวจหารุ่นรถอัตโนมัติ" (ระดับการปรับแต่ง "ขั้นสูง")</translation>
     </message>
+    <message>
+        <source>GM CSLC</source>
+        <translation>GM CSLC</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Let your car's own adaptive cruise keep control of the gas and brakes, while openpilot presses the cruise buttons to match its planned speed.&lt;/b&gt;&lt;br&gt;&lt;br&gt;That speed follows your set speed, Curve Speed Controller, Speed Limit Controller, and Experimental Mode. Works on cars with adaptive cruise built into the camera or the Safety Data Gateway Module, and replaces openpilot Longitudinal Control on those cars.</source>
+        <translation>&lt;b&gt;ให้ระบบควบคุมความเร็วอัตโนมัติแบบปรับระยะของรถคุมคันเร่งและเบรกต่อไป ขณะที่ openpilot กดปุ่มควบคุมความเร็วให้ตรงกับความเร็วที่ openpilot วางแผนไว้&lt;/b&gt;&lt;br&gt;&lt;br&gt;ความเร็วนี้เป็นไปตามความเร็วที่ตั้งไว้ ตัวควบคุมความเร็วในโค้ง ตัวควบคุมความเร็วตามป้ายจำกัด และโหมดทดลอง ใช้งานได้กับรถที่มีระบบควบคุมความเร็วอัตโนมัติแบบปรับระยะอยู่ในกล้องหรือ Safety Data Gateway Module และใช้แทนการควบคุมตามยาวโดย openpilot ในรถเหล่านั้น</translation>
+    </message>
 </context>
 <context>
     <name>FrogPilotVisualsPanel</name>

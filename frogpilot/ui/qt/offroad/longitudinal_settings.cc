@@ -1068,6 +1068,10 @@ void FrogPilotLongitudinalPanel::updateToggles() {
       setVisible &= parent->isToyota;
     }
 
+    else if (key == "ForceStops") {
+      setVisible &= !parent->isCSLC;
+    }
+
     else if (key == "HumanLaneChanges") {
       setVisible &= parent->hasRadar;
     }

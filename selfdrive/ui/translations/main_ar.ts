@@ -4719,6 +4719,14 @@ Only continue if you know what they do.</source>
         <source>&lt;b&gt;The make of the car openpilot is using.&lt;/b&gt; If openpilot doesn't recognize your car, pick it here and openpilot uses it instead. To always use the car you pick, turn on "Disable Automatic Fingerprint Detection" ("Advanced" tuning level).</source>
         <translation>&lt;b&gt;الشركة المصنعة للسيارة التي يستخدمها openpilot.&lt;/b&gt; إذا لم يتعرف openpilot على سيارتك، فاخترها هنا وسيستخدمها openpilot بدلًا من ذلك. لاستخدام السيارة التي تختارها دائمًا، شغّل "تعطيل التعرف التلقائي على بصمة السيارة" (مستوى الضبط "متقدم").</translation>
     </message>
+    <message>
+        <source>GM CSLC</source>
+        <translation>GM CSLC</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Let your car's own adaptive cruise keep control of the gas and brakes, while openpilot presses the cruise buttons to match its planned speed.&lt;/b&gt;&lt;br&gt;&lt;br&gt;That speed follows your set speed, Curve Speed Controller, Speed Limit Controller, and Experimental Mode. Works on cars with adaptive cruise built into the camera or the Safety Data Gateway Module, and replaces openpilot Longitudinal Control on those cars.</source>
+        <translation>&lt;b&gt;دع مثبت السرعة التكيفي الأصلي في سيارتك يواصل التحكم بالتسارع والكبح، بينما يضغط openpilot على أزرار مثبت السرعة لمطابقة السرعة التي خطط لها.&lt;/b&gt;&lt;br&gt;&lt;br&gt;تتبع هذه السرعة السرعة المضبوطة و"متحكم سرعة المنعطفات" و"متحكم حد السرعة" و"الوضع التجريبي". تعمل هذه الميزة على السيارات التي يكون مثبت السرعة التكيفي فيها مدمجًا في الكاميرا أو في Safety Data Gateway Module، وتحل محل التحكم الطولي لـ openpilot في تلك السيارات.</translation>
+    </message>
 </context>
 <context>
     <name>FrogPilotVisualsPanel</name>

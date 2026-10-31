@@ -4711,6 +4711,14 @@ Continue somente se souber o que essas configurações fazem.</translation>
         <source>&lt;b&gt;The make of the car openpilot is using.&lt;/b&gt; If openpilot doesn't recognize your car, pick it here and openpilot uses it instead. To always use the car you pick, turn on "Disable Automatic Fingerprint Detection" ("Advanced" tuning level).</source>
         <translation>&lt;b&gt;A marca do carro que o openpilot está usando.&lt;/b&gt; Se o openpilot não reconhecer o seu carro, escolha-o aqui e o openpilot passará a usá-lo. Para usar sempre o carro escolhido, ative "Desativar detecção automática do veículo" (nível de ajuste "Avançado").</translation>
     </message>
+    <message>
+        <source>GM CSLC</source>
+        <translation>GM CSLC</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Let your car's own adaptive cruise keep control of the gas and brakes, while openpilot presses the cruise buttons to match its planned speed.&lt;/b&gt;&lt;br&gt;&lt;br&gt;That speed follows your set speed, Curve Speed Controller, Speed Limit Controller, and Experimental Mode. Works on cars with adaptive cruise built into the camera or the Safety Data Gateway Module, and replaces openpilot Longitudinal Control on those cars.</source>
+        <translation>&lt;b&gt;Deixe o controle de cruzeiro adaptativo do seu carro continuar controlando o acelerador e os freios, enquanto o openpilot pressiona os botões do controle de cruzeiro para igualar a velocidade que planejou.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Essa velocidade segue a velocidade definida, o Controlador de velocidade em curvas, o Controlador do limite de velocidade e o Modo experimental. Funciona em carros com controle de cruzeiro adaptativo integrado à câmera ou ao Safety Data Gateway Module e substitui o controle longitudinal do openpilot nesses carros.</translation>
+    </message>
 </context>
 <context>
     <name>FrogPilotVisualsPanel</name>
