@@ -5,7 +5,7 @@ import json
 import numpy as np
 
 import cereal.messaging as messaging
-from cereal import car, custom
+from cereal import car
 from cereal import log
 from openpilot.common.params import Params
 from openpilot.common.realtime import config_realtime_process, DT_MDL
@@ -14,7 +14,7 @@ from openpilot.selfdrive.locationd.models.car_kf import CarKalman, ObservationKi
 from openpilot.selfdrive.locationd.models.constants import GENERATED_DIR
 from openpilot.common.swaglog import cloudlog
 
-from openpilot.frogpilot.common.frogpilot_variables import get_frogpilot_toggles
+from openpilot.frogpilot.common import frogpilot_variables
 
 MAX_ANGLE_OFFSET_DELTA = 20 * DT_MDL  # Max 20 deg/s
 ROLL_MAX_DELTA = math.radians(20.0) * DT_MDL  # 20deg in 1 second is well within curvature limits
@@ -97,7 +97,9 @@ class ParamsLearner:
       self.steering_angle = msg.steeringAngleDeg
       self.speed = msg.vEgo
 
+      # FrogPilot variables
       complex_dynamics = abs(msg.aEgo) > 1.0 or abs(msg.steeringRateDeg) > 20
+
       in_linear_region = abs(self.steering_angle) < 45
       self.active = self.speed > MIN_ACTIVE_SPEED and in_linear_region and not complex_dynamics
 
@@ -126,7 +128,8 @@ def main():
   REPLAY = bool(int(os.getenv("REPLAY", "0")))
 
   pm = messaging.PubMaster(['liveParameters'])
-  sm = messaging.SubMaster(['liveLocationKalman', 'carState', 'frogpilotPlan'], poll='liveLocationKalman')
+  sm = messaging.SubMaster(['liveLocationKalman', 'carState', 'frogpilotPlan'], poll='liveLocationKalman',
+                           ignore_alive=['frogpilotPlan'], ignore_valid=['frogpilotPlan'])
 
   params_reader = Params()
   # wait for stats about the car to come in from controls
@@ -185,7 +188,7 @@ def main():
   roll_valid = True
 
   # FrogPilot variables
-  frogpilot_toggles = get_frogpilot_toggles()
+  frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles()
 
   while True:
     sm.update()
@@ -224,11 +227,16 @@ def main():
       liveParameters = msg.liveParameters
       liveParameters.posenetValid = True
       liveParameters.sensorValid = sensors_valid
-      liveParameters.steerRatio = float(x[States.STEER_RATIO].item() if not frogpilot_toggles.use_custom_steerRatio else frogpilot_toggles.steerRatio)
+      liveParameters.steerRatio = float(x[States.STEER_RATIO].item())
       liveParameters.stiffnessFactor = float(x[States.STIFFNESS].item())
       liveParameters.roll = roll
       liveParameters.angleOffsetAverageDeg = angle_offset_average
       liveParameters.angleOffsetDeg = angle_offset
+
+      # FrogPilot variables
+      if frogpilot_toggles.use_custom_steerRatio:
+        liveParameters.steerRatio = frogpilot_toggles.steerRatio
+
       liveParameters.valid = all((
         avg_offset_valid,
         total_offset_valid,
@@ -237,8 +245,6 @@ def main():
         0.2 <= liveParameters.stiffnessFactor <= 5.0,
         min_sr <= liveParameters.steerRatio <= max_sr,
       ))
-      if CP.carFingerprint == "RAM_HD" or CP.carName == "subaru" and CP.lateralTuning.which() == "torque":
-        liveParameters.valid = True
       liveParameters.steerRatioStd = float(P[States.STEER_RATIO].item())
       liveParameters.stiffnessFactorStd = float(P[States.STIFFNESS].item())
       liveParameters.angleOffsetAverageStd = float(P[States.ANGLE_OFFSET].item())
@@ -254,7 +260,7 @@ def main():
       if sm.frame % 1200 == 0:  # once a minute
         params = {
           'carFingerprint': CP.carFingerprint,
-          'steerRatio': liveParameters.steerRatio,
+          'steerRatio': float(x[States.STEER_RATIO].item()),
           'stiffnessFactor': liveParameters.stiffnessFactor,
           'angleOffsetAverageDeg': liveParameters.angleOffsetAverageDeg,
         }
@@ -263,8 +269,7 @@ def main():
       pm.send('liveParameters', msg)
 
     # Update FrogPilot variables
-    if sm['frogpilotPlan'].togglesUpdated:
-      frogpilot_toggles = get_frogpilot_toggles()
+    frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles(sm)
 
 if __name__ == "__main__":
   main()

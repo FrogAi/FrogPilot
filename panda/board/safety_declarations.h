@@ -180,6 +180,10 @@ bool driver_limit_check(int val, int val_last, const struct sample_t *val_driver
   const int MAX, const int MAX_RATE_UP, const int MAX_RATE_DOWN,
   const int MAX_ALLOWANCE, const int DRIVER_FACTOR);
 bool get_longitudinal_allowed(void);
+
+// FrogPilot variables
+bool get_aol_allowed(void);
+
 bool rt_rate_limit_check(int val, int val_last, const int MAX_RT_DELTA);
 float interpolate(struct lookup_t xy, float x);
 int ROUND(float val);
@@ -222,11 +226,13 @@ bool cruise_engaged_prev = false;
 struct sample_t vehicle_speed;
 bool vehicle_moving = false;
 bool acc_main_on = false;  // referred to as "ACC off" in ISO 15622:2018
-bool lkas_on = false;
-bool lkas_pressed_prev = false;
 int cruise_button_prev = 0;
-int cruise_main_prev = 0;
 bool safety_rx_checks_invalid = false;
+
+// FrogPilot variables
+bool lkas_on = false;
+bool lkas_button_prev = false;
+bool main_button_prev = false;
 
 // for safety modes with torque steering control
 int desired_torque_last = 0;       // last desired steer torque
@@ -272,5 +278,6 @@ uint32_t safety_mode_cnt = 0U;
 // allow 1s of transition timeout after relay changes state before assessing malfunctioning
 const uint32_t RELAY_TRNS_TIMEOUT = 1U;
 
+// FrogPilot variables
 // Always on Lateral
 #define ALT_EXP_ALWAYS_ON_LATERAL 32

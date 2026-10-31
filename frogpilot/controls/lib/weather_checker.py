@@ -4,15 +4,18 @@ import time
 
 from concurrent.futures import ThreadPoolExecutor
 
-from openpilot.common.conversions import Conversions as CV
 from openpilot.common.params import Params
 
-from openpilot.frogpilot.common.frogpilot_utilities import calculate_distance_to_point, get_frogpilot_api_info
-from openpilot.frogpilot.common.frogpilot_variables import FROGPILOT_API
+from openpilot.frogpilot.common import frogpilot_api, frogpilot_utilities, frogpilot_variables
 
-CACHE_DISTANCE = 25
-MAX_RETRIES = 3
-RETRY_DELAY = 60
+CACHE_DISTANCE = 25_000
+CACHE_MAX_AGE = 20 * 60
+UPDATE_DISTANCE = 20_000
+
+DEFAULT_UPDATE_INTERVAL = 15 * 60
+PERSONAL_KEY_UPDATE_INTERVAL = 60
+
+RETRY_INTERVAL = 60
 
 # Reference: https://openweathermap.org/weather-conditions
 WEATHER_CATEGORIES = {
@@ -21,7 +24,7 @@ WEATHER_CATEGORIES = {
     "suffix": "rain",
   },
   "RAIN_STORM": {
-    "ranges": [(200, 232), (511, 511), (520, 531)],
+    "ranges": [(200, 232), (511, 511), (520, 531), (771, 771), (781, 781)],
     "suffix": "rain_storm",
   },
   "SNOW": {
@@ -38,132 +41,152 @@ WEATHER_CATEGORIES = {
   },
 }
 
+WEATHER_OFFSETS = (
+  "increase_following_distance",
+  "increase_stopped_distance",
+  "reduce_acceleration",
+  "reduce_lateral_acceleration",
+)
+
+
+def valid_weather(data):
+  return isinstance(data, dict) and all(type(data.get(key)) is int for key in ("sunrise", "sunset", "weather_id"))
+
+
+def weather_category(weather_id):
+  return next(
+    (category["suffix"] for category in WEATHER_CATEGORIES.values() if any(start <= weather_id <= end for start, end in category["ranges"])),
+    "unknown",
+  )
+
+
 class WeatherChecker:
-  def __init__(self):
+  def __init__(self, api):
+    self.params = Params()
+
     self.is_daytime = False
 
-    self.api_25_calls = 0
-    self.api_3_calls = 0
     self.increase_following_distance = 0
     self.increase_stopped_distance = 0
+    self.last_weather_id = 0
+    self.next_request = 0
+    self.next_retry = 0
     self.reduce_acceleration = 0
     self.reduce_lateral_acceleration = 0
     self.sunrise = 0
     self.sunset = 0
+    self.weather_calls = 0
     self.weather_id = 0
 
-    self.hourly_forecast = None
-    self.last_gps_position = None
-    self.last_updated = None
-    self.requesting = False
+    self.future = None
+    self.last_position = None
+    self.last_request_time = None
+    self.request_position = None
+    self.request_time = None
 
-    self.user_api_key = Params().get("WeatherToken", encoding="utf-8")
-
-    if self.user_api_key:
-      self.check_interval = 60
-    else:
-      self.check_interval = 15 * 60
-
-    self.api_info = get_frogpilot_api_info()
-
-    self.session = requests.Session()
-    self.session.headers.update({"Accept-Language": "en", "User-Agent": "frogpilot-api/1.0"})
+    self.frogpilot_api = api
 
     self.executor = ThreadPoolExecutor(max_workers=1)
 
-  def update_offsets(self, frogpilot_toggles):
-    suffix = WEATHER_CATEGORIES["CLEAR"]["suffix"]
-    for category in WEATHER_CATEGORIES.values():
-      if any(start <= self.weather_id <= end for start, end in category["ranges"]):
-        suffix = category["suffix"]
-        break
+    self.session = requests.Session()
 
-    if suffix != WEATHER_CATEGORIES["CLEAR"]["suffix"]:
-      self.increase_following_distance = getattr(frogpilot_toggles, f"increase_following_distance_{suffix}")
-      self.increase_stopped_distance = getattr(frogpilot_toggles, f"increase_stopped_distance_{suffix}")
-      self.reduce_acceleration = getattr(frogpilot_toggles, f"reduce_acceleration_{suffix}")
-      self.reduce_lateral_acceleration = getattr(frogpilot_toggles, f"reduce_lateral_acceleration_{suffix}")
-    else:
-      self.increase_following_distance = 0
-      self.increase_stopped_distance = 0
-      self.reduce_acceleration = 0
-      self.reduce_lateral_acceleration = 0
+  def close(self):
+    self.executor.submit(self.session.close)
+    self.executor.shutdown(wait=False)
+
+  def update_offsets(self, frogpilot_toggles):
+    category = weather_category(self.weather_id)
+    for offset in WEATHER_OFFSETS:
+      value = getattr(frogpilot_toggles, f"{offset}_{category}") if category not in ("clear", "unknown") else 0
+      setattr(self, offset, value)
+
+  def invalidate(self):
+    self.last_position = None
+    self.last_request_time = None
+    self.last_weather_id = 0
+    self.next_request = 0
+    self.weather_id = 0
 
   def update_weather(self, gps_position, now, frogpilot_toggles):
-    if self.last_gps_position and self.last_updated:
-      distance = calculate_distance_to_point(
-        self.last_gps_position["latitude"],
-        self.last_gps_position["longitude"],
-        gps_position.get("latitude"),
-        gps_position.get("longitude")
-      )
-      if distance / 1000 > CACHE_DISTANCE:
-        self.hourly_forecast = None
-        self.last_updated = None
+    timestamp = time.monotonic()
 
-    if self.sunrise and self.sunset:
-      self.is_daytime = self.sunrise <= int(now.timestamp()) < self.sunset
+    position = (gps_position["latitude"], gps_position["longitude"])
 
-    if self.last_updated and (now - self.last_updated).total_seconds() < self.check_interval:
-      if self.hourly_forecast:
-        current_forecast = min(self.hourly_forecast, key=lambda f: abs(f["dt"] - now.timestamp()))
-        self.weather_id = current_forecast.get("weather", [{}])[0].get("id", 0)
-        self.update_offsets(frogpilot_toggles)
+    if self.future is not None and self.future.done():
+      self.complete_request()
+
+    distance = 0
+    if self.last_position is not None:
+      distance = frogpilot_utilities.calculate_distance_to_point(*self.last_position, *position)
+      if distance >= CACHE_DISTANCE or timestamp - self.last_request_time >= CACHE_MAX_AGE:
+        self.invalidate()
+
+    self.weather_id = self.last_weather_id
+
+    self.is_daytime = self.sunrise <= now.timestamp() < self.sunset
+
+    self.update_offsets(frogpilot_toggles)
+
+    if self.future is not None or timestamp < self.next_retry:
       return
 
-    if self.requesting:
+    moved = distance >= UPDATE_DISTANCE
+    if timestamp < self.next_request and not moved:
       return
 
-    self.requesting = True
+    api_key = self.params.get("WeatherToken", encoding="utf-8")
 
-    def complete_request(future):
-      self.requesting = False
-      data = future.result()
-      self.last_updated = now
-      if data:
-        self.hourly_forecast = data.get("hourly")
-        self.last_gps_position = gps_position
+    self.request_position = position
+    self.request_time = timestamp
 
-        if "current" in data:
-          source_data = data.get("current", {})
-          current_data = source_data
-        else:
-          source_data = data
-          current_data = source_data.get("sys", source_data)
-
-        self.sunrise = current_data.get("sunrise", 0)
-        self.sunset = current_data.get("sunset", 0)
-        self.weather_id = source_data.get("weather", [{}])[0].get("id", 0)
-
-      self.update_offsets(frogpilot_toggles)
+    latitude = round(position[0], 2)
+    longitude = round(position[1], 2)
 
     def make_request():
-      payload = {
-        "api_key": self.user_api_key,
-        "api_token": self.api_info.api_token,
-        "build_metadata": self.api_info.build_metadata,
-        "device": self.api_info.device_type,
-        "frogpilot_dongle_id": self.api_info.dongle_id,
-        "lat": gps_position["latitude"],
-        "lon": gps_position["longitude"],
-      }
-
-      for attempt in range(1, MAX_RETRIES + 1):
+      if api_key:
+        query = {"appid": api_key, "lat": latitude, "lon": longitude}
         try:
-          response = self.session.post(f"{FROGPILOT_API}/weather", json=payload, headers={"Content-Type": "application/json"}, timeout=10)
-          response.raise_for_status()
+          with self.session.get(frogpilot_variables.WEATHER_API_URL, params=query, timeout=30, allow_redirects=False) as response:
+            if 200 <= response.status_code < 300:
+              data = response.json()["data"][0]
+              if not isinstance(data, dict):
+                raise ValueError("Invalid personal weather data")
 
-          data = response.json()
-          if data.get("api_version") == "2.5":
-            self.api_25_calls += 1
-          else:
-            self.api_3_calls += 1
-          return data
-        except Exception:
-          if attempt < MAX_RETRIES:
-            time.sleep(RETRY_DELAY)
-          continue
-      return None
+              weather = {
+                "sunrise": data.get("sunrise", 0),
+                "sunset": data.get("sunset", 0),
+                "weather_id": data["weather"][0]["id"],
+              }
+              if valid_weather(weather):
+                return weather, PERSONAL_KEY_UPDATE_INTERVAL
+        except (IndexError, KeyError, TypeError, ValueError, requests.RequestException):
+          pass
 
-    future = self.executor.submit(make_request)
-    future.add_done_callback(complete_request)
+      weather = self.frogpilot_api.post_json("/v1/weather", {"latitude": latitude, "longitude": longitude}, session=self.session, timeout=30)
+      return weather, DEFAULT_UPDATE_INTERVAL
+
+    self.future = self.executor.submit(make_request)
+
+  def complete_request(self):
+    future = self.future
+    self.future = None
+
+    self.next_retry = time.monotonic() + RETRY_INTERVAL
+
+    try:
+      data, interval = future.result()
+    except (frogpilot_api.FrogPilotAPIError, IndexError, KeyError, TypeError, ValueError, requests.RequestException):
+      return
+
+    if not valid_weather(data):
+      return
+
+    self.weather_calls += 1
+
+    self.last_position = self.request_position
+    self.last_request_time = self.request_time
+    self.last_weather_id = data["weather_id"]
+    self.next_request = self.request_time + interval
+
+    self.sunrise = data["sunrise"]
+    self.sunset = data["sunset"]

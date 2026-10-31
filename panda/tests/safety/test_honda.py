@@ -2,7 +2,7 @@
 import unittest
 import numpy as np
 
-from panda import Panda
+from panda import ALTERNATIVE_EXPERIENCE, Panda
 from panda.tests.libpanda import libpanda_py
 import panda.tests.safety.common as common
 from panda.tests.safety.common import CANPackerPanda, MAX_WRONG_COUNTERS
@@ -252,10 +252,31 @@ class HondaBase(common.PandaCarSafetyTest):
 
   # FrogPilot tests
   def _toggle_aol(self, toggle_on):
-    # SCM_FEEDBACK, bit 28 is MAIN_ON
-    values = {"MAIN_ON": 1 if toggle_on else 0, "COUNTER": self.cnt_acc_state % 4}
-    self.__class__.cnt_acc_state += 1
-    return self.packer.make_can_msg_panda("SCM_FEEDBACK", self.PT_BUS, values)
+    return self._acc_state_msg(toggle_on)
+
+  def test_always_on_lateral(self):
+    self.safety.set_controls_allowed(False)
+
+    self.safety.set_alternative_experience(0)
+    self._rx(self._toggle_aol(True))
+    self.assertFalse(self._tx(self._send_steer_msg(0x1000)))
+
+    self.safety.set_alternative_experience(ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL)
+    self._rx(self._toggle_aol(False))
+    self.assertFalse(self._tx(self._send_steer_msg(0x1000)))
+
+    self._rx(self._toggle_aol(True))
+    self.assertTrue(self._tx(self._send_steer_msg(0x1000)))
+
+  def test_always_on_lateral_rx_checks_invalid(self):
+    self.safety.set_controls_allowed(False)
+    self.safety.set_alternative_experience(ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL)
+    self._rx(self._acc_state_msg(True))
+    self.assertTrue(self._tx(self._send_steer_msg(0x1000)))
+
+    self.safety.set_timer(int(2e6))
+    self.safety.safety_tick_current_safety_config()
+    self.assertFalse(self._tx(self._send_steer_msg(0x1000)))
 
 
 # ********************* Honda Nidec **********************
@@ -418,6 +439,27 @@ class TestHondaNidecAltGasInterceptorSafety(common.GasInterceptorSafetyTest, Hon
     values = {"CRUISE_BUTTONS": buttons, "MAIN_ON": main_on, "COUNTER": self.cnt_button % 4}
     self.__class__.cnt_button += 1
     return self.packer.make_can_msg_panda("SCM_BUTTONS", bus, values)
+
+
+# FrogPilot tests
+class TestHondaNidecClaritySafety(TestHondaNidecPcmSafety):
+
+  def setUp(self):
+    self.packer = CANPackerPanda("honda_clarity_hybrid_2018_can_generated")
+    self.safety = libpanda_py.libpanda
+    self.safety.set_safety_hooks(Panda.SAFETY_HONDA_NIDEC, Panda.FLAG_HONDA_CLARITY)
+    self.safety.init_tests()
+
+  def _send_brake_msg(self, brake, aeb_req=0, bus=0):
+    values = {"COMPUTER_BRAKE_ALT": brake, "AEB_REQ_1": aeb_req}
+    return self.packer.make_can_msg_panda("BRAKE_COMMAND", bus, values)
+
+  def test_computer_brake_blocked(self):
+    for controls_allowed in (True, False):
+      self.safety.set_controls_allowed(controls_allowed)
+      for brake in (1, self.MAX_BRAKE):
+        values = {"COMPUTER_BRAKE": brake}
+        self.assertFalse(self._tx(self.packer.make_can_msg_panda("BRAKE_COMMAND", 0, values)))
 
 
 

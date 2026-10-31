@@ -20,6 +20,6 @@ private:
   QStackedLayout *content_stack;
 
   // FrogPilot widgets
-  void hideEvent(QHideEvent *event);
-  void showEvent(QShowEvent *event);
+  void hideEvent(QHideEvent *event) override;
+  void showEvent(QShowEvent *event) override;
 };

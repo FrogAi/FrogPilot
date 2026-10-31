@@ -34,6 +34,7 @@ def set_realtime_priority(level: int) -> None:
 
 def set_core_affinity(cores: list[int]) -> None:
   if not PC:
+    # FrogPilot variables
     try:
       os.sched_setaffinity(0, cores)
     except OSError:

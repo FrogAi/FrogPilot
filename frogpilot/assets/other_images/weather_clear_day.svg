@@ -1,0 +1,284 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="200" height="200" viewBox="0 0 200 200">
+  <g id="frames" data-loop="false">
+    <g id="frame-0" data-ms="40">
+      <animate attributeName="display" values="inline;none" keyTimes="0;0.0227" dur="1760ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.845 0 0 .845 15.5 15.5)">
+      <circle cx="100" cy="100" r="42" fill="#ffd60a"/>
+      <path d="M153.6 122.2L155.4 123" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M122.2 153.6L123 155.4" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M77.8 153.6L77 155.4" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M46.4 122.2L44.6 123" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M46.4 77.8L44.6 77" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M77.8 46.4L77 44.6" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M122.2 46.4L123 44.6" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M153.6 77.8L155.4 77" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      </g>
+    </g>
+    <g id="frame-1" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.0227;0.0455" dur="1760ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.845 0 0 .845 15.5 15.5)">
+      <circle cx="100" cy="100" r="42" fill="#ffd60a"/>
+      <path d="M154.8 119L160.6 121" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M125.3 152.2L128 157.8" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M81 154.8L79 160.6" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M47.8 125.3L42.2 128" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M45.2 81L39.4 79" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M74.7 47.8L72 42.2" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M119 45.2L121 39.4" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M152.2 74.7L157.8 72" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      </g>
+    </g>
+    <g id="frame-2" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.0455;0.0682" dur="1760ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.845 0 0 .845 15.5 15.5)">
+      <circle cx="100" cy="100" r="42" fill="#ffd60a"/>
+      <path d="M155.7 116.1L165.3 118.9" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M128 150.8L132.8 159.5" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M83.9 155.7L81.1 165.3" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M49.2 128L40.5 132.8" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M44.3 83.9L34.7 81.1" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M72 49.2L67.2 40.5" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M116.1 44.3L118.9 34.7" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M150.8 72L159.5 67.2" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      </g>
+    </g>
+    <g id="frame-3" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.0682;0.0909" dur="1760ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.845 0 0 .845 15.5 15.5)">
+      <circle cx="100" cy="100" r="42" fill="#ffd60a"/>
+      <path d="M156.4 113.5L169.3 116.6" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M130.4 149.4L137.3 160.7" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M86.5 156.4L83.4 169.3" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M50.6 130.4L39.3 137.3" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M43.6 86.5L30.7 83.4" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M69.6 50.6L62.7 39.3" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M113.5 43.6L116.6 30.7" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M149.4 69.6L160.7 62.7" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      </g>
+    </g>
+    <g id="frame-4" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.0909;0.1136" dur="1760ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.845 0 0 .845 15.5 15.5)">
+      <circle cx="100" cy="100" r="42" fill="#ffd60a"/>
+      <path d="M156.9 111.1L172.8 114.3" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M132.4 148.1L141.4 161.6" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M88.9 156.9L85.7 172.8" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M51.9 132.4L38.4 141.4" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M43.1 88.9L27.2 85.7" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M67.6 51.9L58.6 38.4" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M111.1 43.1L114.3 27.2" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M148.1 67.6L161.6 58.6" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      </g>
+    </g>
+    <g id="frame-5" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.1136;0.1364" dur="1760ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.845 0 0 .845 15.5 15.5)">
+      <circle cx="100" cy="100" r="42" fill="#ffd60a"/>
+      <path d="M157.3 109.1L175.9 112" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M134.1 146.9L145.1 162.1" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M90.9 157.3L88 175.9" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M53.1 134.1L37.9 145.1" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M42.7 90.9L24.1 88" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M65.9 53.1L54.9 37.9" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M109.1 42.7L112 24.1" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M146.9 65.9L162.1 54.9" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      </g>
+    </g>
+    <g id="frame-6" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.1364;0.1591" dur="1760ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.845 0 0 .845 15.5 15.5)">
+      <circle cx="100" cy="100" r="42" fill="#ffd60a"/>
+      <path d="M157.5 107.3L178.4 109.9" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M135.5 145.8L148.4 162.5" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M92.7 157.5L90.1 178.4" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M54.2 135.5L37.5 148.4" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M42.5 92.7L21.6 90.1" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M64.5 54.2L51.6 37.5" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M107.3 42.5L109.9 21.6" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M145.8 64.5L162.5 51.6" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      </g>
+    </g>
+    <g id="frame-7" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.1591;0.1818" dur="1760ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.845 0 0 .845 15.5 15.5)">
+      <circle cx="100" cy="100" r="42" fill="#ffd60a"/>
+      <path d="M157.7 105.7L180.6 108" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M136.8 144.9L151.3 162.6" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M94.3 157.7L92 180.6" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M55.1 136.8L37.4 151.3" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M42.3 94.3L19.4 92" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M63.2 55.1L48.7 37.4" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M105.7 42.3L108 19.4" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M144.9 63.2L162.6 48.7" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      </g>
+    </g>
+    <g id="frame-8" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.1818;0.2045" dur="1760ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.845 0 0 .845 15.5 15.5)">
+      <circle cx="100" cy="100" r="42" fill="#ffd60a"/>
+      <path d="M157.8 104.4L182.3 106.3" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M137.8 144L153.8 162.7" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M95.6 157.8L93.7 182.3" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M56 137.8L37.3 153.8" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M42.2 95.6L17.7 93.7" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M62.2 56L46.2 37.3" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M104.4 42.2L106.3 17.7" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M144 62.2L162.7 46.2" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      </g>
+    </g>
+    <g id="frame-9" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.2045;0.2273" dur="1760ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.845 0 0 .845 15.5 15.5)">
+      <circle cx="100" cy="100" r="42" fill="#ffd60a"/>
+      <path d="M157.9 103.3L183.8 104.8" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M138.6 143.3L155.8 162.6" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M96.7 157.9L95.2 183.8" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M56.7 138.6L37.4 155.8" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M42.1 96.7L16.2 95.2" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M61.4 56.7L44.2 37.4" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M103.3 42.1L104.8 16.2" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M143.3 61.4L162.6 44.2" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      </g>
+    </g>
+    <g id="frame-10" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.2273;0.25" dur="1760ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.845 0 0 .845 15.5 15.5)">
+      <circle cx="100" cy="100" r="42" fill="#ffd60a"/>
+      <path d="M157.9 102.4L185 103.5" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M139.3 142.7L157.6 162.6" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M97.6 157.9L96.5 185" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M57.3 139.3L37.4 157.6" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M42.1 97.6L15 96.5" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M60.7 57.3L42.4 37.4" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M102.4 42.1L103.5 15" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M142.7 60.7L162.6 42.4" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      </g>
+    </g>
+    <g id="frame-11" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.25;0.2727" dur="1760ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.845 0 0 .845 15.5 15.5)">
+      <circle cx="100" cy="100" r="42" fill="#ffd60a"/>
+      <path d="M158 101.7L185.9 102.5" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M139.8 142.2L158.9 162.5" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M98.3 158L97.5 185.9" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M57.8 139.8L37.5 158.9" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M42 98.3L14.1 97.5" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M60.2 57.8L41.1 37.5" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M101.7 42L102.5 14.1" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M142.2 60.2L162.5 41.1" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      </g>
+    </g>
+    <g id="frame-12" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.2727;0.2955" dur="1760ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.845 0 0 .845 15.5 15.5)">
+      <circle cx="100" cy="100" r="42" fill="#ffd60a"/>
+      <path d="M158 101.1L186.6 101.7" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M140.2 141.8L160 162.4" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M98.9 158L98.3 186.6" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M58.2 140.2L37.6 160" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M42 98.9L13.4 98.3" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M59.8 58.2L40 37.6" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M101.1 42L101.7 13.4" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M141.8 59.8L162.4 40" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      </g>
+    </g>
+    <g id="frame-13" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.2955;0.3182" dur="1760ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.845 0 0 .845 15.5 15.5)">
+      <circle cx="100" cy="100" r="42" fill="#ffd60a"/>
+      <path d="M158 100.7L187.1 101.1" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M140.5 141.5L160.8 162.4" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M99.3 158L98.9 187.1" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M58.5 140.5L37.6 160.8" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M42 99.3L12.9 98.9" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M59.5 58.5L39.2 37.6" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M100.7 42L101.1 12.9" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M141.5 59.5L162.4 39.2" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      </g>
+    </g>
+    <g id="frame-14" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.3182;0.3409" dur="1760ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.845 0 0 .845 15.5 15.5)">
+      <circle cx="100" cy="100" r="42" fill="#ffd60a"/>
+      <path d="M158 100.4L187.5 100.6" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M140.7 141.3L161.4 162.3" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M99.6 158L99.4 187.5" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M58.7 140.7L37.7 161.4" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M42 99.6L12.5 99.4" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M59.3 58.7L38.6 37.7" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M100.4 42L100.6 12.5" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M141.3 59.3L162.3 38.6" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      </g>
+    </g>
+    <g id="frame-15" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.3409;0.3636" dur="1760ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.845 0 0 .845 15.5 15.5)">
+      <circle cx="100" cy="100" r="42" fill="#ffd60a"/>
+      <path d="M158 100.2L187.7 100.3" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M140.9 141.2L161.8 162.3" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M99.8 158L99.7 187.7" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M58.8 140.9L37.7 161.8" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M42 99.8L12.3 99.7" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M59.1 58.8L38.2 37.7" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M100.2 42L100.3 12.3" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M141.2 59.1L162.3 38.2" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      </g>
+    </g>
+    <g id="frame-16" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.3636;0.3864" dur="1760ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.845 0 0 .845 15.5 15.5)">
+      <circle cx="100" cy="100" r="42" fill="#ffd60a"/>
+      <path d="M158 100.1L187.9 100.1" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M140.9 141.1L162.1 162.2" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M99.9 158L99.9 187.9" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M58.9 140.9L37.8 162.1" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M42 99.9L12.1 99.9" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M59.1 58.9L37.9 37.8" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M100.1 42L100.1 12.1" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M141.1 59.1L162.2 37.9" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      </g>
+    </g>
+    <g id="frame-17" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.3864;0.4091" dur="1760ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.845 0 0 .845 15.5 15.5)">
+      <circle cx="100" cy="100" r="42" fill="#ffd60a"/>
+      <path d="M158 100L188 100" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M141 141L162.2 162.2" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M100 158L100 188" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M59 141L37.8 162.2" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M42 100L12 100" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M59 59L37.8 37.8" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M100 42L100 12" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M141 59L162.2 37.8" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      </g>
+    </g>
+    <g id="frame-18" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.4091;0.4318" dur="1760ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.845 0 0 .845 15.5 15.5)">
+      <circle cx="100" cy="100" r="42" fill="#ffd60a"/>
+      <path d="M158 100L188 100" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M141 141L162.2 162.2" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M100 158L100 188" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M59 141L37.8 162.2" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M42 100L12 100" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M59 59L37.8 37.8" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M100 42L100 12" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M141 59L162.2 37.8" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      </g>
+    </g>
+    <g id="frame-19" data-ms="1000">
+      <animate attributeName="display" values="none;inline" keyTimes="0;0.4318" dur="1760ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.845 0 0 .845 15.5 15.5)">
+      <circle cx="100" cy="100" r="42" fill="#ffd60a"/>
+      <path d="M158 100L188 100" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M141 141L162.2 162.2" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M100 158L100 188" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M59 141L37.8 162.2" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M42 100L12 100" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M59 59L37.8 37.8" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M100 42L100 12" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      <path d="M141 59L162.2 37.8" stroke="#ffd60a" stroke-linecap="round" stroke-width="13"/>
+      </g>
+    </g>
+  </g>
+</svg>

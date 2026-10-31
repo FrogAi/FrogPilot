@@ -70,11 +70,6 @@ private:
   MapInstructions* map_instructions;
   MapETA* map_eta;
 
-  // Blue with normal nav, green when nav is input into the model
-  QColor getNavPathColor(bool nav_enabled) {
-    return nav_enabled ? QColor("#31ee73") : QColor("#31a1ee");
-  }
-
   void clearRoute();
   void updateDestinationMarker();
   uint64_t route_rcv_frame = 0;
@@ -82,7 +77,18 @@ private:
   // FrogPilot variables
   void updateFavoritesMarkers();
 
+  // Blue with normal nav, green when nav is input into the model
+  QColor getNavPathColor(bool nav_enabled) {
+    return nav_enabled ? QColor("#31ee73") : QColor("#31a1ee");
+  }
+
+  int previous_map_style = 0;
+
   uint64_t model_rcv_frame = 0;
+
+  std::string previous_favorites;
+
+  Params params;
 
 private slots:
   void updateState(const UIState &s);

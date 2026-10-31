@@ -14,6 +14,7 @@ class ChryslerFlags(IntFlag):
   # Detected flags
   HIGHER_MIN_STEERING_SPEED = 1
 
+# FrogPilot variables
 class ChryslerFrogPilotFlags(IntFlag):
   RAM_HD_ALT_BUTTONS = 1
 
@@ -78,7 +79,7 @@ class CAR(Platforms):
 
   # Ram
   RAM_1500_5TH_GEN = ChryslerPlatformConfig(
-    [ChryslerCarDocs("Ram 1500 2019-24", car_parts=CarParts.common([CarHarness.ram]))],
+    [ChryslerCarDocs("Ram 1500 2019-24", car_parts=CarParts.common([CarHarness.ram]), min_enable_speed=0.)],
     ChryslerCarSpecs(mass=2493., wheelbase=3.88, steerRatio=16.3, minSteerSpeed=14.5),
     dbc_dict('chrysler_ram_dt_generated', None),
   )

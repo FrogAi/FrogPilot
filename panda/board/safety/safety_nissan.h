@@ -33,10 +33,17 @@ RxCheck nissan_rx_checks[] = {
   {.msg = {{0x454, 0, 8, .frequency = 10U},
            {0x454, 1, 8, .frequency = 10U},
            {0x1cc, 0, 4, .frequency = 100U}}}, // DOORS_LIGHTS / BRAKE
+
+  // FrogPilot variables
+  {.msg = {{0x1b6, 1, 8, .frequency = 100U},
+           {0x1b6, 2, 8, .frequency = 100U}, { 0 }}}, // PRO_PILOT
 };
 
 // EPS Location. false = V-CAN, true = C-CAN
 const int NISSAN_PARAM_ALT_EPS_BUS = 1;
+
+// FrogPilot variables
+const int NISSAN_PARAM_PRO_PILOT = 2;
 
 bool nissan_alt_eps = false;
 
@@ -44,6 +51,7 @@ static void nissan_rx_hook(const CANPacket_t *to_push) {
   int bus = GET_BUS(to_push);
   int addr = GET_ADDR(to_push);
 
+  // FrogPilot variables
   if (addr == 0x1b6) {
     acc_main_on = GET_BIT(to_push, 36U);
   }
@@ -73,7 +81,9 @@ static void nissan_rx_hook(const CANPacket_t *to_push) {
       if (addr == 0x15c){
         gas_pressed = ((GET_BYTE(to_push, 5) << 2) | ((GET_BYTE(to_push, 6) >> 6) & 0x3U)) > 3U;
       } else {
+        // FrogPilot variables
         acc_main_on = GET_BIT(to_push, 17U);
+
         gas_pressed = GET_BYTE(to_push, 0) > 3U;
       }
     }
@@ -153,7 +163,15 @@ static int nissan_fwd_hook(int bus_num, int addr) {
 
 static safety_config nissan_init(uint16_t param) {
   nissan_alt_eps = GET_FLAG(param, NISSAN_PARAM_ALT_EPS_BUS);
-  return BUILD_SAFETY_CFG(nissan_rx_checks, NISSAN_TX_MSGS);
+
+  // FrogPilot variables
+  bool nissan_pro_pilot = GET_FLAG(param, NISSAN_PARAM_PRO_PILOT);
+
+  safety_config ret = BUILD_SAFETY_CFG(nissan_rx_checks, NISSAN_TX_MSGS);
+  if (!nissan_pro_pilot) {
+    ret.rx_checks_len -= 1;
+  }
+  return ret;
 }
 
 const safety_hooks nissan_hooks = {

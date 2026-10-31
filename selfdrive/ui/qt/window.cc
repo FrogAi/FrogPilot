@@ -8,10 +8,31 @@ MainWindow::MainWindow(QWidget *parent) : QWidget(parent) {
   main_layout = new QStackedLayout(this);
   main_layout->setMargin(0);
 
+  // load fonts
+  QFontDatabase::addApplicationFont("../assets/fonts/Inter-Black.ttf");
+  QFontDatabase::addApplicationFont("../assets/fonts/Inter-Bold.ttf");
+  QFontDatabase::addApplicationFont("../assets/fonts/Inter-ExtraBold.ttf");
+  QFontDatabase::addApplicationFont("../assets/fonts/Inter-ExtraLight.ttf");
+  QFontDatabase::addApplicationFont("../assets/fonts/Inter-Medium.ttf");
+  QFontDatabase::addApplicationFont("../assets/fonts/Inter-Regular.ttf");
+  QFontDatabase::addApplicationFont("../assets/fonts/Inter-SemiBold.ttf");
+  QFontDatabase::addApplicationFont("../assets/fonts/Inter-Thin.ttf");
+  QFontDatabase::addApplicationFont("../assets/fonts/JetBrainsMono-Medium.ttf");
+
+  setAttribute(Qt::WA_NoSystemBackground);
+
   homeWindow = new HomeWindow(this);
   main_layout->addWidget(homeWindow);
   QObject::connect(homeWindow, &HomeWindow::openSettings, this, &MainWindow::openSettings);
   QObject::connect(homeWindow, &HomeWindow::closeSettings, this, &MainWindow::closeSettings);
+
+  // no outline to prevent the focus rectangle
+  setStyleSheet(R"(
+    * {
+      font-family: Inter;
+      outline: none;
+    }
+  )");
 
   settingsWindow = new SettingsWindow(this);
   main_layout->addWidget(settingsWindow);
@@ -43,26 +64,6 @@ MainWindow::MainWindow(QWidget *parent) : QWidget(parent) {
       closeSettings();
     }
   });
-
-  // load fonts
-  QFontDatabase::addApplicationFont("../assets/fonts/Inter-Black.ttf");
-  QFontDatabase::addApplicationFont("../assets/fonts/Inter-Bold.ttf");
-  QFontDatabase::addApplicationFont("../assets/fonts/Inter-ExtraBold.ttf");
-  QFontDatabase::addApplicationFont("../assets/fonts/Inter-ExtraLight.ttf");
-  QFontDatabase::addApplicationFont("../assets/fonts/Inter-Medium.ttf");
-  QFontDatabase::addApplicationFont("../assets/fonts/Inter-Regular.ttf");
-  QFontDatabase::addApplicationFont("../assets/fonts/Inter-SemiBold.ttf");
-  QFontDatabase::addApplicationFont("../assets/fonts/Inter-Thin.ttf");
-  QFontDatabase::addApplicationFont("../assets/fonts/JetBrainsMono-Medium.ttf");
-
-  // no outline to prevent the focus rectangle
-  setStyleSheet(R"(
-    * {
-      font-family: Inter;
-      outline: none;
-    }
-  )");
-  setAttribute(Qt::WA_NoSystemBackground);
 }
 
 void MainWindow::openSettings(int index, const QString &param) {
@@ -74,20 +75,17 @@ void MainWindow::closeSettings() {
   main_layout->setCurrentWidget(homeWindow);
 
   if (uiState()->scene.started) {
+    // FrogPilot variables
     // Map is always shown when using navigate on openpilot
     if (uiState()->scene.navigate_on_openpilot) {
       homeWindow->showMapPanel(true);
     } else {
-      homeWindow->showSidebar(params.getBool("Sidebar") || frogpilotUIState()->frogpilot_toggles.value("debug_mode").toBool());
+      homeWindow->showSidebar(homeWindow->sidebarOpenOnroad());
     }
   }
 }
 
 bool MainWindow::eventFilter(QObject *obj, QEvent *event) {
-  FrogPilotUIState &fs = *frogpilotUIState();
-  FrogPilotUIScene &frogpilot_scene = fs.frogpilot_scene;
-  QJsonObject &frogpilot_toggles = fs.frogpilot_toggles;
-
   bool ignore = false;
   switch (event->type()) {
     case QEvent::TouchBegin:
@@ -96,8 +94,8 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event) {
     case QEvent::MouseButtonPress:
     case QEvent::MouseMove: {
       // ignore events when device is awakened by resetInteractiveTimeout
-      ignore = !device()->isAwake() || frogpilot_scene.driver_camera_timer >= UI_FREQ / 2;
-      device()->resetInteractiveTimeout(frogpilot_toggles.value("screen_timeout").toInt(), frogpilot_toggles.value("screen_timeout_onroad").toInt());
+      ignore = !device()->isAwake() || frogpilotUIState()->frogpilot_scene.driver_camera_active || (device()->isDark() && (event->type() == QEvent::TouchBegin || event->type() == QEvent::MouseButtonPress));
+      device()->resetInteractiveTimeout();
       break;
     }
     default:

@@ -103,7 +103,7 @@ class TestChryslerRamDTSafety(TestChryslerSafety):
     return self.packer.make_can_msg_panda("ESP_8", 0, values)
 
 class TestChryslerRamHDSafety(TestChryslerSafety):
-  TX_MSGS = [[0x275, 0], [0x276, 0], [0x23A, 2]]
+  TX_MSGS = [[0x275, 0], [0x276, 0], [0x23A, 2], [0x23B, 2]]
   RELAY_MALFUNCTION_ADDRS = {0: (0x276,)}
   FWD_BLACKLISTED_ADDRS = {2: [0x275, 0x276]}
 
@@ -125,6 +125,15 @@ class TestChryslerRamHDSafety(TestChryslerSafety):
   def _speed_msg(self, speed):
     values = {"Vehicle_Speed": speed}
     return self.packer.make_can_msg_panda("ESP_8", 0, values)
+
+  # FrogPilot tests
+  def test_buttons_alt(self):
+    def button_alt_msg(cancel=False, resume=False):
+      values = {"ACC_Cancel": cancel, "ACC_Resume": resume}
+      return self.packer.make_can_msg_panda("CRUISE_BUTTONS_ALT", self.DAS_BUS, values)
+
+    self._button_msg = button_alt_msg
+    self.test_buttons()
 
 
 if __name__ == "__main__":

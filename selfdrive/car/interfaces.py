@@ -16,13 +16,15 @@ from openpilot.common.numpy_fast import clip
 from openpilot.common.realtime import DT_CTRL
 from openpilot.selfdrive.car import apply_hysteresis, gen_empty_fingerprint, scale_rot_inertia, scale_tire_stiffness, STD_CARGO_KG
 from openpilot.selfdrive.car.chrysler.values import CAR as ChryslerCAR, ChryslerFrogPilotFlags
+from openpilot.selfdrive.car.ford.fordcan import CanBus as FordCanBus
+from openpilot.selfdrive.car.ford.values import CAR as FordCAR, FordFlags
 from openpilot.selfdrive.car.gm.values import CAR as GMCAR
 from openpilot.selfdrive.car.honda.values import CAR as HondaCAR, HONDA_BOSCH
 from openpilot.selfdrive.car.hyundai.hyundaicanfd import CanBus
-from openpilot.selfdrive.car.hyundai.values import CAR as HyundaiCAR, CANFD_CAR, HyundaiFrogPilotFlags
+from openpilot.selfdrive.car.hyundai.values import CAR as HyundaiCAR, CANFD_CAR, HyundaiFlags, HyundaiFrogPilotFlags
 from openpilot.selfdrive.car.mock.values import CAR as MockCAR
-from openpilot.selfdrive.car.subaru.values import CAR as SubaruCAR, SubaruFlags
-from openpilot.selfdrive.car.toyota.values import CAR as ToyotaCAR, TSS2_CAR, UNSUPPORTED_DSU_CAR, ToyotaFlags, ToyotaFrogPilotFlags
+from openpilot.selfdrive.car.subaru.values import CAR as SubaruCAR
+from openpilot.selfdrive.car.toyota.values import CAR as ToyotaCAR, TSS2_CAR, UNSUPPORTED_DSU_CAR, ToyotaFlags, ToyotaFrogPilotFlags, dsu_bypass_enabled
 from openpilot.selfdrive.car.values import PLATFORMS
 from openpilot.selfdrive.controls.lib.drive_helpers import V_CRUISE_MAX
 from openpilot.selfdrive.controls.lib.events import Events
@@ -30,9 +32,7 @@ from openpilot.selfdrive.controls.lib.vehicle_model import VehicleModel
 from panda import Panda
 
 ButtonType = car.CarState.ButtonEvent.Type
-FrogPilotButtonType = custom.FrogPilotCarState.ButtonEvent.Type
 GearShifter = car.CarState.GearShifter
-Ecu = car.CarParams.Ecu
 EventName = car.CarEvent.EventName
 
 MAX_CTRL_SPEED = (V_CRUISE_MAX + 4) * CV.KPH_TO_MS
@@ -114,9 +114,6 @@ class CarInterfaceBase(ABC):
     dbc_name = "" if self.cp is None else self.cp.dbc_name
     self.CC: CarControllerBase = CarController(dbc_name, CP, self.VM)
 
-    # FrogPilot variables
-    self.always_on_lateral_allowed = False
-
   def apply(self, c: car.CarControl, now_nanos: int, frogpilot_toggles) -> tuple[car.CarControl.Actuators, list[tuple[int, int, bytes, int]]]:
     return self.CC.update(c, self.CS, now_nanos, frogpilot_toggles)
 
@@ -125,14 +122,15 @@ class CarInterfaceBase(ABC):
     return ACCEL_MIN, ACCEL_MAX
 
   @classmethod
-  def get_non_essential_params(cls, candidate: str):
+  def get_non_essential_params(cls, candidate: str, frogpilot_toggles: SimpleNamespace | None = None):
     """
     Parameters essential to controlling the car may be incomplete or wrong without FW versions or fingerprints.
     """
-    return cls.get_params(candidate, gen_empty_fingerprint(), list(), False, False, False)
+    return cls.get_params(candidate, gen_empty_fingerprint(), list(), False, frogpilot_toggles, False)
 
   @classmethod
-  def get_params(cls, candidate: str, fingerprint: dict[int, dict[int, int]], car_fw: list[car.CarParams.CarFw], experimental_long: bool, frogpilot_toggles: SimpleNamespace, docs: bool):
+  def get_params(cls, candidate: str, fingerprint: dict[int, dict[int, int]], car_fw: list[car.CarParams.CarFw], experimental_long: bool,
+                 frogpilot_toggles: SimpleNamespace, docs: bool):
     ret = CarInterfaceBase.get_std_params(candidate)
 
     platform = PLATFORMS[candidate]
@@ -156,14 +154,19 @@ class CarInterfaceBase(ABC):
     ret.tireStiffnessFront, ret.tireStiffnessRear = scale_tire_stiffness(ret.mass, ret.wheelbase, ret.centerToFront, ret.tireStiffnessFactor)
 
     # FrogPilot variables
-    toggles_to_check = ("force_torque_controller", "nnff", "nnff_lite")
-    if ret.steerControlType != car.CarParams.SteerControlType.angle and any(getattr(frogpilot_toggles, toggle, False) for toggle in toggles_to_check):
-      CarInterfaceBase.configure_torque_tune(candidate, ret.lateralTuning)
+    from openpilot.frogpilot.common import frogpilot_utilities
+
+    if platform not in MockCAR and ret.lateralTuning.which() == "pid" and ret.steerControlType != car.CarParams.SteerControlType.angle:
+      use_nnff = frogpilot_utilities.nnff_supported(candidate) and frogpilot_toggles.nnff_selected
+      if use_nnff or frogpilot_toggles.force_torque_controller or frogpilot_toggles.nnff_lite_selected:
+        CarInterfaceBase.configure_torque_tune(candidate, ret.lateralTuning)
 
     return ret
 
+  # FrogPilot variables
   @classmethod
-  def get_frogpilot_params(cls, candidate: str, fingerprint: dict[int, dict[int, int]], car_fw: list[car.CarParams.CarFw], CP, frogpilot_toggles: SimpleNamespace):
+  def get_frogpilot_params(cls, candidate: str, fingerprint: dict[int, dict[int, int]], car_fw: list[car.CarParams.CarFw], CP,
+                           frogpilot_toggles: SimpleNamespace):
     fp_ret = custom.FrogPilotCarParams.new_message()
 
     platform = PLATFORMS[candidate]
@@ -175,6 +178,9 @@ class CarInterfaceBase(ABC):
         if candidate == ChryslerCAR.RAM_HD_5TH_GEN:
           if 570 not in fingerprint[0]:
             fp_ret.fpFlags |= ChryslerFrogPilotFlags.RAM_HD_ALT_BUTTONS.value
+
+      elif platform in FordCAR:
+        fp_ret.hasDashboardSpeedLimit = bool(CP.flags & FordFlags.CANFD) and 0x3CD in fingerprint[FordCanBus(CP).camera]
 
       elif platform in GMCAR:
         fp_ret.canUsePedal = True
@@ -190,19 +196,22 @@ class CarInterfaceBase(ABC):
 
       elif platform in HyundaiCAR:
         if candidate in CANFD_CAR:
-          hda2 = Ecu.adas in [fw.ecu for fw in car_fw]
+          if CP.flags & HyundaiFlags.CANFD_HDA2:
+            speed_limit_bus = CanBus(CP).ECAN
+          else:
+            speed_limit_bus = CanBus(CP).CAM
 
-          if 0x1fa in fingerprint[CanBus(None, hda2, fingerprint).ECAN]:
+          if 0x1fa in fingerprint[speed_limit_bus]:
             fp_ret.fpFlags |= HyundaiFrogPilotFlags.NAV_MSG.value
 
-          fp_ret.isHDA2 = hda2
+          fp_ret.hasDashboardSpeedLimit = 0x1fa in fingerprint[speed_limit_bus]
 
           if frogpilot_toggles.taco_tune_hacks:
             fp_ret.safetyConfigs[-1].safetyParam |= Panda.FLAG_HYUNDAI_TACO_TUNE_HACK
         else:
           if 0x391 in fingerprint[0]:
             fp_ret.fpFlags |= HyundaiFrogPilotFlags.CAN_LFA_BTN.value
-            fp_ret.safetyConfigs[-1].safetyParam |= Panda.FLAG_HYUNDAI_LFA_BTN
+            fp_ret.safetyConfigs[-1].safetyParam |= Panda.FLAG_HYUNDAI_HAS_LDA_BUTTON
 
           if 0x53E in fingerprint[2]:
             fp_ret.fpFlags |= HyundaiFrogPilotFlags.LKAS12.value
@@ -210,15 +219,22 @@ class CarInterfaceBase(ABC):
           if 0x544 in fingerprint[0]:
             fp_ret.fpFlags |= HyundaiFrogPilotFlags.NAV_MSG.value
 
+          fp_ret.hasDashboardSpeedLimit = 0x53E in fingerprint[2] or 0x544 in fingerprint[0]
+
+        lkas_allowed_for_aol = candidate in CANFD_CAR or 0x391 in fingerprint[0]
+        lkas_required_for_aol = candidate in CANFD_CAR and not CP.openpilotLongitudinalControl
+        if lkas_allowed_for_aol and frogpilot_toggles.always_on_lateral and (frogpilot_toggles.always_on_lateral_lkas_selected or lkas_required_for_aol):
+          fp_ret.safetyConfigs[-1].safetyParam |= Panda.FLAG_HYUNDAI_ALWAYS_ON_LATERAL_LKAS
+
       elif platform in SubaruCAR:
-        if not (CP.flags & SubaruFlags.GLOBAL_GEN2 or CP.flags & SubaruFlags.HYBRID) and frogpilot_toggles.subaru_sng:
+        if CP.autoResumeSng and frogpilot_toggles.subaru_sng:
           fp_ret.safetyConfigs[-1].safetyParam |= Panda.FLAG_SUBARU_SNG
 
       elif platform in ToyotaCAR:
-        if frogpilot_toggles.toyota_dsu_bypass and not (CP.flags & ToyotaFlags.SMART_DSU.value) and not CP.enableDsu and candidate not in (TSS2_CAR | UNSUPPORTED_DSU_CAR):
+        if dsu_bypass_enabled(CP, candidate, frogpilot_toggles):
           fp_ret.fpFlags |= ToyotaFrogPilotFlags.DSU_BYPASS.value
 
-        if 0x23 in fingerprint[0]:
+        if 0x23 in fingerprint[0] and not CP.flags & ToyotaFlags.SECOC.value:
           fp_ret.fpFlags |= ToyotaFrogPilotFlags.ZSS.value
 
         if CP.enableGasInterceptor:
@@ -226,6 +242,7 @@ class CarInterfaceBase(ABC):
 
         fp_ret.canUsePedal = not CP.autoResumeSng
         fp_ret.canUseSDSU = not CP.enableDsu and candidate not in UNSUPPORTED_DSU_CAR and candidate not in TSS2_CAR
+        fp_ret.hasDashboardSpeedLimit = 0x489 in fingerprint[2]
 
       fp_ret.openpilotLongitudinalControlDisabled = frogpilot_toggles.disable_openpilot_long
 
@@ -343,7 +360,6 @@ class CarInterfaceBase(ABC):
       ret.cruiseState.speedCluster = ret.cruiseState.speed
 
     # FrogPilot variables
-    fp_ret.alwaysOnLateralAllowed = self.always_on_lateral_allowed
     fp_ret.distancePressed = bool(self.CS.distance_button)
     fp_ret.ecoGear |= ret.gearShifter == GearShifter.eco
     fp_ret.sportGear |= ret.gearShifter == GearShifter.sport
@@ -401,10 +417,6 @@ class CarInterfaceBase(ABC):
       # Disable on rising and falling edge of cancel for both stock and OP long
       if b.type == ButtonType.cancel:
         events.add(EventName.buttonCancel)
-
-      # FrogPilot button presses
-      if b.type == FrogPilotButtonType.lkas and b.pressed:
-        self.always_on_lateral_allowed = not self.always_on_lateral_allowed
 
     # Handle permanent and temporary steering faults
     self.steering_unpressed = 0 if cs_out.steeringPressed else self.steering_unpressed + 1
@@ -466,7 +478,6 @@ class CarStateBase(ABC):
     self.right_blinker_prev = False
     self.cluster_speed_hyst_gap = 0.0
     self.cluster_min_speed = 0.0  # min speed before dropping to 0
-    self.secoc_key: bytes = b"00" * 16
 
     Q = [[0.0, 0.0], [0.0, 100.0]]
     R = 0.3
@@ -479,8 +490,6 @@ class CarStateBase(ABC):
     # FrogPilot variables
     self.FPCP = FPCP
 
-    self.cruise_decreased = False
-    self.cruise_increased = False
     self.distance_button = False
     self.lkas_enabled = False
 

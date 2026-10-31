@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="125" height="250" viewBox="0 0 125 250">
+  <g transform="matrix(2.1 0 0 2.1 -127 -9.5)">
+    <path d="M82 8h28a6 6 0 0 1 6 7l-4 92a6 6 0 0 1-6 6H86a6 6 0 0 1-6-6l-4-92a6 6 0 0 1 6-7ZM86 22H106v5H86ZM86 36H106v5H86ZM86 50H106v5H86ZM86 64H106v5H86ZM86 78H106v5H86ZM86 92H106v5H86Z" fill="#000" fill-rule="evenodd" stroke="#000" stroke-linejoin="round" stroke-width="7"/>
+    <path d="M82 8h28a6 6 0 0 1 6 7l-4 92a6 6 0 0 1-6 6H86a6 6 0 0 1-6-6l-4-92a6 6 0 0 1 6-7ZM86 22H106v5H86ZM86 36H106v5H86ZM86 50H106v5H86ZM86 64H106v5H86ZM86 78H106v5H86ZM86 92H106v5H86Z" fill="#1ed760" fill-rule="evenodd"/>
+  </g>
+</svg>

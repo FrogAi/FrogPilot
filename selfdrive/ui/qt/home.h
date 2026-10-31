@@ -52,13 +52,16 @@ class HomeWindow : public QWidget {
 public:
   explicit HomeWindow(QWidget* parent = 0);
 
+  // FrogPilot variables
+  bool sidebarOpenOnroad();
+
 signals:
   void openSettings(int index = 0, const QString &param = "");
   void closeSettings();
 
 public slots:
   void offroadTransition(bool offroad);
-  void showDriverView(bool show, bool started=false);
+  void showDriverView(bool show);
   void showSidebar(bool show);
   void showMapPanel(bool show);
 

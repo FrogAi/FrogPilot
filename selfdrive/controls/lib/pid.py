@@ -1,6 +1,9 @@
 import numpy as np
 from numbers import Number
 
+from openpilot.common.numpy_fast import clip, interp
+
+
 class PIDController:
   def __init__(self, k_p, k_i, k_f=1., k_d=0., pos_limit=1e308, neg_limit=-1e308, rate=100):
     self._k_p = k_p
@@ -32,6 +35,10 @@ class PIDController:
   @property
   def k_d(self):
     return np.interp(self.speed, self._k_d[0], self._k_d[1])
+
+  @property
+  def error_integral(self):
+    return self.i/self.k_i
 
   def reset(self):
     self.p = 0.0

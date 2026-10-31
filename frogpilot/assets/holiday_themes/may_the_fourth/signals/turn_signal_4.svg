@@ -1,0 +1,155 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="350" height="500" viewBox="0 0 350 500">
+  <g id="frog-body">
+    <g id="frog-rear-hindlimb">
+      <path d="m167 224 35-21c3-30 3-40 9-59 7-20 10-35 8-57q0-4 1-3c2 4 1 24 1 35q0 4 3 0c4-16 3-29 3-38q-1-5 1-2c3 5 4 26 1 41q1 3 3-1c4-5 8-19 9-23q1-3 2-1c0 10-6 28-15 43-4 7-7 12-7 17 3 25 2 56-13 78Z" fill="#009343"/>
+    </g>
+    <g id="frog-rear-forelimb">
+      <path d="M92 327c-1 15-9 31-12 37-5 2-11 1-18 1q-3 0-1 1l12 3q2 1-1 1l-11 1q-4 1 0 2c3 1 8 0 12-1q2 0 0 2l-5 2q0 1 3 0c9-1 17-8 22-17l15-31Z" fill="#009343"/>
+    </g>
+    <g id="frog-torso">
+      <path d="M38 337c-3-12-2-22 1-33 1-3-1-6-3-9-2-5-1-11 2-15s5-6 9-8c1-14 9-22 17-23s13 2 19-1c32-23 62-28 91-25 20 2 38 7 57 9l43-24c8-11 16-29 26-50 2-5 3-9 3-10q1-2 2 1c0 5-6 24-12 38q-1 3 1 2c7-10 13-29 17-41q1-4 2-2c2 8-5 31-12 42q-1 3 2 1c9-7 15-18 18-23q2-3 3 0c-1 6-15 21-27 29-21 28-54 53-82 69l-20 12c-13 32-37 50-68 55-18 3-33 0-40-2-18 7-36 14-41 12Z" fill="#26ae42"/>
+    </g>
+    <g id="frog-belly">
+      <path d="M87 329c3-10 4-29 17-38 22-13 55-6 90-14-12 30-34 49-62 55-21 3-39-1-45-3" fill="#53bf31"/>
+    </g>
+    <g id="frog-hip-crease">
+      <path d="M148 278c18 9 36 2 49-3-10 8-34 14-46 6Z" fill="#008a42"/>
+    </g>
+    <g id="frog-skin-spots">
+      <defs>
+        <radialGradient id="frog-spot-soft">
+          <stop offset="0" stop-color="#65c456" stop-opacity=".88"/>
+          <stop offset=".42" stop-color="#65c456" stop-opacity=".72"/>
+          <stop offset="1" stop-color="#65c456" stop-opacity="0"/>
+        </radialGradient>
+      </defs>
+      <ellipse cx="157.5" cy="225" rx="2.6" ry="1.95" fill="url(#frog-spot-soft)"/>
+      <ellipse cx="148.5" cy="226.5" rx="3.9" ry="2.6" fill="url(#frog-spot-soft)"/>
+      <circle cx="166.55" cy="227.82" r="2.6" fill="url(#frog-spot-soft)"/>
+      <ellipse cx="126.8" cy="228" rx="1.82" ry="1.36" fill="url(#frog-spot-soft)"/>
+      <ellipse cx="153.86" cy="230.93" rx="3.25" ry="1.95" fill="url(#frog-spot-soft)"/>
+      <ellipse cx="131.5" cy="231" rx="2.6" ry="1.95" fill="url(#frog-spot-soft)"/>
+      <circle cx="137.55" cy="232.64" r="2.6" fill="url(#frog-spot-soft)"/>
+      <ellipse cx="123.53" cy="234.59" rx="3.9" ry="2.6" fill="url(#frog-spot-soft)"/>
+      <ellipse cx="174.5" cy="235" rx="2.6" ry="3.25" fill="url(#frog-spot-soft)"/>
+      <ellipse cx="183.31" cy="235" rx="3.25" ry="1.95" fill="url(#frog-spot-soft)"/>
+      <ellipse cx="201.94" cy="235.12" rx="3.25" ry="2.6" fill="url(#frog-spot-soft)"/>
+      <ellipse cx="111.36" cy="236.09" rx="2.6" ry="1.95" fill="url(#frog-spot-soft)"/>
+      <circle cx="106.88" cy="239.88" r="1.95" fill="url(#frog-spot-soft)"/>
+      <ellipse cx="221.36" cy="239.91" rx="2.6" ry="1.95" fill="url(#frog-spot-soft)"/>
+      <circle cx="169.67" cy="240.67" r="2.6" fill="url(#frog-spot-soft)"/>
+      <ellipse cx="163.14" cy="241.29" rx="3.25" ry="2.6" fill="url(#frog-spot-soft)"/>
+      <ellipse cx="113.64" cy="242.09" rx="2.6" ry="1.95" fill="url(#frog-spot-soft)"/>
+      <ellipse cx="201.29" cy="242.57" rx="3.25" ry="2.6" fill="url(#frog-spot-soft)"/>
+      <ellipse cx="119.36" cy="242.91" rx="2.6" ry="1.95" fill="url(#frog-spot-soft)"/>
+      <circle cx="104.45" cy="243.64" r="2.6" fill="url(#frog-spot-soft)"/>
+      <ellipse cx="178" cy="244.81" rx="1.95" ry="3.9" fill="url(#frog-spot-soft)"/>
+      <circle cx="126.94" cy="245.31" r="3.25" fill="url(#frog-spot-soft)"/>
+      <ellipse cx="154" cy="245.5" rx="3.25" ry="3.9" fill="url(#frog-spot-soft)"/>
+      <ellipse cx="89.96" cy="247.54" rx="4.09" ry="1.82" fill="url(#frog-spot-soft)"/>
+      <ellipse cx="185.5" cy="248" rx="2.6" ry="1.95" fill="url(#frog-spot-soft)"/>
+      <ellipse cx="167.59" cy="249.76" rx="3.9" ry="2.6" fill="url(#frog-spot-soft)"/>
+      <ellipse cx="99.62" cy="252.08" rx="2.6" ry="3.25" fill="url(#frog-spot-soft)"/>
+      <ellipse cx="193.61" cy="253.33" rx="3.9" ry="2.6" fill="url(#frog-spot-soft)"/>
+      <ellipse cx="87.08" cy="254.62" rx="3.25" ry="2.6" fill="url(#frog-spot-soft)"/>
+      <ellipse cx="151" cy="255.8" rx="1.95" ry="2.6" fill="url(#frog-spot-soft)"/>
+      <circle cx="78" cy="256" r=".7" fill="url(#frog-spot-soft)"/>
+      <ellipse cx="174.39" cy="256.33" rx="3.9" ry="2.6" fill="url(#frog-spot-soft)"/>
+      <ellipse cx="109.85" cy="257.62" rx="3.25" ry="2.6" fill="url(#frog-spot-soft)"/>
+      <ellipse cx="165" cy="258" rx="3.25" ry="1.95" fill="url(#frog-spot-soft)"/>
+      <ellipse cx="89.8" cy="260" rx="2.6" ry="1.95" fill="url(#frog-spot-soft)"/>
+      <circle cx="97.75" cy="262.42" r="2.6" fill="url(#frog-spot-soft)"/>
+      <circle cx="178.33" cy="263.75" r="2.6" fill="url(#frog-spot-soft)"/>
+      <ellipse cx="152.33" cy="265.89" rx="2.6" ry="1.95" fill="url(#frog-spot-soft)"/>
+      <ellipse cx="106.53" cy="269.89" rx="3.9" ry="3.25" fill="url(#frog-spot-soft)"/>
+      <ellipse cx="86.5" cy="271" rx="2.6" ry="1.95" fill="url(#frog-spot-soft)"/>
+      <circle cx="94.23" cy="278.38" r="2.6" fill="url(#frog-spot-soft)"/>
+      <ellipse cx="46.5" cy="288.86" rx="2.6" ry="3.25" fill="url(#frog-spot-soft)"/>
+      <ellipse cx="51.36" cy="289.86" rx="2.6" ry="3.25" fill="url(#frog-spot-soft)"/>
+      <ellipse cx="57.2" cy="292.5" rx="1.95" ry="2.6" fill="url(#frog-spot-soft)"/>
+      <ellipse cx="43" cy="297.5" rx="1.95" ry="2.6" fill="url(#frog-spot-soft)"/>
+      <ellipse cx="47.5" cy="298.14" rx="2.6" ry="3.25" fill="url(#frog-spot-soft)"/>
+      <circle cx="57.38" cy="300.62" r="2.6" fill="url(#frog-spot-soft)"/>
+      <circle cx="50.5" cy="305.5" r="1.3" fill="url(#frog-spot-soft)"/>
+      <ellipse cx="42" cy="306.5" rx="1.95" ry="2.6" fill="url(#frog-spot-soft)"/>
+      <ellipse cx="38.33" cy="315.5" rx="1.3" ry="2.6" fill="url(#frog-spot-soft)"/>
+      <ellipse cx="44.5" cy="316" rx="2.6" ry="1.95" fill="url(#frog-spot-soft)"/>
+      <ellipse cx="195.17" cy="220.5" rx="1.89" ry="2.52" fill="url(#frog-spot-dark-soft)"/>
+      <ellipse cx="206.89" cy="189.67" rx="1.89" ry="2.52" fill="url(#frog-spot-dark-soft)"/>
+      <ellipse cx="201.91" cy="207.09" rx="3.15" ry="1.89" fill="url(#frog-spot-dark-soft)"/>
+      <circle cx="201.71" cy="213.71" r="2.52" fill="url(#frog-spot-dark-soft)"/>
+      <ellipse cx="193.56" cy="212" rx="2.52" ry="1.89" fill="url(#frog-spot-dark-soft)"/>
+      <circle cx="184.5" cy="219.75" r="2.52" fill="url(#frog-spot-dark-soft)"/>
+      <ellipse cx="209.8" cy="172" rx="1.89" ry="3.15" fill="url(#frog-spot-dark-soft)"/>
+      <ellipse cx="212" cy="199.5" rx="1.89" ry="2.52" fill="url(#frog-spot-dark-soft)"/>
+      <defs>
+        <radialGradient id="frog-spot-dark-soft">
+          <stop offset="0" stop-color="#24ad50" stop-opacity=".85"/>
+          <stop offset=".4" stop-color="#24ad50" stop-opacity=".7"/>
+          <stop offset="1" stop-color="#24ad50" stop-opacity="0"/>
+        </radialGradient>
+      </defs>
+    </g>
+    <g id="frog-front-forelimb">
+      <path d="M123 328c-4-15-1-26 8-29 11-6 16 8 11 22-5 15-15 29-19 44s-8 23-16 27q-4 2-7 2-1 0 1-1l5-4q0-1-3 0l-8 2q-2 0 0-1c5-2 11-4 14-7l-11 1h-4q-1 0 1-1l13-1c4-15 7-36 13-48Z" fill="#26ae42"/>
+    </g>
+    <g id="frog-far-eye-brow">
+      <path d="M39 301c-3-3-5-9-4-15 1-5 5-9 9-11 4 5-1 19-5 26" fill="#009343"/>
+    </g>
+    <g id="frog-near-eye" display="none">
+      <g transform="rotate(30 63.2 268.9)">
+        <ellipse cx="63.2" cy="268.9" rx="14.8" ry="16.3" fill="#70b677"/>
+        <ellipse cx="63.2" cy="268.9" rx="13.4" ry="14.9" fill="#b5c6c5"/>
+        <ellipse cx="62.9" cy="267.9" rx="9.472" ry="9.128" fill="#000"/>
+        <ellipse cx="64.7" cy="265.9" rx="4.884" ry="2.119" transform="rotate(-55 64.7 265.9)" fill="#b5c6c5"/>
+      </g>
+    </g>
+    <g id="frog-mouth" display="none">
+      <path d="M46 340c17-8 26-23 32-31 3-4 5-7 8-8-5 6-9 13-14 19-8 10-17 19-24 22Z" fill="#000"/>
+    </g>
+    <g id="frog-nostril" display="none">
+      <path d="M39 333q2 5 6 5l-4-5Z" fill="#000"/>
+    </g>
+  </g>
+  <g id="costume" transform="matrix(0.8003777509052845 -0.6009898289192434 0.6009898289192434 0.8003777509052845 -317.7030799748129 135.34198116003245)">
+    <defs>
+      <linearGradient id="helmet-shell" x1=".1" y1=".1" x2=".85" y2=".9">
+        <stop stop-color="#191919"/>
+        <stop offset=".37" stop-color="#424242"/>
+        <stop offset=".52" stop-color="#252525"/>
+        <stop offset="1" stop-color="#121212"/>
+      </linearGradient>
+      <linearGradient id="helmet-mask">
+        <stop stop-color="#0b0b0b"/>
+        <stop offset=".42" stop-color="#454545"/>
+        <stop offset="1" stop-color="#141414"/>
+      </linearGradient>
+      <linearGradient id="helmet-cheek" x1="0" y1="0" x2="1" y2="1">
+        <stop stop-color="#757575"/>
+        <stop offset=".45" stop-color="#252525"/>
+        <stop offset="1" stop-color="#080808"/>
+      </linearGradient>
+    </defs>
+    <path d="M161 352c6-7 8-11 9-20 3-12 14-18 28-22 11-4 25-3 36 2 13 6 17 17 20 32 3 13 13 25 25 35q3 3 1 4c-4 3-17 3-28 4l-34 3c-9-13-17-29-28-37q-14-7-23 1-5 1-6-2Z" fill="url(#helmet-shell)" stroke="#171717" stroke-linejoin="round" stroke-width="1.7"/>
+    <path d="M188 314c23-7 44-5 54 6 7 8 9 19 12 28 3 11 13 21 25 32" fill="none" stroke="#999" stroke-linejoin="round" stroke-width="1.35"/>
+    <path d="M173 339c21-1 38 4 57 9q11 4 21 3" fill="none" stroke="#202020" stroke-linejoin="round" stroke-width=".8"/>
+    <path d="M175 351q15-5 26 2c9 8 17 21 24 37-17 7-35 6-52 0l-9-3v-5l-3-13q10-12 14-18Z" fill="url(#helmet-mask)" stroke="#171717" stroke-linejoin="round" stroke-width=".8"/>
+    <path d="M175 355q3-5 12-4 11 1 14 10-12 5-27 1Z" fill="#080808" stroke="#202020" stroke-linejoin="round" stroke-width=".6"/>
+    <path d="M161 369q15-1 20 1 3 3 7 6l13 4-36 6Z" fill="url(#helmet-cheek)" stroke="#242424" stroke-linejoin="round" stroke-width=".55"/>
+    <path d="m181 370-2 7-15-6Z" fill="#111"/>
+    <path d="M160 370q10-1.5 21 0" fill="none" stroke="#888" stroke-linejoin="round" stroke-width=".65"/>
+    <path d="m181 372 23-10" fill="none" stroke="#747474" stroke-linejoin="round" stroke-width=".55"/>
+    <path d="m169 382 38-12" fill="none" stroke="#747474" stroke-linejoin="round" stroke-width=".55"/>
+    <path d="m166 386 45-11" fill="none" stroke="#747474" stroke-linejoin="round" stroke-width=".55"/>
+    <path d="m176 386 39-7" fill="none" stroke="#747474" stroke-linejoin="round" stroke-width=".55"/>
+    <path d="M165 387q28-3 49-7" fill="none" stroke="#454545" stroke-linejoin="round" stroke-width=".6"/>
+    <path d="M169 350c10-2 22-2 31 6 9 10 17 22 19 26q19 2 33 2" fill="none" stroke="#737373" stroke-linejoin="round" stroke-width=".8"/>
+    <defs>
+      <radialGradient id="helmet-sheen" cx="219" cy="326" r="38" gradientUnits="userSpaceOnUse" gradientTransform="translate(219 326) rotate(28) scale(1 .13) translate(-219 -326)">
+        <stop stop-color="#999" stop-opacity=".28"/>
+        <stop offset="1" stop-color="#777" stop-opacity="0"/>
+      </radialGradient>
+    </defs>
+    <path d="m195 310 51 28 1 7-57-29Z" fill="url(#helmet-sheen)"/>
+  </g>
+</svg>

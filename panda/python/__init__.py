@@ -111,6 +111,8 @@ class ALTERNATIVE_EXPERIENCE:
   DISABLE_STOCK_AEB = 2
   RAISE_LONGITUDINAL_LIMITS_TO_ISO_MAX = 8
   ALLOW_AEB = 16
+
+  # FrogPilot variables
   ALWAYS_ON_LATERAL = 32
 
 class Panda:
@@ -192,13 +194,18 @@ class Panda:
   FLAG_TOYOTA_ALT_BRAKE = (1 << 8)
   FLAG_TOYOTA_STOCK_LONGITUDINAL = (2 << 8)
   FLAG_TOYOTA_LTA = (4 << 8)
+
+  # FrogPilot variables
   FLAG_TOYOTA_GAS_INTERCEPTOR = (8 << 8)
   FLAG_TOYOTA_SECOC = (16 << 8)
+  FLAG_TOYOTA_UNSUPPORTED_DSU = (32 << 8)
 
   FLAG_HONDA_ALT_BRAKE = 1
   FLAG_HONDA_BOSCH_LONG = 2
   FLAG_HONDA_NIDEC_ALT = 4
   FLAG_HONDA_RADARLESS = 8
+
+  # FrogPilot variables
   FLAG_HONDA_GAS_INTERCEPTOR = 16
   FLAG_HONDA_CLARITY = 32
 
@@ -210,8 +217,11 @@ class Panda:
   FLAG_HYUNDAI_CANFD_ALT_BUTTONS = 32
   FLAG_HYUNDAI_ALT_LIMITS = 64
   FLAG_HYUNDAI_CANFD_HDA2_ALT_STEERING = 128
-  FLAG_HYUNDAI_LFA_BTN = 256
+
+  # FrogPilot variables
+  FLAG_HYUNDAI_HAS_LDA_BUTTON = 256
   FLAG_HYUNDAI_TACO_TUNE_HACK = 512
+  FLAG_HYUNDAI_ALWAYS_ON_LATERAL_LKAS = 1024
 
   FLAG_TESLA_POWERTRAIN = 1
   FLAG_TESLA_LONG_CONTROL = 2
@@ -227,9 +237,14 @@ class Panda:
 
   FLAG_SUBARU_PREGLOBAL_REVERSED_DRIVER_TORQUE = 1
 
+  # FrogPilot variables
   FLAG_SUBARU_SNG = 1024
+  FLAG_SUBARU_RAISED_STEER_LIMIT = 2048
 
   FLAG_NISSAN_ALT_EPS_BUS = 1
+
+  # FrogPilot variables
+  FLAG_NISSAN_PRO_PILOT = 2
 
   FLAG_GM_HW_CAM = 1
   FLAG_GM_HW_CAM_LONG = 2
@@ -520,8 +535,8 @@ class Panda:
     except Exception:
       pass
 
-  def flash(self, fn=None, code=None, reconnect=True):
-    if self.up_to_date(fn=fn):
+  def flash(self, fn=None, code=None, reconnect=True, force=False):
+    if not force and self.up_to_date(fn=fn):
       logging.debug("flash: already up to date")
       return
 

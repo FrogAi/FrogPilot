@@ -9,6 +9,7 @@ from openpilot.selfdrive.car.car_helpers import interfaces
 from openpilot.selfdrive.car.fingerprints import FW_VERSIONS
 from openpilot.selfdrive.car.fw_versions import ESSENTIAL_ECUS, FW_QUERY_CONFIGS, FUZZY_EXCLUDE_ECUS, VERSIONS, build_fw_dict, \
                                                 match_fw_to_car, get_brand_ecu_matches, get_fw_versions, get_present_ecus
+from openpilot.selfdrive.car.tests.test_car_interfaces import TOGGLES
 from openpilot.selfdrive.car.vin import get_vin
 
 CarFw = car.CarParams.CarFw
@@ -133,7 +134,7 @@ class TestFwFingerprint:
     blacklisted_addrs = (0x7c4, 0x7d0)  # includes A/C ecu and an unknown ecu
     for car_model, ecus in FW_VERSIONS.items():
       with subtests.test(car_model=car_model.value):
-        CP = interfaces[car_model][0].get_non_essential_params(car_model)
+        CP = interfaces[car_model][0].get_non_essential_params(car_model, TOGGLES)
         if CP.carName == 'subaru':
           for ecu in ecus.keys():
             assert ecu[1] not in blacklisted_addrs, f'{car_model}: Blacklisted ecu: (Ecu.{ECU_NAME[ecu[0]]}, {hex(ecu[1])})'

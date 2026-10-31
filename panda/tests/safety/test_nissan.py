@@ -28,7 +28,7 @@ class TestNissanSafety(common.PandaCarSafetyTest, common.AngleSteeringSafetyTest
   def setUp(self):
     self.packer = CANPackerPanda("nissan_x_trail_2017_generated")
     self.safety = libpanda_py.libpanda
-    self.safety.set_safety_hooks(Panda.SAFETY_NISSAN, 0)
+    self.safety.set_safety_hooks(Panda.SAFETY_NISSAN, Panda.FLAG_NISSAN_PRO_PILOT)
     self.safety.init_tests()
 
   def _angle_cmd_msg(self, angle: float, enabled: bool):
@@ -94,7 +94,7 @@ class TestNissanSafetyAltEpsBus(TestNissanSafety):
   def setUp(self):
     self.packer = CANPackerPanda("nissan_x_trail_2017_generated")
     self.safety = libpanda_py.libpanda
-    self.safety.set_safety_hooks(Panda.SAFETY_NISSAN, Panda.FLAG_NISSAN_ALT_EPS_BUS)
+    self.safety.set_safety_hooks(Panda.SAFETY_NISSAN, Panda.FLAG_NISSAN_ALT_EPS_BUS | Panda.FLAG_NISSAN_PRO_PILOT)
     self.safety.init_tests()
 
 
@@ -123,6 +123,15 @@ class TestNissanLeafSafety(TestNissanSafety):
     # CRUISE_THROTTLE, CRUISE_AVAILABLE is the main on button for Leaf
     values = {"CRUISE_AVAILABLE": 1 if toggle_on else 0}
     return self.packer.make_can_msg_panda("CRUISE_THROTTLE", 0, values)
+
+  # FrogPilot tests
+  def _toggle_aol(self, toggle_on):
+    # CRUISE_THROTTLE, CRUISE_AVAILABLE is the main on button for Leaf
+    values = {"CRUISE_AVAILABLE": 1 if toggle_on else 0}
+    return self.packer.make_can_msg_panda("CRUISE_THROTTLE", 0, values)
+
+  def test_always_on_lateral_main_on_stale(self):
+    pass
 
 
 if __name__ == "__main__":

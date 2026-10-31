@@ -127,15 +127,15 @@ AdvancedNetworking::AdvancedNetworking(QWidget* parent, WifiManager* wifi): QWid
 
   ListWidget *list = new ListWidget(this);
   // Enable tethering layout
+  // FrogPilot variables
   std::vector<QString> tetheringSelection{tr("Off"), tr("Always"), tr("Only Onroad"), tr("Until Reboot")};
+
   tetheringToggle = new ButtonParamControl("TetheringEnabled", tr("Enable Tethering"),
-                                           tr("Share your device's internet connection with other devices, either all the time or only while driving."),
+                                           tr("Share your device's internet connection with other devices all the time, only while driving, or until the device reboots."),
                                            "", tetheringSelection);
-  if (params.getInt("TetheringEnabled") == 3) {
-    params.remove("TetheringEnabled");
-    tetheringToggle->setCheckedButton(0);
-  }
+
   QButtonGroup *buttonGroup = tetheringToggle->findChild<QButtonGroup *>();
+
   list->addItem(tetheringToggle);
   QObject::connect(buttonGroup, QOverload<int>::of(&QButtonGroup::buttonClicked), [this](int id) {
     toggleTethering(id);
@@ -232,7 +232,7 @@ void AdvancedNetworking::refresh() {
 }
 
 void AdvancedNetworking::toggleTethering(int id) {
-  wifi->setTetheringEnabled(id == 1 || id == 2 && uiState()->scene.started || id == 3);
+  frogpilotUIState()->setTethering(id);
   tetheringToggle->setEnabled(false);
 }
 

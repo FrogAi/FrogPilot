@@ -1,20 +1,32 @@
 from collections import defaultdict
 
 from cereal import messaging
+from openpilot.common.conversions import Conversions as CV
 from openpilot.selfdrive.car.fingerprints import MIGRATION
+from openpilot.selfdrive.controls.lib.drive_helpers import V_CRUISE_MAX
+from openpilot.selfdrive.controls.lib.longitudinal_mpc_lib.long_mpc import A_CHANGE_COST, CRUISE_MIN_ACCEL, DANGER_ZONE_COST, J_EGO_COST
+from openpilot.selfdrive.controls.lib.longitudinal_mpc_lib.long_mpc import get_jerk_factor, get_T_FOLLOW
+from openpilot.selfdrive.controls.lib.longitudinal_planner import get_max_accel
 from openpilot.selfdrive.test.process_replay.vision_meta import meta_from_encode_index
 from openpilot.selfdrive.car.toyota.values import EPS_SCALE
 from openpilot.system.manager.process_config import managed_processes
 from panda import Panda
 
+from openpilot.frogpilot.common import frogpilot_variables
+
 
 # TODO: message migration should happen in-place
-def migrate_all(lr, old_logtime=False, manager_states=False, panda_states=False, camera_states=False):
+def migrate_all(lr, old_logtime=False, manager_states=False, panda_states=False, camera_states=False, frogpilot_plan=False):
   msgs = migrate_sensorEvents(lr, old_logtime)
   msgs = migrate_carParams(msgs, old_logtime)
   msgs = migrate_gpsLocation(msgs)
   msgs = migrate_deviceState(msgs)
   msgs = migrate_carOutput(msgs)
+
+  # FrogPilot variables
+  msgs = migrate_frogpilotCarState(msgs)
+  msgs = migrate_liveDelay(msgs)
+
   if manager_states:
     msgs = migrate_managerState(msgs)
   if panda_states:
@@ -22,6 +34,10 @@ def migrate_all(lr, old_logtime=False, manager_states=False, panda_states=False,
     msgs = migrate_peripheralState(msgs)
   if camera_states:
     msgs = migrate_cameraStates(msgs)
+
+  # FrogPilot variables
+  if frogpilot_plan:
+    msgs = migrate_frogpilotPlan(msgs)
 
   return msgs
 
@@ -87,6 +103,40 @@ def migrate_carOutput(lr):
   return all_msgs
 
 
+# FrogPilot variables
+def migrate_frogpilotCarState(lr):
+  if any(msg.which() == "frogpilotCarState" for msg in lr):
+    return lr
+
+  all_msgs = []
+  for msg in lr:
+    all_msgs.append(msg)
+    if msg.which() == "carState":
+      new_msg = messaging.new_message("frogpilotCarState")
+      new_msg.valid = msg.valid
+      new_msg.logMonoTime = msg.logMonoTime
+      all_msgs.append(new_msg.as_reader())
+  return all_msgs
+
+
+# FrogPilot variables
+def migrate_liveDelay(lr):
+  CP = next((m.carParams for m in lr if m.which() == "carParams"), None)
+  if CP is None or any(msg.which() == "liveDelay" for msg in lr):
+    return lr
+
+  all_msgs = []
+  for msg in lr:
+    all_msgs.append(msg)
+    if msg.which() == "liveCalibration":
+      new_msg = messaging.new_message("liveDelay")
+      new_msg.valid = True
+      new_msg.logMonoTime = msg.logMonoTime
+      new_msg.liveDelay.lateralDelay = CP.steerActuatorDelay + frogpilot_variables.LATERAL_DELAY_OFFSET
+      all_msgs.append(new_msg.as_reader())
+  return all_msgs
+
+
 def migrate_pandaStates(lr):
   all_msgs = []
   # TODO: safety param migration should be handled automatically
@@ -94,6 +144,9 @@ def migrate_pandaStates(lr):
     "TOYOTA_PRIUS": EPS_SCALE["TOYOTA_PRIUS"] | Panda.FLAG_TOYOTA_STOCK_LONGITUDINAL,
     "TOYOTA_RAV4": EPS_SCALE["TOYOTA_RAV4"] | Panda.FLAG_TOYOTA_ALT_BRAKE | Panda.FLAG_TOYOTA_GAS_INTERCEPTOR,
     "KIA_EV6": Panda.FLAG_HYUNDAI_EV_GAS | Panda.FLAG_HYUNDAI_CANFD_HDA2,
+
+    # FrogPilot variables
+    "HYUNDAI_SONATA": Panda.FLAG_HYUNDAI_HAS_LDA_BUTTON,
   }
 
   # Migrate safety param base on carState
@@ -251,4 +304,36 @@ def migrate_sensorEvents(lr, old_logtime=False):
 
       all_msgs.append(m.as_reader())
 
+  return all_msgs
+
+
+# FrogPilot variables
+def migrate_frogpilotPlan(lr):
+  if any(msg.which() == 'frogpilotPlan' for msg in lr):
+    return lr
+
+  all_msgs = []
+  car_state = None
+  controls_state = None
+  for msg in lr:
+    if msg.which() == 'carState':
+      car_state = msg.carState
+    elif msg.which() == 'controlsState':
+      controls_state = msg.controlsState
+    elif msg.which() == 'modelV2' and car_state is not None and controls_state is not None:
+      jerk_factor = get_jerk_factor(controls_state.personality)
+
+      m = messaging.new_message('frogpilotPlan')
+      m.logMonoTime = msg.logMonoTime
+      m.valid = True
+      m.frogpilotPlan.accelerationJerk = A_CHANGE_COST * jerk_factor
+      m.frogpilotPlan.dangerJerk = DANGER_ZONE_COST
+      m.frogpilotPlan.lateralCheck = True
+      m.frogpilotPlan.maxAcceleration = get_max_accel(car_state.vEgo)
+      m.frogpilotPlan.minAcceleration = CRUISE_MIN_ACCEL
+      m.frogpilotPlan.speedJerk = J_EGO_COST * jerk_factor
+      m.frogpilotPlan.tFollow = get_T_FOLLOW(controls_state.personality)
+      m.frogpilotPlan.vCruise = min(controls_state.vCruise, V_CRUISE_MAX) * CV.KPH_TO_MS
+      all_msgs.append(m.as_reader())
+    all_msgs.append(msg)
   return all_msgs

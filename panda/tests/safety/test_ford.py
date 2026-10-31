@@ -5,7 +5,7 @@ import unittest
 
 import panda.tests.safety.common as common
 
-from panda import Panda
+from panda import ALTERNATIVE_EXPERIENCE, Panda
 from panda.tests.libpanda import libpanda_py
 from panda.tests.safety.common import CANPackerPanda
 
@@ -364,6 +364,30 @@ class TestFordSafetyBase(common.PandaCarSafetyTest):
       "CcStat_D_Actl": 3 if toggle_on else 0,
     }
     return self.packer.make_can_msg_panda("EngBrakeData", 0, values)
+
+  def test_always_on_lateral(self):
+    curvature = 0.01
+    self.safety.set_controls_allowed(False)
+    self._reset_curvature_measurement(curvature, 1)
+
+    self.safety.set_alternative_experience(0)
+    self._rx(self._toggle_aol(True))
+    self._set_prev_desired_angle(curvature)
+    self.assertFalse(self._tx(self._lat_ctl_msg(True, 0, 0, curvature, 0)))
+
+    self.safety.set_alternative_experience(ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL)
+    self._rx(self._toggle_aol(False))
+    self._set_prev_desired_angle(curvature)
+    self.assertFalse(self._tx(self._lat_ctl_msg(True, 0, 0, curvature, 0)))
+
+    self._rx(self._toggle_aol(True))
+    self._set_prev_desired_angle(curvature)
+    self.assertTrue(self._tx(self._lat_ctl_msg(True, 0, 0, curvature, 0)))
+
+    self.safety.set_timer(int(2e6))
+    self.safety.safety_tick_current_safety_config()
+    self._set_prev_desired_angle(curvature)
+    self.assertFalse(self._tx(self._lat_ctl_msg(True, 0, 0, curvature, 0)))
 
 
 class TestFordStockSafety(TestFordSafetyBase):

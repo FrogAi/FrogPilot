@@ -41,6 +41,12 @@ def create_lta_steer_command_2(packer, frame):
 
 
 def create_accel_command(packer, accel, pcm_cancel, permit_braking, standstill_req, lead, acc_type, fcw_alert, distance, reverse_cruise_active):
+  # FrogPilot variables
+  if reverse_cruise_active:
+    allow_long_press = 2
+  else:
+    allow_long_press = 1
+
   # TODO: find the exact canceling bit that does not create a chime
   values = {
     "ACCEL_CMD": accel,
@@ -50,7 +56,7 @@ def create_accel_command(packer, accel, pcm_cancel, permit_braking, standstill_r
     "PERMIT_BRAKING": permit_braking,
     "RELEASE_STANDSTILL": not standstill_req,
     "CANCEL_REQ": pcm_cancel,
-    "ALLOW_LONG_PRESS": 2 if reverse_cruise_active else 1,
+    "ALLOW_LONG_PRESS": allow_long_press,
     "ACC_CUT_IN": fcw_alert,  # only shown when ACC enabled
   }
   return packer.make_can_msg("ACC_CONTROL", 0, values)
@@ -60,28 +66,6 @@ def create_accel_command_2(packer, accel):
     "ACCEL_CMD": accel,
   }
   return packer.make_can_msg("ACC_CONTROL_2", 0, values)
-
-def create_pcs_commands(packer, accel, active, mass):
-  values1 = {
-    "COUNTER": 0,
-    "FORCE": round(min(accel, 0) * mass * 2),
-    "STATE": 3 if active else 0,
-    "BRAKE_STATUS": 0,
-    "PRECOLLISION_ACTIVE": 1 if active else 0,
-  }
-  msg1 = packer.make_can_msg("PRE_COLLISION", 0, values1)
-
-  values2 = {
-    "DSS1GDRV": min(accel, 0),     # accel
-    "PCSALM": 1 if active else 0,  # goes high same time as PRECOLLISION_ACTIVE
-    "IBTRGR": 1 if active else 0,  # unknown
-    "PBATRGR": 1 if active else 0, # noisy actuation bit?
-    "PREFILL": 1 if active else 0, # goes on and off before DSS1GDRV
-    "AVSTRGR": 1 if active else 0,
-  }
-  msg2 = packer.make_can_msg("PRE_COLLISION_2", 0, values2)
-
-  return [msg1, msg2]
 
 
 def create_acc_cancel_command(packer):
@@ -108,7 +92,7 @@ def create_fcw_command(packer, fcw):
   return packer.make_can_msg("PCS_HUD", 0, values)
 
 
-def create_ui_command(packer, steer, chime, left_line, right_line, left_lane_depart, right_lane_depart, enabled, stock_lkas_hud, lat_active):
+def create_ui_command(packer, steer, chime, left_line, right_line, left_lane_depart, right_lane_depart, lat_active, stock_lkas_hud):
   values = {
     "TWO_BEEPS": chime,
     "LDA_ALERT": steer,

@@ -1,0 +1,52 @@
+Import('env', 'envCython', 'arch', 'cereal', 'messaging', 'common', 'gpucommon', 'visionipc')
+lenv = env.Clone()
+lenvCython = envCython.Clone()
+
+libs = [cereal, messaging, visionipc, gpucommon, common, 'capnp', 'zmq', 'kj', 'pthread']
+frameworks = []
+
+common_src = [
+  "models/commonmodel.cc",
+  "transforms/loadyuv.cc",
+  "transforms/transform.cc",
+]
+
+# OpenCL is a framework on Mac
+if arch == "Darwin":
+  frameworks += ['OpenCL']
+else:
+  libs += ['OpenCL']
+
+# Set path definitions
+for pathdef, fn in {'TRANSFORM': 'transforms/transform.cl', 'LOADYUV': 'transforms/loadyuv.cl'}.items():
+  for xenv in (lenv, lenvCython):
+    xenv['CXXFLAGS'].append(f'-D{pathdef}_PATH=\\"{File(fn).abspath}\\"')
+
+# Compile cython
+cython_libs = envCython["LIBS"] + libs
+commonmodel_lib = lenv.Library('commonmodel', common_src)
+lenvCython.Program('runners/runmodel_pyx.so', 'runners/runmodel_pyx.pyx', LIBS=cython_libs, FRAMEWORKS=frameworks)
+lenvCython.Program('models/commonmodel_pyx.so', 'models/commonmodel_pyx.pyx', LIBS=[commonmodel_lib, *cython_libs], FRAMEWORKS=frameworks)
+
+# SNPE except on Mac and ARM Linux
+if arch != "Darwin" and arch != "aarch64":
+  snpe_rpath_qcom = "/data/pythonpath/third_party/snpe/larch64"
+  snpe_rpath_pc = f"{Dir('#').abspath}/third_party/snpe/x86_64-linux-clang"
+  if arch == "larch64":
+    snpe_rpath = lenvCython['RPATH'] + [snpe_rpath_qcom]
+  else:
+    snpe_rpath = lenvCython['RPATH'] + [snpe_rpath_pc]
+  snpemodel_lib = lenv.Library('snpemodel', ['runners/snpemodel.cc'])
+  lenvCython.Program('runners/snpemodel_pyx.so', 'runners/snpemodel_pyx.pyx',
+                    LIBS=[snpemodel_lib, 'SNPE', *cython_libs], FRAMEWORKS=frameworks, RPATH=snpe_rpath)
+
+if arch == "larch64" or GetOption('pc_thneed'):
+  thneed_src = ["thneed/thneed_common.cc", "thneed/serialize.cc"]
+  if arch == "larch64":
+    thneed_src += ["thneed/thneed_qcom2.cc"]
+  else:
+    thneed_src += ["thneed/thneed_pc.cc"]
+  thneed_lib = env.SharedLibrary('thneed', thneed_src, LIBS=[gpucommon, common, 'zmq', 'OpenCL', 'dl'])
+  thneedmodel_lib = env.Library('thneedmodel', ['runners/thneedmodel.cc'])
+  lenvCython.Program('runners/thneedmodel_pyx.so', 'runners/thneedmodel_pyx.pyx',
+                    LIBS=envCython["LIBS"]+[thneedmodel_lib, thneed_lib, gpucommon, common, 'dl', 'zmq', 'OpenCL'])

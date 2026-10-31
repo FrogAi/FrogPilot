@@ -6,7 +6,7 @@ class FrogPilotVisualsPanel : public FrogPilotListWidget {
   Q_OBJECT
 
 public:
-  explicit FrogPilotVisualsPanel(FrogPilotSettingsWindow *parent);
+  explicit FrogPilotVisualsPanel(FrogPilotSettingsWindow *parent, bool forceOpen = false);
 
 signals:
   void openSubPanel();
@@ -19,8 +19,8 @@ private:
   void updateMetric(bool metric, bool bootRun);
   void updateToggles();
 
-  bool developerUIOpen;
-  bool forceOpenDescriptions;
+  bool developerUIOpen = false;
+  bool forceOpenDescriptions = false;
 
   std::map<QString, AbstractControl*> toggles;
 
@@ -30,21 +30,22 @@ private:
   QSet<QString> developerSidebarKeys = {"DeveloperSidebarMetric1", "DeveloperSidebarMetric2", "DeveloperSidebarMetric3", "DeveloperSidebarMetric4", "DeveloperSidebarMetric5", "DeveloperSidebarMetric6", "DeveloperSidebarMetric7"};
   QSet<QString> developerUIKeys = {"DeveloperMetrics", "DeveloperSidebar", "DeveloperWidgets"};
   QSet<QString> developerWidgetKeys = {"AdjacentLeadsUI", "RadarTracksUI", "ShowStoppingPoint"};
-  QSet<QString> modelUIKeys = {"DynamicPathWidth", "LaneLinesWidth", "PathEdgeWidth", "PathWidth", "RoadEdgesWidth", "UnlimitedLength"};
+  QSet<QString> modelUIKeys = {"DynamicPathWidth", "LaneLinesWidth", "PathEdgeWidth", "PathWidth", "RoadEdgesWidth"};
   QSet<QString> navigationUIKeys = {"BigMap", "MapStyle", "RoadNameUI", "ShowSpeedLimits", "SLCMapboxFiller", "UseVienna"};
   QSet<QString> qualityOfLifeKeys = {"CameraView", "DriverCamera", "StoppedTimer"};
 
   QSet<QString> parentKeys;
 
+  static QMap<int, QString> developerMetricOptions();
+  static QMap<int, QString> mapStyleOptions();
+
   std::vector<QString> sidebarMetricsToggles;
 
-  FrogPilotButtonsControl *sidebarMetricsToggle;
+  FrogPilotButtonsControl *sidebarMetricsToggle = nullptr;
 
-  FrogPilotButtonToggleControl *borderMetricsButton;
+  FrogPilotButtonToggleControl *borderMetricsButton = nullptr;
 
-  FrogPilotSettingsWindow *parent;
+  FrogPilotSettingsWindow *parent = nullptr;
 
   Params params;
-
-  QJsonObject frogpilotToggleLevels;
 };

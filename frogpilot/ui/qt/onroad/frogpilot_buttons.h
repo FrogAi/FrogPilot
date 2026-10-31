@@ -1,27 +1,52 @@
 #pragma once
 
-#include <QMovie>
-
 #include "selfdrive/ui/qt/onroad/buttons.h"
 
-class DistanceButton : public QPushButton {
+const int personality_button_width = btn_size + UI_BORDER_SIZE;
+
+class DrivingPersonalityButton : public QPushButton {
   Q_OBJECT
 
 public:
-  explicit DistanceButton(QWidget *parent = 0);
+  explicit DrivingPersonalityButton(QWidget *parent = 0);
 
-  void updateState(const UIScene &scene, const FrogPilotUIScene &frogpilot_scene);
+  void updateState(const UIState &s, const FrogPilotUIState &fs);
+
+  bool rightHandDM = false;
 
 private:
+  void hideEvent(QHideEvent *event) override;
   void paintEvent(QPaintEvent *event) override;
   void showEvent(QShowEvent *event) override;
   void updateTheme();
 
-  bool traffic_mode_active;
+  QSharedPointer<FrogPilotMovie> currentGif;
 
-  int personality;
+  QPixmap currentImg;
 
-  Params params_memory{"/dev/shm/params"};
+  QString currentIcon;
+};
 
-  QMap<int, QPair<QPixmap, QSharedPointer<QMovie>>> icon_map;
+class InstantReplayButton : public QPushButton {
+  Q_OBJECT
+
+public:
+  explicit InstantReplayButton(QWidget *parent = 0);
+
+private:
+  void paintEvent(QPaintEvent *event) override;
+  void updateState(const UIState &s, const FrogPilotUIState &fs);
+};
+
+class ScreenRecorderButton : public QPushButton {
+  Q_OBJECT
+
+public:
+  explicit ScreenRecorderButton(QWidget *parent = 0);
+
+private:
+  void paintEvent(QPaintEvent *event) override;
+  void updateState();
+
+  bool recording = false;
 };

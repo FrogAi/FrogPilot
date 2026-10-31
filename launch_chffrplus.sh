@@ -23,6 +23,14 @@ function agnos_init {
 
   # Check if AGNOS update is required
   if [ $(< /VERSION) != "$AGNOS_VERSION" ]; then
+    # FrogPilot variables
+    if ! grep -qsE "comma (tici|tizi)" /sys/firmware/devicetree/base/model; then
+      cd "$DIR/selfdrive/ui"
+      MESSAGE="This version of FrogPilot only runs on the comma 3 and comma 3X, so it stopped here and left this device's operating system alone."
+      ./text "$MESSAGE Install software made for this device to use it."
+      while true; do sleep 1; done
+    fi
+
     AGNOS_PY="$DIR/system/hardware/tici/agnos.py"
     MANIFEST="$DIR/system/hardware/tici/agnos.json"
     if $AGNOS_PY --verify $MANIFEST; then

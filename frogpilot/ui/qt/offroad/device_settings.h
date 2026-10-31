@@ -6,7 +6,7 @@ class FrogPilotDevicePanel : public FrogPilotListWidget {
   Q_OBJECT
 
 public:
-  explicit FrogPilotDevicePanel(FrogPilotSettingsWindow *parent);
+  explicit FrogPilotDevicePanel(FrogPilotSettingsWindow *parent, bool forceOpen = false);
 
 signals:
   void openSubPanel();
@@ -15,20 +15,18 @@ protected:
   void showEvent(QShowEvent *event) override;
 
 private:
-  void updateState(const UIState &s);
   void updateToggles();
 
-  bool forceOpenDescriptions;
-  bool started;
+  bool forceOpenDescriptions = false;
 
   std::map<QString, AbstractControl*> toggles;
 
-  QSet<QString> deviceManagementKeys = {"DeviceShutdown", "FrogPilotTelemetry", "HigherBitrate", "IncreaseThermalLimits", "LowVoltageShutdown", "NoLogging", "NoUploads", "UseKonikServer"};
-  QSet<QString> screenKeys = {"ScreenBrightness", "ScreenBrightnessOnroad", "ScreenRecorder", "ScreenTimeout", "ScreenTimeoutOnroad", "StandbyMode"};
+  QSet<QString> deviceManagementKeys = {"DeviceShutdown", "HigherBitrate", "IncreaseThermalLimits", "LowVoltageShutdown", "NoLogging", "NoUploads", "UseKonikServer"};
+  QSet<QString> screenKeys = {"InstantReplay", "ScreenBrightness", "ScreenBrightnessOnroad", "ScreenRecorder", "ScreenTimeout", "ScreenTimeoutOnroad", "StandbyMode"};
 
   QSet<QString> parentKeys;
 
-  FrogPilotSettingsWindow *parent;
+  FrogPilotSettingsWindow *parent = nullptr;
 
   QJsonObject frogpilotToggleLevels;
 

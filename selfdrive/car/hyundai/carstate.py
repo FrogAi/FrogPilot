@@ -6,6 +6,7 @@ from cereal import car, custom
 from openpilot.common.conversions import Conversions as CV
 from opendbc.can.parser import CANParser
 from opendbc.can.can_define import CANDefine
+from panda import ALTERNATIVE_EXPERIENCE
 from openpilot.selfdrive.car.hyundai.hyundaicanfd import CanBus
 from openpilot.selfdrive.car.hyundai.values import HyundaiFlags, HyundaiFrogPilotFlags, CAR, DBC, CAN_GEARS, CAMERA_SCC_CAR, \
                                                    CANFD_CAR, Buttons, CarControllerParams
@@ -75,10 +76,13 @@ class CarState(CarStateBase):
     self.params = CarControllerParams(CP)
 
     # FrogPilot variables
+    self.car_safety_mode_set = False
+    self.lkas_pressed = False
+    self.lkas_previously_enabled = False
+    self.lkas_release_pending = False
     self.main_enabled = False
 
-    self.active_mode = 0
-    self.drive_mode_prev = 0
+    self.drive_mode = 0
 
   def update(self, cp, cp_cam, frogpilot_toggles):
     if self.CP.carFingerprint in CANFD_CAR:
@@ -131,7 +135,10 @@ class CarState(CarStateBase):
     # cruise state
     if self.CP.openpilotLongitudinalControl:
       # These are not used for engage/disengage since openpilot keeps track of state using the buttons
-      ret.cruiseState.available = self.main_enabled
+      if self.CP.alternativeExperience & ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL:
+        ret.cruiseState.available = self.main_enabled
+      else:
+        ret.cruiseState.available = cp.vl["TCS13"]["ACCEnable"] == 0
       ret.cruiseState.enabled = cp.vl["TCS13"]["ACC_REQ"] == 1
       ret.cruiseState.standstill = False
       ret.cruiseState.nonAdaptive = False
@@ -194,8 +201,7 @@ class CarState(CarStateBase):
     self.cruise_buttons.extend(cp.vl_all["CLU11"]["CF_Clu_CruiseSwState"])
     self.prev_main_buttons = self.main_buttons[-1]
     self.main_buttons.extend(cp.vl_all["CLU11"]["CF_Clu_CruiseSwMain"])
-    if self.prev_main_buttons == 0 and self.main_buttons[-1] != 0:
-      self.main_enabled = not self.main_enabled
+    self.update_main_button(cp.vl_all["CLU11"]["CF_Clu_CruiseSwMain"])
 
     # FrogPilot CarState functions
     fp_ret.brakeLights = bool(cp.vl["TCS13"]["BrakeLight"])
@@ -203,12 +209,10 @@ class CarState(CarStateBase):
     if self.FPCP.fpFlags & HyundaiFrogPilotFlags.LKAS12 or self.FPCP.fpFlags & HyundaiFrogPilotFlags.NAV_MSG:
       fp_ret.dashboardSpeedLimit = calculate_speed_limit(self.CP, self.FPCP, cp, cp_cam) * speed_conv
 
-    self.prev_distance_button = self.distance_button
     self.distance_button = self.cruise_buttons[-1] == Buttons.GAP_DIST
 
-    self.lkas_previously_enabled = self.lkas_enabled
     if self.FPCP.fpFlags & HyundaiFrogPilotFlags.CAN_LFA_BTN:
-      self.lkas_enabled = cp.vl["BCM_PO_11"]["LFA_Pressed"]
+      self.update_lkas_button(cp.vl_all["BCM_PO_11"]["LFA_Pressed"])
 
     return ret, fp_ret
 
@@ -269,7 +273,10 @@ class CarState(CarStateBase):
     # cruise state
     # CAN FD cars enable on main button press, set available if no TCS faults preventing engagement
     if self.CP.openpilotLongitudinalControl:
-      ret.cruiseState.available = self.main_enabled
+      if self.CP.alternativeExperience & ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL:
+        ret.cruiseState.available = self.main_enabled
+      else:
+        ret.cruiseState.available = cp.vl["TCS"]["ACCEnable"] == 0
       # These are not used for engage/disengage since openpilot keeps track of state using the buttons
       ret.cruiseState.enabled = cp.vl["TCS"]["ACC_REQ"] == 1
       ret.cruiseState.standstill = False
@@ -292,8 +299,7 @@ class CarState(CarStateBase):
     self.cruise_buttons.extend(cp.vl_all[self.cruise_btns_msg_canfd]["CRUISE_BUTTONS"])
     self.prev_main_buttons = self.main_buttons[-1]
     self.main_buttons.extend(cp.vl_all[self.cruise_btns_msg_canfd]["ADAPTIVE_CRUISE_MAIN_BTN"])
-    if self.prev_main_buttons == 0 and self.main_buttons[-1] != 0:
-      self.main_enabled = not self.main_enabled
+    self.update_main_button(cp.vl_all[self.cruise_btns_msg_canfd]["ADAPTIVE_CRUISE_MAIN_BTN"])
     self.buttons_counter = cp.vl[self.cruise_btns_msg_canfd]["COUNTER"]
     ret.accFaulted = cp.vl["TCS"]["ACCEnable"] != 0  # 0 ACC CONTROL ENABLED, 1-3 ACC CONTROL DISABLED
 
@@ -302,29 +308,53 @@ class CarState(CarStateBase):
                                           else cp_cam.vl["CAM_0x2a4"])
 
     # FrogPilot CarState functions
-    self.params = CarControllerParams(self.CP, ret.vEgoRaw, frogpilot_toggles)
+    if frogpilot_toggles.taco_tune_hacks:
+      self.params = CarControllerParams(self.CP, ret.vEgoRaw, frogpilot_toggles)
 
     fp_ret.brakeLights = bool(cp.vl["TCS"]["DriverBraking"])
 
     if self.FPCP.fpFlags & HyundaiFrogPilotFlags.NAV_MSG:
       fp_ret.dashboardSpeedLimit = calculate_speed_limit(self.CP, self.FPCP, cp, cp_cam) * speed_factor
 
-    self.prev_distance_button = self.distance_button
     self.distance_button = self.cruise_buttons[-1] == Buttons.GAP_DIST
 
     drive_mode = cp.vl["DRIVE_MODE"]["DRIVE_MODE2"]
+    if drive_mode != 0:
+      self.drive_mode = drive_mode
 
-    if drive_mode != 0 and drive_mode != self.drive_mode_prev:
-      self.active_mode = drive_mode if drive_mode in (2, 3) else 1
-      self.drive_mode_prev = drive_mode
+    fp_ret.ecoGear = self.drive_mode == 2
+    fp_ret.sportGear = self.drive_mode == 3
 
-    fp_ret.ecoGear = self.active_mode == 2
-    fp_ret.sportGear = self.active_mode == 3
-
-    self.lkas_previously_enabled = self.lkas_enabled
-    self.lkas_enabled = cp.vl[self.cruise_btns_msg_canfd]["LFA_BTN"]
+    self.update_lkas_button(cp.vl_all[self.cruise_btns_msg_canfd]["LFA_BTN"])
 
     return ret, fp_ret
+
+  # FrogPilot variables
+  def update_lkas_button(self, lkas_samples):
+    lkas_presses = 0
+    lkas_released = self.lkas_release_pending
+    for lkas_pressed in lkas_samples:
+      if lkas_pressed and not self.lkas_pressed:
+        lkas_presses += 1
+      elif self.lkas_pressed and not lkas_pressed:
+        lkas_released = True
+      self.lkas_pressed = lkas_pressed
+
+    self.lkas_enabled = lkas_presses % 2 == 1
+    self.lkas_previously_enabled = lkas_released and not self.lkas_enabled
+    self.lkas_release_pending = lkas_released and self.lkas_enabled
+
+  # FrogPilot variables
+  def update_main_button(self, main_samples):
+    if not self.car_safety_mode_set:
+      self.main_enabled = False
+      return
+
+    main_pressed = self.prev_main_buttons != 0
+    for main_button in main_samples:
+      if main_button != 0 and not main_pressed:
+        self.main_enabled = not self.main_enabled
+      main_pressed = main_button != 0
 
   def get_can_parser(self, CP, FPCP):
     if CP.carFingerprint in CANFD_CAR:
@@ -378,7 +408,7 @@ class CarState(CarStateBase):
       messages.append(("BCM_PO_11", 50))
 
     if FPCP.fpFlags & HyundaiFrogPilotFlags.NAV_MSG:
-      messages.append(("Navi_HU", 5))
+      messages.append(("Navi_HU", 0))
 
     return CANParser(DBC[CP.carFingerprint]["pt"], messages, 0)
 
@@ -440,7 +470,7 @@ class CarState(CarStateBase):
       ]
 
     if CP.flags & HyundaiFlags.CANFD_HDA2 and FPCP.fpFlags & HyundaiFrogPilotFlags.NAV_MSG:
-      messages.append(("CLUSTER_SPEED_LIMIT", 10))
+      messages.append(("CLUSTER_SPEED_LIMIT", 0))
 
     return CANParser(DBC[CP.carFingerprint]["pt"], messages, CanBus(CP).ECAN)
 
@@ -456,6 +486,6 @@ class CarState(CarStateBase):
       ]
 
     if not (CP.flags & HyundaiFlags.CANFD_HDA2) and FPCP.fpFlags & HyundaiFrogPilotFlags.NAV_MSG:
-      messages.append(("CLUSTER_SPEED_LIMIT", 10))
+      messages.append(("CLUSTER_SPEED_LIMIT", 0))
 
     return CANParser(DBC[CP.carFingerprint]["pt"], messages, CanBus(CP).CAM)

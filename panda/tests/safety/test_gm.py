@@ -300,7 +300,7 @@ def interceptor_msg(gas, addr):
 
 
 class TestGmInterceptorSafety(common.GasInterceptorSafetyTest, TestGmCameraSafety):
-  INTERCEPTOR_THRESHOLD = 515
+  INTERCEPTOR_THRESHOLD = 550
 
   def setUp(self):
     self.packer = CANPackerPanda("gm_global_a_powertrain_generated")
@@ -434,6 +434,22 @@ class TestGmCcLongitudinalSafety(TestGmCameraSafety):
     self.assertTrue(self.safety.get_cruise_engaged_prev())
     for btn in range(8):
       self.assertEqual(btn == Buttons.CANCEL, self._tx(self._button_msg(btn)))
+
+  def test_pcm_status_rx_check(self):
+    for pcm_status_alive in (True, False):
+      with self.subTest(pcm_status_alive=pcm_status_alive):
+        self.setUp()
+        self._rx(self._pcm_status_msg(True))
+        for t in range(1, 4):
+          self.safety.set_timer(int(t * 1e6))
+          for msg in ("EBCMWheelSpdRear", "PSCMStatus", "ASCMSteeringButton", "EBCMBrakePedalPosition", "AcceleratorPedal2", "ECMEngineStatus"):
+            self._rx(self.packer.make_can_msg_panda(msg, 0, {}))
+          if pcm_status_alive:
+            self._rx(self._pcm_status_msg(True))
+          self.safety.safety_tick_current_safety_config()
+        self.assertEqual(pcm_status_alive, self.safety.safety_config_valid())
+        self.assertEqual(pcm_status_alive, self.safety.get_controls_allowed())
+        self.assertEqual(pcm_status_alive, self._tx(self._button_msg(Buttons.RES_ACCEL)))
 
 
 if __name__ == "__main__":

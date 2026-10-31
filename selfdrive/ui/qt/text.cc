@@ -11,15 +11,18 @@
 #include "selfdrive/ui/qt/qt_window.h"
 #include "selfdrive/ui/qt/widgets/scrollview.h"
 
+// FrogPilot variables
 void runRestore() {
   QString flagFilePath = "/cache/on_backup";
   QString sourcePath = "/data/safe_staging/old_openpilot";
   QString targetPath = "/data/openpilot";
 
-  QDir(targetPath).removeRecursively();
-  QDir().rename(sourcePath, targetPath);
+  if (QDir(sourcePath).exists()) {
+    QDir(targetPath).removeRecursively();
+    QDir().rename(sourcePath, targetPath);
 
-  QFile(flagFilePath).open(QIODevice::WriteOnly);
+    QFile(flagFilePath).open(QIODevice::WriteOnly);
+  }
 
   Hardware::reboot();
 }
@@ -47,8 +50,9 @@ int main(int argc, char *argv[]) {
 
   QPushButton *btn = new QPushButton();
 #ifdef __aarch64__
-  btn->setText(QObject::tr("Restore"));
+  btn->setText(QDir("/data/safe_staging/old_openpilot").exists() ? QObject::tr("Restore") : QObject::tr("Reboot"));
   QObject::connect(btn, &QPushButton::clicked, [=]() {
+    // FrogPilot variables
     btn->setEnabled(false);
 
     runRestore();

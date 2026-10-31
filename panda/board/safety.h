@@ -91,6 +91,12 @@ bool get_longitudinal_allowed(void) {
   return controls_allowed && !gas_pressed_prev;
 }
 
+// FrogPilot variables
+bool get_aol_allowed(void) {
+  bool aol_allowed = (acc_main_on || lkas_on) && !safety_rx_checks_invalid && (alternative_experience & ALT_EXP_ALWAYS_ON_LATERAL);
+  return aol_allowed;
+}
+
 // Given a CRC-8 poly, generate a static lookup table to use with a fast CRC-8
 // algorithm. Called at init time for safety modes using CRC-8.
 void gen_crc_lookup_table_8(uint8_t poly, uint8_t crc_lut[]) {
@@ -337,7 +343,6 @@ int set_safety_hooks(uint16_t mode, uint16_t param) {
   cruise_engaged_prev = false;
   vehicle_moving = false;
   acc_main_on = false;
-  lkas_on = false;
   cruise_button_prev = 0;
   desired_torque_last = 0;
   rt_torque_last = 0;
@@ -387,9 +392,9 @@ int set_safety_hooks(uint16_t mode, uint16_t param) {
 
   // FrogPilot variables
   lkas_on = false;
-  lkas_pressed_prev = false;
+  lkas_button_prev = false;
 
-  cruise_main_prev = 0;
+  main_button_prev = false;
 
   return set_status;
 }
@@ -559,11 +564,8 @@ bool steer_torque_cmd_checks(int desired_torque, int steer_req, const SteeringLi
   bool violation = false;
   uint32_t ts = microsecond_timer_get();
 
-  bool aol_allowed = (acc_main_on || lkas_on) && (alternative_experience & ALT_EXP_ALWAYS_ON_LATERAL);
-  if (controls_allowed) {
-    // acc main must be on if controls are allowed
-    acc_main_on = controls_allowed;
-  }
+  // FrogPilot variables
+  bool aol_allowed = get_aol_allowed();
 
   if (controls_allowed || aol_allowed) {
     // *** global torque limit check ***
@@ -649,11 +651,9 @@ bool steer_torque_cmd_checks(int desired_torque, int steer_req, const SteeringLi
 // Safety checks for angle-based steering commands
 bool steer_angle_cmd_checks(int desired_angle, bool steer_control_enabled, const SteeringLimits limits) {
   bool violation = false;
-  bool aol_allowed = (acc_main_on || lkas_on) && (alternative_experience & ALT_EXP_ALWAYS_ON_LATERAL);
-  if (controls_allowed) {
-    // acc main must be on if controls are allowed
-    acc_main_on = controls_allowed;
-  }
+
+  // FrogPilot variables
+  bool aol_allowed = get_aol_allowed();
 
   if ((controls_allowed || aol_allowed) && steer_control_enabled) {
     // convert floating point angle rate limits to integers in the scale of the desired angle on CAN,

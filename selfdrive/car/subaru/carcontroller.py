@@ -32,7 +32,7 @@ class CarController(CarControllerBase):
 
     self.prev_close_distance = 0
     self.prev_cruise_state = 0
-    self.sng_acc_resume_cnt = 0
+    self.sng_acc_resume_cnt = -1
     self.standstill_start = 0
 
   def update(self, CC, CS, now_nanos, frogpilot_toggles):
@@ -194,11 +194,11 @@ class CarController(CarControllerBase):
       if trigger_resume:
         self.sng_acc_resume = True
 
-      if CC.enabled and CS.car_follow == 1 and CS.out.standstill and self.frame > self.standstill_start + 50:
-        speed_cmd = True
-
       if CS.out.standstill and not self.prev_standstill:
         self.standstill_start = self.frame
+
+      if CC.enabled and CS.car_follow == 1 and CS.out.standstill and self.frame > self.standstill_start + 50:
+        speed_cmd = True
 
       self.prev_standstill = CS.out.standstill
       self.prev_cruise_state = CS.cruise_state

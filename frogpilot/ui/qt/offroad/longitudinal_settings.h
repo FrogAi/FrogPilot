@@ -6,7 +6,7 @@ class FrogPilotLongitudinalPanel : public FrogPilotListWidget {
   Q_OBJECT
 
 public:
-  explicit FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *parent);
+  explicit FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *parent, bool forceOpen = false);
 
 signals:
   void openSubPanel();
@@ -17,21 +17,23 @@ protected:
   void showEvent(QShowEvent *event) override;
 
 private:
+  void testWeatherKey(const QString &key);
+  void updateCurveLabels();
   void updateMetric(bool metric, bool bootRun);
   void updateToggles();
 
-  bool customPersonalityOpen;
-  bool forceOpenDescriptions;
-  bool qolOpen;
-  bool slcOpen;
-  bool weatherOpen;
+  bool customPersonalityOpen = false;
+  bool forceOpenDescriptions = false;
+  bool qolOpen = false;
+  bool slcOpen = false;
+  bool weatherOpen = false;
 
-  std::map<QString, AbstractControl*> toggles;
+  std::map<QString, QWidget*> toggles;
 
   QSet<QString> advancedLongitudinalTuneKeys = {"LongitudinalActuatorDelay", "MaxDesiredAcceleration", "StartAccel", "StopAccel", "StoppingDecelRate", "VEgoStarting", "VEgoStopping"};
   QSet<QString> aggressivePersonalityKeys = {"AggressiveFollow", "AggressiveJerkAcceleration", "AggressiveJerkDeceleration", "AggressiveJerkDanger", "AggressiveJerkSpeed", "AggressiveJerkSpeedDecrease", "ResetAggressivePersonality"};
-  QSet<QString> conditionalExperimentalKeys = {"CESpeed", "CESpeedLead", "CECurves", "CELead", "CEModelStopTime", "CENavigation", "CESignalSpeed", "CEStopLights", "ShowCEMStatus"};
-  QSet<QString> curveSpeedKeys = {"CalibratedLateralAcceleration", "CalibrationProgress", "ResetCurveData", "ShowCSCStatus"};
+  QSet<QString> conditionalExperimentalKeys = {"CESpeed", "CECurves", "CELead", "CENavigation", "CESignalSpeed", "CEStopLights", "ShowCEMStatus"};
+  QSet<QString> curveSpeedKeys = {"CalibratedLateralAcceleration", "CalibrationProgress", "CurveSpeedProfile", "MaxLateralAcceleration", "ResetCurveData", "ShowCSCStatus"};
   QSet<QString> customDrivingPersonalityKeys = {"AggressivePersonalityProfile", "RelaxedPersonalityProfile", "StandardPersonalityProfile"};
   QSet<QString> longitudinalTuneKeys = {"AccelerationProfile", "DecelerationProfile", "HumanAcceleration", "HumanFollowing", "HumanLaneChanges", "LeadDetectionThreshold", "TacoTune"};
   QSet<QString> qolKeys = {"CustomCruise", "CustomCruiseLong", "ForceStops", "IncreasedStoppedDistance", "MapGears", "ReverseCruise", "SetSpeedOffset", "WeatherPresets"};
@@ -49,26 +51,28 @@ private:
 
   QSet<QString> parentKeys;
 
-  FrogPilotButtonsControl *weatherKeyControl;
+  FrogPilotButtonsControl *weatherKeyControl = nullptr;
 
-  FrogPilotParamValueControl *longitudinalActuatorDelayToggle;
-  FrogPilotParamValueControl *startAccelToggle;
-  FrogPilotParamValueControl *stopAccelToggle;
-  FrogPilotParamValueControl *stoppingDecelRateToggle;
-  FrogPilotParamValueControl *vEgoStartingToggle;
-  FrogPilotParamValueControl *vEgoStoppingToggle;
+  FrogPilotParamValueControl *ceSpeedLeadToggle = nullptr;
+  FrogPilotParamValueControl *ceSpeedToggle = nullptr;
+  FrogPilotParamValueControl *longitudinalActuatorDelayToggle = nullptr;
+  FrogPilotParamValueControl *startAccelToggle = nullptr;
+  FrogPilotParamValueControl *stopAccelToggle = nullptr;
+  FrogPilotParamValueControl *stoppingDecelRateToggle = nullptr;
+  FrogPilotParamValueControl *vEgoStartingToggle = nullptr;
+  FrogPilotParamValueControl *vEgoStoppingToggle = nullptr;
 
-  FrogPilotSettingsWindow *parent;
+  FrogPilotSettingsWindow *parent = nullptr;
 
-  LabelControl *calibratedLateralAccelerationLabel;
-  LabelControl *calibrationProgressLabel;
+  LabelControl *calibratedLateralAccelerationLabel = nullptr;
+  LabelControl *calibrationProgressLabel = nullptr;
+  LabelControl *maxLateralAccelerationLabel = nullptr;
 
   QJsonObject frogpilotToggleLevels;
 
   Params params;
   Params params_cache{"/cache/params"};
   Params params_default{"/dev/shm/params_default"};
-  Params params_memory{"/dev/shm/params"};
 
-  QNetworkAccessManager *networkManager;
+  QNetworkAccessManager *networkManager = nullptr;
 };

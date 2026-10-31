@@ -10,6 +10,8 @@ from openpilot.selfdrive.controls.lib.events import ET, Events
 from openpilot.selfdrive.controls.lib.alertmanager import AlertManager
 from openpilot.system.manager.process_config import managed_processes
 
+from openpilot.frogpilot.common import frogpilot_variables
+
 EventName = car.CarEvent.EventName
 
 def randperc() -> float:
@@ -52,7 +54,7 @@ def cycle_alerts(duration=200, is_metric=False):
   cameras = ['roadCameraState', 'wideRoadCameraState', 'driverCameraState']
 
   CS = car.CarState.new_message()
-  CP = CarInterface.get_non_essential_params("HONDA_CIVIC")
+  CP = CarInterface.get_non_essential_params("HONDA_CIVIC", frogpilot_variables.get_frogpilot_toggles())
   sm = messaging.SubMaster(['deviceState', 'pandaStates', 'roadCameraState', 'modelV2', 'liveCalibration',
                             'driverMonitoringState', 'longitudinalPlan', 'liveLocationKalman',
                             'managerState'] + cameras)
@@ -94,7 +96,7 @@ def cycle_alerts(duration=200, is_metric=False):
         sm.valid[s] = random.random() > prob
         sm.freq_ok[s] = random.random() > prob
 
-      a = events.create_alerts([et, ], [CP, CS, sm, is_metric, 0])
+      a = events.create_alerts([et, ], [CP, CS, sm, is_metric, 0, frogpilot_variables.get_frogpilot_toggles()])
       AM.add_many(frame, a)
       alert = AM.process_alerts(frame, [])
       print(alert)

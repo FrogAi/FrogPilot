@@ -159,9 +159,9 @@ class GasInterceptorSafetyTest(PandaSafetyTestBase):
 
   def test_prev_gas_interceptor(self):
     self._rx(self._interceptor_user_gas(0x0))
-    self.assertFalse(self.safety.get_gas_interceptor_prev())
+    self.assertFalse(self.safety.get_gas_pressed_prev())
     self._rx(self._interceptor_user_gas(0x1000))
-    self.assertTrue(self.safety.get_gas_interceptor_prev())
+    self.assertTrue(self.safety.get_gas_pressed_prev())
     self._rx(self._interceptor_user_gas(0x0))
 
   def test_disengage_on_gas_interceptor(self):
@@ -373,6 +373,12 @@ class TorqueSteeringSafetyTestBase(PandaSafetyTestBase, abc.ABC):
     # Turn off main, steering should be blocked again
     self._rx(self._toggle_aol(False))
     self.safety.set_desired_torque_last(torque_cmd)
+    self.assertFalse(self._tx(self._torque_cmd_msg(torque_cmd)))
+
+    self._rx(self._toggle_aol(True))
+    self.safety.set_timer(int(2e6))
+    self.safety.safety_tick_current_safety_config()
+    self._set_prev_torque(0)
     self.assertFalse(self._tx(self._torque_cmd_msg(torque_cmd)))
 
 
@@ -841,6 +847,12 @@ class AngleSteeringSafetyTest(PandaSafetyTestBase):
     # Turn off main, steering should be blocked again
     self._rx(self._toggle_aol(False))
     self._set_prev_desired_angle(angle_cmd)
+    self.assertFalse(self._tx(self._angle_cmd_msg(angle=angle_cmd, enabled=True)))
+
+    self._rx(self._toggle_aol(True))
+    self.safety.set_timer(int(2e6))
+    self.safety.safety_tick_current_safety_config()
+    self._set_prev_desired_angle(0)
     self.assertFalse(self._tx(self._angle_cmd_msg(angle=angle_cmd, enabled=True)))
 
 

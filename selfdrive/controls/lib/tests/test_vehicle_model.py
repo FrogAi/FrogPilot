@@ -6,12 +6,13 @@ from control import StateSpace
 
 from openpilot.selfdrive.car.honda.interface import CarInterface
 from openpilot.selfdrive.car.honda.values import CAR
+from openpilot.selfdrive.car.tests.test_car_interfaces import TOGGLES
 from openpilot.selfdrive.controls.lib.vehicle_model import VehicleModel, dyn_ss_sol, create_dyn_state_matrices
 
 
 class TestVehicleModel:
   def setup_method(self):
-    CP = CarInterface.get_non_essential_params(CAR.HONDA_CIVIC)
+    CP = CarInterface.get_non_essential_params(CAR.HONDA_CIVIC, TOGGLES)
     self.VM = VehicleModel(CP)
 
   def test_round_trip_yaw_rate(self):

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 from parameterized import parameterized_class
 import unittest
-from panda import Panda
+from panda import ALTERNATIVE_EXPERIENCE, Panda
 from panda.tests.libpanda import libpanda_py
 import panda.tests.safety.common as common
 from panda.tests.safety.common import CANPackerPanda
@@ -17,7 +17,7 @@ class TestHyundaiCanfdBase(HyundaiButtonBase, common.PandaCarSafetyTest, common.
 
   MAX_RATE_UP = 2
   MAX_RATE_DOWN = 3
-  MAX_TORQUE = 330
+  MAX_TORQUE = 270
 
   MAX_RT_DELTA = 112
   RT_INTERVAL = 250000
@@ -83,22 +83,16 @@ class TestHyundaiCanfdBase(HyundaiButtonBase, common.PandaCarSafetyTest, common.
     if not hasattr(self, "_aol_state"):
       self._aol_state = False
 
-    # Already in the requested state
-    if toggle_on == self._aol_state:
-      return None
+    if toggle_on != self._aol_state:
+      # Simulate button press + release
+      self._rx(self.packer.make_can_msg_panda("CRUISE_BUTTONS", self.PT_BUS, {"LFA_BTN": 1}))
+      self._rx(self.packer.make_can_msg_panda("CRUISE_BUTTONS", self.PT_BUS, {"LFA_BTN": 0}))
+      self._aol_state = toggle_on
 
-    # Simulate button press + release
-    values = {
-      "CRUISE_BUTTONS": 0,
-      "ADAPTIVE_CRUISE_MAIN_BTN": 0,
-      "LFA_BTN": 1,
-      "COUNTER": 0,
-    }
-    self._rx(self.packer.make_can_msg_panda("CRUISE_BUTTONS", self.PT_BUS, values))
-    self._rx(self.packer.make_can_msg_panda("CRUISE_BUTTONS", self.PT_BUS, {**values, "LFA_BTN": 0}))
+    return self.packer.make_can_msg_panda("CRUISE_BUTTONS", self.PT_BUS, {"LFA_BTN": 0})
 
-    self._aol_state = toggle_on
-    return None  # avoid duplicate message in harness
+  def _lkas_button_msg(self, pressed):
+    return self.packer.make_can_msg_panda("CRUISE_BUTTONS", self.PT_BUS, {"LFA_BTN": pressed})
 
 
 class TestHyundaiCanfdHDA1Base(TestHyundaiCanfdBase):
@@ -182,22 +176,16 @@ class TestHyundaiCanfdHDA1AltButtons(TestHyundaiCanfdHDA1Base):
     if not hasattr(self, "_aol_state"):
       self._aol_state = False
 
-    # Already in the requested state
-    if toggle_on == self._aol_state:
-      return None
+    if toggle_on != self._aol_state:
+      # Simulate button press + release
+      self._rx(self.packer.make_can_msg_panda("CRUISE_BUTTONS_ALT", self.PT_BUS, {"LFA_BTN": 1}))
+      self._rx(self.packer.make_can_msg_panda("CRUISE_BUTTONS_ALT", self.PT_BUS, {"LFA_BTN": 0}))
+      self._aol_state = toggle_on
 
-    # Simulate button press + release
-    values = {
-      "CRUISE_BUTTONS_ALT": 0,
-      "ADAPTIVE_CRUISE_MAIN_BTN": 0,
-      "LFA_BTN": 1,
-      "COUNTER": 0,
-    }
-    self._rx(self.packer.make_can_msg_panda("CRUISE_BUTTONS_ALT", self.PT_BUS, values))
-    self._rx(self.packer.make_can_msg_panda("CRUISE_BUTTONS_ALT", self.PT_BUS, {**values, "LFA_BTN": 0}))
+    return self.packer.make_can_msg_panda("CRUISE_BUTTONS_ALT", self.PT_BUS, {"LFA_BTN": 0})
 
-    self._aol_state = toggle_on
-    return None  # avoid duplicate message in harness
+  def _lkas_button_msg(self, pressed):
+    return self.packer.make_can_msg_panda("CRUISE_BUTTONS_ALT", self.PT_BUS, {"LFA_BTN": pressed})
 
 
 class TestHyundaiCanfdHDA2EV(TestHyundaiCanfdBase):
@@ -319,6 +307,11 @@ class TestTacoTuneHack(TestHyundaiCanfdHDA2EV):
   # 13 / 0.00868 = 1497.7. So raw speed 1497 is low, 1498 is high.
   SPEED_LOW = 1497
   SPEED_HIGH = 1498
+  SPEED = SPEED_HIGH
+
+  MAX_TORQUE = 330
+
+  DRIVER_TORQUE_ALLOWANCE = 350
 
   def setUp(self):
     self.packer = CANPackerPanda("hyundai_canfd")
@@ -328,21 +321,22 @@ class TestTacoTuneHack(TestHyundaiCanfdHDA2EV):
     self.safety.set_safety_hooks(Panda.SAFETY_HYUNDAI_CANFD, param)
     self.safety.init_tests()
 
-    self.MAX_TORQUE = super().MAX_TORQUE
-
   def test_taco_tune_hack(self):
-    # Override MAX_TORQUE to the hacked value
-    self.MAX_TORQUE = 384
-
     # Test at low speed with controls allowed
     self.safety.init_tests()
     self.safety.set_controls_allowed(True)
     self._rx(self._speed_msg(self.SPEED_LOW))
 
-    # Rate limits should be bypassed, and torque limit raised to MAX_TORQUE
     self._set_prev_torque(0)
-    self.assertTrue(self._tx(self._torque_cmd_msg(self.MAX_TORQUE)))
-    self.assertFalse(self._tx(self._torque_cmd_msg(self.MAX_TORQUE + 1)))
+    self.assertTrue(self._tx(self._torque_cmd_msg(10)))
+    self._set_prev_torque(0)
+    self.assertFalse(self._tx(self._torque_cmd_msg(11)))
+    self._set_prev_torque(0)
+    self.assertFalse(self._tx(self._torque_cmd_msg(384)))
+
+    self._set_prev_torque(381)
+    self.assertTrue(self._tx(self._torque_cmd_msg(384)))
+    self.assertFalse(self._tx(self._torque_cmd_msg(385)))
 
     # Test at low speed with controls not allowed
     self.safety.set_controls_allowed(False)
@@ -356,46 +350,80 @@ class TestTacoTuneHack(TestHyundaiCanfdHDA2EV):
 
     # Normal rate limits should apply
     self._set_prev_torque(0)
-    self.assertTrue(self._tx(self._torque_cmd_msg(self.MAX_RATE_UP)))
+    self.assertTrue(self._tx(self._torque_cmd_msg(2)))
     self._set_prev_torque(0)  # Reset prev_torque to test the limit from 0
-    self.assertFalse(self._tx(self._torque_cmd_msg(self.MAX_RATE_UP + 1)))
+    self.assertFalse(self._tx(self._torque_cmd_msg(3)))
 
     # Normal max torque should apply
-    self._set_prev_torque(super().MAX_TORQUE - 1)
-    self.assertTrue(self._tx(self._torque_cmd_msg(super().MAX_TORQUE)))
-    self.assertFalse(self._tx(self._torque_cmd_msg(super().MAX_TORQUE + 1)))
+    self._set_prev_torque(329)
+    self.assertTrue(self._tx(self._torque_cmd_msg(330)))
+    self.assertFalse(self._tx(self._torque_cmd_msg(331)))
+
+  def test_taco_tune_hack_aol_with_acc_main(self):
+    self.safety.set_alternative_experience(ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL)
+    self.safety.set_controls_allowed(False)
+    self._rx(self._speed_msg(self.SPEED_LOW))
+    self._rx(self.packer.make_can_msg_panda("SCC_CONTROL", self.SCC_BUS, {"MainMode_ACC": 1}))
+    self._set_prev_torque(0)
+    self.assertTrue(self._tx(self._torque_cmd_msg(1)))
+
+    self._rx(self.packer.make_can_msg_panda("SCC_CONTROL", self.SCC_BUS, {"MainMode_ACC": 0}))
+    self._set_prev_torque(0)
+    self.assertFalse(self._tx(self._torque_cmd_msg(1)))
+
+  def test_taco_tune_hack_aol_rx_checks_invalid(self):
+    self.safety.set_alternative_experience(ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL)
+    self.safety.set_controls_allowed(False)
+    self._rx(self._speed_msg(self.SPEED_LOW))
+    self._rx(self.packer.make_can_msg_panda("SCC_CONTROL", self.SCC_BUS, {"MainMode_ACC": 1}))
+    self._set_prev_torque(0)
+    self.assertTrue(self._tx(self._torque_cmd_msg(1)))
+
+    self.safety.set_timer(int(2e6))
+    self.safety.safety_tick_current_safety_config()
+    self.assertFalse(self.safety.safety_config_valid())
+    self.assertFalse(self._tx(self._torque_cmd_msg(1)))
 
   def test_against_torque_driver(self):
-    self._rx(self._speed_msg(self.SPEED_HIGH))
+    self._rx(self._speed_msg(self.SPEED))
     super().test_against_torque_driver()
 
   def test_steer_req_bit_realtime(self):
-    self._rx(self._speed_msg(self.SPEED_HIGH))
+    self._rx(self._speed_msg(self.SPEED))
     super().test_steer_req_bit_realtime()
 
   def test_steer_req_bit_frames(self):
-    self._rx(self._speed_msg(self.SPEED_HIGH))
+    self._rx(self._speed_msg(self.SPEED))
     super().test_steer_req_bit_frames()
 
   def test_steer_req_bit_multi_invalid(self):
-    self._rx(self._speed_msg(self.SPEED_HIGH))
+    self._rx(self._speed_msg(self.SPEED))
     super().test_steer_req_bit_multi_invalid()
 
   def test_steer_safety_check(self):
-    self._rx(self._speed_msg(self.SPEED_HIGH))
+    self._rx(self._speed_msg(self.SPEED))
     super().test_steer_safety_check()
 
   def test_steer_req_bit(self):
-    self._rx(self._speed_msg(self.SPEED_HIGH))
+    self._rx(self._speed_msg(self.SPEED))
     super().test_steer_req_bit()
 
   def test_non_realtime_limit_up(self):
-    self._rx(self._speed_msg(self.SPEED_HIGH))
+    self._rx(self._speed_msg(self.SPEED))
     super().test_non_realtime_limit_up()
 
   def test_realtime_limits(self):
-    self._rx(self._speed_msg(self.SPEED_HIGH))
+    self._rx(self._speed_msg(self.SPEED))
     super().test_realtime_limits()
+
+
+class TestTacoTuneHackLowSpeed(TestTacoTuneHack):
+
+  SPEED = TestTacoTuneHack.SPEED_LOW
+
+  MAX_RATE_UP = 10
+  MAX_RT_DELTA = 375
+  MAX_TORQUE = 384
 
 
 if __name__ == "__main__":

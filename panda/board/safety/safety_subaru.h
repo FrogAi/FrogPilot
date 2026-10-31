@@ -17,8 +17,11 @@
   }
 
 
-const SteeringLimits SUBARU_STEERING_LIMITS      = SUBARU_STEERING_LIMITS_GENERATOR(3071, 50, 70);
+const SteeringLimits SUBARU_STEERING_LIMITS      = SUBARU_STEERING_LIMITS_GENERATOR(2047, 50, 70);
 const SteeringLimits SUBARU_GEN2_STEERING_LIMITS = SUBARU_STEERING_LIMITS_GENERATOR(1500, 35, 50);
+
+// FrogPilot variables
+const SteeringLimits SUBARU_RAISED_STEERING_LIMITS = SUBARU_STEERING_LIMITS_GENERATOR(3071, 50, 70);
 
 
 const LongitudinalLimits SUBARU_LONG_LIMITS = {
@@ -119,12 +122,24 @@ const uint16_t SUBARU_PARAM_LONGITUDINAL = 2;
 
 // FrogPilot variables
 const uint16_t SUBARU_PARAM_SNG = 1024;
+const uint16_t SUBARU_PARAM_RAISED_STEER_LIMIT = 2048;
 
 bool subaru_gen2 = false;
 bool subaru_longitudinal = false;
 
 // FrogPilot variables
 bool subaru_sng = false;
+bool subaru_raised_steer_limit = false;
+
+typedef struct {
+  bool active;
+  uint32_t ts_last;
+} SubaruSngTx;
+
+const uint32_t SUBARU_SNG_TX_TIMEOUT = 100000U;
+
+SubaruSngTx subaru_throttle_tx = {.active = false, .ts_last = 0U};
+SubaruSngTx subaru_brake_pedal_tx = {.active = false, .ts_last = 0U};
 
 
 static uint32_t subaru_get_checksum(const CANPacket_t *to_push) {
@@ -143,6 +158,21 @@ static uint32_t subaru_compute_checksum(const CANPacket_t *to_push) {
     checksum += (uint8_t)GET_BYTE(to_push, i);
   }
   return checksum;
+}
+
+// FrogPilot variables
+static void subaru_sng_tx_update(SubaruSngTx *sng_tx) {
+  sng_tx->active = true;
+  sng_tx->ts_last = microsecond_timer_get();
+}
+
+// FrogPilot variables
+static bool subaru_sng_tx_active(SubaruSngTx *sng_tx) {
+  uint32_t ts_elapsed = get_ts_elapsed(microsecond_timer_get(), sng_tx->ts_last);
+  if (ts_elapsed > SUBARU_SNG_TX_TIMEOUT) {
+    sng_tx->active = false;
+  }
+  return sng_tx->active;
 }
 
 static void subaru_rx_hook(const CANPacket_t *to_push) {
@@ -206,7 +236,10 @@ static bool subaru_tx_hook(const CANPacket_t *to_send) {
 
     bool steer_req = GET_BIT(to_send, 29U);
 
-    const SteeringLimits limits = subaru_gen2 ? SUBARU_GEN2_STEERING_LIMITS : SUBARU_STEERING_LIMITS;
+    // FrogPilot variables
+    const SteeringLimits gen1_limits = subaru_raised_steer_limit ? SUBARU_RAISED_STEERING_LIMITS : SUBARU_STEERING_LIMITS;
+
+    const SteeringLimits limits = subaru_gen2 ? SUBARU_GEN2_STEERING_LIMITS : gen1_limits;
     violation |= steer_torque_cmd_checks(desired_torque, steer_req, limits);
   }
 
@@ -250,6 +283,10 @@ static bool subaru_tx_hook(const CANPacket_t *to_send) {
   // FrogPilot variables
   if ((addr == MSG_SUBARU_Throttle) || (addr == MSG_SUBARU_Brake_Pedal)) {
     violation |= !subaru_sng;
+
+    if (subaru_sng && ((int)GET_BUS(to_send) == SUBARU_CAM_BUS)) {
+      subaru_sng_tx_update((addr == MSG_SUBARU_Throttle) ? &subaru_throttle_tx : &subaru_brake_pedal_tx);
+    }
   }
 
   if (violation){
@@ -263,7 +300,13 @@ static int subaru_fwd_hook(int bus_num, int addr) {
 
   if (bus_num == SUBARU_MAIN_BUS) {
     // FrogPilot variables
-    bool block_msg = subaru_sng && ((addr == MSG_SUBARU_Throttle) || (addr == MSG_SUBARU_Brake_Pedal));
+    bool block_msg = false;
+    if (addr == MSG_SUBARU_Throttle) {
+      block_msg = subaru_sng_tx_active(&subaru_throttle_tx);
+    }
+    if (addr == MSG_SUBARU_Brake_Pedal) {
+      block_msg = subaru_sng_tx_active(&subaru_brake_pedal_tx);
+    }
     if (!block_msg) {
       bus_fwd = SUBARU_CAM_BUS;  // to the eyesight camera
     }
@@ -294,6 +337,9 @@ static safety_config subaru_init(uint16_t param) {
 
   // FrogPilot variables
   subaru_sng = GET_FLAG(param, SUBARU_PARAM_SNG);
+  subaru_throttle_tx.active = false;
+  subaru_brake_pedal_tx.active = false;
+  subaru_raised_steer_limit = GET_FLAG(param, SUBARU_PARAM_RAISED_STEER_LIMIT);
 
 #ifdef ALLOW_DEBUG
   subaru_longitudinal = GET_FLAG(param, SUBARU_PARAM_LONGITUDINAL);

@@ -19,6 +19,7 @@ from openpilot.selfdrive.car.fingerprints import all_known_cars, MIGRATION
 from openpilot.selfdrive.car.car_helpers import FRAME_FINGERPRINT, interfaces
 from openpilot.selfdrive.car.honda.values import CAR as HONDA, HondaFlags
 from openpilot.selfdrive.car.tests.routes import non_tested_cars, routes, CarTestRoute
+from openpilot.selfdrive.car.tests.test_car_interfaces import TOGGLES
 from openpilot.selfdrive.car.values import Platform
 from openpilot.selfdrive.test.helpers import read_segment_list
 from openpilot.system.hardware.hw import DEFAULT_DOWNLOAD_CACHE_ROOT
@@ -170,7 +171,8 @@ class TestCarModelBase(unittest.TestCase):
     cls.can_msgs = sorted(can_msgs, key=lambda msg: msg.logMonoTime)
 
     cls.CarInterface, cls.CarController, cls.CarState = interfaces[cls.platform]
-    cls.CP = cls.CarInterface.get_params(cls.platform,  cls.fingerprint, car_fw, experimental_long, docs=False)
+    cls.CP = cls.CarInterface.get_params(cls.platform,  cls.fingerprint, car_fw, experimental_long, TOGGLES, docs=False)
+    cls.FPCP = cls.CarInterface.get_frogpilot_params(cls.platform, cls.fingerprint, car_fw, cls.CP, TOGGLES)
     assert cls.CP
     assert cls.CP.carFingerprint == cls.platform
 
@@ -181,7 +183,7 @@ class TestCarModelBase(unittest.TestCase):
     del cls.can_msgs
 
   def setUp(self):
-    self.CI = self.CarInterface(self.CP.copy(), self.CarController, self.CarState)
+    self.CI = self.CarInterface(self.CP.copy(), self.FPCP, self.CarController, self.CarState)
     assert self.CI
 
     Params().put_bool("OpenpilotEnabledToggle", self.openpilot_enabled)
@@ -190,7 +192,8 @@ class TestCarModelBase(unittest.TestCase):
     self.safety = libpanda_py.libpanda
 
     cfg = self.CP.safetyConfigs[-1]
-    set_status = self.safety.set_safety_hooks(cfg.safetyModel.raw, cfg.safetyParam)
+    safety_param = cfg.safetyParam | self.FPCP.safetyConfigs[-1].safetyParam
+    set_status = self.safety.set_safety_hooks(cfg.safetyModel.raw, safety_param)
     self.assertEqual(0, set_status, f"failed to set safetyModel {cfg}")
     self.safety.init_tests()
 
@@ -206,7 +209,7 @@ class TestCarModelBase(unittest.TestCase):
       if tuning == 'pid':
         self.assertTrue(len(self.CP.lateralTuning.pid.kpV))
       elif tuning == 'torque':
-        self.assertTrue(self.CP.lateralTuning.torque.kf > 0)
+        self.assertTrue(self.CP.lateralTuning.torque.latAccelFactor > 0)
       else:
         raise Exception("unknown tuning")
 
@@ -217,8 +220,8 @@ class TestCarModelBase(unittest.TestCase):
     CC = car.CarControl.new_message().as_reader()
 
     for i, msg in enumerate(self.can_msgs):
-      CS = self.CI.update(CC, (msg.as_builder().to_bytes(),))
-      self.CI.apply(CC, msg.logMonoTime)
+      CS, _ = self.CI.update(CC, (msg.as_builder().to_bytes(),), TOGGLES)
+      self.CI.apply(CC, msg.logMonoTime, TOGGLES)
 
       if CS.canValid:
         can_valid = True
@@ -291,10 +294,10 @@ class TestCarModelBase(unittest.TestCase):
     def test_car_controller(car_control):
       now_nanos = 0
       msgs_sent = 0
-      CI = self.CarInterface(self.CP, self.CarController, self.CarState)
+      CI = self.CarInterface(self.CP, self.FPCP, self.CarController, self.CarState)
       for _ in range(round(10.0 / DT_CTRL)):  # make sure we hit the slowest messages
-        CI.update(car_control, [])
-        _, sendcan = CI.apply(car_control, now_nanos)
+        CI.update(car_control, [], TOGGLES)
+        _, sendcan = CI.apply(car_control, now_nanos, TOGGLES)
 
         now_nanos += DT_CTRL * 1e9
         msgs_sent += len(sendcan)
@@ -358,7 +361,7 @@ class TestCarModelBase(unittest.TestCase):
       can = messaging.new_message('can', 1)
       can.can = [log.CanData(address=address, dat=dat, src=bus)]
 
-      CS = self.CI.update(CC, (can.to_bytes(),))
+      CS, _ = self.CI.update(CC, (can.to_bytes(),), TOGGLES)
 
       if self.safety.get_gas_pressed_prev() != prev_panda_gas:
         self.assertEqual(CS.gasPressed, self.safety.get_gas_pressed_prev())
@@ -397,7 +400,7 @@ class TestCarModelBase(unittest.TestCase):
 
     # warm up pass, as initial states may be different
     for can in self.can_msgs[:300]:
-      self.CI.update(CC, (can.as_builder().to_bytes(), ))
+      self.CI.update(CC, (can.as_builder().to_bytes(), ), TOGGLES)
       for msg in filter(lambda m: m.src in range(64), can.can):
         to_send = libpanda_py.make_CANPacket(msg.address, msg.src % 4, msg.dat)
         self.safety.safety_rx_hook(to_send)
@@ -407,7 +410,7 @@ class TestCarModelBase(unittest.TestCase):
     checks = defaultdict(int)
     card = Car(CI=self.CI)
     for idx, can in enumerate(self.can_msgs):
-      CS = self.CI.update(CC, (can.as_builder().to_bytes(), ))
+      CS, _ = self.CI.update(CC, (can.as_builder().to_bytes(), ), TOGGLES)
       for msg in filter(lambda m: m.src in range(64), can.can):
         to_send = libpanda_py.make_CANPacket(msg.address, msg.src % 4, msg.dat)
         ret = self.safety.safety_rx_hook(to_send)

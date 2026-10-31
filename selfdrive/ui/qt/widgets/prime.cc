@@ -94,6 +94,7 @@ PairingPopup::PairingPopup(QWidget *parent) : DialogBase(parent) {
     title->setWordWrap(true);
     vlayout->addWidget(title);
 
+    // FrogPilot variables
     QString serverUrl = useKonikServer() ? "stable.konik.ai" : "connect.comma.ai";
 
     QLabel *instructions = new QLabel(QString(R"(
