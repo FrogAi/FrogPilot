@@ -181,6 +181,7 @@ class SpeedLimitController:
         self.frogpilot_toggles.speed_limit_priority2,
         self.frogpilot_toggles.speed_limit_priority3,
       )
+
       desired_source = next((source for source in priorities if source in limits), frogpilot_variables.SPEED_LIMIT_SOURCES["NONE"])
 
     desired_target = limits.get(desired_source, 0)

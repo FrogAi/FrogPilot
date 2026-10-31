@@ -159,11 +159,12 @@ P.act("backups-reset", async button => {
     icon: "alert", tone: "danger", confirmTone: "danger",
     title: stock ? "Reset to stock openpilot?" : "Reset to FrogPilot defaults?",
     body: `<p>${stock ? "FrogPilot's features are turned off and openpilot's own settings are used." : "Every FrogPilot setting goes back to how it shipped."}</p>
-      ${P.lossList(["Saved keys (Mapbox, weather, and Toyota security keys)", "Favorite places", "Discord name", "Timezone", "Map settings", "Speed Limit Filler data", "Tailscale sign-in"], ["Drives", "Backups", "Downloaded themes", "Learned driving data"])}
+      ${P.lossList(["Saved keys (Mapbox, weather, and Toyota security keys)", "Favorite places", "Discord name", "Timezone", "Map settings", "Speed Limit Filler data", "FrogPilot Stats", "Paired browsers", "Tailscale sign-in"], ["Drives", "Backups", "Downloaded themes", "Learned driving data"])}
+      <p>SSH and tethering are turned off. If “Pairing Code” is on, every browser, this one included, pairs again with a new code.</p>
       <p><button type="button" class="btn btn-text btn-small backups-first" data-act="backups-now">${P.ic("plus")}Back up my settings first</button></p>
       <div class="notice danger" data-backup-failure role="alert" hidden>${P.ic("alert")}<span></span></div>`,
     confirm: stock ? "Erase and reset to stock" : "Erase and reset to defaults",
-    requireCheck: "I understand my saved keys, favorite places, Discord name, timezone, map settings, Speed Limit Filler data, and Tailscale sign-in are erased"
+    requireCheck: "I understand my saved keys, favorite places, Discord name, timezone, map settings, Speed Limit Filler data, FrogPilot Stats, paired browsers, and Tailscale sign-in are erased"
   });
   if (!ok) {
     return;

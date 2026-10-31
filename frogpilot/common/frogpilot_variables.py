@@ -69,15 +69,12 @@ RANDOM_EVENT_START = custom.FrogPilotOnroadEvent.EventName.accel30
 RESET_REMOVED_KEYS = {
   "CarParamsPersistent",
   "CarParamsPrevRoute",
-  "FrogPilotStats",
   "FrogPilotTelemetry",
   "FrogPilotTelemetryConfirmed",
   "GithubSshKeys",
   "GithubUsername",
   "LastGPSPosition",
-  "SecOCKey",
-  "SshEnabled",
-  "ThePondPairedBrowsers"
+  "SshEnabled"
 }
 
 SECOC_KEY_PATTERN = re.compile(r"[0-9A-Fa-f]{32}")

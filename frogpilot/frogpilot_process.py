@@ -258,7 +258,7 @@ def update_checks(now, model_manager, speed_limit_reader_models, theme_manager, 
   with model_manager.download_lock:
     model_manager.update_models(not sm["deviceState"].networkMetered and frogpilot_toggles.automatically_download_models)
 
-  if frogpilot_toggles.speed_limit_controller or frogpilot_toggles.speed_limit_filler:
+  if frogpilot_toggles.show_speed_limits or frogpilot_toggles.speed_limit_controller or frogpilot_toggles.speed_limit_filler:
     speed_limit_reader_models.update(sm)
 
 def update_toggles(variables, started, model_manager, theme_manager, thread_manager, time_validated, params):

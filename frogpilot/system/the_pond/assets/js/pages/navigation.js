@@ -3,7 +3,6 @@
 
 const P = window.Pond;
 
-const DAY_SECONDS = 86400;
 const FAVORITE_TYPES = { home: { icon: "home", label: "Home" }, work: { icon: "flag", label: "Work" } };
 const MAPBOX_API_URL = "https://api.mapbox.com";
 const MESSAGES = {
@@ -180,7 +179,7 @@ async function saveFavorite(place) {
 function arrival(seconds) {
   const time = P.now() + seconds;
 
-  if (seconds < DAY_SECONDS) {
+  if (P.dayIndex(time) === P.dayIndex(P.now())) {
     return P.timeLabel(time);
   }
 
@@ -216,7 +215,7 @@ function routeHTML(entry) {
     return `<div class="notice danger">${P.ic("alert")}<span><b>${entry.error.title}</b> ${entry.error.detail}</span></div>`;
   }
 
-  return `<div class="nav-map" data-nav-map aria-label="Map of the route" role="img"></div>
+  return `<div class="nav-map" data-nav-map></div>
     <dl class="kv nav-stats" data-nav-stats>${statsHTML(entry)}</dl>
     ${routeButtons(entry)}
     <p class="hint nav-route-hint">FrogPilot plans its own route, which may differ from these previews.</p>`;
@@ -307,7 +306,7 @@ async function drawMap(holder, place, entry) {
     return;
   }
 
-  const start = [lastPosition.longitude, lastPosition.latitude];
+  const start = entry.start;
   const end = [place.longitude, place.latitude];
   const bounds = new mapboxgl.LngLatBounds(start, start);
 
@@ -329,8 +328,7 @@ async function drawMap(holder, place, entry) {
 
     shown.off("error", fail);
     removeMap();
-    holder.outerHTML = `<div class="notice danger nav-map-failed">${P.ic("alert")}<span><b>The map didn't load</b>
-      Check your Mapbox public key on the <a class="link" href="/keys">Keys</a> page.</span></div>`;
+    holder.outerHTML = `<div class="notice danger">${P.ic("alert")}<span><b>The map didn't load</b> Try again in a moment.</span></div>`;
   };
 
   shown.on("error", fail);
@@ -343,9 +341,6 @@ async function drawMap(holder, place, entry) {
     entry.routes.forEach((route, index) => {
       shown.addSource(`route-${index}`, { data: { geometry: route.geometry, type: "Feature" }, type: "geojson" });
       shown.addLayer({ id: `route-${index}`, layout, paint: routePaint(index === entry.selected), source: `route-${index}`, type: "line" });
-      shown.on("click", `route-${index}`, () => {
-        selectRoute(index);
-      });
     });
 
     shown.addSource("start", point(start));
@@ -358,11 +353,12 @@ async function drawMap(holder, place, entry) {
 
 async function loadRoutes(place) {
   const key = placeKey(place);
-  const entry = { error: null, routes: null, selected: 0 };
+  const entry = { error: null, routes: null, selected: 0, start: null };
   previews.set(key, entry);
 
   if (lastPosition) {
-    const path = `directions/v5/mapbox/driving-traffic/${lastPosition.longitude},${lastPosition.latitude};${place.longitude},${place.latitude}`;
+    entry.start = [lastPosition.longitude, lastPosition.latitude];
+    const path = `directions/v5/mapbox/driving-traffic/${entry.start.join(",")};${place.longitude},${place.latitude}`;
 
     try {
       const data = await mapbox(path, { alternatives: "true", geometries: "geojson", overview: "full" });
@@ -386,6 +382,10 @@ async function loadRoutes(place) {
 
   if (shown && placeKey(shown) === key) {
     showPreview();
+  }
+
+  if (entry.error) {
+    previews.delete(key);
   }
 }
 
