@@ -240,11 +240,8 @@ def main() -> NoReturn:
     cloudlog.warning("caught sig disabling quectel gps")
 
     gpio_set(GPIO.GNSS_PWR_EN, False)
-    try:
-      teardown_quectel(diag)
-      cloudlog.warning("quectel cleanup done")
-    except NameError:
-      cloudlog.warning('quectel not yet setup')
+    teardown_quectel(diag)
+    cloudlog.warning("quectel cleanup done")
 
     stop_download_event.set()
     assist_fetch_proc.kill()

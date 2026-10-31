@@ -9,6 +9,8 @@ from openpilot.common.filter_simple import FirstOrderFilter
 from openpilot.common.stat_live import RunningStatFilter
 from openpilot.common.transformations.camera import DEVICE_CAMERAS
 
+from openpilot.frogpilot.common import frogpilot_variables
+
 EventName = car.CarEvent.EventName
 
 # ******************************************************************************************
@@ -392,6 +394,9 @@ class DriverMonitoring:
     return dat
 
   def run_step(self, sm):
+    # FrogPilot variables
+    always_on_lateral_active = sm['frogpilotCarState'].alwaysOnLateralAllowed and sm['carState'].gearShifter not in frogpilot_variables.NON_DRIVING_GEARS
+
     # Set strictness
     self._set_policy(
       model_data=sm['modelV2'],
@@ -403,13 +408,13 @@ class DriverMonitoring:
       driver_state=sm['driverStateV2'],
       cal_rpy=sm['liveCalibration'].rpyCalib,
       car_speed=sm['carState'].vEgo,
-      op_engaged=sm['controlsState'].enabled or sm['carControl'].latActive
+      op_engaged=sm['controlsState'].enabled or always_on_lateral_active
     )
 
     # Update distraction events
     self._update_events(
       driver_engaged=sm['carState'].steeringPressed or sm['carState'].gasPressed,
-      op_engaged=sm['controlsState'].enabled or sm['carControl'].latActive,
+      op_engaged=sm['controlsState'].enabled or always_on_lateral_active,
       standstill=sm['carState'].standstill,
       wrong_gear=sm['carState'].gearShifter in [car.CarState.GearShifter.reverse, car.CarState.GearShifter.park],
       car_speed=sm['carState'].vEgo

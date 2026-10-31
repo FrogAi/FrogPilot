@@ -55,7 +55,7 @@ typedef enum UIStatus {
 
   // FrogPilot statuses
   STATUS_ALWAYS_ON_LATERAL_ACTIVE,
-  STATUS_CONDITIONAL_OVERRIDDEN,
+  STATUS_CEM_DISABLED,
   STATUS_EXPERIMENTAL_MODE_ENABLED,
   STATUS_NAVIGATION_ACTIVE,
   STATUS_TRAFFIC_MODE_ENABLED,
@@ -79,7 +79,7 @@ const QColor bg_colors [] = {
 
   // FrogPilot colors
   [STATUS_ALWAYS_ON_LATERAL_ACTIVE] = QColor(0x0a, 0xba, 0xb5, 0xf1),
-  [STATUS_CONDITIONAL_OVERRIDDEN] = QColor(0xff, 0xff, 0x00, 0xf1),
+  [STATUS_CEM_DISABLED] = QColor(0xff, 0xff, 0x00, 0xf1),
   [STATUS_EXPERIMENTAL_MODE_ENABLED] = QColor(0xda, 0x6f, 0x25, 0xf1),
   [STATUS_NAVIGATION_ACTIVE] = QColor(0x31, 0xa1, 0xee, 0xf1),
   [STATUS_TRAFFIC_MODE_ENABLED] = QColor(0xc9, 0x22, 0x31, 0xf1),
@@ -111,7 +111,9 @@ typedef struct UIScene {
   float driver_pose_coss[3];
   vec3 face_kpts_draw[std::size(default_face_kpts_3d)];
 
+  // FrogPilot variables
   bool navigate_on_openpilot = false;
+
   cereal::LongitudinalPersonality personality;
 
   float light_sensor = -1;
@@ -173,6 +175,11 @@ public:
     offroad_brightness = std::clamp(brightness, 0, 100);
   }
 
+  // FrogPilot variables
+  bool isDark() {
+    return dark;
+  }
+
 private:
   bool awake = false;
   int interactive_timeout = 0;
@@ -183,6 +190,9 @@ private:
   FirstOrderFilter brightness_filter;
   QFuture<void> brightness_future;
 
+  // FrogPilot variables
+  bool dark = false;
+
   void updateBrightness(const UIState &s, const FrogPilotUIState &fs);
   void updateWakefulness(const UIState &s, const FrogPilotUIState &fs);
   void setAwake(bool on);
@@ -192,7 +202,7 @@ signals:
   void interactiveTimeout();
 
 public slots:
-  void resetInteractiveTimeout(int timeout = -1, int timeout_onroad = -1);
+  void resetInteractiveTimeout(int timeout = -1);
   void update(const UIState &s, const FrogPilotUIState &fs);
 };
 

@@ -29,6 +29,12 @@ uint8_t hyundai_last_button_interaction;  // button messages since the user pres
 
 uint16_t hyundai_canfd_crc_lut[256];
 
+// FrogPilot variables
+bool hyundai_acc_enabled = false;
+bool hyundai_main_cruise_button_prev = false;
+bool hyundai_main_cruise_on = false;
+bool hyundai_rx_checks_invalid_prev = false;
+
 void hyundai_common_init(uint16_t param) {
   hyundai_ev_gas_signal = GET_FLAG(param, HYUNDAI_PARAM_EV_GAS);
   hyundai_hybrid_gas_signal = !hyundai_ev_gas_signal && GET_FLAG(param, HYUNDAI_PARAM_HYBRID_GAS);
@@ -43,6 +49,12 @@ void hyundai_common_init(uint16_t param) {
 #else
   hyundai_longitudinal = false;
 #endif
+
+  // FrogPilot variables
+  hyundai_acc_enabled = false;
+  hyundai_main_cruise_button_prev = false;
+  hyundai_main_cruise_on = false;
+  hyundai_rx_checks_invalid_prev = false;
 }
 
 void hyundai_common_cruise_state_check(const bool cruise_engaged) {
@@ -63,15 +75,6 @@ void hyundai_common_cruise_state_check(const bool cruise_engaged) {
 }
 
 void hyundai_common_cruise_buttons_check(const int cruise_button, const bool main_button) {
-  // FrogPilot variables
-  if (main_button && main_button != cruise_main_prev) {
-    if (acc_main_on && (alternative_experience & ALT_EXP_ALWAYS_ON_LATERAL)) {
-      controls_allowed = false;
-    }
-    acc_main_on = !acc_main_on;
-  }
-  cruise_main_prev = main_button;
-
   if ((cruise_button == HYUNDAI_BTN_RESUME) || (cruise_button == HYUNDAI_BTN_SET) || (cruise_button == HYUNDAI_BTN_CANCEL) || main_button) {
     hyundai_last_button_interaction = 0U;
   } else {
@@ -93,14 +96,6 @@ void hyundai_common_cruise_buttons_check(const int cruise_button, const bool mai
 
     cruise_button_prev = cruise_button;
   }
-}
-
-// FrogPilot variables
-void hyundai_lkas_button_check(const bool lkas_pressed) {
-  if (lkas_pressed && !lkas_pressed_prev) {
-    lkas_on = true;
-  }
-  lkas_pressed_prev = lkas_pressed;
 }
 
 uint32_t hyundai_common_canfd_compute_checksum(const CANPacket_t *to_push) {
@@ -126,6 +121,21 @@ uint32_t hyundai_common_canfd_compute_checksum(const CANPacket_t *to_push) {
   }
 
   return crc;
+}
+
+// FrogPilot variables
+void hyundai_common_main_cruise_check(const bool main_button) {
+  if (safety_rx_checks_invalid && !hyundai_rx_checks_invalid_prev) {
+    hyundai_main_cruise_on = false;
+  }
+  hyundai_rx_checks_invalid_prev = safety_rx_checks_invalid;
+
+  if (main_button && !hyundai_main_cruise_button_prev) {
+    hyundai_main_cruise_on = !hyundai_main_cruise_on;
+  }
+  hyundai_main_cruise_button_prev = main_button;
+
+  acc_main_on = hyundai_main_cruise_on && hyundai_acc_enabled;
 }
 
 #endif

@@ -1,14 +1,12 @@
 #pragma once
 
-#include <set>
-
 #include "frogpilot/ui/qt/offroad/frogpilot_settings.h"
 
 class FrogPilotModelPanel : public FrogPilotListWidget {
   Q_OBJECT
 
 public:
-  explicit FrogPilotModelPanel(FrogPilotSettingsWindow *parent);
+  explicit FrogPilotModelPanel(FrogPilotSettingsWindow *parent, bool forceOpen = false);
 
 signals:
   void openSubPanel();
@@ -21,35 +19,34 @@ private:
   void updateState(const UIState &s, const FrogPilotUIState &fs);
   void updateToggles();
 
-  bool allModelsDownloaded;
-  bool allModelsDownloading;
-  bool cancellingDownload;
-  bool finalizingDownload;
-  bool forceOpenDescriptions;
-  bool modelDownloading;
-  bool noModelsDownloaded;
-  bool started;
+  bool allModelsDownloaded = false;
+  bool allModelsDownloading = false;
+  bool cancellingDownload = false;
+  bool finalizingDownload = false;
+  bool forceOpenDescriptions = false;
+  bool modelDownloading = false;
+  bool noModelsDownloaded = false;
 
   std::map<QString, AbstractControl*> toggles;
 
-  ButtonControl *selectModelButton;
+  ButtonControl *selectModelButton = nullptr;
 
-  FrogPilotButtonsControl *deleteModelButton;
-  FrogPilotButtonsControl *downloadModelButton;
+  FrogPilotButtonsControl *deleteModelButton = nullptr;
+  FrogPilotButtonsControl *downloadModelButton = nullptr;
 
-  FrogPilotSettingsWindow *parent;
+  FrogPilotSettingsWindow *parent = nullptr;
 
   Params params;
-  Params params_cache{"/cache/params"};
   Params params_default{"/dev/shm/params_default"};
-  Params params_memory{"/dev/shm/params"};
 
   QDir modelDir{"/data/models/"};
 
+  QMap<QString, QString> getDeletableModels();
   QMap<QString, QString> modelFileToNameMap;
   QMap<QString, QString> modelFileToNameMapProcessed;
 
   QString currentModel;
 
   QStringList availableModelNames;
+  QStringList getDownloadableModels();
 };

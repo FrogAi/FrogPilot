@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import unittest
 import numpy as np
-from panda import Panda
+from panda import ALTERNATIVE_EXPERIENCE, Panda
 from panda.tests.libpanda import libpanda_py
 import panda.tests.safety.common as common
 from panda.tests.safety.common import CANPackerPanda
@@ -22,7 +22,7 @@ MSG_ACC_02 = 0x30C      # TX by OP, ACC HUD data to the instrument cluster
 MSG_LDW_02 = 0x397      # TX by OP, Lane line recognition and text alerts
 
 
-class TestVolkswagenMqbSafety(common.PandaCarSafetyTest, common.DriverTorqueSteeringSafetyTest):
+class TestVolkswagenMqbSafety(common.PandaCarSafetyTest, common.DriverTorqueSteeringSafetyTest, common.AlwaysOnLateralSafetyTest):
   STANDSTILL_THRESHOLD = 0
   RELAY_MALFUNCTION_ADDRS = {0: (MSG_HCA_01,)}
 
@@ -134,10 +134,12 @@ class TestVolkswagenMqbSafety(common.PandaCarSafetyTest, common.DriverTorqueStee
     self.assertEqual(0, self.safety.get_torque_driver_max())
     self.assertEqual(0, self.safety.get_torque_driver_min())
 
-  # FrogPilot tests
-  def _toggle_aol(self, toggle_on):
-    # TSK_06, TSK_Status is the cruise state, 2 is standby
-    return self._tsk_status_msg(False, main_switch=toggle_on)
+  # FrogPilot variables
+  def _acc_state_msg(self, on):
+    return self._tsk_status_msg(False, main_switch=on)
+
+  def _lkas_press_msg(self, pressed):
+    return None
 
 
 class TestVolkswagenMqbStockSafety(TestVolkswagenMqbSafety):
@@ -159,6 +161,23 @@ class TestVolkswagenMqbStockSafety(TestVolkswagenMqbSafety):
     # do not block resume if we are engaged already
     self.safety.set_controls_allowed(1)
     self.assertTrue(self._tx(self._gra_acc_01_msg(resume=1)))
+
+  # FrogPilot variables
+  def test_main_press(self):
+    for alternative_experience in (0, ALTERNATIVE_EXPERIENCE.DISABLE_DISENGAGE_ON_GAS, ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL):
+      self.safety.set_alternative_experience(alternative_experience)
+      always_on_lateral = alternative_experience == ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL
+
+      for main_on in (False, True):
+        self._rx(self._tsk_status_msg(False, main_switch=main_on))
+
+        for bus in (0, 2):
+          for main_press in (0, 1):
+            # Two frames in a row, so the counter that shares the main switch's byte takes both parities
+            for _ in range(2):
+              sent = self._tx(self.packer.make_can_msg_panda("GRA_ACC_01", bus, {"GRA_Hauptschalter": main_press}))
+
+              self.assertEqual(main_on or not always_on_lateral or not main_press, sent)
 
 
 class TestVolkswagenMqbLongSafety(TestVolkswagenMqbSafety):

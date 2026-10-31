@@ -195,7 +195,12 @@ void CameraWidget::stopVipcThread() {
   if (vipc_thread) {
     vipc_thread->requestInterruption();
     vipc_thread->quit();
-    vipc_thread->wait();
+
+    // FrogPilot variables
+    while (!vipc_thread->wait(10)) {
+      QCoreApplication::sendPostedEvents(this, QEvent::MetaCall);
+    }
+
     vipc_thread = nullptr;
   }
 

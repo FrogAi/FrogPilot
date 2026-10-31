@@ -68,6 +68,9 @@ RxCheck ford_rx_checks[] = {
   {.msg = {{FORD_EngBrakeData, 0, 8, .frequency = 10U}, { 0 }, { 0 }}},
   {.msg = {{FORD_EngVehicleSpThrottle, 0, 8, .frequency = 100U}, { 0 }, { 0 }}},
   {.msg = {{FORD_DesiredTorqBrk, 0, 8, .frequency = 50U}, { 0 }, { 0 }}},
+
+  // FrogPilot variables
+  {.msg = {{FORD_Steering_Data_FD1, 0, 8, .frequency = 10U}, { 0 }, { 0 }}},
 };
 
 static uint8_t ford_get_counter(const CANPacket_t *to_push) {
@@ -220,6 +223,9 @@ static void ford_rx_hook(const CANPacket_t *to_push) {
       if (is_invalid_speed) {
         controls_allowed = false;
       }
+
+      // FrogPilot variables
+      data_integrity_fault = is_invalid_speed;
     }
 
     // Update vehicle yaw rate
@@ -245,9 +251,11 @@ static void ford_rx_hook(const CANPacket_t *to_push) {
 
       // Signal: CcStat_D_Actl
       unsigned int cruise_state = GET_BYTE(to_push, 1) & 0x07U;
-      acc_main_on = (cruise_state == 3U) ||(cruise_state == 4U) || (cruise_state == 5U);
       bool cruise_engaged = (cruise_state == 4U) || (cruise_state == 5U);
       pcm_cruise_check(cruise_engaged);
+
+      // FrogPilot variables
+      acc_main_on = (cruise_state == 3U) || cruise_engaged;
     }
 
     // If steering controls messages are received on the destination bus, it's an indication
@@ -257,6 +265,12 @@ static void ford_rx_hook(const CANPacket_t *to_push) {
       stock_ecu_detected = stock_ecu_detected || (addr == FORD_ACCDATA);
     }
     generic_rx_checks(stock_ecu_detected);
+
+    // FrogPilot variables
+    if (addr == FORD_Steering_Data_FD1) {
+      // Signal: TjaButtnOnOffPress
+      lkas_button_pressed = GET_BIT(to_push, 40U);
+    }
   }
 
 }

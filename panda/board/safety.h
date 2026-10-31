@@ -70,6 +70,9 @@ bool safety_rx_hook(const CANPacket_t *to_push) {
     heartbeat_engaged_mismatches = 0;
   }
 
+  // FrogPilot variables
+  always_on_lateral_rx_checks();
+
   return valid;
 }
 
@@ -337,7 +340,6 @@ int set_safety_hooks(uint16_t mode, uint16_t param) {
   cruise_engaged_prev = false;
   vehicle_moving = false;
   acc_main_on = false;
-  lkas_on = false;
   cruise_button_prev = 0;
   desired_torque_last = 0;
   rt_torque_last = 0;
@@ -386,10 +388,10 @@ int set_safety_hooks(uint16_t mode, uint16_t param) {
   }
 
   // FrogPilot variables
+  data_integrity_fault = false;
+  lkas_button_pressed = false;
+  lkas_button_pressed_prev = false;
   lkas_on = false;
-  lkas_pressed_prev = false;
-
-  cruise_main_prev = 0;
 
   return set_status;
 }
@@ -559,13 +561,7 @@ bool steer_torque_cmd_checks(int desired_torque, int steer_req, const SteeringLi
   bool violation = false;
   uint32_t ts = microsecond_timer_get();
 
-  bool aol_allowed = (acc_main_on || lkas_on) && (alternative_experience & ALT_EXP_ALWAYS_ON_LATERAL);
-  if (controls_allowed) {
-    // acc main must be on if controls are allowed
-    acc_main_on = controls_allowed;
-  }
-
-  if (controls_allowed || aol_allowed) {
+  if (get_lateral_allowed()) {
     // *** global torque limit check ***
     violation |= max_limit_check(desired_torque, limits.max_steer, -limits.max_steer);
 
@@ -592,7 +588,7 @@ bool steer_torque_cmd_checks(int desired_torque, int steer_req, const SteeringLi
   }
 
   // no torque if controls is not allowed
-  if (!(controls_allowed || aol_allowed) && (desired_torque != 0)) {
+  if (!get_lateral_allowed() && (desired_torque != 0)) {
     violation = true;
   }
 
@@ -634,7 +630,7 @@ bool steer_torque_cmd_checks(int desired_torque, int steer_req, const SteeringLi
   }
 
   // reset to 0 if either controls is not allowed or there's a violation
-  if (violation || !(controls_allowed || aol_allowed)) {
+  if (violation || !get_lateral_allowed()) {
     valid_steer_req_count = 0;
     invalid_steer_req_count = 0;
     desired_torque_last = 0;
@@ -649,13 +645,8 @@ bool steer_torque_cmd_checks(int desired_torque, int steer_req, const SteeringLi
 // Safety checks for angle-based steering commands
 bool steer_angle_cmd_checks(int desired_angle, bool steer_control_enabled, const SteeringLimits limits) {
   bool violation = false;
-  bool aol_allowed = (acc_main_on || lkas_on) && (alternative_experience & ALT_EXP_ALWAYS_ON_LATERAL);
-  if (controls_allowed) {
-    // acc main must be on if controls are allowed
-    acc_main_on = controls_allowed;
-  }
 
-  if ((controls_allowed || aol_allowed) && steer_control_enabled) {
+  if (get_lateral_allowed() && steer_control_enabled) {
     // convert floating point angle rate limits to integers in the scale of the desired angle on CAN,
     // add 1 to not false trigger the violation. also fudge the speed by 1 m/s so rate limits are
     // always slightly above openpilot's in case we read an updated speed in between angle commands
@@ -698,7 +689,7 @@ bool steer_angle_cmd_checks(int desired_angle, bool steer_control_enabled, const
   }
 
   // No angle control allowed when controls are not allowed
-  violation |= !(controls_allowed || aol_allowed) && steer_control_enabled;
+  violation |= !get_lateral_allowed() && steer_control_enabled;
 
   return violation;
 }
@@ -712,4 +703,26 @@ void pcm_cruise_check(bool cruise_engaged) {
     controls_allowed = true;
   }
   cruise_engaged_prev = cruise_engaged;
+}
+
+// FrogPilot variables
+bool get_lateral_allowed(void) {
+  bool always_on_lateral = (alternative_experience & ALT_EXP_ALWAYS_ON_LATERAL) != 0;
+
+  return controls_allowed || (always_on_lateral && (acc_main_on || lkas_on) && !data_integrity_fault && !safety_rx_checks_invalid);
+}
+
+void always_on_lateral_rx_checks(void) {
+  bool lkas_button = (alternative_experience & ALT_EXP_ALWAYS_ON_LATERAL_LKAS_BUTTON) != 0;
+
+  if (lkas_button && lkas_button_pressed && !lkas_button_pressed_prev) {
+    lkas_on = true;
+  }
+
+  if (!acc_main_on && acc_main_on_prev) {
+    lkas_on = false;
+  }
+
+  acc_main_on_prev = acc_main_on;
+  lkas_button_pressed_prev = lkas_button_pressed;
 }

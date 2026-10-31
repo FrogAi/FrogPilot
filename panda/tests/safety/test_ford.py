@@ -5,7 +5,7 @@ import unittest
 
 import panda.tests.safety.common as common
 
-from panda import Panda
+from panda import ALTERNATIVE_EXPERIENCE, Panda
 from panda.tests.libpanda import libpanda_py
 from panda.tests.safety.common import CANPackerPanda
 
@@ -65,7 +65,7 @@ class Buttons:
 #  * CAN FD with stock longitudinal
 #  * CAN FD with openpilot longitudinal
 
-class TestFordSafetyBase(common.PandaCarSafetyTest):
+class TestFordSafetyBase(common.PandaCarSafetyTest, common.AlwaysOnLateralSafetyTest):
   STANDSTILL_THRESHOLD = 1
   RELAY_MALFUNCTION_ADDRS = {0: (MSG_ACCDATA_3, MSG_Lane_Assist_Data1, MSG_LateralMotionControl,
                                  MSG_LateralMotionControl2, MSG_IPMA_Data)}
@@ -354,16 +354,63 @@ class TestFordSafetyBase(common.PandaCarSafetyTest):
       for bus in (0, 2):
         self.assertEqual(enabled, self._tx(self._acc_button_msg(Buttons.CANCEL, bus)))
 
-  # FrogPilot tests
-  def _toggle_aol(self, toggle_on):
-    # EngBrakeData, CcStat_D_Actl is the cruise state
-    # 3 is standby (main on), 5 is active (engaged)
-    brake = self.safety.get_brake_pressed_prev()
-    values = {
-      "BpedDrvAppl_D_Actl": 2 if brake else 1,
-      "CcStat_D_Actl": 3 if toggle_on else 0,
-    }
+  # FrogPilot variables
+  def _acc_state_msg(self, on):
+    if on:
+      cruise_state = 3
+    else:
+      cruise_state = 0
+
+    values = {"CcStat_D_Actl": cruise_state}
+
     return self.packer.make_can_msg_panda("EngBrakeData", 0, values)
+
+  def _lkas_press_msg(self, pressed):
+    values = {"TjaButtnOnOffPress": pressed}
+
+    return self.packer.make_can_msg_panda("Steering_Data_FD1", 0, values)
+
+  def test_acc_main_on(self):
+    for cruise_state in range(8):
+      self._rx(self.packer.make_can_msg_panda("EngBrakeData", 0, {"CcStat_D_Actl": cruise_state}))
+      self.assertEqual(cruise_state in (3, 4, 5), self.safety.get_acc_main_on())
+
+  def test_always_on_lateral_speed_mismatch(self):
+    self.safety.set_alternative_experience(ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL)
+    self._rx(self._acc_state_msg(True))
+
+    for speed_2 in (10 + self.MAX_SPEED_DELTA + 1, 10, 10 + self.MAX_SPEED_DELTA + 1):
+      self._rx(self._speed_msg(10))
+      self._rx(self._speed_msg_2(speed_2))
+
+      self.assertEqual(speed_2 == 10, self.safety.get_lateral_allowed())
+
+    self._reset_safety_hooks()
+    self._rx(self._acc_state_msg(True))
+
+    self.assertTrue(self.safety.get_lateral_allowed())
+
+  def test_lkas_button_msg_lagging(self):
+    for lkas_button_msg in (True, False):
+      self._reset_safety_hooks()
+      self.safety.set_alternative_experience(ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL)
+      self.safety.set_timer(0)
+      self._rx(self._lkas_press_msg(False))
+
+      self.safety.set_timer(int(1.5e6))
+      self._rx(self._acc_state_msg(True))
+      self._rx(self._speed_msg(0))
+      self._rx(self._speed_msg_2(0))
+      self._rx(self._user_gas_msg(0))
+      self._rx(self._vehicle_moving_msg(0))
+      self._rx(self._yaw_rate_msg(0, 0))
+
+      if lkas_button_msg:
+        self._rx(self._lkas_press_msg(False))
+
+      self.safety.safety_tick_current_safety_config()
+
+      self.assertEqual(lkas_button_msg, self.safety.get_lateral_allowed())
 
 
 class TestFordStockSafety(TestFordSafetyBase):

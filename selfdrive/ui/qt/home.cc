@@ -15,7 +15,7 @@
 
 #include "frogpilot/ui/qt/widgets/drive_stats.h"
 #include "frogpilot/ui/qt/widgets/drive_summary.h"
-#include "frogpilot/ui/qt/widgets/model_reviewer.h"
+#include "frogpilot/ui/qt/widgets/model_review.h"
 
 // HomeWindow: the container for the offroad and onroad UIs
 
@@ -56,6 +56,12 @@ HomeWindow::HomeWindow(QWidget* parent) : QWidget(parent) {
   developer_sidebar = new DeveloperSidebar(this);
   main_layout->addWidget(developer_sidebar);
   developer_sidebar->setVisible(false);
+
+  QObject::connect(frogpilotUIState(), &FrogPilotUIState::togglesUpdated, this, [this]() {
+    if (uiState()->scene.started && frogpilotUIState()->frogpilot_toggles.value(QLatin1String("debug_mode")).toBool()) {
+      sidebar->setVisible(true);
+    }
+  });
 }
 
 void HomeWindow::showSidebar(bool show) {
@@ -64,6 +70,11 @@ void HomeWindow::showSidebar(bool show) {
 
 void HomeWindow::showMapPanel(bool show) {
   onroad->showMapPanel(show);
+}
+
+// FrogPilot variables
+bool HomeWindow::sidebarOpenOnroad() {
+  return params.getBool("Sidebar") || frogpilotUIState()->frogpilot_toggles.value(QLatin1String("debug_mode")).toBool();
 }
 
 void HomeWindow::updateState(const UIState &s, const FrogPilotUIState &fs) {
@@ -77,11 +88,16 @@ void HomeWindow::updateState(const UIState &s, const FrogPilotUIState &fs) {
 
   // FrogPilot variables
   if (s.scene.started) {
-    if (fs.frogpilot_scene.driver_camera_timer >= UI_FREQ / 2) {
-      showDriverView(true, true);
+    if (fs.frogpilot_scene.driver_camera_active) {
+      if (slayout->currentWidget() != driver_view) {
+        emit closeSettings();
+      }
+      slayout->setCurrentWidget(driver_view);
+      sidebar->setVisible(false);
+      developer_sidebar->setVisible(false);
     } else {
-      if (driver_view->isVisible()) {
-        sidebar->setVisible(params.getBool("Sidebar") || frogpilotUIState()->frogpilot_toggles.value("debug_mode").toBool());
+      if (slayout->currentWidget() == driver_view) {
+        sidebar->setVisible(sidebarOpenOnroad());
         slayout->setCurrentWidget(onroad);
       }
 
@@ -89,17 +105,16 @@ void HomeWindow::updateState(const UIState &s, const FrogPilotUIState &fs) {
         showSidebar(false);
       }
 
-      developer_sidebar->setVisible(fs.frogpilot_toggles.value("developer_sidebar").toBool());
-
-      frogpilotUIState()->frogpilot_scene.sidebars_open = developer_sidebar->isVisible() && sidebar->isVisible();
+      developer_sidebar->setVisible(!fs.frogpilot_scene.map_open && fs.frogpilot_toggles.value("developer_sidebar").toBool());
     }
   }
 }
 
 void HomeWindow::offroadTransition(bool offroad) {
   body->setEnabled(false);
-  sidebar->setVisible(offroad || params.getBool("Sidebar") || frogpilotUIState()->frogpilot_toggles.value("debug_mode").toBool());
+  sidebar->setVisible(offroad || sidebarOpenOnroad());
   if (offroad) {
+    // FrogPilot variables
     developer_sidebar->setVisible(false);
 
     slayout->setCurrentWidget(home);
@@ -108,16 +123,13 @@ void HomeWindow::offroadTransition(bool offroad) {
   }
 }
 
-void HomeWindow::showDriverView(bool show, bool started) {
+void HomeWindow::showDriverView(bool show) {
   if (show) {
-    if (!started) {
-      emit closeSettings();
-    }
+    emit closeSettings();
     slayout->setCurrentWidget(driver_view);
   } else {
     slayout->setCurrentWidget(home);
   }
-  developer_sidebar->setVisible(false);
   sidebar->setVisible(show == false);
 }
 
@@ -125,7 +137,9 @@ void HomeWindow::mousePressEvent(QMouseEvent* e) {
   // Handle sidebar collapsing
   if ((onroad->isVisible() || body->isVisible()) && (!sidebar->isVisible() || e->x() > sidebar->width())) {
     sidebar->setVisible(!sidebar->isVisible() && !onroad->isMapVisible());
-    params.putBool("Sidebar", sidebar->isVisible());
+
+    // FrogPilot variables
+    params.putBoolNonBlocking("Sidebar", sidebar->isVisible());
   }
 }
 
@@ -153,6 +167,10 @@ OffroadHome::OffroadHome(QWidget* parent) : QFrame(parent) {
   header_layout->setContentsMargins(0, 0, 0, 0);
   header_layout->setSpacing(16);
 
+  // FrogPilot variables
+  date = new ElidedLabel();
+  header_layout->addWidget(date, 0, Qt::AlignHCenter | Qt::AlignLeft);
+
   update_notif = new QPushButton(tr("UPDATE"));
   update_notif->setVisible(false);
   update_notif->setStyleSheet("background-color: #364DEF;");
@@ -164,9 +182,6 @@ OffroadHome::OffroadHome(QWidget* parent) : QFrame(parent) {
   alert_notif->setStyleSheet("background-color: #E22C2C;");
   QObject::connect(alert_notif, &QPushButton::clicked, [=] { center_layout->setCurrentIndex(2); });
   header_layout->addWidget(alert_notif, 0, Qt::AlignHCenter | Qt::AlignLeft);
-
-  date = new ElidedLabel();
-  header_layout->addWidget(date, 0, Qt::AlignHCenter | Qt::AlignLeft);
 
   version = new ElidedLabel();
   header_layout->addWidget(version, 0, Qt::AlignHCenter | Qt::AlignRight);
@@ -192,6 +207,7 @@ OffroadHome::OffroadHome(QWidget* parent) : QFrame(parent) {
 #endif
     left_widget->addWidget(new DriveStats);
 
+    // FrogPilot variables
     FrogPilotDriveSummary *drive_summary = new FrogPilotDriveSummary(this);
     left_widget->addWidget(drive_summary);
 
@@ -199,10 +215,15 @@ OffroadHome::OffroadHome(QWidget* parent) : QFrame(parent) {
     left_widget->addWidget(model_review);
 
     left_widget->setStyleSheet("border-radius: 10px;");
-    left_widget->setCurrentIndex(1);
 
+    left_widget->setCurrentIndex(uiState()->hasPrime() ? 0 : 1);
+    connect(uiState(), &UIState::primeChanged, [=](bool prime) {
+      left_widget->setCurrentIndex(prime ? 0 : 1);
+    });
+
+    // FrogPilot variables
     connect(drive_summary, &FrogPilotDriveSummary::panelClosed, [=]() {
-      left_widget->setCurrentIndex(1);
+      left_widget->setCurrentIndex(uiState()->hasPrime() ? 0 : 1);
     });
     connect(model_review, &FrogPilotModelReview::driveRated, [=]() {
       left_widget->setCurrentIndex(2);
@@ -210,7 +231,7 @@ OffroadHome::OffroadHome(QWidget* parent) : QFrame(parent) {
     connect(uiState(), &UIState::offroadTransition, [=](bool offroad) {
       static bool previouslyOnroad = false;
       if (offroad && previouslyOnroad) {
-        if (frogpilotUIState()->frogpilot_scene.started_timer > 15 * 60 * UI_FREQ && frogpilotUIState()->frogpilot_toggles.value("model_randomizer").toBool()) {
+        if (model_review->reviewReady()) {
           left_widget->setCurrentIndex(3);
         } else {
           left_widget->setCurrentIndex(2);
@@ -238,6 +259,7 @@ OffroadHome::OffroadHome(QWidget* parent) : QFrame(parent) {
     QObject::connect(setup_widget, &SetupWidget::openSettings, this, &OffroadHome::openSettings);
     default_layout->addWidget(setup_widget, 1);
 
+    // FrogPilot variables
     right_widget->addWidget(default_right);
 
     FrogPilotDriveSummary *random_events_summary = new FrogPilotDriveSummary(this, true);
@@ -303,6 +325,7 @@ void OffroadHome::hideEvent(QHideEvent *event) {
 }
 
 void OffroadHome::refresh() {
+  // FrogPilot variables
   date->setText(QLocale(uiState()->language.mid(5)).toString(QDateTime::currentDateTime(), "dddd, MMMM d"));
   date->setVisible(util::system_time_valid());
 

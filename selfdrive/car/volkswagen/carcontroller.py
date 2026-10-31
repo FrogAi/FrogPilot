@@ -1,5 +1,6 @@
 from cereal import car
 from opendbc.can.packer import CANPacker
+from panda import ALTERNATIVE_EXPERIENCE
 from openpilot.common.numpy_fast import clip
 from openpilot.common.conversions import Conversions as CV
 from openpilot.common.realtime import DT_CTRL
@@ -7,6 +8,8 @@ from openpilot.selfdrive.car import apply_driver_steer_torque_limits
 from openpilot.selfdrive.car.interfaces import CarControllerBase
 from openpilot.selfdrive.car.volkswagen import mqbcan, pqcan
 from openpilot.selfdrive.car.volkswagen.values import CANBUS, CarControllerParams, VolkswagenFlags
+
+from openpilot.frogpilot.common import frogpilot_variables
 
 VisualAlert = car.CarControl.HUDControl.VisualAlert
 LongCtrlState = car.CarControl.Actuators.LongControlState
@@ -26,6 +29,9 @@ class CarController(CarControllerBase):
     self.eps_timer_soft_disable_alert = False
     self.hca_frame_timer_running = 0
     self.hca_frame_same_torque = 0
+
+    # FrogPilot variables
+    self.cruise_main_off_frames = 0
 
   def update(self, CC, CS, now_nanos, frogpilot_toggles):
     actuators = CC.actuators
@@ -118,4 +124,20 @@ class CarController(CarControllerBase):
 
     self.gra_acc_counter_last = CS.gra_stock_values["COUNTER"]
     self.frame += 1
+
+    # FrogPilot variables
+    if CS.out.cruiseState.enabled:
+      self.cruise_main_off_frames = frogpilot_variables.VOLKSWAGEN_MAIN_PRESS_FRAMES
+    elif CS.out.accFaulted and self.cruise_main_off_frames < frogpilot_variables.VOLKSWAGEN_MAIN_PRESS_FRAMES:
+      self.cruise_main_off_frames = 0
+
+    cruise_main_off_pressing = 0 < self.cruise_main_off_frames < frogpilot_variables.VOLKSWAGEN_MAIN_PRESS_FRAMES
+    cruise_main_off_ready = (CS.car_safety_mode_set and not CS.cruise_main_off_seen and CS.tsk_status == 2 and
+                             self.CP.alternativeExperience & ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL)
+    cruise_main_off_start = cruise_main_off_ready and CS.gra_stock_values["GRA_Typ_Hauptschalter"] == 1 and self.cruise_main_off_frames == 0
+
+    if (cruise_main_off_pressing or cruise_main_off_start) and gra_send_ready:
+      can_sends.append(self.CCS.create_acc_buttons_control(self.packer_pt, self.ext_bus, {**CS.gra_stock_values, "GRA_Hauptschalter": 1}))
+      self.cruise_main_off_frames += 1
+
     return new_actuators, can_sends

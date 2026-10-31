@@ -6,7 +6,7 @@ import panda.tests.safety.common as common
 from panda.tests.safety.common import CANPackerPanda
 
 
-class TestSubaruPreglobalSafety(common.PandaCarSafetyTest, common.DriverTorqueSteeringSafetyTest):
+class TestSubaruPreglobalSafety(common.PandaCarSafetyTest, common.DriverTorqueSteeringSafetyTest, common.AlwaysOnLateralSafetyTest):
   FLAGS = 0
   DBC = "subaru_outback_2015_generated"
   TX_MSGS = [[0x161, 0], [0x164, 0]]
@@ -60,16 +60,63 @@ class TestSubaruPreglobalSafety(common.PandaCarSafetyTest, common.DriverTorqueSt
     values = {"Cruise_Activated": enable}
     return self.packer.make_can_msg_panda("CruiseControl", 0, values)
 
-  # FrogPilot tests
-  def _toggle_aol(self, toggle_on):
-    # CruiseControl, Cruise_On is the main on button
-    values = {"Cruise_On": 1 if toggle_on else 0}
+  # FrogPilot variables
+  def _acc_state_msg(self, on):
+    values = {"Cruise_On": on}
+
     return self.packer.make_can_msg_panda("CruiseControl", 0, values)
+
+  def _lkas_press_msg(self, pressed):
+    return None
 
 
 class TestSubaruPreglobalReversedDriverTorqueSafety(TestSubaruPreglobalSafety):
   FLAGS = Panda.FLAG_SUBARU_PREGLOBAL_REVERSED_DRIVER_TORQUE
   DBC = "subaru_outback_2019_generated"
+
+
+class TestSubaruPreglobalSngForwarding(unittest.TestCase):
+  TX_MSGS = None
+  SNG_TX_TIMEOUT = 100000
+  THROTTLE = 0x140
+
+  def setUp(self):
+    self.safety = libpanda_py.libpanda
+    self.safety.set_safety_hooks(Panda.SAFETY_SUBARU_PREGLOBAL, Panda.FLAG_SUBARU_SNG)
+    self.safety.init_tests()
+
+  def _tx_sng(self, bus=2):
+    return self.safety.safety_tx_hook(libpanda_py.make_CANPacket(self.THROTTLE, bus, b"\x00" * 8))
+
+  def _forwarded(self):
+    return self.safety.safety_fwd_hook(0, self.THROTTLE) == 2
+
+  def test_flag_off(self):
+    self.safety.set_safety_hooks(Panda.SAFETY_SUBARU_PREGLOBAL, 0)
+    self.assertFalse(self._tx_sng())
+    self.assertTrue(self._forwarded())
+
+  def test_forwarded_without_sng_tx(self):
+    self.safety.set_timer(10000000)
+    self.assertTrue(self._forwarded())
+
+  def test_blocked_until_sng_tx_times_out(self):
+    for ts in (0, 2**32 - self.SNG_TX_TIMEOUT // 2):
+      self.safety.set_safety_hooks(Panda.SAFETY_SUBARU_PREGLOBAL, Panda.FLAG_SUBARU_SNG)
+      self.safety.set_timer(ts)
+      self.assertTrue(self._tx_sng())
+      self.assertFalse(self._forwarded())
+      self.safety.set_timer((ts + self.SNG_TX_TIMEOUT) % 2**32)
+      self.assertFalse(self._forwarded())
+      self.safety.set_timer((ts + self.SNG_TX_TIMEOUT + 1) % 2**32)
+      self.assertTrue(self._forwarded())
+      self.safety.set_timer(ts)
+      self.assertTrue(self._forwarded())
+
+  def test_rejected_tx_does_not_block(self):
+    self.safety.set_timer(0)
+    self.assertFalse(self._tx_sng(0))
+    self.assertTrue(self._forwarded())
 
 
 if __name__ == "__main__":

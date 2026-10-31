@@ -1,11 +1,10 @@
-from cereal import car, custom
+from cereal import car
 from panda import Panda
-from openpilot.selfdrive.car import create_button_events, get_safety_config
+from openpilot.selfdrive.car import get_safety_config
 from openpilot.selfdrive.car.disable_ecu import disable_ecu
 from openpilot.selfdrive.car.interfaces import CarInterfaceBase
 from openpilot.selfdrive.car.subaru.values import CAR, GLOBAL_ES_ADDR, SubaruFlags
 
-FrogPilotButtonType = custom.FrogPilotCarState.ButtonEvent.Type
 
 class CarInterface(CarInterfaceBase):
 
@@ -55,6 +54,9 @@ class CarInterface(CarInterfaceBase):
       ret.lateralTuning.pid.kiBP, ret.lateralTuning.pid.kpBP = [[0., 20.], [0., 20.]]
       ret.lateralTuning.pid.kpV, ret.lateralTuning.pid.kiV = [[0.133, 0.2], [0.0133, 0.02]]
 
+      # FrogPilot variables
+      ret.safetyConfigs[0].safetyParam |= Panda.FLAG_SUBARU_RAISED_STEER_LIMIT
+
     elif candidate == CAR.SUBARU_IMPREZA_2020:
       ret.lateralTuning.init('pid')
       ret.lateralTuning.pid.kf = 0.00005
@@ -101,10 +103,6 @@ class CarInterface(CarInterfaceBase):
   def _update(self, c, frogpilot_toggles):
 
     ret, fp_ret = self.CS.update(self.cp, self.cp_cam, self.cp_body, frogpilot_toggles)
-
-    ret.buttonEvents = [
-      *create_button_events(self.CS.lkas_enabled, self.CS.lkas_previously_enabled, {1: FrogPilotButtonType.lkas}),
-    ]
 
     ret.events = self.create_common_events(ret).to_msg()
 

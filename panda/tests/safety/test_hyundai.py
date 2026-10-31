@@ -5,7 +5,7 @@ from panda import Panda
 from panda.tests.libpanda import libpanda_py
 import panda.tests.safety.common as common
 from panda.tests.safety.common import CANPackerPanda
-from panda.tests.safety.hyundai_common import HyundaiButtonBase, HyundaiLongitudinalBase
+from panda.tests.safety.hyundai_common import Buttons, HyundaiButtonBase, HyundaiLongitudinalBase
 
 
 # 4 bit checkusm used in some hyundai messages
@@ -43,7 +43,8 @@ def checksum(msg):
   return addr, t, ret, bus
 
 
-class TestHyundaiSafety(HyundaiButtonBase, common.PandaCarSafetyTest, common.DriverTorqueSteeringSafetyTest, common.SteerRequestCutSafetyTest):
+class TestHyundaiSafety(HyundaiButtonBase, common.PandaCarSafetyTest, common.DriverTorqueSteeringSafetyTest, common.SteerRequestCutSafetyTest,
+                        common.AlwaysOnLateralSafetyTest):
   TX_MSGS = [[0x340, 0], [0x4F1, 0], [0x485, 0]]
   STANDSTILL_THRESHOLD = 12  # 0.375 kph
   RELAY_MALFUNCTION_ADDRS = {0: (0x340,)}  # LKAS11
@@ -111,6 +112,52 @@ class TestHyundaiSafety(HyundaiButtonBase, common.PandaCarSafetyTest, common.Dri
   def _torque_cmd_msg(self, torque, steer_req=1):
     values = {"CR_Lkas_StrToqReq": torque, "CF_Lkas_ActToi": steer_req}
     return self.packer.make_can_msg_panda("LKAS11", 0, values)
+
+  # FrogPilot variables
+  def _acc_state_msg(self, on):
+    values = {"MainMode_ACC": on}
+
+    return self.packer.make_can_msg_panda("SCC11", self.SCC_BUS, values)
+
+  def _lkas_press_msg(self, pressed):
+    if not self.safety.get_current_safety_param() & Panda.FLAG_HYUNDAI_LFA_BUTTON:
+      return None
+
+    values = {"LFA_Pressed": pressed}
+
+    return self.packer.make_can_msg_panda("BCM_PO_11", 0, values)
+
+  def _rx_checks_msgs(self):
+    return [self._user_gas_msg(0), self._speed_msg(0), self._user_brake_msg(False), self._pcm_status_msg(False)]
+
+  def test_always_on_lateral_rx_checks(self):
+    mode = self.safety.get_current_safety_mode()
+    param = self.safety.get_current_safety_param()
+
+    for lfa_button in (0, Panda.FLAG_HYUNDAI_LFA_BUTTON):
+      self.safety.set_safety_hooks(mode, param | lfa_button)
+
+      msg_funcs = [self._acc_state_msg]
+      if self._lkas_press_msg(False) is not None:
+        msg_funcs.append(self._lkas_press_msg)
+
+      for msg_func in msg_funcs:
+        for alive in (True, False):
+          self._reset_safety_hooks()
+
+          for t in range(1, 4):
+            self.safety.set_timer(int(t * 1e6))
+
+            for msg in self._rx_checks_msgs():
+              self._rx(msg)
+
+            for other_func in msg_funcs:
+              if alive or other_func != msg_func:
+                self._rx(other_func(False))
+
+            self.safety.safety_tick_current_safety_config()
+
+          self.assertEqual(alive, self.safety.safety_config_valid(), (lfa_button, msg_func.__name__, alive))
 
 
 class TestHyundaiSafetyAltLimits(TestHyundaiSafety):
@@ -181,6 +228,9 @@ class TestHyundaiLongitudinalSafety(HyundaiLongitudinalBase, TestHyundaiSafety):
     self.safety.set_safety_hooks(Panda.SAFETY_HYUNDAI, Panda.FLAG_HYUNDAI_LONG)
     self.safety.init_tests()
 
+    # FrogPilot variables
+    self._press_main_cruise()
+
   def _accel_msg(self, accel, aeb_req=False, aeb_decel=0):
     values = {
       "aReqRaw": accel,
@@ -210,6 +260,57 @@ class TestHyundaiLongitudinalSafety(HyundaiLongitudinalBase, TestHyundaiSafety):
     self.assertTrue(self._tx(self._accel_msg(0)))
     self.assertFalse(self._tx(self._accel_msg(0, aeb_req=True)))
     self.assertFalse(self._tx(self._accel_msg(0, aeb_decel=1.0)))
+
+  # FrogPilot variables
+  def _acc_state_msg(self, on):
+    values = {"ACCEnable": int(not on), "AliveCounterTCS": self.cnt_brake % 8}
+    self.__class__.cnt_brake += 1
+
+    return self.packer.make_can_msg_panda("TCS13", 0, values, fix_checksum=checksum)
+
+  def _rx_checks_msgs(self):
+    return [self._user_gas_msg(0), self._speed_msg(0), self._button_msg(Buttons.NONE)]
+
+  def test_radar_scc11_ignored(self):
+    self._rx(self._acc_state_msg(True))
+
+    self._rx(self.packer.make_can_msg_panda("SCC11", 0, {"MainMode_ACC": 0}))
+
+    self.assertTrue(self.safety.get_acc_main_on())
+
+
+# FrogPilot variables
+class TestHyundaiLegacySafetyLFAButton(TestHyundaiLegacySafety):
+  def setUp(self):
+    self.packer = CANPackerPanda("hyundai_kia_generic")
+    self.safety = libpanda_py.libpanda
+    self.safety.set_safety_hooks(Panda.SAFETY_HYUNDAI_LEGACY, Panda.FLAG_HYUNDAI_LFA_BUTTON)
+    self.safety.init_tests()
+
+
+class TestHyundaiLongitudinalSafetyLFAButton(TestHyundaiLongitudinalSafety):
+  def setUp(self):
+    self.packer = CANPackerPanda("hyundai_kia_generic")
+    self.safety = libpanda_py.libpanda
+    self.safety.set_safety_hooks(Panda.SAFETY_HYUNDAI, Panda.FLAG_HYUNDAI_LONG | Panda.FLAG_HYUNDAI_LFA_BUTTON)
+    self.safety.init_tests()
+    self._press_main_cruise()
+
+
+class TestHyundaiSafetyCameraSCCLFAButton(TestHyundaiSafetyCameraSCC):
+  def setUp(self):
+    self.packer = CANPackerPanda("hyundai_kia_generic")
+    self.safety = libpanda_py.libpanda
+    self.safety.set_safety_hooks(Panda.SAFETY_HYUNDAI, Panda.FLAG_HYUNDAI_CAMERA_SCC | Panda.FLAG_HYUNDAI_LFA_BUTTON)
+    self.safety.init_tests()
+
+
+class TestHyundaiSafetyLFAButton(TestHyundaiSafety):
+  def setUp(self):
+    self.packer = CANPackerPanda("hyundai_kia_generic")
+    self.safety = libpanda_py.libpanda
+    self.safety.set_safety_hooks(Panda.SAFETY_HYUNDAI, Panda.FLAG_HYUNDAI_LFA_BUTTON)
+    self.safety.init_tests()
 
 
 if __name__ == "__main__":

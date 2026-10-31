@@ -1,10 +1,10 @@
 from openpilot.common.conversions import Conversions as CV
 from openpilot.common.realtime import DT_CTRL
 from openpilot.selfdrive.car import make_can_msg
-from openpilot.selfdrive.car.gm.values import CAR, CruiseButtons, CanBus
+from openpilot.selfdrive.car.gm.values import CAR, CruiseButtons, CanBus, K2_CC_CAR
 
 
-def create_buttons(packer, bus, idx, button):
+def create_buttons(packer, CP, bus, idx, button):
   values = {
     "ACCButtons": button,
     "RollingCounter": idx,
@@ -16,6 +16,10 @@ def create_buttons(packer, bus, idx, button):
   checksum += values["RollingCounter"] * (0x4ef if values["ACCAlwaysOne"] != 0 else 0x3f0)
   checksum -= int(values["ACCButtons"] - 1) << 4  # not correct if value is 0
   checksum -= 2 * values["DistanceButton"]
+
+  # FrogPilot variables
+  if CP.carFingerprint in K2_CC_CAR:
+    checksum += 0x7e0 + 0x40 * (idx // 2)
 
   values["SteeringButtonChecksum"] = checksum
   return packer.make_can_msg("ASCMSteeringButton", bus, values)
@@ -212,6 +216,6 @@ def create_gm_cc_spam_command(packer, controller, CS, actuators, is_metric):
   if (cruiseBtn != CruiseButtons.INIT) and ((controller.frame - controller.last_button_frame) * DT_CTRL > rate):
     controller.last_button_frame = controller.frame
     idx = (CS.buttons_counter + 1) % 4  # Need to predict the next idx for '22-23 EUV
-    return [create_buttons(packer, CanBus.POWERTRAIN, idx, cruiseBtn)]
+    return [create_buttons(packer, CS.CP, CanBus.POWERTRAIN, idx, cruiseBtn)]
   else:
     return []

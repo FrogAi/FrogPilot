@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 import unittest
-from panda import Panda
+from panda import ALTERNATIVE_EXPERIENCE, Panda
 from panda.tests.libpanda import libpanda_py
 import panda.tests.safety.common as common
 from panda.tests.safety.common import CANPackerPanda
 
 
-class TestChryslerSafety(common.PandaCarSafetyTest, common.MotorTorqueSteeringSafetyTest):
+class TestChryslerSafety(common.PandaCarSafetyTest, common.MotorTorqueSteeringSafetyTest, common.AlwaysOnLateralSafetyTest):
   TX_MSGS = [[0x23B, 0], [0x292, 0], [0x2A6, 0]]
   STANDSTILL_THRESHOLD = 0
   RELAY_MALFUNCTION_ADDRS = {0: (0x292,)}
@@ -23,6 +23,9 @@ class TestChryslerSafety(common.PandaCarSafetyTest, common.MotorTorqueSteeringSa
   LKAS_ACTIVE_VALUE = 1
 
   DAS_BUS = 0
+
+  # FrogPilot tests
+  LKAS_BUTTONS = (("TRACTION_BUTTON", "TOGGLE_LKAS"),)
 
   def setUp(self):
     self.packer = CANPackerPanda("chrysler_pacifica_2017_hybrid_generated")
@@ -73,10 +76,41 @@ class TestChryslerSafety(common.PandaCarSafetyTest, common.MotorTorqueSteeringSa
       self.assertFalse(self._tx(self._button_msg(cancel=False, resume=False)))
 
   # FrogPilot tests
-  def _toggle_aol(self, toggle_on):
-    # DAS_3, bit 20 is ACC_AVAILABLE
-    values = {"ACC_AVAILABLE": 1 if toggle_on else 0}
+  def _acc_state_msg(self, on):
+    values = {"ACC_AVAILABLE": on}
+
     return self.packer.make_can_msg_panda("DAS_3", self.DAS_BUS, values)
+
+  def _lkas_press_msg(self, pressed, button=0):
+    msg, signal = self.LKAS_BUTTONS[button]
+    values = {signal: pressed}
+
+    return self.packer.make_can_msg_panda(msg, 0, values)
+
+  def test_rx_checks_valid_without_lkas_buttons(self):
+    self._rx(self._acc_state_msg(True))
+    self._rx(self._speed_msg(0))
+    self._rx(self._torque_meas_msg(0))
+    self._rx(self._user_brake_msg(False))
+    self._rx(self._user_gas_msg(0))
+    self.safety.safety_tick_current_safety_config()
+
+    self.assertTrue(self.safety.safety_config_valid())
+
+  def test_lkas_button_other_messages(self):
+    for button in range(1, len(self.LKAS_BUTTONS)):
+      self._reset_safety_hooks()
+      self.safety.set_alternative_experience(ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL | ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL_LKAS_BUTTON)
+
+      self._rx(self._acc_state_msg(False))
+      self._rx(self._lkas_press_msg(False, button))
+      self.assertFalse(self.safety.get_lateral_allowed(), self.LKAS_BUTTONS[button])
+
+      self._rx(self._lkas_press_msg(True, button))
+      self.assertTrue(self.safety.get_lateral_allowed(), self.LKAS_BUTTONS[button])
+
+      self._rx(self._lkas_press_msg(False, button))
+      self.assertTrue(self.safety.get_lateral_allowed(), self.LKAS_BUTTONS[button])
 
 
 class TestChryslerRamDTSafety(TestChryslerSafety):
@@ -92,6 +126,9 @@ class TestChryslerRamDTSafety(TestChryslerSafety):
 
   LKAS_ACTIVE_VALUE = 2
 
+  # FrogPilot tests
+  LKAS_BUTTONS = (("Center_Stack_1", "LKAS_Button"), ("Center_Stack_2", "LKAS_Button"))
+
   def setUp(self):
     self.packer = CANPackerPanda("chrysler_ram_dt_generated")
     self.safety = libpanda_py.libpanda
@@ -103,7 +140,7 @@ class TestChryslerRamDTSafety(TestChryslerSafety):
     return self.packer.make_can_msg_panda("ESP_8", 0, values)
 
 class TestChryslerRamHDSafety(TestChryslerSafety):
-  TX_MSGS = [[0x275, 0], [0x276, 0], [0x23A, 2]]
+  TX_MSGS = [[0x275, 0], [0x276, 0], [0x23A, 2], [0x23B, 2]]
   RELAY_MALFUNCTION_ADDRS = {0: (0x276,)}
   FWD_BLACKLISTED_ADDRS = {2: [0x275, 0x276]}
 
@@ -116,6 +153,9 @@ class TestChryslerRamHDSafety(TestChryslerSafety):
 
   LKAS_ACTIVE_VALUE = 2
 
+  # FrogPilot tests
+  LKAS_BUTTONS = (("Center_Stack_2", "LKAS_Button"),)
+
   def setUp(self):
     self.packer = CANPackerPanda("chrysler_ram_hd_generated")
     self.safety = libpanda_py.libpanda
@@ -125,6 +165,24 @@ class TestChryslerRamHDSafety(TestChryslerSafety):
   def _speed_msg(self, speed):
     values = {"Vehicle_Speed": speed}
     return self.packer.make_can_msg_panda("ESP_8", 0, values)
+
+  # FrogPilot tests
+  def test_buttons_alt(self):
+    def button_alt_msg(cancel=False, resume=False):
+      values = {"ACC_Cancel": cancel, "ACC_Resume": resume}
+      return self.packer.make_can_msg_panda("CRUISE_BUTTONS_ALT", self.DAS_BUS, values)
+
+    self._button_msg = button_alt_msg
+    self.test_buttons()
+
+  def test_center_stack_1_ignored(self):
+    self.safety.set_alternative_experience(ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL | ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL_LKAS_BUTTON)
+    self._rx(self._acc_state_msg(False))
+
+    for pressed in (True, False):
+      self._rx(self.packer.make_can_msg_panda("Center_Stack_1", 0, {"LKAS_Button": pressed}))
+
+    self.assertFalse(self.safety.get_lateral_allowed())
 
 
 if __name__ == "__main__":

@@ -9,3 +9,6 @@ env.Library('libcan_list_to_can_capnp', ['can_list_to_can_capnp.cc'])
 envCython.Program('pandad_api_impl.so', 'pandad_api_impl.pyx', LIBS=["can_list_to_can_capnp", 'capnp', 'kj'] + envCython["LIBS"])
 if GetOption('extras'):
   env.Program('tests/test_pandad_usbprotocol', ['tests/test_pandad_usbprotocol.cc'], LIBS=[panda] + libs)
+
+  # FrogPilot variables
+  env.Program('tests/test_pandad_heartbeat', ['tests/test_pandad_heartbeat.cc'], LIBS=[panda] + libs)

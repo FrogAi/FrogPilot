@@ -49,6 +49,7 @@ AbstractControl::AbstractControl(const QString &title, const QString &desc, cons
     }
 
     if (!description->text().isEmpty()) {
+      // FrogPilot variables
       if (description->isVisible()) {
         emit hideDescriptionEvent();
 

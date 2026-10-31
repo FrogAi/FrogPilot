@@ -1,10 +1,14 @@
 import numpy as np
 from cereal import car, custom
 from openpilot.common.conversions import Conversions as CV
+from openpilot.common.realtime import DT_CTRL
 from openpilot.selfdrive.car.interfaces import CarStateBase
 from opendbc.can.parser import CANParser
+from panda import ALTERNATIVE_EXPERIENCE
 from openpilot.selfdrive.car.volkswagen.values import DBC, CANBUS, NetworkLocation, TransmissionType, GearShifter, \
                                             CarControllerParams, VolkswagenFlags
+
+from openpilot.frogpilot.common import frogpilot_variables
 
 
 class CarState(CarStateBase):
@@ -17,6 +21,17 @@ class CarState(CarStateBase):
     self.esp_hold_confirmation = False
     self.upscale_lead_car_signal = False
     self.eps_stock_values = False
+
+    # FrogPilot variables
+    self.car_safety_mode_set = False
+    self.cruise_main_off_seen = False
+    self.cruise_main_on = True
+    self.tsk_settled = False
+
+    self.tsk_start_frame = 0
+    self.tsk_status = 0
+
+    self.main_button = None
 
   def create_button_events(self, pt_cp, buttons):
     button_events = []
@@ -154,9 +169,30 @@ class CarState(CarStateBase):
     self.upscale_lead_car_signal = bool(pt_cp.vl["Kombi_03"]["KBI_Variante"])
 
     # FrogPilot CarState functions
-    fp_ret.brakeLights = bool(pt_cp.vl["ESP_05"]['ESP_Status_Bremsdruck'])
+    fp_ret.brakeLights = bool(pt_cp.vl["ESP_05"]["ESP_Status_Bremsdruck"])
 
-    self.prev_distance_button = self.distance_button
+    self.tsk_status = pt_cp.vl["TSK_06"]["TSK_Status"]
+    self.tsk_settled |= self.tsk_status in (2, 3, 4, 5)
+
+    if self.tsk_status == 1:
+      self.tsk_start_frame = self.frame
+
+    tsk_starting = not self.tsk_settled and self.tsk_status in (0, 1)
+    tsk_starting &= self.frame - self.tsk_start_frame < frogpilot_variables.VOLKSWAGEN_TSK_START_TIME / DT_CTRL
+
+    prev_main_button = self.main_button
+    if pt_cp.ts_nanos["GRA_ACC_01"]["GRA_Hauptschalter"] > 0:
+      self.main_button = bool(pt_cp.vl["GRA_ACC_01"]["GRA_Hauptschalter"])
+
+    if (ret.accFaulted or tsk_starting) and self.CP.alternativeExperience & ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL:
+      if self.main_button and prev_main_button is False:
+        self.cruise_main_on = False
+
+      ret.cruiseState.available = self.cruise_main_on
+
+    self.cruise_main_off_seen |= not ret.cruiseState.available
+    self.cruise_main_on = ret.cruiseState.available
+
     self.distance_button = bool(pt_cp.vl["GRA_ACC_01"]["GRA_Verstellung_Zeitluecke"])
 
     self.frame += 1
@@ -260,9 +296,8 @@ class CarState(CarStateBase):
     ret.espDisabled = bool(pt_cp.vl["Bremse_1"]["ESP_Passiv_getastet"])
 
     # FrogPilot CarState functions
-    fp_ret.brakeLights = bool(pt_cp.vl["Motor_2"]['Bremstestschalter'])
+    fp_ret.brakeLights = bool(pt_cp.vl["Motor_2"]["Bremstestschalter"])
 
-    self.prev_distance_button = self.distance_button
     self.distance_button = bool(pt_cp.vl["GRA_Neu"]["GRA_Zeitluecke"])
 
     self.frame += 1

@@ -13,6 +13,7 @@ class SubaruMsg(enum.IntEnum):
   Throttle          = 0x40
   Steering_Torque   = 0x119
   Wheel_Speeds      = 0x13a
+  Brake_Pedal       = 0x139
   ES_LKAS           = 0x122
   ES_LKAS_ANGLE     = 0x124
   ES_Brake          = 0x220
@@ -52,7 +53,7 @@ def gen2_long_additional_tx_msgs():
 def fwd_blacklisted_addr(lkas_msg=SubaruMsg.ES_LKAS):
   return {SUBARU_CAM_BUS: [lkas_msg, SubaruMsg.ES_DashStatus, SubaruMsg.ES_LKAS_State, SubaruMsg.ES_Infotainment]}
 
-class TestSubaruSafetyBase(common.PandaCarSafetyTest):
+class TestSubaruSafetyBase(common.PandaCarSafetyTest, common.AlwaysOnLateralSafetyTest):
   FLAGS = 0
   STANDSTILL_THRESHOLD = 0 # kph
   RELAY_MALFUNCTION_ADDRS = {SUBARU_MAIN_BUS: (SubaruMsg.ES_LKAS,)}
@@ -106,11 +107,14 @@ class TestSubaruSafetyBase(common.PandaCarSafetyTest):
     values = {"Cruise_Activated": enable}
     return self.packer.make_can_msg_panda("CruiseControl", self.ALT_MAIN_BUS, values)
 
-  # FrogPilot tests
-  def _toggle_aol(self, toggle_on):
-    # CruiseControl, Cruise_On is the main on button
-    values = {"Cruise_On": 1 if toggle_on else 0}
+  # FrogPilot variables
+  def _acc_state_msg(self, on):
+    values = {"Cruise_On": on}
+
     return self.packer.make_can_msg_panda("CruiseControl", self.ALT_MAIN_BUS, values)
+
+  def _lkas_press_msg(self, pressed):
+    return None
 
 
 class TestSubaruStockLongitudinalSafetyBase(TestSubaruSafetyBase):
@@ -161,7 +165,7 @@ class TestSubaruLongitudinalSafetyBase(TestSubaruSafetyBase, common.Longitudinal
 class TestSubaruTorqueSafetyBase(TestSubaruSafetyBase, common.DriverTorqueSteeringSafetyTest, common.SteerRequestCutSafetyTest):
   MAX_RATE_UP = 50
   MAX_RATE_DOWN = 70
-  MAX_TORQUE = 3071
+  MAX_TORQUE = 2047
 
   # Safety around steering req bit
   MIN_VALID_STEERING_FRAMES = 7
@@ -176,6 +180,12 @@ class TestSubaruTorqueSafetyBase(TestSubaruSafetyBase, common.DriverTorqueSteeri
 class TestSubaruGen1TorqueStockLongitudinalSafety(TestSubaruStockLongitudinalSafetyBase, TestSubaruTorqueSafetyBase):
   FLAGS = 0
   TX_MSGS = lkas_tx_msgs(SUBARU_MAIN_BUS)
+
+
+# FrogPilot tests
+class TestSubaruGen1TorqueRaisedSteerLimitStockLongitudinalSafety(TestSubaruGen1TorqueStockLongitudinalSafety):
+  FLAGS = Panda.FLAG_SUBARU_RAISED_STEER_LIMIT
+  MAX_TORQUE = 3071
 
 
 class TestSubaruGen2TorqueSafetyBase(TestSubaruTorqueSafetyBase):
@@ -228,6 +238,65 @@ class TestSubaruGen2LongitudinalSafety(TestSubaruLongitudinalSafetyBase, TestSub
     for sid in range(0xFF):
       msg = b'\x03' + sid.to_bytes(1) + b'\x00' * 6
       self.assertFalse(self._tx(self._es_uds_msg(msg)))
+
+
+class TestSubaruSngForwarding(unittest.TestCase):
+  TX_MSGS = None
+  SNG_TX_TIMEOUT = 100000
+
+  def setUp(self):
+    self.safety = libpanda_py.libpanda
+    self.safety.set_safety_hooks(Panda.SAFETY_SUBARU, Panda.FLAG_SUBARU_SNG)
+    self.safety.init_tests()
+
+  def _tx_sng(self, addr, bus=SUBARU_CAM_BUS):
+    return self.safety.safety_tx_hook(libpanda_py.make_CANPacket(addr, bus, b"\x00" * 8))
+
+  def _forwarded(self, addr):
+    return self.safety.safety_fwd_hook(SUBARU_MAIN_BUS, addr) == SUBARU_CAM_BUS
+
+  def test_flag_off(self):
+    self.safety.set_safety_hooks(Panda.SAFETY_SUBARU, 0)
+    for addr in (SubaruMsg.Throttle, SubaruMsg.Brake_Pedal):
+      self.assertFalse(self._tx_sng(addr))
+      self.assertTrue(self._forwarded(addr))
+
+  def test_forwarded_without_sng_tx(self):
+    self.safety.set_timer(10000000)
+    for addr in (SubaruMsg.Throttle, SubaruMsg.Brake_Pedal):
+      self.assertTrue(self._forwarded(addr))
+
+  def test_blocked_until_sng_tx_times_out(self):
+    for addr in (SubaruMsg.Throttle, SubaruMsg.Brake_Pedal):
+      for ts in (0, 2**32 - self.SNG_TX_TIMEOUT // 2):
+        self.safety.set_safety_hooks(Panda.SAFETY_SUBARU, Panda.FLAG_SUBARU_SNG)
+        self.safety.set_timer(ts)
+        self.assertTrue(self._tx_sng(addr))
+        self.assertFalse(self._forwarded(addr))
+        self.safety.set_timer((ts + self.SNG_TX_TIMEOUT) % 2**32)
+        self.assertFalse(self._forwarded(addr))
+        self.safety.set_timer((ts + self.SNG_TX_TIMEOUT + 1) % 2**32)
+        self.assertTrue(self._forwarded(addr))
+        self.safety.set_timer(ts)
+        self.assertTrue(self._forwarded(addr))
+
+  def test_addresses_are_independent(self):
+    self.safety.set_timer(0)
+    self.assertTrue(self._tx_sng(SubaruMsg.Throttle))
+    self.assertFalse(self._forwarded(SubaruMsg.Throttle))
+    self.assertTrue(self._forwarded(SubaruMsg.Brake_Pedal))
+
+  def test_rejected_tx_does_not_block(self):
+    self.safety.set_timer(0)
+    for addr in (SubaruMsg.Throttle, SubaruMsg.Brake_Pedal):
+      self.assertFalse(self._tx_sng(addr, SUBARU_MAIN_BUS))
+      self.assertTrue(self._forwarded(addr))
+
+  def test_init_resets_sng_tx(self):
+    self.safety.set_timer(0)
+    self.assertTrue(self._tx_sng(SubaruMsg.Throttle))
+    self.safety.set_safety_hooks(Panda.SAFETY_SUBARU, Panda.FLAG_SUBARU_SNG)
+    self.assertTrue(self._forwarded(SubaruMsg.Throttle))
 
 
 if __name__ == "__main__":

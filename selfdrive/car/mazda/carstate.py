@@ -5,6 +5,9 @@ from opendbc.can.parser import CANParser
 from openpilot.selfdrive.car.interfaces import CarStateBase
 from openpilot.selfdrive.car.mazda.values import DBC, LKAS_LIMITS, MazdaFlags
 
+# FrogPilot variables
+STANDSTILL_LOCKOUT_TIME = 3.5
+
 class CarState(CarStateBase):
   def __init__(self, CP, FPCP):
     super().__init__(CP, FPCP)
@@ -20,6 +23,12 @@ class CarState(CarStateBase):
 
     self.prev_distance_button = 0
     self.distance_button = 0
+
+    # FrogPilot variables
+    self.main_on_at_start = True
+    self.standstill_lockout = False
+
+    self.standstill_nanos = 0
 
   def update(self, cp, cp_cam, frogpilot_toggles):
 
@@ -83,6 +92,13 @@ class CarState(CarStateBase):
     else:
       self.lkas_allowed_speed = True
 
+      # FrogPilot variables
+      if cp.ts_nanos["ENGINE_DATA"]["SPEED"] > 0 and ret.standstill:
+        self.standstill_lockout = True
+        self.standstill_nanos = cp.ts_nanos["ENGINE_DATA"]["SPEED"]
+      elif cp.ts_nanos["ENGINE_DATA"]["SPEED"] - self.standstill_nanos > STANDSTILL_LOCKOUT_TIME * 1e9 or not lkas_blocked:
+        self.standstill_lockout = False
+
     # TODO: the signal used for available seems to be the adaptive cruise signal, instead of the main on
     #       it should be used for carState.cruiseState.nonAdaptive instead
     ret.cruiseState.available = cp.vl["CRZ_CTRL"]["CRZ_AVAILABLE"] == 1
@@ -99,7 +115,7 @@ class CarState(CarStateBase):
     # Check if LKAS is disabled due to lack of driver torque when all other states indicate
     # it should be enabled (steer lockout). Don't warn until we actually get lkas active
     # and lose it again, i.e, after initial lkas activation
-    ret.steerFaultTemporary = self.lkas_allowed_speed and lkas_blocked
+    ret.steerFaultTemporary = self.lkas_allowed_speed and lkas_blocked and not self.standstill_lockout
 
     self.acc_active_last = ret.cruiseState.enabled
 
@@ -113,7 +129,10 @@ class CarState(CarStateBase):
 
     # FrogPilot CarState functions
     self.lkas_previously_enabled = self.lkas_enabled
-    self.lkas_enabled = not self.lkas_disabled
+    self.lkas_enabled = cp.vl["MSG_05"]["LKAS_BUTTON"] == 1
+
+    if cp.vl["CRZ_CTRL"]["CRZ_READY"] == 1:
+      self.main_on_at_start = ret.cruiseState.available and not ret.cruiseState.enabled and self.main_on_at_start
 
     return ret, fp_ret
 
@@ -141,6 +160,9 @@ class CarState(CarStateBase):
         ("GEAR", 20),
         ("BSM", 10),
       ]
+
+      # FrogPilot variables
+      messages.append(("MSG_05", 10))
 
     return CANParser(DBC[CP.carFingerprint]["pt"], messages, 0)
 

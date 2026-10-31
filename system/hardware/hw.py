@@ -3,6 +3,8 @@ from pathlib import Path
 
 from openpilot.system.hardware import PC
 
+from openpilot.frogpilot.common import frogpilot_paths
+
 DEFAULT_DOWNLOAD_CACHE_ROOT = "/tmp/comma_download_cache"
 
 class Paths:
@@ -16,10 +18,11 @@ class Paths:
       return os.environ['LOG_ROOT']
     elif PC:
       return str(Path(Paths.comma_home()) / "media" / "0" / "realdata")
-    elif not raw and Path("/cache/use_HD").is_file() or HD:
-      return '/data/media/0/realdata_HD/'
-    elif not raw and Path("/cache/use_konik").is_file() or konik:
-      return '/data/media/0/realdata_konik/'
+    # FrogPilot variables
+    elif not raw and frogpilot_paths.HD_PATH.is_file() or HD:
+      return f"{frogpilot_paths.HD_LOGS_PATH}/"
+    elif not raw and frogpilot_paths.KONIK_PATH.is_file() or konik:
+      return f"{frogpilot_paths.KONIK_LOGS_PATH}/"
     else:
       return '/data/media/0/realdata/'
 

@@ -255,13 +255,19 @@ class HTTPHeaderDict(typing.MutableMapping[str, str]):
         self._container[key.lower()] = [key, val]
 
     def __getitem__(self, key: str) -> str:
+        if isinstance(key, bytes):
+            key = key.decode("latin-1")
         val = self._container[key.lower()]
         return ", ".join(val[1:])
 
     def __delitem__(self, key: str) -> None:
+        if isinstance(key, bytes):
+            key = key.decode("latin-1")
         del self._container[key.lower()]
 
     def __contains__(self, key: object) -> bool:
+        if isinstance(key, bytes):
+            key = key.decode("latin-1")
         if isinstance(key, str):
             return key.lower() in self._container
         return False
@@ -350,7 +356,6 @@ class HTTPHeaderDict(typing.MutableMapping[str, str]):
             for key, val in other.items():
                 self.add(key, val)
         elif isinstance(other, typing.Iterable):
-            other = typing.cast(typing.Iterable[tuple[str, str]], other)
             for key, value in other:
                 self.add(key, value)
         elif hasattr(other, "keys") and hasattr(other, "__getitem__"):
@@ -376,6 +381,8 @@ class HTTPHeaderDict(typing.MutableMapping[str, str]):
     ) -> list[str] | _DT:
         """Returns a list of all the values for the named field. Returns an
         empty list if the key doesn't exist."""
+        if isinstance(key, bytes):
+            key = key.decode("latin-1")
         try:
             vals = self._container[key.lower()]
         except KeyError:
@@ -393,6 +400,9 @@ class HTTPHeaderDict(typing.MutableMapping[str, str]):
         """
         Remove content-specific header fields before changing the request
         method to GET or HEAD according to RFC 9110, Section 15.4.
+
+        ``Transfer-Encoding`` goes as well: it frames a request body that is
+        no longer going to be sent.
         """
         content_specific_headers = [
             "Content-Encoding",
@@ -402,6 +412,7 @@ class HTTPHeaderDict(typing.MutableMapping[str, str]):
             "Content-Length",
             "Digest",
             "Last-Modified",
+            "Transfer-Encoding",
         ]
         for header in content_specific_headers:
             self.discard(header)

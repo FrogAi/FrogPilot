@@ -35,18 +35,35 @@ RxCheck nissan_rx_checks[] = {
            {0x1cc, 0, 4, .frequency = 100U}}}, // DOORS_LIGHTS / BRAKE
 };
 
+// FrogPilot variables
+RxCheck nissan_pro_pilot_rx_checks[] = {
+  {.msg = {{0x2, 0, 5, .frequency = 100U},
+           {0x2, 1, 5, .frequency = 100U}, { 0 }}},  // STEER_ANGLE_SENSOR
+  {.msg = {{0x285, 0, 8, .frequency = 50U},
+           {0x285, 1, 8, .frequency = 50U}, { 0 }}}, // WHEEL_SPEEDS_REAR
+  {.msg = {{0x30f, 2, 3, .frequency = 10U},
+           {0x30f, 1, 3, .frequency = 10U}, { 0 }}}, // CRUISE_STATE
+  {.msg = {{0x15c, 0, 8, .frequency = 50U},
+           {0x15c, 1, 8, .frequency = 50U},
+           {0x239, 0, 8, .frequency = 50U}}}, // GAS_PEDAL
+  {.msg = {{0x454, 0, 8, .frequency = 10U},
+           {0x454, 1, 8, .frequency = 10U},
+           {0x1cc, 0, 4, .frequency = 100U}}}, // DOORS_LIGHTS / BRAKE
+  {.msg = {{0x1b6, 1, 8, .frequency = 100U},
+           {0x1b6, 2, 8, .frequency = 100U}, { 0 }}}, // PRO_PILOT
+};
+
 // EPS Location. false = V-CAN, true = C-CAN
 const int NISSAN_PARAM_ALT_EPS_BUS = 1;
+
+// FrogPilot variables
+const int NISSAN_PARAM_LEAF = 2;
 
 bool nissan_alt_eps = false;
 
 static void nissan_rx_hook(const CANPacket_t *to_push) {
   int bus = GET_BUS(to_push);
   int addr = GET_ADDR(to_push);
-
-  if (addr == 0x1b6) {
-    acc_main_on = GET_BIT(to_push, 36U);
-  }
 
   if (bus == (nissan_alt_eps ? 1 : 0)) {
     if (addr == 0x2) {
@@ -73,7 +90,6 @@ static void nissan_rx_hook(const CANPacket_t *to_push) {
       if (addr == 0x15c){
         gas_pressed = ((GET_BYTE(to_push, 5) << 2) | ((GET_BYTE(to_push, 6) >> 6) & 0x3U)) > 3U;
       } else {
-        acc_main_on = GET_BIT(to_push, 17U);
         gas_pressed = GET_BYTE(to_push, 0) > 3U;
       }
     }
@@ -95,6 +111,15 @@ static void nissan_rx_hook(const CANPacket_t *to_push) {
   }
 
   generic_rx_checks((addr == 0x169) && (bus == 0));
+
+  // FrogPilot variables
+  if ((addr == 0x1b6) && (((bus == 1) && !nissan_alt_eps) || ((bus == 2) && nissan_alt_eps))) {
+    acc_main_on = GET_BIT(to_push, 36U);
+  }
+
+  if ((addr == 0x239) && (bus == 0)) {
+    acc_main_on = GET_BIT(to_push, 17U);
+  }
 }
 
 
@@ -153,7 +178,17 @@ static int nissan_fwd_hook(int bus_num, int addr) {
 
 static safety_config nissan_init(uint16_t param) {
   nissan_alt_eps = GET_FLAG(param, NISSAN_PARAM_ALT_EPS_BUS);
-  return BUILD_SAFETY_CFG(nissan_rx_checks, NISSAN_TX_MSGS);
+
+  // FrogPilot variables
+  safety_config ret;
+
+  if (GET_FLAG(param, NISSAN_PARAM_LEAF)) {
+    ret = BUILD_SAFETY_CFG(nissan_rx_checks, NISSAN_TX_MSGS);
+  } else {
+    ret = BUILD_SAFETY_CFG(nissan_pro_pilot_rx_checks, NISSAN_TX_MSGS);
+  }
+
+  return ret;
 }
 
 const safety_hooks nissan_hooks = {

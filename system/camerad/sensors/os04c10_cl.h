@@ -8,33 +8,21 @@
 #define BLACK_LVL 64
 #define VIGNETTE_RSZ 2.2545f
 
-float combine_dual_pvs(float lv, float sv, int expo_time) {
-  float svc = fmax(sv * expo_time, (float)(64 * (PV_MAX10 - BLACK_LVL)));
-  float svd = sv * fmin(expo_time, 8.0) / 8;
+float4 combine_dual_pvs(float4 lv, float4 sv, int expo_time) {
+  float4 svc = fmax(sv * expo_time, (float)(64 * (PV_MAX10 - BLACK_LVL)));
+  float4 svd = sv * fmin(expo_time, 8.0) / 8;
 
   if (expo_time > 64) {
-    if (lv < PV_MAX10 - BLACK_LVL) {
-      return lv / (PV_MAX16 - BLACK_LVL);
-    } else {
-      return (svc / 64) / (PV_MAX16 - BLACK_LVL);
-    }
+    return select((svc / 64) / (PV_MAX16 - BLACK_LVL), lv / (PV_MAX16 - BLACK_LVL), isless(lv, (float4)(PV_MAX10 - BLACK_LVL)));
   } else {
-    if (lv > 32) {
-      return (lv * 64 / fmax(expo_time, 8.0)) / (PV_MAX16 - BLACK_LVL);
-    } else {
-      return svd / (PV_MAX16 - BLACK_LVL);
-    }
+    return select(svd / (PV_MAX16 - BLACK_LVL), (lv * 64 / fmax(expo_time, 8.0)) / (PV_MAX16 - BLACK_LVL), isgreater(lv, (float4)(32)));
   }
 }
 
 float4 normalize_pv_hdr(int4 parsed, int4 short_parsed, float vignette_factor, int expo_time) {
   float4 pl = convert_float4(parsed - BLACK_LVL);
   float4 ps = convert_float4(short_parsed - BLACK_LVL);
-  float4 pv;
-  pv.s0 = combine_dual_pvs(pl.s0, ps.s0, expo_time);
-  pv.s1 = combine_dual_pvs(pl.s1, ps.s1, expo_time);
-  pv.s2 = combine_dual_pvs(pl.s2, ps.s2, expo_time);
-  pv.s3 = combine_dual_pvs(pl.s3, ps.s3, expo_time);
+  float4 pv = combine_dual_pvs(pl, ps, expo_time);
   return clamp(pv*vignette_factor, 0.0, 1.0);
 }
 

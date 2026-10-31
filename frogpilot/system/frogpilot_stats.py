@@ -1,198 +1,28 @@
 import json
 import math
-import requests
-import sqlite3
+import zlib
 
 from cereal import car, custom
 
-from openpilot.frogpilot.common import frogpilot_utilities, frogpilot_variables
+from openpilot.frogpilot.common import frogpilot_paths, frogpilot_utilities, frogpilot_variables
+from openpilot.frogpilot.common.frogpilot_api import API_VERSION
+
+SEA_LIMIT = 0.3
+
+STATS_MOVE_ROUND_TRIPS = 4
 
 
-STATS_PAYLOAD_SCHEMA_VERSION = 1
+def coast_distance(points, latitude, longitude):
+  scale = math.cos(math.radians(latitude))
+  ys = [point_latitude - latitude for point_latitude in points[0::2]]
+  xs = [(point_longitude - longitude) * scale for point_longitude in points[1::2]]
 
-LOCATION_UNAVAILABLE = ("N/A", "N/A", "N/A")
-
-COUNTRY_AMBIGUITY_DISTANCE = 5000
-COUNTRY_AMBIGUITY_MARGIN = 1000
-MAX_NEAREST_CITY_DISTANCE = 100000
-MIN_CITY_POPULATION = 100000
-NEARBY_MAJOR_CITY_DISTANCE = 50000
-
-
-def format_location_name(name):
-  return "N/A" if name in (None, "", "00") else name
-
-
-def get_city_candidates(connection, latitude, longitude):
-  sql = """
-    SELECT name, latitude, longitude, country_code, admin1_code, population
-    FROM (
-      SELECT
-        name,
-        latitude,
-        longitude,
-        country_code,
-        admin1_code,
-        population,
-        latitude - :latitude AS latitude_delta,
-        CASE
-          WHEN ABS(longitude - :longitude) > 180 THEN 360 - ABS(longitude - :longitude)
-          ELSE ABS(longitude - :longitude)
-        END AS longitude_delta
-      FROM cities
-    )
-    ORDER BY latitude_delta * latitude_delta + longitude_delta * longitude_delta * :longitude_weight ASC
-    LIMIT :limit
-  """
-
-  connection.row_factory = sqlite3.Row
-  return connection.execute(
-    sql,
-    {
-      "latitude": latitude,
-      "longitude": longitude,
-      "longitude_weight": max(math.cos(math.radians(latitude)) ** 2, 0.01),
-      "limit": 250,
-    },
-  ).fetchall()
-
-
-def get_fallback_city(connection, country_code, admin1_code):
-  return connection.execute(
-    """
-    SELECT city_fallbacks.name, admin1_regions.admin1_name, countries.country_name
-    FROM city_fallbacks
-    JOIN countries
-      ON countries.country_code = city_fallbacks.country_code
-    LEFT JOIN admin1_regions
-      ON admin1_regions.country_code = city_fallbacks.country_code
-      AND admin1_regions.admin1_code = city_fallbacks.fallback_admin1_code
-    WHERE city_fallbacks.country_code = :country_code
-      AND city_fallbacks.admin1_code = :admin1_code
-    LIMIT 1
-    """,
-    {
-      "country_code": country_code,
-      "admin1_code": admin1_code,
-    },
-  ).fetchone()
-
-
-def get_location_names(connection, country_code, admin1_code):
-  location = connection.execute(
-    """
-    SELECT admin1_regions.admin1_name, countries.country_name
-    FROM countries
-    LEFT JOIN admin1_regions
-      ON admin1_regions.country_code = countries.country_code
-      AND admin1_regions.admin1_code = :admin1_code
-    WHERE countries.country_code = :country_code
-    LIMIT 1
-    """,
-    {
-      "country_code": country_code,
-      "admin1_code": admin1_code,
-    },
-  ).fetchone()
-
-  if location is None:
-    return "N/A", "N/A"
-
-  return format_location_name(location["admin1_name"]), location["country_name"] or "N/A"
-
-
-def get_nearby_major_city(connection, latitude, longitude, best_city):
-  nearby_major_cities = connection.execute(
-    """
-    SELECT name, latitude, longitude, country_code, admin1_code, population
-    FROM cities
-    WHERE country_code = :country_code
-      AND admin1_code = :admin1_code
-      AND population >= :min_city_population
-    """,
-    {
-      "country_code": best_city["country_code"],
-      "admin1_code": best_city["admin1_code"],
-      "min_city_population": MIN_CITY_POPULATION,
-    },
-  ).fetchall()
-  if not nearby_major_cities:
-    return None
-
-  nearby_major_city = min(
-    nearby_major_cities,
-    key=lambda city: frogpilot_utilities.calculate_distance_to_point(latitude, longitude, city["latitude"], city["longitude"]),
-  )
-  distance = frogpilot_utilities.calculate_distance_to_point(latitude, longitude, nearby_major_city["latitude"], nearby_major_city["longitude"])
-  return nearby_major_city if distance <= NEARBY_MAJOR_CITY_DISTANCE else None
-
-
-def is_country_ambiguous(ranked_candidates):
-  best_distance, _, best_city = ranked_candidates[0]
-
-  for distance, _, city in ranked_candidates[1:]:
-    if distance > COUNTRY_AMBIGUITY_DISTANCE or distance - best_distance > COUNTRY_AMBIGUITY_MARGIN:
-      break
-    if city["country_code"] != best_city["country_code"]:
-      return True
-
-  return False
-
-
-def get_city(gps_position):
-  coordinates = frogpilot_utilities.parse_gps_position(gps_position)
-  if coordinates is None:
-    return LOCATION_UNAVAILABLE
-
-  latitude, longitude = coordinates
-  if latitude == 0 and longitude == 0:
-    return LOCATION_UNAVAILABLE
-
-  try:
-    city_lookup_path = frogpilot_variables.CITY_LOOKUP_PATH
-    if not city_lookup_path.is_file():
-      return LOCATION_UNAVAILABLE
-
-    connection = sqlite3.connect(f"{city_lookup_path.resolve().as_uri()}?mode=ro", uri=True)
-    try:
-      candidates = get_city_candidates(connection, latitude, longitude)
-      if not candidates:
-        return LOCATION_UNAVAILABLE
-
-      ranked_candidates = sorted(
-        (
-          frogpilot_utilities.calculate_distance_to_point(latitude, longitude, city["latitude"], city["longitude"]),
-          index,
-          city,
-        )
-        for index, city in enumerate(candidates)
-      )
-      if is_country_ambiguous(ranked_candidates):
-        return LOCATION_UNAVAILABLE
-
-      best_city = ranked_candidates[0][2]
-      if ranked_candidates[0][0] > MAX_NEAREST_CITY_DISTANCE:
-        return LOCATION_UNAVAILABLE
-
-      if best_city["population"] < MIN_CITY_POPULATION:
-        nearby_major_city = get_nearby_major_city(connection, latitude, longitude, best_city)
-        if nearby_major_city is not None:
-          admin1_name, country_name = get_location_names(connection, nearby_major_city["country_code"], nearby_major_city["admin1_code"])
-          return nearby_major_city["name"], admin1_name, country_name
-
-        fallback_city = get_fallback_city(connection, best_city["country_code"], best_city["admin1_code"])
-        if fallback_city is None:
-          return LOCATION_UNAVAILABLE
-
-        return fallback_city["name"], format_location_name(fallback_city["admin1_name"]), fallback_city["country_name"] or "N/A"
-
-      admin1_name, country_name = get_location_names(connection, best_city["country_code"], best_city["admin1_code"])
-      return best_city["name"], admin1_name, country_name
-    finally:
-      connection.close()
-  except (sqlite3.Error, OSError, ValueError) as error:
-    print(f"Failed to get city: {error}")
-    return LOCATION_UNAVAILABLE
+  nearest = math.inf
+  for x1, y1, x2, y2 in zip(xs, ys, xs[1:], ys[1:], strict=False):
+    dx, dy = x2 - x1, y2 - y1
+    along = min(max(-(x1 * dx + y1 * dy) / (dx * dx + dy * dy), 0), 1)
+    nearest = min(nearest, (x1 + along * dx) ** 2 + (y1 + along * dy) ** 2)
+  return nearest
 
 
 def get_car_params(params):
@@ -217,6 +47,70 @@ def get_frogpilot_car_params(params):
     return FPCP.to_dict()
 
 
+def get_frogpilot_stats(params):
+  frogpilot_stats = json.loads(params.get("FrogPilotStats") or "{}")
+  frogpilot_stats.pop("StatsMoveId", None)
+
+  return frogpilot_stats
+
+
+def get_location(last_gps_position):
+  if last_gps_position is None:
+    return "N/A", "N/A", "N/A"
+
+  position = json.loads(last_gps_position)
+
+  if (position["latitude"], position["longitude"]) == (0, 0):
+    return "N/A", "N/A", "N/A"
+
+  latitude = position["latitude"]
+  longitude = position["longitude"]
+
+  with frogpilot_paths.BORDERS_PATH.open(encoding="utf-8") as file:
+    borders = json.load(file)
+
+  inside = set()
+  for sides, *points in borders["outlines"]:
+    latitudes = points[0::2]
+    longitudes = points[1::2]
+    for latitude_1, longitude_1, latitude_2, longitude_2 in zip(latitudes, longitudes, latitudes[1:], longitudes[1:], strict=False):
+      if (latitude_1 > latitude) != (latitude_2 > latitude):
+        if longitude < longitude_1 + (latitude - latitude_1) * (longitude_2 - longitude_1) / (latitude_2 - latitude_1):
+          inside ^= set(sides)
+
+  if not inside:
+    distance, sides = min((coast_distance(points, latitude, longitude), sides) for sides, *points in borders["outlines"] if len(sides) == 1)
+    if distance < SEA_LIMIT ** 2:
+      inside = set(sides)
+
+  if inside:
+    region = borders["regions"][min(inside)]
+    location = ("N/A", *region)
+  else:
+    region = None
+    location = ("N/A", "N/A", "N/A")
+
+  with frogpilot_paths.CITIES_PATH.open(encoding="utf-8") as file:
+    countries = json.load(file)
+
+  best_distance = math.inf
+  for country, cities in countries.items():
+    for city, *state, city_latitude, city_longitude in cities:
+      state_name = "N/A"
+      if state:
+        state_name = state[0]
+
+      if region is not None and [country, state_name] != region:
+        continue
+
+      distance = frogpilot_utilities.calculate_distance_to_point(latitude, longitude, city_latitude, city_longitude)
+      if distance < best_distance:
+        best_distance = distance
+        location = city, country, state_name
+
+  return location
+
+
 def get_model_scores(params):
   model_scores = []
 
@@ -228,58 +122,141 @@ def get_model_scores(params):
     model_scores.append({
       "drives": drives,
       "model_name": frogpilot_utilities.clean_model_name(model_name),
-      "score": int(model_data.get("Score", 0) or 0),
+      "score": round(model_data.get("Score", 0) or 0),
     })
 
   return model_scores
 
 
-def send_stats(gps_position, params, frogpilot_toggles):
-  if not frogpilot_toggles.frogpilot_telemetry:
+def merge_stats(frogpilot_stats, added_stats):
+  if "Month" in added_stats and "Month" not in frogpilot_stats:
+    frogpilot_stats.pop("CurrentMonthsMeters", None)
+    frogpilot_stats["Month"] = added_stats["Month"]
+
+  for key, value in added_stats.items():
+    if isinstance(value, dict):
+      totals = frogpilot_stats.setdefault(key, {})
+      for name, amount in value.items():
+        totals[name] = totals.get(name, 0) + amount
+    elif type(value) in (float, int) and key != "Month":
+      if key.startswith(("Highest", "Longest", "Max")):
+        frogpilot_stats[key] = max(frogpilot_stats.get(key, 0), value)
+      elif key != "CurrentMonthsMeters" or added_stats.get("Month") == frogpilot_stats.get("Month"):
+        frogpilot_stats[key] = frogpilot_stats.get(key, 0) + value
+
+
+def move_stats(params, frogpilot_api, stats_lock):
+  payload = {}
+
+  for _ in range(STATS_MOVE_ROUND_TRIPS):
+    body = json.dumps(payload, separators=(",", ":"), sort_keys=True).encode()
+    response = frogpilot_api.post_gzip("/v1/stats-move", body, timeout=30)
+
+    if response is None:
+      print("Error moving stats (status=no_response)")
+
+      return
+
+    if response.status_code not in (200, 204):
+      print(f"Error moving stats (status={response.status_code})")
+
+      return
+
+    if response.status_code == 204 or payload.keys() == {"id"}:
+      move_id = json.loads(params.get("FrogPilotStats") or "{}").get("StatsMoveId", "")
+
+      if params.put("StatsMoveAckedId", move_id) != 0:
+        raise RuntimeError("Unable to save StatsMoveAckedId")
+
+    if response.status_code == 204:
+      return
+
+    instruction = response.json()
+    payload = {"id": instruction["id"]}
+
+    if instruction["id"] == json.loads(params.get("FrogPilotStats") or "{}").get("StatsMoveId"):
+      continue
+
+    if instruction["action"] == "send":
+      if stats_lock.locked():
+        return
+
+      payload["stats"] = get_frogpilot_stats(params)
+      continue
+
+    if not stats_lock.acquire(blocking=False):
+      return
+
+    try:
+      if instruction["action"] == "wipe":
+        frogpilot_stats = {}
+      else:
+        frogpilot_stats = json.loads(params.get("FrogPilotStats") or "{}")
+        merge_stats(frogpilot_stats, instruction["stats"])
+
+      frogpilot_stats["StatsMoveId"] = instruction["id"]
+
+      if params.put("FrogPilotStats", json.dumps(frogpilot_stats)) != 0:
+        raise RuntimeError("Unable to save FrogPilotStats")
+    finally:
+      stats_lock.release()
+
+
+def reset_stats(params):
+  move_id = json.loads(params.get("FrogPilotStats") or "{}").get("StatsMoveId")
+
+  if move_id is None:
+    params.remove("FrogPilotStats")
+
     return
 
-  if frogpilot_toggles.car_make == "mock":
+  if params.put("FrogPilotStats", json.dumps({"StatsMoveId": move_id})) != 0:
+    raise RuntimeError("Unable to save FrogPilotStats")
+
+
+def send_stats(params, frogpilot_toggles, frogpilot_api, stats_lock):
+  move_stats(params, frogpilot_api, stats_lock)
+
+  if json.loads(params.get("FrogPilotStats") or "{}").get("StatsMoveId") != params.get("StatsMoveAckedId", encoding="utf-8"):
     return
 
-  api_info = frogpilot_utilities.get_frogpilot_api_info()
-  if not api_info.api_token or not api_info.dongle_id:
+  if not params.get_bool("FrogPilotTelemetryConfirmed"):
     return
 
-  city, state, country = get_city(gps_position)
-
-  using_default_model = (params.get("Model", encoding="utf-8") or "").endswith("_default")
+  if frogpilot_toggles.car_make in ("body", "mock"):
+    return
 
   payload = {
-    "api_token": api_info.api_token,
-    "build_metadata": api_info.build_metadata,
-    "device": api_info.device_type,
-    "frogpilot_dongle_id": api_info.dongle_id,
-    "model_scores": get_model_scores(params),
-    "os_version": api_info.os_version,
-    "stats_schema_version": STATS_PAYLOAD_SCHEMA_VERSION,
-    "user_stats": {
+    "model_scores": [],
+    "stats_schema_version": API_VERSION,
+    "user_stats": {},
+  }
+
+  if frogpilot_toggles.frogpilot_telemetry:
+    city, country, state = get_location(params.get("LastGPSPosition"))
+
+    payload["model_scores"] = get_model_scores(params)
+    payload["user_stats"] = {
       "calibrated_lateral_acceleration": params.get_float("CalibratedLateralAcceleration"),
       "car_params": get_car_params(params),
       "city": city,
       "country": country,
-      "device": api_info.device_type,
       "frogpilot_car_params": get_frogpilot_car_params(params),
-      "frogpilot_dongle_id": api_info.dongle_id,
-      "frogpilot_stats": json.loads(params.get("FrogPilotStats") or "{}"),
+      "frogpilot_stats": get_frogpilot_stats(params),
       "state": state,
       "toggles": vars(frogpilot_toggles),
-      "using_default_model": using_default_model,
-    },
-  }
+      "using_default_model": frogpilot_toggles.model == frogpilot_variables.DEFAULT_MODEL,
+    }
+  else:
+    params.remove("SpeedLimitFillerUploadedHash")
 
-  try:
-    response = requests.post(
-      f"{frogpilot_variables.FROGPILOT_API}/stats",
-      json=payload,
-      headers={"Content-Type": "application/json", "User-Agent": "frogpilot-api/1.0"},
-      timeout=30,
-    )
-    response.raise_for_status()
-    print("Successfully sent FrogPilot stats!")
-  except requests.exceptions.RequestException as error:
-    print(f"Failed to send stats: {error}")
+  data = json.dumps(payload, separators=(",", ":"), sort_keys=True).encode()
+
+  compressor = zlib.compressobj(level=9, wbits=-15, zdict=frogpilot_paths.STATS_DICTIONARY_PATH.read_bytes())
+  body = compressor.compress(data) + compressor.flush()
+
+  headers = {"Content-Encoding": "frogpilot-stats-1", "Content-Type": "application/json"}
+  response = frogpilot_api.post("/v1/stats", data=body, headers=headers, timeout=30)
+  if response is None or not 200 <= response.status_code < 300:
+    status = "no_response" if response is None else response.status_code
+    print(f"Error sending stats (status={status})")

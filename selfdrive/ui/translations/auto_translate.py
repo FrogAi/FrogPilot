@@ -159,8 +159,11 @@ def evaluate_translation(source: str, old: str, new: str, language: str) -> str:
     if 400 <= response.status_code < 600:
       raise requests.HTTPError(f'Error {response.status_code}: {response.text}', response=response)
 
-    data = response.json()
-    return cast(str, data["choices"][0]["message"]["content"])
+    choice = response.json()["choices"][0]
+    if choice["finish_reason"] != "stop":
+      return old
+
+    return cast(str, choice["message"]["content"])
   except Exception as e:
     print(f"Evaluation failed for '{source[:40]}...': {e}")
     return old
@@ -173,31 +176,29 @@ def translate_phrase(text: str, language: str) -> str:
   else:
     prompt = OPENAI_PROMPT.format(language=language)
 
-  try:
-    response = SESSION.post(
-      "https://api.openai.com/v1/chat/completions",
-      json={
-        "model": OPENAI_MODEL,
-        "messages": [
-          {"role": "system", "content": prompt},
-          {"role": "user", "content": text},
-        ],
-        "max_completion_tokens": 2048,
-        "reasoning_effort": "minimal",
-        "verbosity": "low",
-      },
-      timeout=(10, 60)
-    )
+  response = SESSION.post(
+    "https://api.openai.com/v1/chat/completions",
+    json={
+      "model": OPENAI_MODEL,
+      "messages": [
+        {"role": "system", "content": prompt},
+        {"role": "user", "content": text},
+      ],
+      "max_completion_tokens": 2048,
+      "reasoning_effort": "minimal",
+      "verbosity": "low",
+    },
+    timeout=(10, 60)
+  )
 
-    if 400 <= response.status_code < 600:
-      print(f'Error {response.status_code}: {response.text}')
-      return ""
+  if 400 <= response.status_code < 600:
+    raise requests.HTTPError(f'Error {response.status_code}: {response.text}', response=response)
 
-    data = response.json()
-    return cast(str, data["choices"][0]["message"]["content"])
-  except Exception as e:
-    print(f"Translation failed for '{text[:40]}...': {e}")
-    return ""
+  choice = response.json()["choices"][0]
+  if choice["finish_reason"] != "stop":
+    raise ValueError(f"Incomplete translation (finish_reason: {choice['finish_reason']})")
+
+  return cast(str, choice["message"]["content"])
 
 
 def translate_file(path: pathlib.Path, language: str, all_: bool, vet_translations: bool) -> None:
@@ -222,6 +223,9 @@ def translate_file(path: pathlib.Path, language: str, all_: bool, vet_translatio
 
       translation_type = translation.attrib.get("type", "")
 
+      if translation_type in ("vanished", "obsolete"):
+        continue
+
       if vet_translations:
         if "-generated" not in translation_type:
           continue
@@ -233,8 +237,11 @@ def translate_file(path: pathlib.Path, language: str, all_: bool, vet_translatio
             continue
 
       text = cast(str, source.text)
-      numerus = (message.attrib.get("numerus") == "yes") or ("%n" in text)
-      old_translation = translation.text or ""
+      numerus = message.attrib.get("numerus") == "yes"
+      if numerus:
+        old_translation = translation.find("numerusform").text or ""
+      else:
+        old_translation = translation.text or ""
 
       work_items.append((message, translation, text, numerus, old_translation))
 
@@ -266,21 +273,16 @@ def translate_file(path: pathlib.Path, language: str, all_: bool, vet_translatio
 
       if was_vetted:
         print(f"Chosen translation: {chosen_translation}")
-        translation.text = chosen_translation
       else:
         translation.set("type", f"{OPENAI_MODEL}-generated")
 
-        if numerus:
-          translations = chosen_translation or (translation.text or text)
-          for child in list(translation):
-            translation.remove(child)
-
-          translation.text = None
-
-          ET.SubElement(translation, "numerusform").text = translations
-          ET.SubElement(translation, "numerusform").text = translations
-        else:
-          translation.text = chosen_translation
+      if numerus:
+        forms = translation.findall("numerusform")
+        if chosen_translation != forms[0].text:
+          for form in forms:
+            form.text = chosen_translation
+      else:
+        translation.text = chosen_translation
 
   with path.open("w", encoding="utf-8") as fp:
     fp.write('<?xml version="1.0" encoding="utf-8"?>\n' +
