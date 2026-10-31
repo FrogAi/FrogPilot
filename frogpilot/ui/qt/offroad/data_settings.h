@@ -6,18 +6,21 @@ class FrogPilotDataPanel : public FrogPilotListWidget {
   Q_OBJECT
 
 public:
-  explicit FrogPilotDataPanel(FrogPilotSettingsWindow *parent);
+  explicit FrogPilotDataPanel(FrogPilotSettingsWindow *parent, bool forceOpen = false);
 
 signals:
   void openSubPanel();
 
 private:
+  void showEvent(QShowEvent *event) override;
+  void updateState(const UIState &s, const FrogPilotUIState &fs);
   void updateStatsLabels(FrogPilotListWidget *labelsList);
 
-  bool isMetric;
+  bool isMetric = false;
 
-  FrogPilotSettingsWindow *parent;
+  FrogPilotSettingsWindow *parent = nullptr;
 
   Params params;
-  Params params_cache{"/cache/params"};
+
+  FrogPilotButtonsControl *accountButton;
 };

@@ -29,7 +29,4 @@ private:
 
   void refresh();
   void getUserKeys(const QString &username);
-
-  // FrogPilot variables
-  Params params_cache{"/cache/params"};
 };

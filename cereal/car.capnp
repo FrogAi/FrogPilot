@@ -274,6 +274,7 @@ struct CarState {
       setCruise @9;
       resumeCruise @10;
       gapAdjustCruise @11;
+      lkas @12;
     }
   }
 
@@ -707,5 +708,5 @@ struct CarParams {
   brakeMaxVDEPRECATED @16 :List(Float32);
   directAccelControlDEPRECATED @30 :Bool;
   maxSteeringAngleDegDEPRECATED @54 :Float32;
-  longitudinalActuatorDelayLowerBoundDEPRECATEDDEPRECATED @61 :Float32;
+  longitudinalActuatorDelayLowerBoundDEPRECATED @61 :Float32;
 }

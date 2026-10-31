@@ -17,7 +17,7 @@ MSG_ACC_GRA_ANZEIGE = 0x56A   # TX by OP, ACC HUD
 MSG_LDW_1 = 0x5BE             # TX by OP, Lane line recognition and text alerts
 
 
-class TestVolkswagenPqSafety(common.PandaCarSafetyTest, common.DriverTorqueSteeringSafetyTest):
+class TestVolkswagenPqSafety(common.PandaCarSafetyTest, common.DriverTorqueSteeringSafetyTest, common.AlwaysOnLateralSafetyTest):
   cruise_engaged = False
 
   STANDSTILL_THRESHOLD = 0
@@ -115,10 +115,12 @@ class TestVolkswagenPqSafety(common.PandaCarSafetyTest, common.DriverTorqueSteer
     self.assertEqual(0, self.safety.get_torque_driver_max())
     self.assertEqual(0, self.safety.get_torque_driver_min())
 
-  # FrogPilot tests
-  def _toggle_aol(self, toggle_on):
-    # Motor_5, GRA_Hauptschalter is the main cruise switch
-    return self._motor_5_msg(main_switch=toggle_on)
+  # FrogPilot variables
+  def _acc_state_msg(self, on):
+    return self._motor_5_msg(main_switch=on)
+
+  def _lkas_press_msg(self, pressed):
+    return None
 
 
 class TestVolkswagenPqStockSafety(TestVolkswagenPqSafety):

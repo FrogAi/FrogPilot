@@ -72,6 +72,26 @@ void OnroadWindow::updateState(const UIState &s, const FrogPilotUIState &fs) {
   }
 
   alerts->updateState(s, fs);
+
+  // FrogPilot variables
+  const QJsonObject &frogpilot_toggles = fs.frogpilot_toggles;
+
+  if (map != nullptr) {
+    if (frogpilot_toggles.value("full_map").toBool()) {
+      map->setFixedWidth(width() - 2 * UI_BORDER_SIZE);
+    } else if (frogpilot_toggles.value("big_map").toBool()) {
+      map->setFixedWidth(topWidget(this)->width() * 3 / 4 - UI_BORDER_SIZE);
+    } else {
+      map->setFixedWidth(topWidget(this)->width() / 2 - UI_BORDER_SIZE);
+    }
+  }
+
+  bool full_map_open = isMapVisible() && frogpilot_toggles.value("full_map").toBool();
+  nvg->setVisible(!full_map_open);
+
+  nvg->alertShowing = alerts->isShowing();
+  nvg->frogpilot_nvg->bigMapOpen = isMapVisible() && frogpilot_toggles.value("big_map").toBool() && !frogpilot_toggles.value("full_map").toBool();
+
   nvg->updateState(s, fs);
 
   QColor bgColor = bg_colors[s.status];
@@ -95,8 +115,8 @@ void OnroadWindow::mousePressEvent(QMouseEvent* e) {
   QJsonObject &frogpilot_toggles = fs.frogpilot_toggles;
   SubMaster &fpsm = *(fs.sm);
 
-  if (fpsm["frogpilotPlan"].getFrogpilotPlan().getSpeedLimitChanged() && nvg->frogpilot_nvg->newSpeedLimitRect.contains(e->pos())) {
-    fs.params_memory.putBool("SpeedLimitAccepted", true);
+  if (fpsm["frogpilotPlan"].getFrogpilotPlan().getSpeedLimitChanged() && nvg->frogpilot_nvg->newSpeedLimitRect.contains(nvg->mapFrom(this, e->pos()))) {
+    fs.speedLimitAccepted();
     return;
   }
 
@@ -105,29 +125,6 @@ void OnroadWindow::mousePressEvent(QMouseEvent* e) {
     bool sidebarVisible = geometry().x() > 0;
     bool show_map = !sidebarVisible && !frogpilot_toggles.value("hide_map").toBool();
     map->setVisible(show_map && !map->isVisible());
-    if (map->isVisible() && frogpilot_toggles.value("full_map").toBool()) {
-      nvg->frogpilot_nvg->bigMapOpen = false;
-
-      map->setFixedSize(this->size());
-
-      alerts->setVisible(false);
-      nvg->setVisible(false);
-    } else if (map->isVisible() && frogpilot_toggles.value("big_map").toBool()) {
-      nvg->frogpilot_nvg->bigMapOpen = true;
-
-      map->setFixedWidth(topWidget(this)->width() * 3 / 4 - UI_BORDER_SIZE);
-
-      alerts->setVisible(true);
-      nvg->setVisible(true);
-    } else {
-      nvg->frogpilot_nvg->bigMapOpen = false;
-
-      map->setFixedWidth(topWidget(this)->width() / 2 - UI_BORDER_SIZE);
-
-      alerts->setVisible(true);
-      nvg->setVisible(true);
-    }
-    nvg->screen_recorder->setVisible(!map->isVisible() && frogpilot_toggles.value("screen_recorder").toBool());
   }
 #endif
   // propagation event to parent(HomeWindow)
@@ -161,6 +158,14 @@ void OnroadWindow::offroadTransition(bool offroad) {
   if (!offroad) {
     if (map == nullptr && (uiState()->hasPrime() || !MAPBOX_TOKEN.isEmpty())) {
       createMapWidget();
+    }
+
+    // FrogPilot variables
+    if (map != nullptr && frogpilotUIState()->frogpilot_toggles.value("hide_map").toBool()) {
+      nvg->map_settings_btn->setEnabled(false);
+      nvg->map_settings_btn->setVisible(false);
+      map->deleteLater();
+      map = nullptr;
     }
   }
 #endif

@@ -105,10 +105,11 @@ class TestTranslations:
   def test_bad_language(self):
     IGNORED_WORDS = {'pédale'}
 
-    match = re.search(r'_([a-zA-Z]{2,3})', self.file)
-    assert match, f"{self.name} - could not parse language"
+    language = ET.parse(os.path.join(TRANSLATIONS_DIR, f"{self.file}.ts")).getroot().get("language").replace("_", "-").split("-")[0]
 
-    response = requests.get(f"https://raw.githubusercontent.com/LDNOOBW/List-of-Dirty-Naughty-Obscene-and-Otherwise-Bad-Words/master/{match.group(1)}")
+    response = requests.get(f"https://raw.githubusercontent.com/LDNOOBW/List-of-Dirty-Naughty-Obscene-and-Otherwise-Bad-Words/master/{language}")
+    if response.status_code == 404:
+      pytest.skip(f"{self.name} - no bad word list for {language}")
     response.raise_for_status()
 
     banned_words = {line.strip() for line in response.text.splitlines()}

@@ -1,327 +1,274 @@
 #!/usr/bin/env python3
-import dataclasses
-import datetime
 import filecmp
 import json
-import jwt
-import requests
-import re
-import secrets
+import os
 import shutil
 import subprocess
-import tarfile
-import threading
 import time
-import zstandard as zstd
 
-from pathlib import Path
+from multiprocessing import Process
 
-from openpilot.common.api import get_key_pair
-from openpilot.common.basedir import BASEDIR
+from openpilot.common.conversions import Conversions as CV
 from openpilot.common.params import Params
 from openpilot.common.time import system_time_valid
-from openpilot.system.athena.registration import register
-from openpilot.system.hardware import HARDWARE
+from openpilot.system.athena.registration import UNREGISTERED_DONGLE_ID, register
+from openpilot.system.hardware import HARDWARE, PC
 
-from openpilot.frogpilot.assets.model_manager import ModelManager
+from openpilot.frogpilot.system.model_manager import ModelManager
 from openpilot.frogpilot.assets.theme_manager import ThemeManager
-from openpilot.frogpilot.common.frogpilot_utilities import delete_file, run_cmd, use_konik_server
-from openpilot.frogpilot.common.frogpilot_variables import (
-  ERROR_LOGS_PATH, EXCLUDED_KEYS, FROGPILOT_API, HD_LOGS_PATH, KONIK_LOGS_PATH, MODELS_PATH, SCREEN_RECORDINGS_PATH,
-  THEME_SAVE_PATH, VIDEO_CACHE_PATH, FrogPilotVariables, frogpilot_default_params, get_frogpilot_toggles, params
-)
-from openpilot.frogpilot.system.frogpilot_stats import send_stats
+from openpilot.frogpilot.common import frogpilot_backups, frogpilot_paths, frogpilot_utilities, frogpilot_variables
 
-def backup_directory(backup, destination, success_message, fail_message, minimum_backup_size=0, compressed=False):
-  in_progress_destination = destination.parent / (destination.name + "_in_progress")
-  in_progress_destination.mkdir(parents=True, exist_ok=True)
+def cleanup_error_logs():
+  for error_log in sorted(frogpilot_paths.ERROR_LOGS_PATH.glob("*.log"))[:-frogpilot_variables.MAX_ERROR_LOGS]:
+    error_log.unlink()
 
-  if compressed:
-    destination_compressed = destination.parent / (destination.name + ".tar.zst")
+def cleanup_screen_recordings(limit_bytes):
+  recordings = sorted(frogpilot_paths.SCREEN_RECORDINGS_PATH.glob("*.mp4"), key=lambda recording: recording.stat().st_mtime, reverse=True)
 
-    run_cmd(["sudo", "rsync", "-avq", f"{backup}/.", in_progress_destination], "", fail_message, report=False)
+  total = 0
+  for index, recording in enumerate(recordings):
+    total += recording.stat().st_size
+    if index == 0 or total <= limit_bytes:
+      continue
 
-    tar_file = destination.parent / (destination.name + "_in_progress.tar")
-    with tarfile.open(tar_file, "w") as tar:
-      tar.add(in_progress_destination, arcname=destination.name)
+    for suffix in frogpilot_variables.SCREEN_RECORDING_COMPANION_SUFFIXES:
+      frogpilot_utilities.delete_path(recording.with_suffix(suffix), report=False)
+    frogpilot_utilities.delete_path(recording, report=False)
 
-    delete_file(in_progress_destination, report=False)
+def backup_settings(destination):
+  for key in frogpilot_variables.SETTINGS_BACKUP_KEYS:
+    value = frogpilot_variables.params.get(key)
 
-    compressed_file = destination.parent / (destination.name + "_in_progress.tar.zst")
-    with open(compressed_file, "wb") as f:
-      cctx = zstd.ZstdCompressor(level=2)
-      with open(tar_file, "rb") as tar_f:
-        with cctx.stream_writer(f) as compressor:
-          while True:
-            chunk = tar_f.read(65536)
-            if not chunk:
-              break
-            compressor.write(chunk)
+    if value is not None:
+      (destination / key).write_bytes(value)
 
-    tar_file.unlink(missing_ok=True)
+def boot_backup(build_metadata):
+  while not system_time_valid():
+    time.sleep(1)
 
-    compressed_file.rename(destination_compressed)
-    print(f"Backup saved: {destination_compressed}")
+  frogpilot_backups.backup_frogpilot(build_metadata)
 
-    compressed_backup_size = destination_compressed.stat().st_size
-    if minimum_backup_size == 0 or compressed_backup_size < minimum_backup_size:
-      params.put_int("MinimumBackupSize", compressed_backup_size)
-  else:
-    if destination.exists():
-      delete_file(in_progress_destination, report=False)
-      print("Backup already exists. Aborting...")
-      return
+def convert_guam_maps_selection():
+  maps_selected = frogpilot_variables.params.get("MapsSelected")
+  if maps_selected is not None and b'"GU"' in maps_selected:
+    frogpilot_variables.params.put("MapsSelected", maps_selected.replace(b'"GU"', b'"GM"'))
 
-    run_cmd(["sudo", "rsync", "-avq", f"{backup}/.", in_progress_destination], success_message, fail_message, report=False)
-    in_progress_destination.rename(destination)
-
-def cleanup_backups(directory, limit, compressed=False):
-  directory.mkdir(parents=True, exist_ok=True)
-
-  for in_progress in directory.glob("*_in_progress*"):
-    delete_file(in_progress, report=False)
-
-  backups = sorted(directory.glob("*_auto*"), key=lambda x: x.stat().st_mtime, reverse=True)
-  for oldest_backup in backups[limit:]:
-    delete_file(oldest_backup, report=False)
-
-def backup_frogpilot(build_metadata):
-  backup_path = Path("/data/backups")
-  maximum_backups = 3
-  cleanup_backups(backup_path, maximum_backups, compressed=True)
-
-  directory = Path(BASEDIR)
-  destination_directory = backup_path / f"{build_metadata.channel}_{build_metadata.openpilot.git_commit_date[12:-16]}_auto"
-  if (backup_path / (destination_directory.name + ".tar.zst")).exists():
-    print("Backup already exists. Aborting...")
+def convert_model_stop_time():
+  if frogpilot_variables.params.get("CEModelStopTime") is None:
     return
 
-  du_output = subprocess.run(["sudo", "du", "-sb", directory], capture_output=True, check=True, text=True).stdout
-  install_size = int(du_output.split()[0])
+  tuning_level = frogpilot_variables.TUNING_LEVELS["DEVELOPER"]
+  if frogpilot_variables.params.get_bool("TuningLevelConfirmed"):
+    tuning_level = frogpilot_variables.params.get_int("TuningLevel")
 
-  _, _, free = shutil.disk_usage(backup_path)
-  minimum_backup_size = params.get_int("MinimumBackupSize")
-  if free >= install_size + minimum_backup_size * maximum_backups:
-    backup_directory(directory, destination_directory, f"Successfully backed up FrogPilot to {destination_directory}", f"Failed to backup FrogPilot to {destination_directory}", minimum_backup_size, compressed=True)
+  if tuning_level >= frogpilot_variables.TUNING_LEVELS["DEVELOPER"]:
+    frogpilot_variables.params.put_bool("CEStopLights", frogpilot_variables.params.get_int("CEModelStopTime") != 0)
 
-def backup_toggles(params_cache):
-  params_backup = Params("/data/params_backup")
-
-  changes_found = False
-  for key, _, _, _ in frogpilot_default_params:
-    new_value = params.get(key)
-    current_value = params_backup.get(key)
-
-    if new_value != current_value:
-      if new_value is not None:
-        params_backup.put(key, new_value)
-        params_cache.put(key, new_value)
-
-      if key not in EXCLUDED_KEYS:
-        changes_found = True
-
-  backup_path = Path("/data/toggle_backups")
-  maximum_backups = 5
-
-  cleanup_backups(backup_path, maximum_backups)
-
-  existing_backups = list(backup_path.glob("*"))
-  if not changes_found and existing_backups:
-    print("Toggles are identical to the previous backup. Aborting...")
-    return
-
-  directory = Path("/data/params_backup/d")
-  destination_directory = backup_path / f"{datetime.datetime.now().strftime('%Y-%m-%d_%I-%M%p').lower()}_auto"
-  backup_directory(directory, destination_directory, f"Successfully backed up toggles to {destination_directory}", f"Failed to backup toggles to {destination_directory}")
+  frogpilot_variables.params.remove("CEModelStopTime")
 
 def convert_params(params_cache):
   print("Starting to convert params")
 
-  if Path("/cache/tracking").exists():
-    params_tracking = Params("/cache/tracking")
+  for param_store in (frogpilot_variables.params, params_cache):
+    value = param_store.get("MaxLateralAcceleration")
+    if value is not None:
+      try:
+        value = json.loads(value)
+      except (json.JSONDecodeError, TypeError):
+        value = None
 
-    frogpilot_stats = json.loads(params.get("FrogPilotStats") or "{}")
+      if not isinstance(value, dict):
+        param_store.remove("MaxLateralAcceleration")
+
+  for key in (*frogpilot_variables.SECRET_KEYS, "FrogPilotStats", "ShownToggleDescriptions", "ThemesDownloaded"):
+    for param_store in (frogpilot_variables.params, params_cache):
+      if param_store.get(key) == b"0":
+        param_store.remove(key)
+
+  for param_store in (frogpilot_variables.params, params_cache):
+    for old_key, new_key in frogpilot_variables.RENAMED_KEYS.items():
+      value = param_store.get(old_key)
+      if value is not None:
+        param_store.put(new_key, value)
+        param_store.remove(old_key)
+
+  convert_guam_maps_selection()
+  convert_model_stop_time()
+
+  if frogpilot_variables.params.get("SpeedLimitFillerShareData") == b"0":
+    frogpilot_variables.params.put_bool("SpeedLimitFiller", False)
+
+  frogpilot_variables.params.remove("SpeedLimitFillerShareData")
+
+  if frogpilot_variables.params.get_bool("IsMetric"):
+    metric_conversions = {
+      "CESignalSpeed": (CV.MPH_TO_KPH, 0),
+      "LaneLinesWidth": (CV.INCH_TO_CM, 0),
+      "MinimumLaneChangeSpeed": (CV.MPH_TO_KPH, 0),
+      "Offset1": (CV.MPH_TO_KPH, 0),
+      "Offset2": (CV.MPH_TO_KPH, 0),
+      "Offset3": (CV.MPH_TO_KPH, 0),
+      "Offset4": (CV.MPH_TO_KPH, 0),
+      "Offset5": (CV.MPH_TO_KPH, 0),
+      "Offset6": (CV.MPH_TO_KPH, 0),
+      "Offset7": (CV.MPH_TO_KPH, 0),
+      "PathWidth": (CV.FOOT_TO_METER, 1),
+      "RoadEdgesWidth": (CV.INCH_TO_CM, 0),
+    }
+
+    for key, (conversion, decimals) in metric_conversions.items():
+      if frogpilot_variables.params.get(key) is None and params_cache.get(key) is None:
+        frogpilot_variables.params.put(key, str(round(float(frogpilot_variables.get_default_value(key)) * conversion, decimals)))
+
+  if frogpilot_paths.TRACKING_PATH.exists():
+    params_tracking = Params(str(frogpilot_paths.TRACKING_PATH))
+
+    frogpilot_stats = json.loads(frogpilot_variables.params.get("FrogPilotStats") or "{}")
     frogpilot_stats["FrogPilotDrives"] = params_tracking.get_int("FrogPilotDrives")
     frogpilot_stats["FrogPilotMeters"] = params_tracking.get_float("FrogPilotKilometers") * 1000
     frogpilot_stats["FrogPilotSeconds"] = params_tracking.get_float("FrogPilotMinutes") * 60
 
-    params.put("FrogPilotStats", json.dumps(frogpilot_stats))
+    frogpilot_variables.params.put("FrogPilotStats", json.dumps(frogpilot_stats))
 
-    delete_file("/cache/tracking")
+    frogpilot_utilities.delete_path(frogpilot_paths.TRACKING_PATH)
 
   print("Param conversion completed")
 
-def frogpilot_boot_functions(build_metadata, params_cache):
-  if params.get_bool("HasAcceptedTerms"):
-    params_cache.clear_all()
+def frogpilot_boot_functions(build_metadata):
+  if frogpilot_variables.params.get_int("TetheringEnabled") == 3:
+    frogpilot_variables.params.remove("TetheringEnabled")
 
-  frogpilot_variables = FrogPilotVariables()
+  variables = frogpilot_variables.FrogPilotVariables()
+
+  flag_files_changed = sync_flag_file(frogpilot_paths.HD_PATH, variables.frogpilot_toggles.use_higher_bitrate)
+  flag_files_changed |= sync_flag_file(frogpilot_paths.KONIK_PATH, variables.frogpilot_toggles.use_konik_server)
+
+  if flag_files_changed:
+    HARDWARE.reboot()
+
   ModelManager(boot_run=True)
-  frogpilot_variables.update(holiday_theme="stock", started=False)
-  ThemeManager(boot_run=True).update_active_theme(time_validated=system_time_valid(), frogpilot_toggles=get_frogpilot_toggles(), boot_run=True)
+  variables.update(holiday_theme="stock", started=False)
+  frogpilot_toggles = variables.frogpilot_toggles
 
-  if VIDEO_CACHE_PATH.exists():
-    for video in VIDEO_CACHE_PATH.glob("*.mp4"):
-      delete_file(video)
+  ThemeManager.copy_default_theme()
+  ThemeManager(frogpilot_variables.params).update_active_theme(time_validated=system_time_valid(), frogpilot_toggles=frogpilot_toggles, boot_run=True)
 
-  if use_konik_server():
-    if params.get("KonikDongleId", encoding="utf8") != None:
-      params.put("DongleId", params.get("KonikDongleId", encoding="utf8"))
+  if frogpilot_paths.VIDEO_CACHE_PATH.exists():
+    for cached_file in frogpilot_paths.VIDEO_CACHE_PATH.iterdir():
+      frogpilot_utilities.delete_path(cached_file)
+
+  if frogpilot_utilities.use_konik_server():
+    konik_dongle_id = frogpilot_variables.params.get("KonikDongleId", encoding="utf8")
+    if konik_dongle_id in (None, UNREGISTERED_DONGLE_ID):
+      Process(target=register_konik, daemon=True).start()
     else:
-      params.put("KonikDongleId", register(show_spinner=True, register_konik=True))
-      params.put("DongleId", params.get("KonikDongleId", encoding="utf8"))
-  elif params.get("DongleId", encoding="utf8") == params.get("KonikDongleId", encoding="utf8"):
-    params.remove("DongleId")
+      frogpilot_variables.params.put("DongleId", konik_dongle_id)
+  elif frogpilot_variables.params.get("DongleId", encoding="utf8") == frogpilot_variables.params.get("KonikDongleId", encoding="utf8"):
+    frogpilot_variables.params.remove("DongleId")
 
-  def boot_thread():
-    while not system_time_valid():
-      print("Waiting for system time to become valid...")
-      time.sleep(1)
+  shutil.rmtree(frogpilot_paths.RESTORE_TEMP_PATH, ignore_errors=True)
 
-    backup_frogpilot(build_metadata)
-    backup_toggles(params_cache)
+  frogpilot_utilities.delete_path(frogpilot_paths.LEGACY_PARAMS_BACKUP_PATH)
 
-    send_stats(json.loads(params.get("LastGPSPosition") or "{}"), params, get_frogpilot_toggles())
+  Process(target=boot_backup, args=(build_metadata,), daemon=True).start()
 
-  threading.Thread(target=boot_thread, daemon=True).start()
+def register_konik():
+  frogpilot_variables.params.put("KonikDongleId", register(register_konik=True))
 
-def setup_frogpilot(build_metadata):
-  ERROR_LOGS_PATH.mkdir(parents=True, exist_ok=True)
-  HD_LOGS_PATH.mkdir(parents=True, exist_ok=True)
-  KONIK_LOGS_PATH.mkdir(parents=True, exist_ok=True)
-  MODELS_PATH.mkdir(parents=True, exist_ok=True)
-  SCREEN_RECORDINGS_PATH.mkdir(parents=True, exist_ok=True)
-  THEME_SAVE_PATH.mkdir(parents=True, exist_ok=True)
-
-  boot_logo_location = Path("/usr/comma/bg.jpg")
-  frogpilot_boot_logo = Path(__file__).parents[1] / "assets/other_images/frogpilot_boot_logo.png"
-  if not filecmp.cmp(frogpilot_boot_logo, boot_logo_location, shallow=False):
-    stock_mount_options = subprocess.run(["findmnt", "-no", "OPTIONS", "/"], capture_output=True, text=True, check=True).stdout.strip()
-
-    run_cmd(["sudo", "mount", "-o", "remount,rw", "/"], "Successfully remounted / as read-write", "Failed to remount / as read-write")
-    run_cmd(["sudo", "cp", frogpilot_boot_logo, boot_logo_location], "Successfully replaced boot logo", "Failed to replace boot logo")
-    run_cmd(["sudo", "mount", "-o", f"remount,{stock_mount_options}", "/"], "Successfully restored stock mount options", "Failed to restore stock mount options")
-
-  if build_metadata.channel == "FrogPilot-Development" and Path("/persist/frogsgomoo.py").is_file():
-    run_cmd(["sudo", "mount", "-o", "remount,rw", "/persist"], "Successfully remounted /persist as read-write", "Failed to remount /persist")
-    run_cmd(["sudo", "python3", "/persist/frogsgomoo.py"], "Ran frogsgomoo.py", "Failed to run frogsgomoo.py")
-
-  register_device(build_metadata)
-
-def register_device(build_metadata):
-  def valid_api_token(api_token):
-    return isinstance(api_token, str) and re.fullmatch(r"fp_live\.[A-Za-z0-9_-]{43,}", api_token) is not None
-
-  def valid_frogpilot_credentials(api_token, frogpilot_dongle_id):
-    return (
-      valid_api_token(api_token) and
-      isinstance(frogpilot_dongle_id, str) and re.fullmatch(r"[A-Za-z0-9_-]{16}", frogpilot_dongle_id) is not None
-    )
-
-  def ready_device_identity(stock_dongle_id, hardware_serial, imei):
-    return (
-      isinstance(stock_dongle_id, str) and re.fullmatch(r"[A-Za-z0-9]{16}", stock_dongle_id) is not None and
-      isinstance(hardware_serial, str) and re.fullmatch(r"[A-Za-z0-9._:-]{4,128}", hardware_serial) is not None and
-      isinstance(imei, str) and re.fullmatch(r"\d{15}", imei) is not None
-    )
-
-  api_token = params.get("FrogPilotApiToken", encoding="utf8")
-  frogpilot_dongle_id = params.get("FrogPilotDongleId", encoding="utf8")
-  if valid_frogpilot_credentials(api_token, frogpilot_dongle_id):
+def remove_tailscale_service():
+  legacy_unit = [
+    "[Unit]",
+    "Description=Tailscale node agent",
+    "After=network.target",
+    "[Service]",
+    f"ExecStart={frogpilot_paths.TAILSCALE_PATH}/tailscaled \\",
+    "--tun=userspace-networking \\",
+    "--socks5-server=localhost:1055 \\",
+    f"--state={frogpilot_paths.TAILSCALE_STATE_PATH}/tailscaled.state \\",
+    f"--socket={frogpilot_paths.TAILSCALE_SOCKET_PATH} \\",
+    f"--statedir={frogpilot_paths.TAILSCALE_STATE_PATH}",
+    "Restart=on-failure",
+    "RestartSec=5",
+    "[Install]",
+    "WantedBy=multi-user.target",
+  ]
+  unit = [line.strip() for line in frogpilot_paths.UNIT_PATH.read_text().splitlines() if line.strip()]
+  if unit != legacy_unit:
     return
 
-  def register_thread():
-    while not system_time_valid():
-      print("Device registration waiting for valid system time")
-      time.sleep(5)
+  stock_mount_options = subprocess.run(["findmnt", "-no", "OPTIONS", "/"], capture_output=True, text=True, check=True).stdout.strip()
 
-    while True:
-      alg, private_key, public_key = get_key_pair()
-      stock_dongle_id = params.get("StockDongleId", encoding="utf8")
-      hardware_serial = params.get("HardwareSerial", encoding="utf8")
-      imei = params.get("IMEI", encoding="utf8")
-      if (
-        alg in ("RS256", "ES256") and private_key and public_key and
-        ready_device_identity(stock_dongle_id, hardware_serial, imei)
-      ):
-        break
-      print("Device registration waiting for required identity")
-      time.sleep(5)
+  frogpilot_utilities.run_cmd(["sudo", "mount", "-o", "remount,rw", "/"], "Successfully remounted / as read-write", "Failed to remount / as read-write")
+  frogpilot_utilities.run_cmd(["sudo", "systemctl", "disable", "--now", "tailscaled"],
+                              "Successfully stopped the Tailscale service", "Failed to stop the Tailscale service")
+  frogpilot_utilities.run_cmd(["sudo", "rm", str(frogpilot_paths.UNIT_PATH)],
+                              "Successfully removed the Tailscale service", "Failed to remove the Tailscale service")
+  frogpilot_utilities.run_cmd(["sudo", "mount", "-o", f"remount,{stock_mount_options}", "/"],
+                              "Successfully restored stock mount options", "Failed to restore stock mount options")
 
-    claims = {
-      "aud": "frogpilot-register",
-      "build_metadata": dataclasses.asdict(build_metadata),
-      "contract_version": 2,
-      "device": HARDWARE.get_device_type(),
-      "device_public_key": public_key,
-      "hardware_serial": hardware_serial,
-      "identity": stock_dongle_id,
-      "imei": imei,
-      "os_version": HARDWARE.get_os_version(),
-      "registration_attempt_id": secrets.token_urlsafe(16),
-      "stock_dongle_id": stock_dongle_id,
-    }
+  frogpilot_utilities.run_cmd(["sudo", "systemctl", "daemon-reload"], "Successfully reloaded systemd", "Failed to reload systemd")
+  frogpilot_utilities.run_cmd(["sudo", "chown", "-R", f"{os.getuid()}:{os.getgid()}", str(frogpilot_paths.TAILSCALE_PATH)],
+                              "Successfully took ownership of Tailscale", "Failed to take ownership of Tailscale")
 
-    headers = {"User-Agent": "frogpilot-api/2.0"}
-    existing_api_token = params.get("FrogPilotApiToken", encoding="utf8")
-    if valid_api_token(existing_api_token):
-      headers["Authorization"] = f"Bearer {existing_api_token}"
+def restore_settings(source):
+  settings = frogpilot_backups.read_settings_backup(source)
 
-    while True:
-      try:
-        now = int(time.time())
-        token_claims = {
-          **claims,
-          "exp": now + 300,
-          "iat": now,
-          "jti": secrets.token_urlsafe(16),
-          "nbf": now,
-        }
-        registration_token = jwt.encode(token_claims, private_key, algorithm=alg)
-        if isinstance(registration_token, bytes):
-          registration_token = registration_token.decode("utf8")
+  for key, value in settings.items():
+    if frogpilot_utilities.is_unset_secret(key, value):
+      continue
 
-        response = requests.post(
-          f"{FROGPILOT_API}/register",
-          json={"registration_token": registration_token},
-          headers=headers,
-          timeout=10,
-        )
+    if value:
+      frogpilot_variables.params.put(key, value)
+    else:
+      frogpilot_variables.params.remove(key)
+      frogpilot_variables.params_cache.remove(key)
 
-        if response.status_code in (408, 429, 500, 502, 503, 504):
-          print(f"Device registration retryable failure: status={response.status_code}")
-        elif response.status_code == 200:
-          try:
-            data = response.json()
-          except ValueError:
-            data = None
-          if isinstance(data, dict) and data.get("ok") is True:
-            api_token = data.get("api_token")
-            frogpilot_dongle_id = data.get("frogpilot_dongle_id")
-            if valid_frogpilot_credentials(api_token, frogpilot_dongle_id):
-              print(f"Device registration successful: dongle_id={frogpilot_dongle_id[:8]}..., token=set")
-              params.put("FrogPilotApiToken", api_token)
-              params.put("FrogPilotDongleId", frogpilot_dongle_id)
-              return
-          print("Device registration retryable failure: invalid server response")
-        else:
-          print(f"Device registration failed: status={response.status_code}")
-          return
-      except requests.exceptions.RequestException as e:
-        print(f"Device registration retryable failure: request_error={type(e).__name__}")
-      except Exception as e:
-        print(f"Device registration failed: error={type(e).__name__}")
-        return
-      time.sleep(60 + secrets.randbelow(15))
+  convert_guam_maps_selection()
+  convert_model_stop_time()
 
-  threading.Thread(target=register_thread, daemon=True).start()
+def setup_frogpilot(build_metadata):
+  frogpilot_paths.ERROR_LOGS_PATH.mkdir(parents=True, exist_ok=True)
+  frogpilot_paths.HD_LOGS_PATH.mkdir(parents=True, exist_ok=True)
+  frogpilot_paths.KONIK_LOGS_PATH.mkdir(parents=True, exist_ok=True)
+  frogpilot_paths.MODELS_PATH.mkdir(parents=True, exist_ok=True)
+  frogpilot_paths.SCREEN_RECORDINGS_PATH.mkdir(parents=True, exist_ok=True)
+  frogpilot_paths.THEME_SAVE_PATH.mkdir(parents=True, exist_ok=True)
 
+  cleanup_error_logs()
+  cleanup_screen_recordings(10 * 1024 * 1024 * 1024)
+
+  if frogpilot_paths.UNIT_PATH.is_file():
+    remove_tailscale_service()
+
+  update_boot_logo(frogpilot_paths.FROGPILOT_BOOT_LOGO_PATH)
+
+  if build_metadata.channel == frogpilot_variables.DEVELOPMENT_BRANCH and frogpilot_paths.FROGS_GO_MOO_PATH.is_file():
+    frogpilot_utilities.run_cmd(["sudo", "mount", "-o", "remount,rw", "/persist"], "Successfully remounted /persist as read-write", "Failed to remount /persist")
+    frogpilot_utilities.run_cmd(["sudo", "python3", frogpilot_paths.FROGS_GO_MOO_PATH], "Ran frogsgomoo.py", "Failed to run frogsgomoo.py")
+
+def sync_flag_file(flag_path, enabled):
+  if flag_path.is_file() == enabled:
+    return False
+
+  if enabled:
+    flag_path.touch()
+  else:
+    flag_path.unlink()
+
+  return True
 
 def uninstall_frogpilot():
-  boot_logo_location = Path("/usr/comma/bg.jpg")
-  stock_boot_logo = Path(__file__).parents[1] / "assets/other_images/stock_bg.jpg"
-
-  run_cmd(["sudo", "mount", "-o", "remount,rw", "/"], "Successfully remounted / as read-write", "Failed to remount / as read-write")
-  run_cmd(["sudo", "cp", stock_boot_logo, boot_logo_location], "Successfully restored boot logo", "Failed to restore boot logo")
+  update_boot_logo(frogpilot_paths.STOCK_BOOT_LOGO_PATH)
 
   HARDWARE.uninstall()
+
+def update_boot_logo(target_logo):
+  if PC:
+    return
+
+  if not filecmp.cmp(target_logo, frogpilot_paths.BOOT_LOGO_PATH, shallow=False):
+    stock_mount_options = subprocess.run(["findmnt", "-no", "OPTIONS", "/"], capture_output=True, text=True, check=True).stdout.strip()
+
+    frogpilot_utilities.run_cmd(["sudo", "mount", "-o", "remount,rw", "/"], "Successfully remounted / as read-write", "Failed to remount / as read-write")
+    frogpilot_utilities.run_cmd(["sudo", "cp", target_logo, frogpilot_paths.BOOT_LOGO_PATH], "Successfully replaced boot logo", "Failed to replace boot logo")
+    frogpilot_utilities.run_cmd(["sudo", "mount", "-o", f"remount,{stock_mount_options}", "/"], "Successfully restored stock mount options", "Failed to restore stock mount options")

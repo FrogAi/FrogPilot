@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 import unittest
-from panda import Panda
+from panda import ALTERNATIVE_EXPERIENCE, Panda
 from panda.tests.libpanda import libpanda_py
 import panda.tests.safety.common as common
 from panda.tests.safety.common import CANPackerPanda
 
 
-class TestMazdaSafety(common.PandaCarSafetyTest, common.DriverTorqueSteeringSafetyTest):
+class TestMazdaSafety(common.PandaCarSafetyTest, common.DriverTorqueSteeringSafetyTest, common.AlwaysOnLateralSafetyTest):
 
   TX_MSGS = [[0x243, 0], [0x09d, 0], [0x440, 0]]
   STANDSTILL_THRESHOLD = .1
@@ -81,11 +81,23 @@ class TestMazdaSafety(common.PandaCarSafetyTest, common.DriverTorqueSteeringSafe
     self.assertTrue(self._tx(self._button_msg(cancel=True)))
     self.assertTrue(self._tx(self._button_msg(resume=True)))
 
-  # FrogPilot tests
-  def _toggle_aol(self, toggle_on):
-    # CRZ_CTRL, CRZ_AVAILABLE is the main on button
-    values = {"CRZ_AVAILABLE": 1 if toggle_on else 0}
+  # FrogPilot variables
+  def _acc_state_msg(self, on):
+    values = {"CRZ_AVAILABLE": on}
+
     return self.packer.make_can_msg_panda("CRZ_CTRL", 0, values)
+
+  def _lkas_press_msg(self, pressed):
+    return None
+
+  def test_lkas_button_ignored(self):
+    self.safety.set_alternative_experience(ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL | ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL_LKAS_BUTTON)
+    self._rx(self._acc_state_msg(False))
+
+    for pressed in (True, False):
+      self._rx(self.packer.make_can_msg_panda("MSG_05", 0, {"LKAS_BUTTON": pressed}))
+
+    self.assertFalse(self.safety.get_lateral_allowed())
 
 
 if __name__ == "__main__":

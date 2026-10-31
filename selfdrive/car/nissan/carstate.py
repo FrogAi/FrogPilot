@@ -23,6 +23,11 @@ class CarState(CarStateBase):
     self.prev_distance_button = 0
     self.distance_button = 0
 
+    # FrogPilot variables
+    self.lkas_button = None
+    self.lkas_pressed = False
+    self.lkas_previously_pressed = False
+
   def update(self, cp, cp_adas, cp_cam, frogpilot_toggles):
     ret = car.CarState.new_message()
     fp_ret = custom.FrogPilotCarState.new_message()
@@ -108,11 +113,24 @@ class CarState(CarStateBase):
     can_gear = int(cp.vl["GEARBOX"]["GEAR_SHIFTER"])
     ret.gearShifter = self.parse_gear_shifter(self.shifter_values.get(can_gear, None))
 
-    self.lkas_previously_enabled = self.lkas_enabled
     if self.CP.carFingerprint == CAR.NISSAN_ALTIMA:
       self.lkas_enabled = bool(cp.vl["LKAS_SETTINGS"]["LKAS_ENABLED"])
+
+      # FrogPilot variables
+      lkas_settings_seen = cp.ts_nanos["LKAS_SETTINGS"]["LKAS_ENABLED"] > 0
     else:
       self.lkas_enabled = bool(cp_adas.vl["LKAS_SETTINGS"]["LKAS_ENABLED"])
+
+      # FrogPilot variables
+      lkas_settings_seen = cp_adas.ts_nanos["LKAS_SETTINGS"]["LKAS_ENABLED"] > 0
+
+    # FrogPilot variables
+    self.lkas_previously_pressed = self.lkas_pressed
+    self.lkas_pressed = False
+    if lkas_settings_seen:
+      prev_lkas_button = self.lkas_button
+      self.lkas_button = self.lkas_enabled
+      self.lkas_pressed = prev_lkas_button is not None and self.lkas_button != prev_lkas_button
 
     self.cruise_throttle_msg = copy.copy(cp.vl["CRUISE_THROTTLE"])
 

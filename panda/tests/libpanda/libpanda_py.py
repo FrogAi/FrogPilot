@@ -53,6 +53,11 @@ void comms_can_reset(void);
 uint32_t can_slots_empty(can_ring *q);
 """)
 
+ffi.cdef("""
+void mutation_set_active_mutant(int id);
+int mutation_get_active_mutant(void);
+""")
+
 setup_safety_helpers(ffi)
 
 class CANPacket:
@@ -78,8 +83,15 @@ class Panda(PandaSafety, Protocol):
   def safety_fwd_hook(self, bus_num: int, addr: int) -> int: ...
   def set_safety_hooks(self, mode: int, param: int) -> int: ...
 
+  # mutation
+  def mutation_set_active_mutant(self, id: int) -> None: ...
+
 
 libpanda: Panda = ffi.dlopen(libpanda_fn)
+
+def load(path):
+  global libpanda
+  libpanda = ffi.dlopen(str(path))
 
 
 # helpers

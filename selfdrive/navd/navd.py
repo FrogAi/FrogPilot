@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-import hashlib
 import json
 import math
 import os
@@ -19,7 +18,7 @@ from openpilot.selfdrive.navd.helpers import (Coordinate, coordinate_from_param,
                                     parse_banner_instructions)
 from openpilot.common.swaglog import cloudlog
 
-from openpilot.frogpilot.common.frogpilot_variables import get_frogpilot_toggles
+from openpilot.frogpilot.common import frogpilot_variables
 
 REROUTE_DISTANCE = 25
 MANEUVER_TRANSITION_THRESHOLD = 10
@@ -72,10 +71,12 @@ class RouteEngine:
 
     self.nav_speed_limit = 0
 
+    self.off_route_counter = 0
+
     self.stop_coord = []
     self.stop_signal = []
 
-    self.frogpilot_toggles = get_frogpilot_toggles()
+    self.frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles()
 
   def update(self):
     self.sm.update(0)
@@ -96,8 +97,7 @@ class RouteEngine:
       cloudlog.exception("navd.failed_to_compute")
 
     # Update FrogPilot variables
-    if self.sm['frogpilotPlan'].togglesUpdated:
-      self.frogpilot_toggles = get_frogpilot_toggles()
+    self.frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles(self.sm)
 
   def update_location(self):
     location = self.sm['liveLocationKalman']
@@ -137,8 +137,14 @@ class RouteEngine:
       self.recompute_countdown = max(0, self.recompute_countdown - 1)
 
   def calculate_route(self, destination):
+    # FrogPilot variables
+    self.nav_speed_limit = 0
+
+    fp_msg = messaging.new_message('frogpilotNavigation', valid=False)
+    fp_msg.frogpilotNavigation.navigationSpeedLimit = self.nav_speed_limit
+    self.pm.send('frogpilotNavigation', fp_msg)
+
     cloudlog.warning(f"Calculating route {self.last_position} -> {destination}")
-    self.nav_destination = destination
 
     lang = self.params.get('LanguageSetting', encoding='utf8')
     if lang is not None:
@@ -155,7 +161,7 @@ class RouteEngine:
       'overview': 'full',
       'steps': 'true',
       'banner_instructions': 'true',
-      'alternatives': 'true',
+      'alternatives': 'false',
       'language': lang,
     }
 
@@ -182,73 +188,25 @@ class RouteEngine:
         cloudlog.event("API request failed", status_code=resp.status_code, text=resp.text, error=True)
       resp.raise_for_status()
 
+      # FrogPilot variables
+      self.clear_route()
+      self.nav_destination = destination
+
       r = resp.json()
-      r1 = resp.json()
-      chosen_route = r['routes'][0]
-
-      # Function to remove specified keys recursively unnessary for display
-      def remove_keys(obj, keys_to_remove):
-        if isinstance(obj, list):
-          return [remove_keys(item, keys_to_remove) for item in obj]
-        elif isinstance(obj, dict):
-          return {key: remove_keys(value, keys_to_remove) for key, value in obj.items() if key not in keys_to_remove}
-        else:
-          return obj
-
-      keys_to_remove = ['geometry', 'annotation', 'incidents', 'intersections', 'components', 'sub', 'waypoints']
-      self.r2 = remove_keys(r1, keys_to_remove)
-      self.r3 = {}
-
-      # Add items for display under "routes"
-      if 'routes' in self.r2 and len(self.r2['routes']) > 0:
-        first_route = self.r2['routes'][0]
-        nav_destination_json = self.params.get('NavDestination')
-
-        try:
-          route_hash = json.loads(nav_destination_json).get('routeHash')
-        except Exception:
-          route_hash = None
-
-        if route_hash:
-          for cand in r['routes']:
-            flat = ','.join(str(coordinate) for pair in cand['geometry']['coordinates'] for coordinate in pair)
-            if hashlib.sha1(flat.encode()).hexdigest() == route_hash:
-              chosen_route = cand
-              break
-
-        try:
-          nav_destination_data = json.loads(nav_destination_json)
-          place_name = nav_destination_data.get('place_name', 'Default Place Name')
-          first_route['Destination'] = place_name
-          first_route['Metric'] = self.params.get_bool("IsMetric")
-          self.r3['CurrentStep'] = 0
-          self.r3['uuid'] = self.r2['uuid']
-        except json.JSONDecodeError as e:
-          print(f"Error decoding JSON: {e}")
-
-      # Save slim json as file
-      with open('navdirections.json', 'w') as json_file:
-        json.dump(self.r2, json_file, indent=4)
-      with open('CurrentStep.json', 'w') as json_file:
-        json.dump(self.r3, json_file, indent=4)
-
       if len(r['routes']):
-        self.route = chosen_route['legs'][0]['steps']
+        self.route = r['routes'][0]['legs'][0]['steps']
         self.route_geometry = []
 
-        # Iterate through the steps in self.route to find "stop_sign" and "traffic_light"
-        if self.frogpilot_toggles.conditional_navigation_intersections:
-          self.stop_signal = []
-          self.stop_coord = []
-
-          for step in self.route:
-            for intersection in step["intersections"]:
-              if "stop_sign" in intersection or "traffic_signal" in intersection:
-                self.stop_signal.append(intersection["geometry_index"])
-                self.stop_coord.append(Coordinate.from_mapbox_tuple(intersection["location"]))
+        # FrogPilot variables
+        # Iterate through the steps in self.route to find "stop_sign" and "traffic_signal"
+        for step in self.route:
+          for intersection in step["intersections"]:
+            if intersection.get("stop_sign") or intersection.get("traffic_signal"):
+              self.stop_signal.append(intersection["geometry_index"])
+              self.stop_coord.append(Coordinate.from_mapbox_tuple(intersection["location"]))
 
         maxspeed_idx = 0
-        maxspeeds = chosen_route['legs'][0]['annotation']['maxspeed']
+        maxspeeds = r['routes'][0]['legs'][0]['annotation']['maxspeed']
 
         # Convert coordinates
         for step in self.route:
@@ -279,21 +237,25 @@ class RouteEngine:
       self.params.remove('NavDestinationWaypoints')
 
     except requests.exceptions.RequestException:
-      cloudlog.exception("failed to get route")
+      cloudlog.error("failed to get route")
       self.clear_route()
 
     self.send_route()
 
   def send_instruction(self):
     msg = messaging.new_message('navInstruction', valid=True)
-    fp_msg = messaging.new_message('frogpilotNavigation', valid=True)
+
+    # FrogPilot variables
+    fp_msg = messaging.new_message('frogpilotNavigation', valid=False)
 
     if self.step_idx is None:
       msg.valid = False
       self.pm.send('navInstruction', msg)
 
+      # FrogPilot variables
       fp_msg.frogpilotNavigation.navigationSpeedLimit = 0
       self.pm.send('frogpilotNavigation', fp_msg)
+
       return
 
     step = self.route[self.step_idx]
@@ -365,10 +327,18 @@ class RouteEngine:
       if along_geometry < distance_along_geometry(geometry, geometry[closest_idx]):
         closest = geometry[closest_idx - 1]
 
+    # FrogPilot variables
+    closest_leg_idx = closest_idx + sum(len(path) - 1 for path in self.route_geometry[:self.step_idx])
+    route_valid = self.localizer_valid and self.sm.all_checks(service_list=["liveLocationKalman"]) and not self.off_route()
+
     if ('maxspeed' in closest.annotations) and self.localizer_valid:
       msg.navInstruction.speedLimit = closest.annotations['maxspeed']
+
+      # FrogPilot variables
       self.nav_speed_limit = closest.annotations['maxspeed']
-    if not self.localizer_valid or ('maxspeed' not in closest.annotations):
+
+    # FrogPilot variables
+    if not route_valid or ('maxspeed' not in closest.annotations):
       self.nav_speed_limit = 0
 
     # Speed limit sign type
@@ -385,13 +355,6 @@ class RouteEngine:
       if self.step_idx + 1 < len(self.route):
         self.step_idx += 1
         self.reset_recompute_limits()
-
-        # Update the 'CurrentStep' value in the JSON
-        if 'routes' in self.r2 and len(self.r2['routes']) > 0:
-          self.r3['CurrentStep'] = self.step_idx
-        # Write the modified JSON data back to the file
-        with open('CurrentStep.json', 'w') as json_file:
-          json.dump(self.r3, json_file, indent=4)
       else:
         cloudlog.warning("Destination reached")
 
@@ -401,13 +364,15 @@ class RouteEngine:
           self.params.remove("NavDestination")
           self.clear_route()
 
-    if self.frogpilot_toggles.conditional_navigation:
+    # FrogPilot variables
+    fp_msg.valid = self.step_idx is not None and route_valid
+    if fp_msg.valid and self.frogpilot_toggles.conditional_navigation:
       v_ego = self.sm['carState'].vEgo
       seconds_to_stop = interp(v_ego, [0, 22.5, 45], [5, 10, 10])
 
-      closest_condition_indices = [idx for idx in self.stop_signal if idx >= closest_idx]
+      closest_condition_indices = [idx for idx in self.stop_signal if idx >= closest_leg_idx]
       if closest_condition_indices:
-        closest_condition_index = min(closest_condition_indices, key=lambda idx: abs(closest_idx - idx))
+        closest_condition_index = min(closest_condition_indices)
         index = self.stop_signal.index(closest_condition_index)
 
         distance_to_condition = self.last_position.distance_to(self.stop_coord[index])
@@ -415,7 +380,10 @@ class RouteEngine:
       else:
         self.approaching_intersection = False
 
-      self.approaching_turn = self.frogpilot_toggles.conditional_navigation_turns and distance_to_maneuver_along_geometry < max((seconds_to_stop * v_ego), 25)
+      turning = (msg.navInstruction.maneuverType not in ("arrive", "depart") and
+                 msg.navInstruction.maneuverModifier in ("left", "right", "sharp left", "sharp right", "slight left", "slight right", "uturn"))
+      self.approaching_turn = (self.frogpilot_toggles.conditional_navigation_turns and turning and
+                              distance_to_maneuver_along_geometry < max((seconds_to_stop * v_ego), 25))
     else:
       self.approaching_intersection = False
       self.approaching_turn = False
@@ -443,9 +411,47 @@ class RouteEngine:
     self.step_idx = None
     self.nav_destination = None
 
+    # FrogPilot variables
+    self.approaching_intersection = False
+    self.approaching_turn = False
+    self.nav_speed_limit = 0
+    self.stop_coord = []
+    self.stop_signal = []
+
   def reset_recompute_limits(self):
     self.recompute_backoff = 0
     self.recompute_countdown = 0
+
+  # FrogPilot variables
+  def distance_to_route(self, step_idx=None):
+    # Compute closest distance to all line segments in the given step's path
+    min_d = REROUTE_DISTANCE + 1
+    path = self.route_geometry[self.step_idx if step_idx is None else step_idx]
+    for i in range(len(path) - 1):
+      a = path[i]
+      b = path[i + 1]
+
+      if a.distance_to(b) < 1.0:
+        continue
+
+      min_d = min(min_d, minimum_distance(a, b, self.last_position))
+    return min_d
+
+  # FrogPilot variables
+  def off_route(self):
+    # Don't trust the distance check when GPS drifts in tunnels
+    if not self.gps_ok:
+      self.off_route_counter = 0
+      return False
+
+    far = self.distance_to_route() > REROUTE_DISTANCE
+    if far and self.step_idx + 1 < len(self.route_geometry):
+      # The step index lags the car after a maneuver, so check the next step's geometry too
+      far = self.distance_to_route(self.step_idx + 1) > REROUTE_DISTANCE
+
+    # Debounce like the reroute logic so GPS reacquisition drift can't blip the limit
+    self.off_route_counter = self.off_route_counter + 1 if far else 0
+    return self.off_route_counter > REROUTE_COUNTER_MIN
 
   def should_recompute(self):
     if self.step_idx is None or self.route is None:
@@ -455,19 +461,7 @@ class RouteEngine:
     if self.step_idx == len(self.route) - 1:
       return False
 
-    # Compute closest distance to all line segments in the current path
-    min_d = REROUTE_DISTANCE + 1
-    path = self.route_geometry[self.step_idx]
-    for i in range(len(path) - 1):
-      a = path[i]
-      b = path[i + 1]
-
-      if a.distance_to(b) < 1.0:
-        continue
-
-      min_d = min(min_d, minimum_distance(a, b, self.last_position))
-
-    if min_d > REROUTE_DISTANCE:
+    if self.distance_to_route() > REROUTE_DISTANCE:
       self.reroute_counter += 1
     else:
       self.reroute_counter = 0
@@ -477,7 +471,7 @@ class RouteEngine:
 
 def main():
   pm = messaging.PubMaster(['navInstruction', 'navRoute', 'frogpilotNavigation'])
-  sm = messaging.SubMaster(['carState', 'liveLocationKalman', 'managerState', 'frogpilotPlan'])
+  sm = messaging.SubMaster(['carState', 'liveLocationKalman', 'managerState', 'frogpilotPlan'], frequency=1.0)
 
   rk = Ratekeeper(1.0)
   route_engine = RouteEngine(sm, pm)

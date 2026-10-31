@@ -19,7 +19,7 @@ def compute_gb_honda_bosch(accel, speed):
   return 0.0, 0.0
 
 
-def compute_gb_honda_nidec(accel, speed, frogpilot_toggles):
+def compute_gb_honda_nidec(accel, speed, max_brake):
   creep_brake = 0.0
   creep_speed = 2.3
   creep_brake_value = 0.15
@@ -27,17 +27,20 @@ def compute_gb_honda_nidec(accel, speed, frogpilot_toggles):
     creep_brake = (creep_speed - speed) / creep_speed * creep_brake_value
   gb = float(accel) / 4.8 - creep_brake
 
-  if frogpilot_toggles.honda_nidec_max_brake:
-    return clip(gb, 0.0, 1.0), clip(float(accel) / -4.0, 0.0, 1.0)
+  # FrogPilot variables
+  if max_brake:
+    brake = float(accel) / CarControllerParams.NIDEC_ACCEL_MIN + creep_brake
   else:
-    return clip(gb, 0.0, 1.0), clip(-gb, 0.0, 1.0)
+    brake = -gb
+
+  return clip(gb, 0.0, 1.0), clip(brake, 0.0, 1.0)
 
 
-def compute_gas_brake(accel, speed, fingerprint, frogpilot_toggles):
+def compute_gas_brake(accel, speed, fingerprint, max_brake):
   if fingerprint in HONDA_BOSCH:
     return compute_gb_honda_bosch(accel, speed)
   else:
-    return compute_gb_honda_nidec(accel, speed, frogpilot_toggles)
+    return compute_gb_honda_nidec(accel, speed, max_brake)
 
 
 # TODO not clear this does anything useful
@@ -139,7 +142,7 @@ class CarController(CarControllerBase):
 
     if CC.longActive:
       accel = actuators.accel
-      gas, brake = compute_gas_brake(actuators.accel, CS.out.vEgo, self.CP.carFingerprint, frogpilot_toggles)
+      gas, brake = compute_gas_brake(actuators.accel, CS.out.vEgo, self.CP.carFingerprint, frogpilot_toggles.honda_max_brake)
     else:
       accel = 0.0
       gas, brake = 0.0, 0.0
@@ -228,10 +231,12 @@ class CarController(CarControllerBase):
           can_sends.extend(hondacan.create_acc_commands(self.packer, self.CAN, CC.enabled, CC.longActive, self.accel, self.gas,
                                                         self.stopping_counter, self.CP.carFingerprint))
         else:
-          if frogpilot_toggles.honda_nidec_max_brake:
-            apply_brake = clip(self.brake_last - (wind_brake if self.brake_last <= 0.95 else 0.0), 0.0, 1.0)
-          else:
-            apply_brake = clip(self.brake_last - wind_brake, 0.0, 1.0)
+          apply_brake = clip(self.brake_last - wind_brake, 0.0, 1.0)
+
+          # FrogPilot variables
+          if self.brake_last > 0.95 and frogpilot_toggles.honda_max_brake:
+            apply_brake = self.brake_last
+
           apply_brake = int(clip(apply_brake * self.params.NIDEC_BRAKE_MAX, 0, self.params.NIDEC_BRAKE_MAX - 1))
           pump_on, self.last_pump_ts = brake_pump_hysteresis(apply_brake, self.apply_brake_last, self.last_pump_ts, ts)
 
@@ -244,7 +249,10 @@ class CarController(CarControllerBase):
 
           if self.CP.enableGasInterceptor:
             # way too aggressive at low speed without this
-            gas_mult = 1.0 if frogpilot_toggles.honda_low_speed_pedal else interp(CS.out.vEgo, [0., 10.], [0.4, 1.0])
+            if frogpilot_toggles.honda_low_speed_pedal:
+              gas_mult = 1.0
+            else:
+              gas_mult = interp(CS.out.vEgo, [0., 10.], [0.4, 1.0])
             # send exactly zero if apply_gas is zero. Interceptor will send the max between read value and apply_gas.
             # This prevents unexpected pedal range rescaling
             # Sending non-zero gas when OP is not enabled will cause the PCM not to respond to throttle as expected
@@ -259,7 +267,8 @@ class CarController(CarControllerBase):
     if self.frame % 10 == 0:
       hud = HUDData(int(pcm_accel), int(round(hud_v_cruise)), hud_control.leadVisible,
                     hud_control.lanesVisible, fcw_display, acc_alert, steer_required, hud_control.leadDistanceBars)
-      can_sends.extend(hondacan.create_ui_commands(self.packer, self.CAN, self.CP, CC.enabled, pcm_speed, hud, CS.is_metric, CS.acc_hud, CS.lkas_hud, CC.latActive))
+      can_sends.extend(hondacan.create_ui_commands(self.packer, self.CAN, self.CP, CC.enabled, pcm_speed, hud, CS.is_metric, CS.acc_hud, CS.lkas_hud,
+                                                   CC.latActive))
 
       if self.CP.openpilotLongitudinalControl and self.CP.carFingerprint not in HONDA_BOSCH:
         self.speed = pcm_speed

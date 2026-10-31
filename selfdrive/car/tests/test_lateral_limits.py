@@ -9,6 +9,7 @@ from openpilot.common.realtime import DT_CTRL
 from openpilot.selfdrive.car.car_helpers import interfaces
 from openpilot.selfdrive.car.fingerprints import all_known_cars
 from openpilot.selfdrive.car.interfaces import get_torque_params
+from openpilot.selfdrive.car.tests.test_car_interfaces import TOGGLES
 
 CAR_MODELS = all_known_cars()
 
@@ -29,7 +30,7 @@ class TestLateralLimits:
   @classmethod
   def setup_class(cls):
     CarInterface, _, _ = interfaces[cls.car_model]
-    CP = CarInterface.get_non_essential_params(cls.car_model)
+    CP = CarInterface.get_non_essential_params(cls.car_model, TOGGLES)
 
     if CP.dashcamOnly:
       pytest.skip("Platform is behind dashcamOnly")

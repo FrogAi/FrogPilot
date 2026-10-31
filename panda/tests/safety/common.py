@@ -159,9 +159,9 @@ class GasInterceptorSafetyTest(PandaSafetyTestBase):
 
   def test_prev_gas_interceptor(self):
     self._rx(self._interceptor_user_gas(0x0))
-    self.assertFalse(self.safety.get_gas_interceptor_prev())
+    self.assertFalse(self.safety.get_gas_pressed_prev())
     self._rx(self._interceptor_user_gas(0x1000))
-    self.assertTrue(self.safety.get_gas_interceptor_prev())
+    self.assertTrue(self.safety.get_gas_pressed_prev())
     self._rx(self._interceptor_user_gas(0x0))
 
   def test_disengage_on_gas_interceptor(self):
@@ -338,42 +338,6 @@ class TorqueSteeringSafetyTestBase(PandaSafetyTestBase, abc.ABC):
     self.assertFalse(self._tx(self._torque_cmd_msg(self.MAX_TORQUE, 0)))
     for _ in range(10):
       self.assertFalse(self._tx(self._torque_cmd_msg(self.MAX_TORQUE, 1)))
-
-  # FrogPilot tests
-  def _toggle_aol(self, toggle_on):
-    """Toggles "Always On Lateral" On/Off"""
-    pass
-
-  def test_always_on_lateral(self):
-    if self._toggle_aol(True) is None:
-      raise unittest.SkipTest("AOL message not implemented for this safety mode")
-
-    self.safety.set_controls_allowed(False)
-
-    torque_cmd = self.MAX_RATE_UP  # Use the max rate
-
-    # Without alt exp, make sure steering is blocked
-    self.safety.set_alternative_experience(0)
-    self._set_prev_torque(0)
-    self.assertFalse(self._tx(self._torque_cmd_msg(torque_cmd)))
-
-    # With alt exp, but without main on, steering should be blocked
-    self.safety.set_alternative_experience(ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL)
-    self._rx(self._toggle_aol(False))
-    self._set_prev_torque(0)
-    self.assertFalse(self._tx(self._torque_cmd_msg(torque_cmd)))
-    self.assertFalse(self.safety.get_longitudinal_allowed())
-
-    # With alt exp and main on, steering should be allowed
-    self._rx(self._toggle_aol(True))
-    self._set_prev_torque(0)
-    self.assertTrue(self._tx(self._torque_cmd_msg(torque_cmd)))
-    self.assertFalse(self.safety.get_longitudinal_allowed())
-
-    # Turn off main, steering should be blocked again
-    self._rx(self._toggle_aol(False))
-    self.safety.set_desired_torque_last(torque_cmd)
-    self.assertFalse(self._tx(self._torque_cmd_msg(torque_cmd)))
 
 
 class SteerRequestCutSafetyTest(TorqueSteeringSafetyTestBase, abc.ABC):
@@ -805,44 +769,6 @@ class AngleSteeringSafetyTest(PandaSafetyTestBase):
             should_tx = controls_allowed if steer_control_enabled else angle_cmd == angle_meas
             self.assertEqual(should_tx, self._tx(self._angle_cmd_msg(angle_cmd, steer_control_enabled)))
 
-  # FrogPilot tests
-  def _toggle_aol(self, toggle_on):
-    """Toggles "Always On Lateral" on/off"""
-    pass
-
-  def test_always_on_lateral(self):
-    if self._toggle_aol(True) is None:
-      raise unittest.SkipTest("AOL message not implemented for this safety mode")
-
-    self.safety.set_controls_allowed(False)
-
-    self._reset_angle_measurement(0)
-    self._reset_speed_measurement(1)
-    angle_cmd = self.ANGLE_RATE_UP[0] / 2.0  # Use half of the max angle rate
-
-    # Without alt exp, make sure steering is blocked
-    self.safety.set_alternative_experience(0)
-    self._set_prev_desired_angle(0)
-    self.assertFalse(self._tx(self._angle_cmd_msg(angle=angle_cmd, enabled=True)))
-
-    # With alt exp, but without main on, steering should be blocked
-    self.safety.set_alternative_experience(ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL)
-    self._rx(self._toggle_aol(False))
-    self._set_prev_desired_angle(0)
-    self.assertFalse(self._tx(self._angle_cmd_msg(angle=angle_cmd, enabled=True)))
-    self.assertFalse(self.safety.get_longitudinal_allowed())
-
-    # With alt exp and main on, steering should be allowed
-    self._rx(self._toggle_aol(True))
-    self._set_prev_desired_angle(0)
-    self.assertTrue(self._tx(self._angle_cmd_msg(angle=angle_cmd, enabled=True)))
-    self.assertFalse(self.safety.get_longitudinal_allowed())
-
-    # Turn off main, steering should be blocked again
-    self._rx(self._toggle_aol(False))
-    self._set_prev_desired_angle(angle_cmd)
-    self.assertFalse(self._tx(self._angle_cmd_msg(angle=angle_cmd, enabled=True)))
-
 
 class PandaSafetyTest(PandaSafetyTestBase):
   TX_MSGS: list[list[int]] | None = None
@@ -929,6 +855,10 @@ class PandaSafetyTest(PandaSafetyTestBase):
             if attr.startswith('TestHyundaiCanfd') and current_test.startswith('TestHyundaiCanfd'):
               continue
             if {attr, current_test}.issubset({'TestVolkswagenMqbSafety', 'TestVolkswagenMqbStockSafety', 'TestVolkswagenMqbLongSafety'}):
+              continue
+
+            # FrogPilot variables
+            if {attr, current_test}.issubset({'TestHyundaiLongitudinalSafety', 'TestHyundaiLongitudinalSafetyLFAButton'}):
               continue
 
             # overlapping TX addrs, but they're not actuating messages for either car
@@ -1142,3 +1072,127 @@ class PandaCarSafetyTest(PandaSafetyTest):
     self.safety.safety_tick_current_safety_config()
     self.assertFalse(self.safety.get_controls_allowed())
     self.assertFalse(self.safety.safety_config_valid())
+
+
+# FrogPilot variables
+class AlwaysOnLateralSafetyTest(PandaSafetyTestBase):
+
+  @classmethod
+  def setUpClass(cls):
+    if cls.__name__ == "AlwaysOnLateralSafetyTest":
+      cls.safety = None
+      raise unittest.SkipTest
+
+  @abc.abstractmethod
+  def _acc_state_msg(self, on):
+    pass
+
+  @abc.abstractmethod
+  def _lkas_press_msg(self, pressed):
+    pass
+
+  def _press_lkas_button(self):
+    if self._lkas_press_msg(True) is not None:
+      self._rx(self._lkas_press_msg(True))
+      self._rx(self._lkas_press_msg(False))
+
+  def _steering_command_msg(self):
+    if hasattr(self, "_lat_ctl_msg"):
+      return self._lat_ctl_msg(True, 0, 0, 0, 0)
+    if isinstance(self, AngleSteeringSafetyTest):
+      return self._angle_cmd_msg(0, True)
+    if hasattr(self, "_send_steer_msg"):
+      return self._send_steer_msg(1)
+    return self._torque_cmd_msg(1)
+
+  def test_always_on_lateral_disabled(self):
+    for mode in (ALTERNATIVE_EXPERIENCE.DEFAULT, ALTERNATIVE_EXPERIENCE.DISABLE_DISENGAGE_ON_GAS | ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL_LKAS_BUTTON):
+      self._reset_safety_hooks()
+      self.safety.set_alternative_experience(mode)
+
+      self._rx(self._acc_state_msg(True))
+      self._press_lkas_button()
+
+      self.assertFalse(self.safety.get_lateral_allowed(), mode)
+
+  def test_cruise_main(self):
+    self.safety.set_alternative_experience(ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL)
+
+    for on in (True, False):
+      self._rx(self._acc_state_msg(on))
+      self.assertEqual(on, self.safety.get_lateral_allowed())
+
+  def test_lkas_button(self):
+    if self._lkas_press_msg(True) is None:
+      self.skipTest("No LKAS button")
+
+    for mode in (ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL | ALTERNATIVE_EXPERIENCE.DISABLE_DISENGAGE_ON_GAS,
+                 ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL | ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL_LKAS_BUTTON):
+      self._reset_safety_hooks()
+      self.safety.set_alternative_experience(mode)
+
+      self._rx(self._acc_state_msg(False))
+      self._press_lkas_button()
+
+      self.assertEqual(mode & ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL_LKAS_BUTTON != 0, self.safety.get_lateral_allowed())
+
+  def test_lkas_button_cleared(self):
+    if self._lkas_press_msg(True) is None:
+      self.skipTest("No LKAS button")
+
+    self.safety.set_alternative_experience(ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL | ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL_LKAS_BUTTON)
+
+    self._rx(self._acc_state_msg(True))
+    self._press_lkas_button()
+    self._rx(self._acc_state_msg(False))
+    self.assertFalse(self.safety.get_lateral_allowed())
+
+    self._press_lkas_button()
+    self._rx(self._acc_state_msg(True))
+    self._rx(self._acc_state_msg(False))
+    self.assertFalse(self.safety.get_lateral_allowed())
+
+    self._press_lkas_button()
+    self._reset_safety_hooks()
+    self.assertFalse(self.safety.get_lateral_allowed())
+
+  def test_lkas_button_on_press(self):
+    if self._lkas_press_msg(True) is None:
+      self.skipTest("No LKAS button")
+
+    self.safety.set_alternative_experience(ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL | ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL_LKAS_BUTTON)
+
+    self._rx(self._acc_state_msg(False))
+    self._rx(self._lkas_press_msg(False))
+    self.assertFalse(self.safety.get_lateral_allowed())
+
+    self._rx(self._lkas_press_msg(True))
+    self.assertTrue(self.safety.get_lateral_allowed())
+
+    self._rx(self._lkas_press_msg(False))
+    self.assertTrue(self.safety.get_lateral_allowed())
+
+  def test_longitudinal_needs_controls_allowed(self):
+    self.safety.set_alternative_experience(ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL)
+
+    self._rx(self._acc_state_msg(True))
+
+    self.assertTrue(self.safety.get_lateral_allowed())
+    self.assertFalse(self.safety.get_longitudinal_allowed())
+
+  def test_rx_checks_invalid(self):
+    self.safety.set_alternative_experience(ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL)
+    self._rx(self._acc_state_msg(True))
+
+    self.safety.set_timer(int(2e6))
+    self.safety.safety_tick_current_safety_config()
+
+    self.assertFalse(self.safety.get_lateral_allowed())
+
+  def test_steering_command(self):
+    for mode, allowed in ((ALTERNATIVE_EXPERIENCE.DEFAULT, False), (ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL, True)):
+      self.safety.set_alternative_experience(mode)
+      self.safety.set_controls_allowed(False)
+      self._rx(self._acc_state_msg(True))
+
+      self.assertEqual(allowed, self._tx(self._steering_command_msg()), mode)

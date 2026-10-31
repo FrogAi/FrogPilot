@@ -1,8 +1,10 @@
 import pytest
 
+from types import SimpleNamespace
+
 from openpilot.common.params import Params
 from openpilot.system.hardware.power_monitoring import PowerMonitoring, CAR_BATTERY_CAPACITY_uWh, \
-                                                CAR_CHARGING_RATE_W, VBATT_PAUSE_CHARGING, DELAY_SHUTDOWN_TIME_S
+                                                CAR_CHARGING_RATE_W, VBATT_PAUSE_CHARGING, DELAY_SHUTDOWN_TIME_S, MAX_TIME_OFFROAD_S
 
 # Create fake time
 ssb = 0.
@@ -14,6 +16,7 @@ def mock_time_monotonic():
 TEST_DURATION_S = 50
 GOOD_VOLTAGE = 12 * 1e3
 VOLTAGE_BELOW_PAUSE_CHARGING = (VBATT_PAUSE_CHARGING - 1) * 1e3
+FROGPILOT_TOGGLES = SimpleNamespace(device_shutdown_time=MAX_TIME_OFFROAD_S, low_voltage_shutdown=VBATT_PAUSE_CHARGING)
 
 def pm_patch(mocker, name, value, constant=False):
   if constant:
@@ -104,7 +107,7 @@ class TestPowerMonitoring:
   def test_max_time_offroad(self, mocker):
     MOCKED_MAX_OFFROAD_TIME = 3600
     POWER_DRAW = 0 # To stop shutting down for other reasons
-    pm_patch(mocker, "MAX_TIME_OFFROAD_S", MOCKED_MAX_OFFROAD_TIME, constant=True)
+    frogpilot_toggles = SimpleNamespace(device_shutdown_time=MOCKED_MAX_OFFROAD_TIME, low_voltage_shutdown=VBATT_PAUSE_CHARGING)
     pm_patch(mocker, "HARDWARE.get_current_power_draw", POWER_DRAW)
     pm = PowerMonitoring()
     pm.car_battery_capacity_uWh = CAR_BATTERY_CAPACITY_uWh
@@ -113,8 +116,8 @@ class TestPowerMonitoring:
     while ssb <= start_time + MOCKED_MAX_OFFROAD_TIME:
       pm.calculate(GOOD_VOLTAGE, ignition)
       if (ssb - start_time) % 1000 == 0 and ssb < start_time + MOCKED_MAX_OFFROAD_TIME:
-        assert not pm.should_shutdown(ignition, True, start_time, False)
-    assert pm.should_shutdown(ignition, True, start_time, False)
+        assert not pm.should_shutdown(ignition, True, start_time, False, frogpilot_toggles)
+    assert pm.should_shutdown(ignition, True, start_time, False, frogpilot_toggles)
 
   def test_car_voltage(self, mocker):
     POWER_DRAW = 0 # To stop shutting down for other reasons
@@ -129,11 +132,11 @@ class TestPowerMonitoring:
     for i in range(TEST_TIME):
       pm.calculate(VOLTAGE_BELOW_PAUSE_CHARGING, ignition)
       if i % 10 == 0:
-        assert pm.should_shutdown(ignition, True, start_time, True) == \
+        assert pm.should_shutdown(ignition, True, start_time, True, FROGPILOT_TOGGLES) == \
                           (pm.car_voltage_mV < VBATT_PAUSE_CHARGING * 1e3 and \
                           (ssb - start_time) > VOLTAGE_SHUTDOWN_MIN_OFFROAD_TIME_S and \
                             (ssb - start_time) > DELAY_SHUTDOWN_TIME_S)
-    assert pm.should_shutdown(ignition, True, start_time, True)
+    assert pm.should_shutdown(ignition, True, start_time, True, FROGPILOT_TOGGLES)
 
   # Test to check policy of not stopping charging when DisablePowerDown is set
   def test_disable_power_down(self, mocker):
@@ -147,8 +150,8 @@ class TestPowerMonitoring:
     for i in range(TEST_TIME):
       pm.calculate(VOLTAGE_BELOW_PAUSE_CHARGING, ignition)
       if i % 10 == 0:
-        assert not pm.should_shutdown(ignition, True, ssb, False)
-    assert not pm.should_shutdown(ignition, True, ssb, False)
+        assert not pm.should_shutdown(ignition, True, ssb, False, FROGPILOT_TOGGLES)
+    assert not pm.should_shutdown(ignition, True, ssb, False, FROGPILOT_TOGGLES)
 
   # Test to check policy of not stopping charging when ignition
   def test_ignition(self, mocker):
@@ -161,8 +164,8 @@ class TestPowerMonitoring:
     for i in range(TEST_TIME):
       pm.calculate(VOLTAGE_BELOW_PAUSE_CHARGING, ignition)
       if i % 10 == 0:
-        assert not pm.should_shutdown(ignition, True, ssb, False)
-    assert not pm.should_shutdown(ignition, True, ssb, False)
+        assert not pm.should_shutdown(ignition, True, ssb, False, FROGPILOT_TOGGLES)
+    assert not pm.should_shutdown(ignition, True, ssb, False, FROGPILOT_TOGGLES)
 
   # Test to check policy of not stopping charging when harness is not connected
   def test_harness_connection(self, mocker):
@@ -176,8 +179,8 @@ class TestPowerMonitoring:
     for i in range(TEST_TIME):
       pm.calculate(VOLTAGE_BELOW_PAUSE_CHARGING, ignition)
       if i % 10 == 0:
-        assert not pm.should_shutdown(ignition, False, ssb, False)
-    assert not pm.should_shutdown(ignition, False, ssb, False)
+        assert not pm.should_shutdown(ignition, False, ssb, False, FROGPILOT_TOGGLES)
+    assert not pm.should_shutdown(ignition, False, ssb, False, FROGPILOT_TOGGLES)
 
   def test_delay_shutdown_time(self):
     pm = PowerMonitoring()
@@ -191,9 +194,11 @@ class TestPowerMonitoring:
     while ssb < offroad_timestamp + DELAY_SHUTDOWN_TIME_S:
       assert not pm.should_shutdown(ignition, in_car,
                                           offroad_timestamp,
-                                          started_seen), \
+                                          started_seen,
+                                          FROGPILOT_TOGGLES), \
                        f"Should not shutdown before {DELAY_SHUTDOWN_TIME_S} seconds offroad time"
     assert pm.should_shutdown(ignition, in_car,
                                        offroad_timestamp,
-                                       started_seen), \
+                                       started_seen,
+                                       FROGPILOT_TOGGLES), \
                     f"Should shutdown after {DELAY_SHUTDOWN_TIME_S} seconds offroad time"

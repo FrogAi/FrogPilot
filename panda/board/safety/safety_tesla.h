@@ -70,6 +70,11 @@ static void tesla_rx_hook(const CANPacket_t *to_push) {
   int bus = GET_BUS(to_push);
   int addr = GET_ADDR(to_push);
 
+  // FrogPilot variables
+  if (controls_allowed) {
+    acc_main_on = true;
+  }
+
   if (!tesla_powertrain) {
     if((!tesla_raven && (addr == 0x370) && (bus == 0)) || (tesla_raven && (addr == 0x131) && (bus == 2))) {
       // Steering angle: (0.1 * val) - 819.2 in deg.
@@ -100,14 +105,6 @@ static void tesla_rx_hook(const CANPacket_t *to_push) {
     if(addr == (tesla_powertrain ? 0x256 : 0x368)) {
       // Cruise state
       int cruise_state = (GET_BYTE(to_push, 1) >> 4);
-
-      acc_main_on = (cruise_state == 1) ||  // STANDBY
-        (cruise_state == 2) ||  // ENABLED
-        (cruise_state == 3) ||  // STANDSTILL
-        (cruise_state == 4) ||  // OVERRIDE
-        (cruise_state == 6) ||  // PRE_FAULT
-        (cruise_state == 7);    // PRE_CANCEL
-
       bool cruise_engaged = (cruise_state == 2) ||  // ENABLED
                             (cruise_state == 3) ||  // STANDSTILL
                             (cruise_state == 4) ||  // OVERRIDE
@@ -123,6 +120,11 @@ static void tesla_rx_hook(const CANPacket_t *to_push) {
       // "AEB_ACTIVE"
       tesla_stock_aeb = ((GET_BYTE(to_push, 2) & 0x03U) == 1U);
     }
+  }
+
+  // FrogPilot variables
+  if (brake_pressed && !brake_pressed_prev) {
+    acc_main_on = false;
   }
 
   if (tesla_powertrain) {

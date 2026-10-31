@@ -21,7 +21,7 @@ from openpilot.system.hardware.hw import Paths
 from openpilot.system.loggerd.xattr_cache import getxattr, setxattr
 from openpilot.common.swaglog import cloudlog
 
-from openpilot.frogpilot.common.frogpilot_variables import get_frogpilot_toggles
+from openpilot.frogpilot.common import frogpilot_variables
 
 NetworkType = log.DeviceState.NetworkType
 UPLOAD_ATTR_NAME = 'user.upload'
@@ -252,15 +252,18 @@ def main(exit_event: threading.Event = None) -> None:
   uploader = Uploader(dongle_id, Paths.log_root())
 
   backoff = 0.1
-
-  # FrogPilot variables
-  frogpilot_toggles = get_frogpilot_toggles()
-
   while not exit_event.is_set():
     sm.update(0)
+
+    # Update FrogPilot variables
+    frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles(sm)
+
     offroad = params.get_bool("IsOffroad")
     network_type = sm['deviceState'].networkType if not force_wifi else NetworkType.wifi
+
+    # FrogPilot variables
     at_home = offroad and network_type in (NetworkType.ethernet, NetworkType.wifi) or not frogpilot_toggles.no_onroad_uploads
+
     if network_type == NetworkType.none or not at_home:
       if allow_sleep:
         time.sleep(60 if offroad else 5)
@@ -277,9 +280,6 @@ def main(exit_event: threading.Event = None) -> None:
     if allow_sleep:
       time.sleep(backoff + random.uniform(0, backoff))
 
-    # Update FrogPilot variables
-    if sm['frogpilotPlan'].togglesUpdated:
-      frogpilot_toggles = get_frogpilot_toggles()
 
 if __name__ == "__main__":
   main()

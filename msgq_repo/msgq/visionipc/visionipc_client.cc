@@ -48,12 +48,29 @@ bool VisionIpcClient::connect(bool blocking){
   }
   // Send stream type to server to request FDs
   int r = ipc_sendrecv_with_fds(true, socket_fd, &type, sizeof(type), nullptr, 0, nullptr);
+
+  // FrogPilot variables
+  if (r < 0) {
+    // only expected error is server shutting down
+    assert(errno == ECONNREFUSED || errno == ECONNRESET || errno == EPIPE);
+    close(socket_fd);
+    return false;
+  }
+
   assert(r == sizeof(type));
 
   // Get FDs
   int fds[VISIONIPC_MAX_FDS];
   VisionBuf bufs[VISIONIPC_MAX_FDS];
   r = ipc_sendrecv_with_fds(false, socket_fd, &bufs, sizeof(bufs), fds, VISIONIPC_MAX_FDS, &num_buffers);
+
+  // FrogPilot variables
+  if (r < 0) {
+    // only expected error is server shutting down
+    assert(errno == ECONNRESET);
+    close(socket_fd);
+    return false;
+  }
 
   assert(num_buffers >= 0);
   assert(r == sizeof(VisionBuf) * num_buffers);
@@ -122,11 +139,29 @@ std::set<VisionStreamType> VisionIpcClient::getAvailableStreams(const std::strin
   // Send VISION_STREAM_MAX to server to request available streams
   int request = VISION_STREAM_MAX;
   int r = ipc_sendrecv_with_fds(true, socket_fd, &request, sizeof(request), nullptr, 0, nullptr);
+
+  // FrogPilot variables
+  if (r < 0) {
+    // only expected error is server shutting down
+    assert(errno == ECONNREFUSED || errno == ECONNRESET || errno == EPIPE);
+    close(socket_fd);
+    return {};
+  }
+
   assert(r == sizeof(request));
 
   VisionStreamType available_streams[VISION_STREAM_MAX] = {};
   r = ipc_sendrecv_with_fds(false, socket_fd, &available_streams, sizeof(available_streams), nullptr, 0, nullptr);
-  assert((r >= 0) && (r % sizeof(VisionStreamType) == 0));
+
+  // FrogPilot variables
+  if (r < 0) {
+    // only expected error is server shutting down
+    assert(errno == ECONNRESET);
+    close(socket_fd);
+    return {};
+  }
+
+  assert(r % sizeof(VisionStreamType) == 0);
   close(socket_fd);
   return std::set<VisionStreamType>(available_streams, available_streams + r / sizeof(VisionStreamType));
 }

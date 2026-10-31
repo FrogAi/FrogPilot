@@ -89,8 +89,11 @@ void setQtSurfaceFormat() {
 #endif
   fmt.setSamples(16);
   fmt.setStencilBufferSize(1);
+
+  // FrogPilot variables
   // swap interval 0: a vsync-throttled swap blocks forever if weston (1.9, no pageflip-timeout) drops a pageflip and never releases the buffer, hanging the UI until the watchdog kills it
   fmt.setSwapInterval(0);
+
   QSurfaceFormat::setDefaultFormat(fmt);
 }
 
@@ -249,10 +252,14 @@ QPixmap bootstrapPixmap(const QString &id) {
 bool hasLongitudinalControl(const cereal::CarParams::Reader &car_params) {
   // Using the experimental longitudinal toggle, returns whether longitudinal control
   // will be active without needing a restart of openpilot
+  // FrogPilot variables
   Params params = Params();
+  cereal::CarParams::SafetyModel safety_model = car_params.getSafetyConfigs()[0].getSafetyModel();
+
   return (car_params.getExperimentalLongitudinalAvailable()
              ? params.getBool("ExperimentalLongitudinalEnabled")
-             : car_params.getOpenpilotLongitudinalControl()) && !params.getBool("DisableOpenpilotLongitudinal");
+             : car_params.getOpenpilotLongitudinalControl()) &&
+         (safety_model == cereal::CarParams::SafetyModel::HONDA_NIDEC || safety_model == cereal::CarParams::SafetyModel::GM || !params.getBool("DisableOpenpilotLongitudinal"));
 }
 
 // ParamWatcher

@@ -948,7 +948,7 @@ struct ModelDataV2 {
   temporalPose @21 :Pose;
 
   navEnabled @22 :Bool;
-  locationMonoTime @24 :UInt64;
+  locationMonoTimeDEPRECATED @24 :UInt64;
 
   # e2e lateral planner
   lateralPlannerSolutionDEPRECATED @25: LateralPlannerSolution;
@@ -2407,7 +2407,7 @@ struct Event {
     customReservedRawData2 @126 :Data;
 
     # *********** Custom: reserved for forks ***********
-    frogpilotCarControl @107 :Custom.FrogPilotCarControl;
+    frogpilotAccountState @135 :Custom.FrogPilotAccountState;
     frogpilotCarParams @108 :Custom.FrogPilotCarParams;
     frogpilotCarState @109 :Custom.FrogPilotCarState;
     frogpilotControlsState @110 :Custom.FrogPilotControlsState;
@@ -2416,7 +2416,12 @@ struct Event {
     frogpilotNavigation @113 :Custom.FrogPilotNavigation;
     frogpilotOnroadEvents @114: List(Custom.FrogPilotCarEvent);
     frogpilotPlan @115 :Custom.FrogPilotPlan;
+    frogpilotProcessState @131 :Custom.FrogPilotProcessState;
     frogpilotRadarState @116 :Custom.FrogPilotRadarState;
+    frogpilotSignReading @133 :Custom.FrogPilotSignReading;
+    frogpilotUIEvent @107 :Custom.FrogPilotUIEvent;
+    frogpilotUIRequest @132 :Custom.FrogPilotUIRequest;
+    thePondRequest @134 :Custom.ThePondRequest;
 
     # *********** legacy + deprecated ***********
     model @9 :Legacy.ModelData; # TODO: rename modelV2 and mark this as deprecated

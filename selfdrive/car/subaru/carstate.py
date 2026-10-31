@@ -136,12 +136,10 @@ class CarState(CarStateBase):
       self.es_infotainment_msg = copy.copy(cp_cam.vl["ES_Infotainment"])
 
     # FrogPilot CarState functions
-    self.lkas_previously_enabled = self.lkas_enabled
     if self.CP.flags & SubaruFlags.PREGLOBAL:
       fp_ret.brakeLights = bool(cp_cam.vl["ES_Brake"]["Cruise_Brake_Lights"])
     else:
       fp_ret.brakeLights = bool(cp_cam.vl["ES_DashStatus"]["Brake_Lights"])
-      self.lkas_enabled = self.es_lkas_state_msg.get("LKAS_Dash_State")
 
     return ret, fp_ret
 
@@ -245,3 +243,4 @@ class CarState(CarStateBase):
       ]
 
     return CANParser(DBC[CP.carFingerprint]["pt"], messages, CanBus.alt)
+

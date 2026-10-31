@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+  <g transform="matrix(.9 0 0 .9 22 22)">
+    <circle cx="84" cy="84" r="64" fill="none" stroke="#fff" stroke-width="15"/>
+    <path d="M20 84h128M84 84v64" stroke="#fff" stroke-width="13.5"/>
+    <circle cx="84" cy="84" r="20.61" fill="#fff"/>
+  </g>
+</svg>

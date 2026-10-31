@@ -40,10 +40,13 @@ from openpilot.common.swaglog import cloudlog
 from openpilot.system.version import get_build_metadata
 from openpilot.system.hardware.hw import Paths
 
-from openpilot.frogpilot.common.frogpilot_utilities import use_konik_server
+from openpilot.frogpilot.common import frogpilot_paths
 
 ATHENA_HOST = os.getenv('ATHENA_HOST', 'wss://athena.comma.ai')
+
+# FrogPilot variables
 KONIK_ATHENA_HOST = os.getenv('ATHENA_HOST', 'wss://athena.konik.ai')
+
 HANDLER_THREADS = int(os.getenv('HANDLER_THREADS', "4"))
 LOCAL_PORT_WHITELIST = {8022}
 
@@ -787,7 +790,7 @@ def main(exit_event: threading.Event = None):
   dongle_id = params.get("DongleId", encoding='utf-8')
   UploadQueueCache.initialize(upload_queue)
 
-  ws_uri = (KONIK_ATHENA_HOST if use_konik_server() else ATHENA_HOST) + "/ws/v2/" + dongle_id
+  ws_uri = (KONIK_ATHENA_HOST if frogpilot_paths.KONIK_PATH.is_file() else ATHENA_HOST) + "/ws/v2/" + dongle_id
   api = Api(dongle_id)
 
   conn_start = None

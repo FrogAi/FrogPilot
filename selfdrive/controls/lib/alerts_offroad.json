@@ -48,5 +48,9 @@
   "Offroad_Recalibration": {
     "text": "openpilot detected a change in the device's mounting position. Ensure the device is fully seated in the mount and the mount is firmly secured to the windshield.",
     "severity": 0
+  },
+  "Offroad_UnsupportedDevice": {
+    "text": "This FrogPilot update only runs on the comma 3 and comma 3X, so it wasn't installed and this device's operating system wasn't changed.",
+    "severity": 1
   }
 }
