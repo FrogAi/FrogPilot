@@ -4,6 +4,7 @@ import json
 import jwt
 import random
 import string
+from multiprocessing import Process
 from pathlib import Path
 
 from datetime import datetime, timedelta
@@ -24,13 +25,15 @@ def is_registered_device() -> bool:
   return dongle not in (None, UNREGISTERED_DONGLE_ID)
 
 
-def register(show_spinner=False, register_konik=False) -> str | None:
+def register(show_spinner=False, register_konik=False, background=False) -> str | None:
   params = Params()
 
   IMEI = params.get("IMEI", encoding='utf8')
   HardwareSerial = params.get("HardwareSerial", encoding='utf8')
   dongle_id: str | None = params.get("DongleId", encoding='utf8')
   needs_registration = None in (IMEI, HardwareSerial, dongle_id)
+
+  # FrogPilot variables
   needs_registration |= dongle_id == UNREGISTERED_DONGLE_ID
 
   pubkey = Path(Paths.persist_root()+"/comma/id_rsa.pub")
@@ -38,6 +41,13 @@ def register(show_spinner=False, register_konik=False) -> str | None:
     dongle_id = UNREGISTERED_DONGLE_ID
     cloudlog.warning(f"missing public key: {pubkey}")
   elif needs_registration or register_konik:
+    # FrogPilot variables
+    if background:
+      dongle_id = dongle_id or UNREGISTERED_DONGLE_ID
+      params.put("DongleId", dongle_id)
+      Process(target=register, daemon=True).start()
+      return dongle_id
+
     if show_spinner:
       spinner = Spinner()
       spinner.update("registering device")
@@ -87,8 +97,7 @@ def register(show_spinner=False, register_konik=False) -> str | None:
         time.sleep(backoff)
 
       if time.monotonic() - start_time > 60 and show_spinner:
-        dongle_id = UNREGISTERED_DONGLE_ID
-        break
+        spinner.update(f"registering device - serial: {serial}, IMEI: ({imei1}, {imei2})")
 
     if show_spinner:
       spinner.close()

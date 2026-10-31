@@ -24,9 +24,9 @@
     "alpha": 255
   },
   "Sidebar1": {
-    "red": 255,
-    "green": 215,
-    "blue": 0,
+    "red": 247,
+    "green": 231,
+    "blue": 206,
     "alpha": 255
   },
   "Sidebar2": {
@@ -36,9 +36,9 @@
     "alpha": 255
   },
   "Sidebar3": {
-    "red": 255,
-    "green": 215,
-    "blue": 0,
+    "red": 247,
+    "green": 231,
+    "blue": 206,
     "alpha": 255
   }
 }

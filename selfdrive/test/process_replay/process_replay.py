@@ -22,6 +22,7 @@ from openpilot.common.prefix import OpenpilotPrefix
 from openpilot.common.timeout import Timeout
 from openpilot.common.realtime import DT_CTRL
 from panda.python import ALTERNATIVE_EXPERIENCE
+from openpilot.selfdrive.car import gen_empty_fingerprint
 from openpilot.selfdrive.car.car_helpers import get_car, interfaces
 from openpilot.system.manager.process_config import managed_processes
 from openpilot.selfdrive.test.process_replay.vision_meta import meta_from_camera_state, available_streams
@@ -30,7 +31,7 @@ from openpilot.selfdrive.test.process_replay.capture import ProcessOutputCapture
 from openpilot.tools.lib.logreader import LogIterable
 from openpilot.tools.lib.framereader import BaseFrameReader
 
-from openpilot.frogpilot.common.frogpilot_variables import get_frogpilot_toggles
+from openpilot.frogpilot.common import frogpilot_variables
 
 # Numpy gives different results based on CPU features after version 19
 NUMPY_TOLERANCE = 1e-7
@@ -342,9 +343,16 @@ def card_fingerprint_callback(rc, pm, msgs, fingerprint):
 
 def get_car_params_callback(rc, pm, msgs, fingerprint):
   params = Params()
+
+  # FrogPilot variables
+  frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles()
+
   if fingerprint:
     CarInterface, _, _ = interfaces[fingerprint]
-    CP = CarInterface.get_non_essential_params(fingerprint)
+    CP = CarInterface.get_non_essential_params(fingerprint, frogpilot_toggles)
+
+    # FrogPilot variables
+    FPCP = CarInterface.get_frogpilot_params(fingerprint, gen_empty_fingerprint(), [], CP, frogpilot_toggles)
   else:
     can = DummySocket()
     sendcan = DummySocket()
@@ -357,12 +365,16 @@ def get_car_params_callback(rc, pm, msgs, fingerprint):
 
     for m in canmsgs[:300]:
       can.send(m.as_builder().to_bytes())
-    _, CP = get_car(can, sendcan, Params().get_bool("ExperimentalLongitudinalEnabled"), get_frogpilot_toggles())
+    _, CP, FPCP = get_car(can, sendcan, Params().get_bool("ExperimentalLongitudinalEnabled"), params, 1, frogpilot_toggles)
 
     if not params.get_bool("DisengageOnAccelerator"):
       CP.alternativeExperience |= ALTERNATIVE_EXPERIENCE.DISABLE_DISENGAGE_ON_GAS
 
   params.put("CarParams", CP.to_bytes())
+
+  # FrogPilot variables
+  params.put("FrogPilotCarParams", FPCP.to_bytes())
+
   return CP
 
 
@@ -474,7 +486,7 @@ CONFIGS = [
       "carState", "deviceState", "pandaStates", "peripheralState", "liveCalibration", "driverMonitoringState",
       "longitudinalPlan", "liveLocationKalman", "liveParameters", "radarState",
       "modelV2", "driverCameraState", "roadCameraState", "wideRoadCameraState", "managerState",
-      "testJoystick", "liveTorqueParameters", "accelerometer", "gyroscope", "carOutput"
+      "testJoystick", "liveTorqueParameters", "accelerometer", "gyroscope", "carOutput", "liveDelay", "frogpilotCarState", "frogpilotPlan"
     ],
     subs=["controlsState", "carControl", "onroadEvents"],
     ignore=["logMonoTime", "controlsState.startMonoTime", "controlsState.cumLagMs"],
@@ -497,8 +509,8 @@ CONFIGS = [
   ),
   ProcessConfig(
     proc_name="radard",
-    pubs=["can", "carState", "modelV2"],
-    subs=["radarState", "liveTracks"],
+    pubs=["can", "carState", "modelV2", "frogpilotPlan"],
+    subs=["radarState", "liveTracks", "frogpilotRadarState"],
     ignore=["logMonoTime", "radarState.cumLagMs"],
     init_callback=get_car_params_callback,
     should_recv_callback=MessageBasedRcvCallback("can"),
@@ -506,7 +518,7 @@ CONFIGS = [
   ),
   ProcessConfig(
     proc_name="plannerd",
-    pubs=["modelV2", "carControl", "carState", "controlsState", "radarState"],
+    pubs=["modelV2", "carControl", "carState", "controlsState", "radarState", "liveParameters", "frogpilotCarState", "frogpilotPlan"],
     subs=["longitudinalPlan", "uiPlan"],
     ignore=["logMonoTime", "longitudinalPlan.processingDelay", "longitudinalPlan.solverExecutionTime"],
     init_callback=get_car_params_callback,
@@ -522,7 +534,7 @@ CONFIGS = [
   ),
   ProcessConfig(
     proc_name="dmonitoringd",
-    pubs=["driverStateV2", "liveCalibration", "carState", "modelV2", "controlsState"],
+    pubs=["driverStateV2", "liveCalibration", "carState", "modelV2", "controlsState", "frogpilotCarState"],
     subs=["driverMonitoringState"],
     ignore=["logMonoTime"],
     should_recv_callback=FrequencyBasedRcvCallback("driverStateV2"),
@@ -557,7 +569,7 @@ CONFIGS = [
   ),
   ProcessConfig(
     proc_name="torqued",
-    pubs=["liveLocationKalman", "carState", "carControl", "carOutput"],
+    pubs=["liveLocationKalman", "carState", "carControl", "carOutput", "liveDelay"],
     subs=["liveTorqueParameters"],
     ignore=["logMonoTime"],
     init_callback=get_car_params_callback,
@@ -659,7 +671,8 @@ def replay_process(
   all_msgs = migrate_all(lr, old_logtime=True,
                          manager_states=True,
                          panda_states=any("pandaStates" in cfg.pubs for cfg in cfgs),
-                         camera_states=any(len(cfg.vision_pubs) != 0 for cfg in cfgs))
+                         camera_states=any(len(cfg.vision_pubs) != 0 for cfg in cfgs),
+                         frogpilot_plan=any("frogpilotPlan" in cfg.pubs for cfg in cfgs))
   process_logs = _replay_multi_process(cfgs, all_msgs, frs, fingerprint, custom_params, captured_output_store, disable_progress)
 
   if return_all_logs:

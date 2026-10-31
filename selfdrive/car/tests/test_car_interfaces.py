@@ -4,6 +4,7 @@ import hypothesis.strategies as st
 from hypothesis import Phase, given, settings
 import importlib
 from parameterized import parameterized
+from types import SimpleNamespace
 
 from cereal import car, messaging
 from openpilot.common.realtime import DT_CTRL
@@ -24,6 +25,14 @@ ALL_ECUS |= {ecu for config in FW_QUERY_CONFIGS.values() for ecu in config.extra
 ALL_REQUESTS = {tuple(r.request) for config in FW_QUERY_CONFIGS.values() for r in config.requests}
 
 MAX_EXAMPLES = int(os.environ.get('MAX_EXAMPLES', '40'))
+
+
+class Toggles(SimpleNamespace):
+  def __getattr__(self, name):
+    return False
+
+
+TOGGLES = Toggles()
 
 
 def get_fuzzy_car_interface_args(draw: DrawType) -> dict:
@@ -61,8 +70,9 @@ class TestCarInterfaces:
     args = get_fuzzy_car_interface_args(data.draw)
 
     car_params = CarInterface.get_params(car_name, args['fingerprints'], args['car_fw'],
-                                         experimental_long=args['experimental_long'], docs=False)
-    car_interface = CarInterface(car_params, CarController, CarState)
+                                         experimental_long=args['experimental_long'], frogpilot_toggles=TOGGLES, docs=False)
+    frogpilot_car_params = CarInterface.get_frogpilot_params(car_name, args['fingerprints'], args['car_fw'], car_params, TOGGLES)
+    car_interface = CarInterface(car_params, frogpilot_car_params, CarController, CarState)
     assert car_params
     assert car_interface
 
@@ -75,10 +85,11 @@ class TestCarInterfaces:
     # Longitudinal sanity checks
     assert len(car_params.longitudinalTuning.kpV) == len(car_params.longitudinalTuning.kpBP)
     assert len(car_params.longitudinalTuning.kiV) == len(car_params.longitudinalTuning.kiBP)
+    assert len(car_params.longitudinalTuning.deadzoneV) == len(car_params.longitudinalTuning.deadzoneBP)
 
     # If we're using the interceptor for gasPressed, we should be commanding gas with it
     if car_params.enableGasInterceptor:
-      self.assertTrue(car_params.openpilotLongitudinalControl)
+      assert car_params.openpilotLongitudinalControl
 
     # Lateral sanity checks
     if car_params.steerControlType != car.CarParams.SteerControlType.angle:
@@ -89,7 +100,6 @@ class TestCarInterfaces:
         assert len(tune.pid.kiV) > 0 and len(tune.pid.kiV) == len(tune.pid.kiBP)
 
       elif tune.which() == 'torque':
-        assert not math.isnan(tune.torque.kf) and tune.torque.kf > 0
         assert not math.isnan(tune.torque.friction) and tune.torque.friction > 0
 
     cc_msg = FuzzyGenerator.get_random_msg(data.draw, car.CarControl, real_floats=True)
@@ -97,15 +107,15 @@ class TestCarInterfaces:
     now_nanos = 0
     CC = car.CarControl.new_message(**cc_msg)
     for _ in range(10):
-      car_interface.update(CC, [])
-      car_interface.apply(CC.as_reader(), now_nanos)
+      car_interface.update(CC, [], TOGGLES)
+      car_interface.apply(CC.as_reader(), now_nanos, TOGGLES)
       now_nanos += DT_CTRL * 1e9  # 10 ms
 
     CC = car.CarControl.new_message(**cc_msg)
     CC.enabled = True
     for _ in range(10):
-      car_interface.update(CC, [])
-      car_interface.apply(CC.as_reader(), now_nanos)
+      car_interface.update(CC, [], TOGGLES)
+      car_interface.apply(CC.as_reader(), now_nanos, TOGGLES)
       now_nanos += DT_CTRL * 1e9  # 10ms
 
     # Test controller initialization
@@ -113,11 +123,11 @@ class TestCarInterfaces:
     #  hypothesis also slows down significantly with just one more message draw
     LongControl(car_params)
     if car_params.steerControlType == car.CarParams.SteerControlType.angle:
-      LatControlAngle(car_params, car_interface)
+      LatControlAngle(car_params, car_interface, DT_CTRL)
     elif car_params.lateralTuning.which() == 'pid':
-      LatControlPID(car_params, car_interface)
+      LatControlPID(car_params, car_interface, DT_CTRL)
     elif car_params.lateralTuning.which() == 'torque':
-      LatControlTorque(car_params, car_interface)
+      LatControlTorque(car_params, car_interface, DT_CTRL)
 
     # Test radar interface
     RadarInterface = importlib.import_module(f'selfdrive.car.{car_params.carName}.radar_interface').RadarInterface

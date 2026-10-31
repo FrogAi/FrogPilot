@@ -21,6 +21,9 @@ class CarState(CarStateBase):
     self.prev_distance_button = 0
     self.distance_button = 0
 
+    # FrogPilot variables
+    self.lkas_button = None
+
   def update(self, cp, cp_cam, frogpilot_toggles):
 
     ret = car.CarState.new_message()
@@ -113,7 +116,11 @@ class CarState(CarStateBase):
 
     # FrogPilot CarState functions
     self.lkas_previously_enabled = self.lkas_enabled
-    self.lkas_enabled = not self.lkas_disabled
+    self.lkas_enabled = False
+    if cp_cam.ts_nanos["CAM_LANEINFO"]["LANE_LINES"] > 0:
+      prev_lkas_button = self.lkas_button
+      self.lkas_button = not self.lkas_disabled
+      self.lkas_enabled = prev_lkas_button is not None and self.lkas_button != prev_lkas_button
 
     return ret, fp_ret
 

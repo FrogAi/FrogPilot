@@ -81,6 +81,7 @@ WiFiPromptWidget::WiFiPromptWidget(QWidget *parent) : QFrame(parent) {
   }
   stack->addWidget(uploading);
 
+  // FrogPilot variables
   // Not uploading data
   QWidget *notUploading = new QWidget;
   QVBoxLayout *not_uploading_layout = new QVBoxLayout(notUploading);
@@ -103,7 +104,7 @@ WiFiPromptWidget::WiFiPromptWidget(QWidget *parent) : QFrame(parent) {
     }
     not_uploading_layout->addLayout(title_layout);
 
-    QLabel *desc = new QLabel(tr("Toggle off the \"Turn Off Data Uploads\" toggle to re-enable uploads."));
+    QLabel *desc = new QLabel(tr("Turn off \"Disable Uploads\" to re-enable uploads."));
     desc->setStyleSheet("font-size: 48px; font-weight: 400;");
     desc->setWordWrap(true);
     not_uploading_layout->addWidget(desc);
@@ -128,5 +129,5 @@ void WiFiPromptWidget::updateState(const UIState &s, const FrogPilotUIState &fs)
   auto network_type = sm["deviceState"].getDeviceState().getNetworkType();
   auto uploading = network_type == cereal::DeviceState::NetworkType::WIFI ||
       network_type == cereal::DeviceState::NetworkType::ETHERNET;
-  stack->setCurrentIndex(fs.frogpilot_toggles.value("no_uploads").toBool() ? 2 : uploading ? 1 : 0);
+  stack->setCurrentIndex(fs.frogpilot_toggles.value("no_uploads").toBool() && !fs.frogpilot_toggles.value("no_onroad_uploads").toBool() ? 2 : uploading ? 1 : 0);
 }

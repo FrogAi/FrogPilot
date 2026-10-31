@@ -13,11 +13,6 @@
 
 ExitHandler do_exit;
 
-// Cap encoder message queue to prevent unbounded memory growth during rotation stalls.
-// At 20 FPS with ~75 KB per frame across 3 streams, 600 messages ≈ 45 MB — enough to
-// buffer a full segment rotation timeout (72s) without risking OOM.
-constexpr size_t MAX_ENCODER_QUEUE_SIZE = 600;
-
 struct LoggerdState {
   LoggerState logger;
   std::atomic<double> last_camera_seen_tms;
@@ -100,6 +95,7 @@ int handle_encoder_msg(LoggerdState *s, Message *msg, std::string &name, struct 
       re.marked_ready_to_rotate = false;
       // we are in this segment now, process any queued messages before this one
       if (!re.q.empty()) {
+        // FrogPilot variables
         // Swap the queue out before iterating — recursive handle_encoder_msg can push_back
         // into re.q, which would invalidate iterators if done during a range-for loop.
         std::vector<Message *> pending;
@@ -168,13 +164,15 @@ int handle_encoder_msg(LoggerdState *s, Message *msg, std::string &name, struct 
         s->logger.segment(), offset_segment_num,
         s->ready_to_rotate.load(), s->max_waiting, name.c_str());
     }
-    // queue up all the new segment messages, they go in after the rotate
-    if (re.q.size() >= MAX_ENCODER_QUEUE_SIZE) {
-      LOGE("%s: encoder queue overflow (%zu msgs), dropping oldest to prevent OOM", name.c_str(), re.q.size());
-      delete re.q.front();
-      re.q.erase(re.q.begin());
+
+    // FrogPilot variables
+    if (re.q.size() > MAIN_FPS*10) {
+      LOGE_100("%s: dropping frame, queue is too large", name.c_str());
+      delete msg;
+    } else {
+      // queue up all the new segment messages, they go in after the rotate
+      re.q.push_back(msg);
     }
-    re.q.push_back(msg);
   } else {
     LOGE("%s: encoderd packet has a older segment!!! idx.getSegmentNum():%d s->logger.segment():%d re.encoderd_segment_offset:%d",
       name.c_str(), idx.getSegmentNum(), s->logger.segment(), re.encoderd_segment_offset);

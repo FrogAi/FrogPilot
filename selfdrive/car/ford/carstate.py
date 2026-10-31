@@ -10,12 +10,15 @@ GearShifter = car.CarState.GearShifter
 TransmissionType = car.CarParams.TransmissionType
 
 
+# FrogPilot variables
 # Traffic signals for Speed Limit Controller
 def calculate_speed_limit(cp_cam):
   speed_limit_unit = cp_cam.vl["Traffic_RecognitnData"]["TsrVlUnitMsgTxt_D_Rq"]
   speed_limit_value = cp_cam.vl["Traffic_RecognitnData"]["TsrVLim1MsgTxt_D_Rq"]
 
-  if speed_limit_unit == 1:
+  if speed_limit_value > 250:
+    return 0
+  elif speed_limit_unit == 1:
     return speed_limit_value * CV.KPH_TO_MS
   elif speed_limit_unit == 2:
     return speed_limit_value * CV.MPH_TO_MS
@@ -28,6 +31,7 @@ class CarState(CarStateBase):
     super().__init__(CP, FPCP)
     can_define = CANDefine(DBC[CP.carFingerprint]["pt"])
     if CP.transmissionType == TransmissionType.automatic:
+      # FrogPilot variables
       if CP.flags & FordFlags.ALT_STEER_ANGLE:
         self.shifter_values = can_define.dv["TransGearData"]["GearLvrPos_D_Actl"]
       else:
@@ -38,12 +42,16 @@ class CarState(CarStateBase):
     self.prev_distance_button = 0
     self.distance_button = 0
 
+    # FrogPilot variables
+    self.steering_angle_offset_deg = 0.
+
   def update(self, cp, cp_cam, frogpilot_toggles):
     ret = car.CarState.new_message()
     fp_ret = custom.FrogPilotCarState.new_message()
 
     # Occasionally on startup, the ABS module recalibrates the steering pinion offset, so we need to block engagement
     # The vehicle usually recovers out of this state within a minute of normal driving
+    # FrogPilot variables
     if self.CP.flags & FordFlags.ALT_STEER_ANGLE:
       self.vehicle_sensors_valid = (
         int((cp.vl["ParkAid_Data"]["ExtSteeringAngleReq2"] + 1000) * 10) not in (32766, 32767)
@@ -69,6 +77,7 @@ class CarState(CarStateBase):
     ret.parkingBrake = cp.vl["DesiredTorqBrk"]["PrkBrkStatus"] in (1, 2)
 
     # steering wheel
+    # FrogPilot variables
     if self.CP.flags & FordFlags.ALT_STEER_ANGLE:
       steering_angle_init = cp.vl["SteeringPinion_Data_Alt"]["StePinRelInit_An_Sns"]
       if self.vehicle_sensors_valid:
@@ -100,6 +109,7 @@ class CarState(CarStateBase):
 
     # gear
     if self.CP.transmissionType == TransmissionType.automatic:
+      # FrogPilot variables
       if self.CP.flags & FordFlags.ALT_STEER_ANGLE:
         gear = self.shifter_values.get(cp.vl["TransGearData"]["GearLvrPos_D_Actl"])
       else:

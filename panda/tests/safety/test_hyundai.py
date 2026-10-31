@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 import random
 import unittest
-from panda import Panda
+from panda import ALTERNATIVE_EXPERIENCE, Panda
 from panda.tests.libpanda import libpanda_py
 import panda.tests.safety.common as common
 from panda.tests.safety.common import CANPackerPanda
-from panda.tests.safety.hyundai_common import HyundaiButtonBase, HyundaiLongitudinalBase
+from panda.tests.safety.hyundai_common import Buttons, HyundaiButtonBase, HyundaiLongitudinalBase
 
 
 # 4 bit checkusm used in some hyundai messages
@@ -112,6 +112,46 @@ class TestHyundaiSafety(HyundaiButtonBase, common.PandaCarSafetyTest, common.Dri
     values = {"CR_Lkas_StrToqReq": torque, "CF_Lkas_ActToi": steer_req}
     return self.packer.make_can_msg_panda("LKAS11", 0, values)
 
+  # FrogPilot tests
+  def _acc_main_msg(self, main_on):
+    return self.packer.make_can_msg_panda("SCC11", self.SCC_BUS, {"MainMode_ACC": main_on})
+
+  def test_acc_main_rx_check(self):
+    for acc_main_alive in (True, False):
+      with self.subTest(acc_main_alive=acc_main_alive):
+        self.setUp()
+        self.safety.set_alternative_experience(ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL)
+        self._rx(self._acc_main_msg(1))
+        for t in range(1, 4):
+          self.safety.set_timer(int(t * 1e6))
+          self._rx(self._user_gas_msg(0))
+          self._rx(self._speed_msg(0))
+          self._rx(self._user_brake_msg(0))
+          self._rx(self._pcm_status_msg(False))
+          self._rx(self.packer.make_can_msg_panda("BCM_PO_11", 0, {"LFA_Pressed": 0}))
+          if acc_main_alive:
+            self._rx(self._acc_main_msg(1))
+          self.safety.safety_tick_current_safety_config()
+        self.assertEqual(acc_main_alive, self.safety.safety_config_valid())
+        self._set_prev_torque(0)
+        self.assertEqual(acc_main_alive, self._tx(self._torque_cmd_msg(1)))
+
+  def test_aol_follows_acc_main_state(self):
+    self.safety.set_alternative_experience(ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL)
+    self.safety.set_controls_allowed(False)
+
+    self._rx(self._button_msg(Buttons.NONE, main_button=1))
+    self._rx(self._acc_main_msg(0))
+    self._rx(self._button_msg(Buttons.NONE))
+    self._set_prev_torque(0)
+    self.assertFalse(self._tx(self._torque_cmd_msg(1)))
+
+    self._rx(self._button_msg(Buttons.NONE, main_button=1))
+    self._rx(self._acc_main_msg(1))
+    self._rx(self._button_msg(Buttons.NONE))
+    self._set_prev_torque(0)
+    self.assertTrue(self._tx(self._torque_cmd_msg(1)))
+
 
 class TestHyundaiSafetyAltLimits(TestHyundaiSafety):
   MAX_RATE_UP = 2
@@ -133,6 +173,23 @@ class TestHyundaiSafetyCameraSCC(TestHyundaiSafety):
     self.packer = CANPackerPanda("hyundai_kia_generic")
     self.safety = libpanda_py.libpanda
     self.safety.set_safety_hooks(Panda.SAFETY_HYUNDAI, Panda.FLAG_HYUNDAI_CAMERA_SCC)
+    self.safety.init_tests()
+
+
+# FrogPilot tests
+class TestHyundaiSafetyLdaButton(TestHyundaiSafety):
+  def setUp(self):
+    self.packer = CANPackerPanda("hyundai_kia_generic")
+    self.safety = libpanda_py.libpanda
+    self.safety.set_safety_hooks(Panda.SAFETY_HYUNDAI, Panda.FLAG_HYUNDAI_HAS_LDA_BUTTON)
+    self.safety.init_tests()
+
+
+class TestHyundaiSafetyCameraSCCLdaButton(TestHyundaiSafetyCameraSCC):
+  def setUp(self):
+    self.packer = CANPackerPanda("hyundai_kia_generic")
+    self.safety = libpanda_py.libpanda
+    self.safety.set_safety_hooks(Panda.SAFETY_HYUNDAI, Panda.FLAG_HYUNDAI_CAMERA_SCC | Panda.FLAG_HYUNDAI_HAS_LDA_BUTTON)
     self.safety.init_tests()
 
 
@@ -210,6 +267,47 @@ class TestHyundaiLongitudinalSafety(HyundaiLongitudinalBase, TestHyundaiSafety):
     self.assertTrue(self._tx(self._accel_msg(0)))
     self.assertFalse(self._tx(self._accel_msg(0, aeb_req=True)))
     self.assertFalse(self._tx(self._accel_msg(0, aeb_decel=1.0)))
+
+  # FrogPilot tests
+  def test_acc_main_rx_check(self):
+    pass
+
+  def test_aol_follows_acc_main_state(self):
+    self.safety.set_alternative_experience(ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL)
+    self.safety.set_controls_allowed(False)
+
+    self._rx(self._acc_main_msg(0))
+    self._rx(self._button_msg(Buttons.NONE, main_button=1))
+    self._rx(self._button_msg(Buttons.NONE))
+    self._set_prev_torque(0)
+    self.assertTrue(self._tx(self._torque_cmd_msg(1)))
+
+  def test_main_press_with_aol_disables_controls(self):
+    self.safety.set_alternative_experience(ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL)
+    self._rx(self._button_msg(Buttons.NONE, main_button=1))
+    self._rx(self._button_msg(Buttons.NONE))
+    self.safety.set_controls_allowed(True)
+
+    self._rx(self._button_msg(Buttons.NONE, main_button=1))
+    self.assertFalse(self.safety.get_controls_allowed())
+
+  def test_main_state_after_set_with_main_off(self):
+    self.safety.set_alternative_experience(ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL)
+    self.safety.set_controls_allowed(False)
+
+    self._rx(self._button_msg(Buttons.SET))
+    self._rx(self._button_msg(Buttons.NONE))
+    self.assertTrue(self.safety.get_controls_allowed())
+    self._set_prev_torque(0)
+    self.assertTrue(self._tx(self._torque_cmd_msg(0)))
+    self.assertFalse(self.safety.get_acc_main_on())
+
+    self.safety.set_controls_allowed(False)
+    self._rx(self._button_msg(Buttons.NONE, main_button=1))
+    self._rx(self._button_msg(Buttons.NONE))
+    self.assertTrue(self.safety.get_acc_main_on())
+    self._set_prev_torque(0)
+    self.assertTrue(self._tx(self._torque_cmd_msg(1)))
 
 
 if __name__ == "__main__":

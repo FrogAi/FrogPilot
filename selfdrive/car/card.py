@@ -17,7 +17,7 @@ from openpilot.selfdrive.car.car_helpers import get_car, get_one_can
 from openpilot.selfdrive.car.interfaces import CarInterfaceBase
 from openpilot.selfdrive.controls.lib.events import Events
 
-from openpilot.frogpilot.common.frogpilot_variables import get_frogpilot_toggles, update_frogpilot_toggles
+from openpilot.frogpilot.common import frogpilot_paths, frogpilot_variables
 from openpilot.frogpilot.controls.frogpilot_card import FrogPilotCard
 
 REPLAY = "REPLAY" in os.environ
@@ -30,8 +30,8 @@ class Car:
 
   def __init__(self, CI=None):
     self.can_sock = messaging.sub_sock('can', timeout=20)
-    self.sm = messaging.SubMaster(['pandaStates', 'carControl', 'controlsState', 'liveCalibration', 'onroadEvents', 'frogpilotControlsState', 'frogpilotOnroadEvents', 'frogpilotPlan'])
-    self.pm = messaging.PubMaster(['sendcan', 'carState', 'carParams', 'carOutput', 'frogpilotCarState'])
+    self.sm = messaging.SubMaster(['pandaStates', 'carControl', 'liveCalibration', 'onroadEvents', 'frogpilotControlsState', 'frogpilotPlan'])
+    self.pm = messaging.PubMaster(['sendcan', 'carState', 'carParams', 'carOutput', 'frogpilotCarParams', 'frogpilotCarState'])
 
     self.can_rcv_cum_timeout_counter = 0
 
@@ -50,9 +50,10 @@ class Car:
 
       num_pandas = len(messaging.recv_one_retry(self.sm.sock['pandaStates']).pandaStates)
       experimental_long_allowed = self.params.get_bool("ExperimentalLongitudinalEnabled")
-      self.CI, self.CP, FPCP = get_car(self.can_sock, self.pm.sock['sendcan'], experimental_long_allowed, self.params, num_pandas, get_frogpilot_toggles())
+      self.CI, self.CP, self.FPCP = get_car(self.can_sock, self.pm.sock['sendcan'], experimental_long_allowed, self.params, num_pandas,
+                                            frogpilot_variables.get_frogpilot_toggles())
     else:
-      self.CI, self.CP = CI, CI.CP
+      self.CI, self.CP, self.FPCP = CI, CI.CP, CI.CS.FPCP
 
     # set alternative experiences from parameters
     self.disengage_on_accelerator = self.params.get_bool("DisengageOnAccelerator")
@@ -64,16 +65,11 @@ class Car:
 
     controller_available = self.CI.CC is not None and openpilot_enabled_toggle
 
-    self.CP.passive = not controller_available
-    if self.CP.passive:
-      safety_config = car.CarParams.SafetyConfig.new_message()
-      safety_config.safetyModel = car.CarParams.SafetyModel.noOutput
-      self.CP.safetyConfigs = [safety_config]
-
+    # FrogPilot variables
     if self.CP.secOcRequired:
       # Copy user key if available
       try:
-        with open("/cache/params/SecOCKey") as f:
+        with open(frogpilot_paths.PARAMS_CACHE_PATH / "SecOCKey") as f:
           user_key = f.readline().strip()
           if len(user_key) == 32:
             self.params.put("SecOCKey", user_key)
@@ -82,35 +78,38 @@ class Car:
 
       secoc_key = self.params.get("SecOCKey", encoding='utf8')
       if secoc_key is not None:
-        saved_secoc_key = bytes.fromhex(secoc_key.strip())
+        try:
+          saved_secoc_key = bytes.fromhex(secoc_key.strip())
+        except ValueError:
+          saved_secoc_key = b""
+
         if len(saved_secoc_key) == 16:
           self.CP.secOcKeyAvailable = True
-          self.CI.CS.secoc_key = saved_secoc_key
           if controller_available:
             self.CI.CC.secoc_key = saved_secoc_key
         else:
           cloudlog.warning("Saved SecOC key is invalid")
+
+    self.CP.passive = not controller_available or (self.CP.secOcRequired and not self.CP.secOcKeyAvailable)
+    if self.CP.passive:
+      safety_config = car.CarParams.SafetyConfig.new_message()
+      safety_config.safetyModel = car.CarParams.SafetyModel.noOutput
+      self.CP.safetyConfigs = [safety_config]
 
     # Write previous route's CarParams
     prev_cp = self.params.get("CarParamsPersistent")
     if prev_cp is not None:
       self.params.put("CarParamsPrevRoute", prev_cp)
 
-    self.events = Events()
-
-    # card is driven by can recv, expected at 100Hz
-    self.rk = Ratekeeper(100, print_delay_threshold=None)
-
     # FrogPilot variables
     self.frogpilot_card = FrogPilotCard(self)
 
-    self.frogpilot_toggles = get_frogpilot_toggles()
+    self.frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles()
 
-    if self.frogpilot_toggles.always_on_lateral:
+    if not self.CP.passive and self.frogpilot_toggles.always_on_lateral:
       self.CP.alternativeExperience |= ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL
-      self.CP.alternativeExperience |= ALTERNATIVE_EXPERIENCE.DISABLE_DISENGAGE_ON_GAS
 
-    fpcp_bytes = FPCP.to_bytes()
+    fpcp_bytes = self.FPCP.to_bytes()
     self.params.put("FrogPilotCarParams", fpcp_bytes)
     self.params.put_nonblocking("FrogPilotCarParamsPersistent", fpcp_bytes)
 
@@ -120,7 +119,10 @@ class Car:
     self.params.put_nonblocking("CarParamsCache", cp_bytes)
     self.params.put_nonblocking("CarParamsPersistent", cp_bytes)
 
-    update_frogpilot_toggles()
+    self.events = Events()
+
+    # card is driven by can recv, expected at 100Hz
+    self.rk = Ratekeeper(100, print_delay_threshold=None)
 
   def state_update(self) -> car.CarState:
     """carState update loop, driven by can"""
@@ -168,6 +170,12 @@ class Car:
       cp_send.carParams = self.CP
       self.pm.send('carParams', cp_send)
 
+      # FrogPilot variables
+      fpcp_send = messaging.new_message('frogpilotCarParams')
+      fpcp_send.valid = True
+      fpcp_send.frogpilotCarParams = self.FPCP
+      self.pm.send('frogpilotCarParams', fpcp_send)
+
     # publish new carOutput
     co_send = messaging.new_message('carOutput')
     co_send.valid = self.sm.all_checks(['carControl'])
@@ -182,7 +190,7 @@ class Car:
     cs_send.carState.cumLagMs = -self.rk.remaining * 1000.
     self.pm.send('carState', cs_send)
 
-    # frogpilotCarState
+    # FrogPilot variables
     fpcs_send = messaging.new_message('frogpilotCarState')
     fpcs_send.valid = CS.canValid
     fpcs_send.frogpilotCarState = FPCS
@@ -227,8 +235,8 @@ class Car:
       self.rk.monitor_time()
 
       # Update FrogPilot variables
-      if self.sm['frogpilotPlan'].togglesUpdated:
-        self.frogpilot_toggles = get_frogpilot_toggles()
+      self.frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles(self.sm)
+
 
 def main():
   config_realtime_process(4, Priority.CTRL_HIGH)

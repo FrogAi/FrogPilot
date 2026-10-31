@@ -1,10 +1,6 @@
 #pragma once
 
-#include <QJsonDocument>
-#include <QJsonObject>
-
-#include "selfdrive/ui/qt/onroad/buttons.h"
-#include "selfdrive/ui/qt/widgets/cameraview.h"
+#include "frogpilot/ui/qt/onroad/frogpilot_buttons.h"
 
 const int widget_size = img_size + (UI_BORDER_SIZE / 2);
 
@@ -14,94 +10,143 @@ class FrogPilotAnnotatedCameraWidget : public QWidget {
 public:
   explicit FrogPilotAnnotatedCameraWidget(QWidget *parent = 0);
 
-  void paintAdjacentPaths(QPainter &p, const cereal::CarState::Reader &carState, const FrogPilotUIScene &frogpilot_scene, const QJsonObject &frogpilot_toggles);
-  void paintBlindSpotPath(QPainter &p, const cereal::CarState::Reader &carState, const FrogPilotUIScene &frogpilot_scene);
-  void paintFrogPilotWidgets(QPainter &p, UIState &s, FrogPilotUIState &fs, SubMaster &sm, SubMaster &fpsm, QJsonObject &frogpilot_toggles);
-  void paintLeadMetrics(QPainter &p, bool adjacent, QPointF *chevron, const cereal::FrogPilotPlan::Reader &frogpilotPlan, const cereal::RadarState::LeadData::Reader &lead_data);
-  void paintPathEdges(QPainter &p, const cereal::NavInstruction::Reader &navInstruction, const UIScene &scene, const FrogPilotUIScene &frogpilot_scene, SubMaster &sm);
-  void paintRainbowPath(QPainter &p, QLinearGradient &bg, float lin_grad_point, SubMaster &sm);
-  void updateState(const FrogPilotUIState &fs, const QJsonObject &frogpilot_toggles);
+  static void drawOutlinedText(QPainter &p, const QPointF &position, const QString &text);
 
-  bool bigMapOpen;
-  bool hideBottomIcons;
-  bool isCruiseSet;
-  bool mapButtonVisible;
-  bool mutcdSpeedLimit;
-  bool rightHandDM;
-  bool viennaSpeedLimit;
+  void paintAdjacentPaths(QPainter &p);
+  void paintBlindSpotPath(QPainter &p);
+  void paintFrogPilotWidgets(QPainter &p);
+  void paintLeadMetrics(QPainter &p, bool adjacent, QPointF *chevron, float leadDistance, float vLead);
+  void paintPathEdges(QPainter &p);
+  void paintRainbowPath(QLinearGradient &bg, float lin_grad_point);
+  void paintWorldWidgets(QPainter &p);
+  void updateState(const UIState &s, const FrogPilotUIState &fs);
 
-  int alertHeight;
-  int frogHopCount;
-  int signMargin;
-  int standstillDuration;
+  bool bigMapOpen = false;
+  bool driverView = false;
+  bool hideBottomIcons = false;
+  bool isCruiseSet = false;
+  bool mapButtonEnabled = false;
+  bool mutcdSpeedLimit = false;
+  bool rightHandDM = false;
+  bool viennaSpeedLimit = false;
 
-  float distanceConversion;
-  float setSpeed;
-  float speed;
-  float speedConversion;
-  float speedConversionMetrics;
+  int alertHeight = 0;
+  int standstillDuration = 0;
+
+  float speed = 0.0f;
+  float speedConversion = 0.0f;
+
+  FrogPilotUIScene frogpilot_scene = {};
 
   QColor blueColor(int alpha = 255) { return QColor(0, 0, 255, alpha); }
   QColor purpleColor(int alpha = 255) { return QColor(128, 0, 128, alpha); }
+  QColor whiteColor(int alpha = 255) { return QColor(255, 255, 255, alpha); }
+
+  QJsonObject frogpilot_toggles;
 
   QPoint dmIconPosition;
   QPoint experimentalButtonPosition;
 
-  QRect leadTextRect;
+  QRect adjacentLeadTextRect;
   QRect newSpeedLimitRect;
   QRect setSpeedRect;
   QRect speedLimitRect;
 
   QSize defaultSize;
 
-  QString leadDistanceUnit;
-  QString leadSpeedUnit;
   QString signalStyle;
   QString speedLimitOffsetStr;
   QString speedUnit;
 
+  QVector<QRect> leadTextRects;
+
 protected:
-  void showEvent(QShowEvent *event) override;
+  void hideEvent(QHideEvent *event) override;
 
 private:
-  void paintCEMStatus(QPainter &p, const cereal::FrogPilotPlan::Reader &frogpilotPlan, FrogPilotUIScene &frogpilot_scene, SubMaster &sm);
-  void paintCompass(QPainter &p, QJsonObject &frogpilot_toggles);
-  void paintCurveSpeedControl(QPainter &p, const cereal::FrogPilotPlan::Reader &frogpilotPlan);
-  void paintLateralPaused(QPainter &p, FrogPilotUIScene &frogpilot_scene);
-  void paintLongitudinalPaused(QPainter &p, FrogPilotUIScene &frogpilot_scene);
-  void paintPedalIcons(QPainter &p, const cereal::CarState::Reader &carState, const cereal::FrogPilotCarState::Reader &frogpilotCarState, FrogPilotUIScene &frogpilot_scene, QJsonObject &frogpilot_toggles);
-  void paintPendingSpeedLimit(QPainter &p, const cereal::FrogPilotPlan::Reader &frogpilotPlan);
-  void paintRadarTracks(QPainter &p, const cereal::ModelDataV2::Reader &model, UIState &s, FrogPilotUIScene &frogpilot_scene, SubMaster &sm, SubMaster &fpsm);
+  QLinearGradient adjacentPathGradient(float hue);
+  void paintCEMStatus(QPainter &p, const QPoint &position);
+  void paintCompass(QPainter &p, const QPoint &position);
+  void paintCurveSpeedControl(QPainter &p);
+  void paintPausedIcon(QPainter &p, const QPoint &position, const QPixmap &icon);
+  void paintPedalIcons(QPainter &p);
+  void paintPendingSpeedLimit(QPainter &p);
+  void paintRadarTracks(QPainter &p);
   void paintRoadName(QPainter &p);
-  void paintSmartControllerTraining(QPainter &p, const cereal::FrogPilotPlan::Reader &frogpilotPlan);
-  void paintSpeedLimitSources(QPainter &p, const cereal::FrogPilotCarState::Reader &frogpilotCarState, const cereal::FrogPilotNavigation::Reader &frogpilotNavigation, const cereal::FrogPilotPlan::Reader &frogpilotPlan);
+  void paintSignFrame(QPainter &p, const QRect &rect, const QPen &pen, bool vienna);
+  void paintSpeedLimitSources(QPainter &p);
   void paintStandstillTimer(QPainter &p);
-  void paintStoppingPoint(QPainter &p, UIScene &scene, FrogPilotUIScene &frogpilot_scene, QJsonObject &frogpilot_toggles);
-  void paintTurnSignals(QPainter &p, const cereal::CarState::Reader &carState);
-  void paintWeather(QPainter &p, const cereal::FrogPilotPlan::Reader &frogpilotPlan, FrogPilotUIScene &frogpilot_scene);
+  void paintStoppingPoint(QPainter &p);
+  void paintTurnSignals(QPainter &p);
+  void paintWeather(QPainter &p, const QPoint &position);
+  void paintWidgetFrame(QPainter &p, const QRect &rect, const QColor &borderColor);
+  void updateCEMIcon();
+  void updateIcon(const QString &path, QSharedPointer<FrogPilotMovie> &icon, QString &iconPath);
   void updateSignals();
+  void updateWeatherIcon();
 
-  int animationFrameIndex;
-  int signalAnimationLength;
-  int signalHeight;
-  int signalMovement;
-  int signalWidth;
-  int totalFrames;
+  bool blindspotLeft = false;
+  bool blindspotRight = false;
+  bool blinkerLeft = false;
+  bool blinkerRight = false;
+  bool brakeLights = false;
+  bool cscActive = false;
+  bool cscTraining = false;
+  bool experimentalMode = false;
+  bool forceCoast = false;
+  bool lateralPaused = false;
+  bool longitudinalPaused = false;
+  bool redLight = false;
+  bool signalIsGif = false;
+  bool speedLimitChanged = false;
+  bool weatherDaytime = false;
 
-  Params params;
+  int desiredFollowDistance = 0;
+  int signalAnimationLength = 0;
+  int signalHeight = 0;
+  int signalWidth = 0;
+  int weatherId = 0;
+
+  float accelerationEgo = 0.0f;
+  float cameraSpeedLimit = 0.0f;
+  float cscSpeed = 0.0f;
+  float dashboardSpeedLimit = 0.0f;
+  float distanceConversion = 0.0f;
+  float gpsBearing = 0.0f;
+  float hueOffset = 0.0f;
+  float laneWidthLeft = 0.0f;
+  float laneWidthRight = 0.0f;
+  float maneuverDistance = 0.0f;
+  float mapboxSpeedLimit = 0.0f;
+  float mapSpeedLimit = 0.0f;
+  float navigationSpeedLimit = 0.0f;
+  float nextSpeedLimit = 0.0f;
+  float roadCurvature = 0.0f;
+  float speedConversionMetrics = 0.0f;
+  float stoppingDistance = 0.0f;
+  float unconfirmedSpeedLimit = 0.0f;
+  float vEgo = 0.0f;
+
+  std::string speedLimitSource;
+
+  DrivingPersonalityButton *personalityButton;
+  InstantReplayButton *instantReplayButton;
+  ScreenRecorderButton *screenRecorderButton;
+
   Params params_memory{"/dev/shm/params"};
 
   QColor blackColor(int alpha = 255) { return QColor(0, 0, 0, alpha); }
-  QColor greenColor(int alpha = 242) { return QColor(23, 134, 68, alpha); }
   QColor redColor(int alpha = 255) { return QColor(201, 34, 49, alpha); }
-  QColor whiteColor(int alpha = 255) { return QColor(255, 255, 255, alpha); }
 
   QElapsedTimer glowTimer;
   QElapsedTimer pendingLimitTimer;
+  QElapsedTimer signalTimer;
   QElapsedTimer standstillTimer;
 
   QPixmap brakePedalImg;
+  QPixmap cameraIcon;
   QPixmap curveSpeedIcon;
+  QPixmap curveSpeedIconFlipped;
   QPixmap dashboardIcon;
   QPixmap gasPedalImg;
   QPixmap mapDataIcon;
@@ -112,26 +157,19 @@ private:
   QPixmap stopSignImg;
   QPixmap turnIcon;
 
-  QPoint cemStatusPosition;
-  QPoint compassPosition;
-  QPoint lateralPausedPosition;
+  QRect roadNameRect;
+  QRect sourcesRect;
+  QRect standstillTimerRect;
+  QRect staticSignalRect;
 
-  QSharedPointer<QMovie> cemCurveIcon;
-  QSharedPointer<QMovie> cemLeadIcon;
-  QSharedPointer<QMovie> cemSpeedIcon;
-  QSharedPointer<QMovie> cemStopIcon;
-  QSharedPointer<QMovie> cemTurnIcon;
-  QSharedPointer<QMovie> chillModeIcon;
-  QSharedPointer<QMovie> experimentalModeIcon;
-  QSharedPointer<QMovie> weatherClearDay;
-  QSharedPointer<QMovie> weatherClearNight;
-  QSharedPointer<QMovie> weatherLowVisibility;
-  QSharedPointer<QMovie> weatherRain;
-  QSharedPointer<QMovie> weatherSnow;
+  QSharedPointer<FrogPilotMovie> cemIcon;
+  QSharedPointer<FrogPilotMovie> weatherIcon;
 
-  QString cscSpeedStr;
-
-  QTimer *animationTimer;
+  QString cemIconPath;
+  QString leadDistanceUnit;
+  QString leadSpeedUnit;
+  QString roadName;
+  QString weatherIconPath;
 
   QVector<QPixmap> blindspotImages;
   QVector<QPixmap> signalImages;

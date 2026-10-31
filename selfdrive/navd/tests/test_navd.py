@@ -1,11 +1,19 @@
+import http.server
 import json
+import logging
 import random
+import socket
+import threading
 import numpy as np
 
 from parameterized import parameterized
 
 import cereal.messaging as messaging
+from openpilot.common.logging_extra import SwagFormatter
 from openpilot.common.params import Params
+from openpilot.common.swaglog import cloudlog
+from openpilot.selfdrive.navd.helpers import Coordinate
+from openpilot.selfdrive.navd.navd import RouteEngine
 from openpilot.system.manager.process_config import managed_processes
 
 
@@ -55,3 +63,45 @@ class TestNavd:
     start = {"latitude": random.uniform(-90, 90), "longitude": random.uniform(-180, 180)}
     end = {"latitude": random.uniform(-90, 90), "longitude": random.uniform(-180, 180)}
     self._check_route(start, end, check_coords=False)
+
+  # FrogPilot variables
+  @parameterized.expand([("http_error",), ("connection_error",)])
+  def test_failed_route_request_does_not_log_token(self, failure):
+    class UnauthorizedHandler(http.server.BaseHTTPRequestHandler):
+      def do_GET(self):
+        self.send_response(401)
+        self.end_headers()
+
+      def log_message(self, *args):
+        pass
+
+    if failure == "http_error":
+      server = http.server.HTTPServer(("127.0.0.1", 0), UnauthorizedHandler)
+      threading.Thread(target=server.serve_forever, daemon=True).start()
+      port = server.server_port
+    else:
+      with socket.socket() as unused_socket:
+        unused_socket.bind(("127.0.0.1", 0))
+        port = unused_socket.getsockname()[1]
+
+    records = []
+    handler = logging.Handler()
+    handler.setFormatter(SwagFormatter(cloudlog))
+    handler.emit = lambda record: records.append(handler.format(record))
+    cloudlog.addHandler(handler)
+
+    token = "sk.test_secret_token"
+    self.params.put("MapboxSecretKey", token)
+    route_engine = RouteEngine(None, messaging.PubMaster(['frogpilotNavigation', 'navRoute']))
+    route_engine.mapbox_host = f"http://127.0.0.1:{port}"
+    route_engine.last_position = Coordinate(32.7427228, -117.2321177)
+    try:
+      route_engine.calculate_route(Coordinate(32.7557004, -117.268002))
+    finally:
+      cloudlog.removeHandler(handler)
+      if failure == "http_error":
+        server.shutdown()
+        server.server_close()
+
+    assert any("failed to get route" in record for record in records)
+    assert not any(token in record for record in records)

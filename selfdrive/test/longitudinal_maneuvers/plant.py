@@ -2,12 +2,18 @@
 import time
 import numpy as np
 
+from types import SimpleNamespace
+
 from cereal import log
 import cereal.messaging as messaging
+from openpilot.common.conversions import Conversions as CV
 from openpilot.common.realtime import Ratekeeper, DT_MDL
+from openpilot.selfdrive.controls.lib.drive_helpers import V_CRUISE_MAX
 from openpilot.selfdrive.controls.lib.longcontrol import LongCtrlState
+from openpilot.selfdrive.controls.lib.longitudinal_mpc_lib.long_mpc import A_CHANGE_COST, CRUISE_MIN_ACCEL, DANGER_ZONE_COST, J_EGO_COST
+from openpilot.selfdrive.controls.lib.longitudinal_mpc_lib.long_mpc import get_jerk_factor, get_T_FOLLOW
 from openpilot.selfdrive.modeld.constants import ModelConstants
-from openpilot.selfdrive.controls.lib.longitudinal_planner import LongitudinalPlanner
+from openpilot.selfdrive.controls.lib.longitudinal_planner import LongitudinalPlanner, get_max_accel
 from openpilot.selfdrive.controls.radard import _LEAD_ACCEL_TAU
 
 
@@ -29,8 +35,8 @@ class Plant:
 
     self.distance = 0.
     self.speed = speed
+    self.should_stop = False
     self.acceleration = 0.0
-    self.speeds = []
 
     # lead car
     self.lead_relevancy = lead_relevancy
@@ -50,7 +56,15 @@ class Plant:
     from openpilot.selfdrive.car.honda.values import CAR
     from openpilot.selfdrive.car.honda.interface import CarInterface
 
-    self.planner = LongitudinalPlanner(CarInterface.get_non_essential_params(CAR.HONDA_CIVIC), init_v=self.speed)
+    # FrogPilot variables
+    self.frogpilot_toggles = SimpleNamespace(curve_speed_controller=False, force_torque_controller=False, honda_alt_tune=False, human_following=False,
+                                             nnff_lite_selected=False, nnff_selected=False, old_long_api=False, taco_tune=False)
+
+    CP = CarInterface.get_non_essential_params(CAR.HONDA_CIVIC, self.frogpilot_toggles)
+    self.frogpilot_toggles.longitudinalActuatorDelay = CP.longitudinalActuatorDelay
+    self.frogpilot_toggles.vEgoStopping = CP.vEgoStopping
+
+    self.planner = LongitudinalPlanner(CP, init_v=self.speed)
 
   @property
   def current_time(self):
@@ -64,6 +78,12 @@ class Plant:
     car_state = messaging.new_message('carState')
     car_control = messaging.new_message('carControl')
     model = messaging.new_message('modelV2')
+
+    # FrogPilot variables
+    frogpilot_car_state = messaging.new_message('frogpilotCarState')
+    frogpilot_plan = messaging.new_message('frogpilotPlan')
+    live_parameters = messaging.new_message('liveParameters')
+
     a_lead = (v_lead - self.v_lead_prev)/self.ts
     self.v_lead_prev = v_lead
 
@@ -112,32 +132,49 @@ class Plant:
     model.modelV2.acceleration = acceleration
     model.modelV2.meta.disengagePredictions.gasPressProbs = [float(prob_throttle) for _ in range(6)]
 
+    # FrogPilot variables
+    model.modelV2.init('leadsV3', 2)
+
     control.controlsState.longControlState = LongCtrlState.pid if self.enabled else LongCtrlState.off
     control.controlsState.vCruise = float(v_cruise * 3.6)
     control.controlsState.experimentalMode = self.e2e
     control.controlsState.personality = self.personality
     control.controlsState.forceDecel = self.force_decel
     car_state.carState.vEgo = float(self.speed)
-    car_state.carState.standstill = self.speed < 0.01
-    car_state.carState.vCruise = float(v_cruise * 3.6)
+    car_state.carState.standstill = bool(self.speed < 0.01)
     car_control.carControl.orientationNED = [0., float(pitch), 0.]
+
+    # FrogPilot variables
+    jerk_factor = get_jerk_factor(control.controlsState.personality)
+    frogpilot_plan.frogpilotPlan.accelerationJerk = A_CHANGE_COST * jerk_factor
+    frogpilot_plan.frogpilotPlan.dangerJerk = DANGER_ZONE_COST
+    frogpilot_plan.frogpilotPlan.maxAcceleration = get_max_accel(self.speed)
+    frogpilot_plan.frogpilotPlan.minAcceleration = CRUISE_MIN_ACCEL
+    frogpilot_plan.frogpilotPlan.speedJerk = J_EGO_COST * jerk_factor
+    frogpilot_plan.frogpilotPlan.tFollow = get_T_FOLLOW(control.controlsState.personality)
+    frogpilot_plan.frogpilotPlan.vCruise = min(control.controlsState.vCruise, V_CRUISE_MAX) * CV.KPH_TO_MS
 
     # ******** get controlsState messages for plotting ***
     sm = {'radarState': radar.radarState,
           'carState': car_state.carState,
           'carControl': car_control.carControl,
           'controlsState': control.controlsState,
-          'modelV2': model.modelV2}
-    self.planner.update(sm)
-    self.speed = self.planner.v_desired_filter.x
-    self.acceleration = self.planner.a_desired
-    self.speeds = self.planner.v_desired_trajectory.tolist()
+          'modelV2': model.modelV2,
+
+          # FrogPilot variables
+          'frogpilotCarState': frogpilot_car_state.frogpilotCarState,
+          'frogpilotPlan': frogpilot_plan.frogpilotPlan,
+          'liveParameters': live_parameters.liveParameters}
+    self.planner.update(sm, True, False, self.frogpilot_toggles)
+    self.acceleration = self.planner.output_a_target
+    self.speed = self.speed + self.acceleration * self.ts
+    self.should_stop = self.planner.output_should_stop
     fcw = self.planner.fcw
     self.distance_lead = self.distance_lead + v_lead * self.ts
 
     # ******** run the car ********
     #print(self.distance, speed)
-    if self.speed <= 0:
+    if self.speed <= 0 or (self.should_stop and self.speed < self.frogpilot_toggles.vEgoStopping and self.acceleration <= 0):
       self.speed = 0
       self.acceleration = 0
     self.distance = self.distance + self.speed * self.ts
@@ -163,7 +200,7 @@ class Plant:
       "distance": self.distance,
       "speed": self.speed,
       "acceleration": self.acceleration,
-      "speeds": self.speeds,
+      "should_stop": self.should_stop,
       "distance_lead": self.distance_lead,
       "fcw": fcw,
     }

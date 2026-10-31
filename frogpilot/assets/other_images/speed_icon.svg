@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+  <g transform="matrix(1.2 0 0 1.2 26 18)">
+    <path d="M10 34h52a6 6 0 0 1 6 7l-5 46a6 6 0 0 1-6 5H15a6 6 0 0 1-6-5L4 41a6 6 0 0 1 6-7ZM15 46H57v5H15ZM15 58H57v5H15ZM15 70H57v5H15ZM15 80H57v5H15Z" fill="#fff" fill-rule="evenodd"/>
+    <path d="M82 8h28a6 6 0 0 1 6 7l-4 92a6 6 0 0 1-6 6H86a6 6 0 0 1-6-6l-4-92a6 6 0 0 1 6-7ZM86 22H106v5H86ZM86 36H106v5H86ZM86 50H106v5H86ZM86 64H106v5H86ZM86 78H106v5H86ZM86 92H106v5H86Z" fill="#fff" fill-rule="evenodd"/>
+  </g>
+</svg>

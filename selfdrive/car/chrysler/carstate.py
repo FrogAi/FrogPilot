@@ -15,6 +15,8 @@ class CarState(CarStateBase):
     self.auto_high_beam = 0
     self.button_counter = 0
     self.lkas_car_model = -1
+
+    # RealFast variables
     self.button_message = "CRUISE_BUTTONS_ALT" if FPCP.fpFlags & ChryslerFrogPilotFlags.RAM_HD_ALT_BUTTONS else "CRUISE_BUTTONS"
 
     if CP.carFingerprint in RAM_CARS:

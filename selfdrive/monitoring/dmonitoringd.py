@@ -13,7 +13,7 @@ def dmonitoringd_thread():
 
   params = Params()
   pm = messaging.PubMaster(['driverMonitoringState'])
-  sm = messaging.SubMaster(['driverStateV2', 'liveCalibration', 'carState', 'controlsState', 'modelV2', 'carControl'], poll='driverStateV2')
+  sm = messaging.SubMaster(['driverStateV2', 'liveCalibration', 'carState', 'controlsState', 'modelV2', 'frogpilotCarState'], poll='driverStateV2')
 
   DM = DriverMonitoring(rhd_saved=params.get_bool("IsRhdDetected"), always_on=params.get_bool("AlwaysOnDM"))
 
@@ -30,16 +30,20 @@ def dmonitoringd_thread():
     valid = sm.all_checks()
     if valid:
       DM.run_step(sm)
+    # FrogPilot variables
     elif driver_view_enabled:
       DM.face_detected = sm['driverStateV2'].leftDriverData.faceProb > DM.settings._FACE_THRESHOLD or sm['driverStateV2'].rightDriverData.faceProb > DM.settings._FACE_THRESHOLD
 
     # publish
-    dat = DM.get_state_packet(valid=valid or driver_view_enabled)
+    dat = DM.get_state_packet(valid=valid)
     pm.send('driverMonitoringState', dat)
 
     # load live always-on toggle
     if sm['driverStateV2'].frameId % 40 == 1:
       DM.always_on = params.get_bool("AlwaysOnDM")
+
+      # FrogPilot variables
+      driver_view_enabled = params.get_bool("IsDriverViewEnabled")
 
     # save rhd virtual toggle every 5 mins
     if (sm['driverStateV2'].frameId % 6000 == 0 and

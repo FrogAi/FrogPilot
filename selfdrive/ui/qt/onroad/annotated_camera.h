@@ -7,8 +7,6 @@
 #include "selfdrive/ui/qt/widgets/cameraview.h"
 
 #include "frogpilot/ui/qt/onroad/frogpilot_annotated_camera.h"
-#include "frogpilot/ui/qt/onroad/frogpilot_buttons.h"
-#include "frogpilot/ui/screenrecorder/screenrecorder.h"
 
 class AnnotatedCameraWidget : public CameraWidget {
   Q_OBJECT
@@ -20,10 +18,11 @@ public:
   MapSettingsButton *map_settings_btn;
 
   // FrogPilot variables
-  double fps;
+  bool alertShowing = false;
+
+  double fps = 0;
 
   FrogPilotAnnotatedCameraWidget *frogpilot_nvg;
-  ScreenRecorder *screen_recorder;
 
 private:
   void drawText(QPainter &p, int x, int y, const QString &text, int alpha = 255);
@@ -51,10 +50,7 @@ private:
   bool wide_cam_requested = false;
 
   // FrogPilot variables
-  void paintEvent(QPaintEvent *event) override;
-  void resizeEvent(QResizeEvent *event);
-
-  DistanceButton *distance_btn;
+  void resizeEvent(QResizeEvent *event) override;
 
 protected:
   void paintGL() override;
@@ -62,7 +58,7 @@ protected:
   void showEvent(QShowEvent *event) override;
   void updateFrameMat() override;
   void drawLaneLines(QPainter &painter, const UIState *s, const FrogPilotUIState *fs);
-  void drawLead(QPainter &painter, const cereal::RadarState::LeadData::Reader &lead_data, const cereal::FrogPilotPlan::Reader &frogpilotPlan, const QPointF &vd, const QColor &marker_color, const FrogPilotUIState *fs, bool adjacent = false);
+  void drawLead(QPainter &painter, float d_rel, float v_rel, float v_lead, const QPointF &vd, const QColor &marker_color, bool adjacent = false);
   void drawHud(QPainter &p, const cereal::FrogPilotPlan::Reader &frogpilotPlan, const FrogPilotUIState &fs, const QJsonObject &frogpilot_toggles);
   void drawDriverState(QPainter &painter, const UIState *s, const QJsonObject &frogpilot_toggles);
   inline QColor redColor(int alpha = 255) { return QColor(201, 34, 49, alpha); }

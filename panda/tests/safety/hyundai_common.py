@@ -1,6 +1,7 @@
 import unittest
 
 import panda.tests.safety.common as common
+from panda import ALTERNATIVE_EXPERIENCE, Panda
 from panda.tests.libpanda import libpanda_py
 from panda.tests.safety.common import make_msg
 
@@ -74,29 +75,108 @@ class HyundaiButtonBase:
 
   # FrogPilot tests
   def _toggle_aol(self, toggle_on):
-    """
-      Simulates toggling the main cruise button. The safety model requires a
-      press and release to change the main cruise state. This function
-      resets the safety model to a known state before each call.
-    """
     if not hasattr(self, "_aol_state"):
       self._aol_state = False
 
-    # Already in the requested state
-    if toggle_on == self._aol_state:
-      return None
+    if toggle_on != self._aol_state:
+      # Toggle: press + release sequence
+      self._rx(self.packer.make_can_msg_panda("BCM_PO_11", 0, {"LFA_Pressed": 1}))
+      self._rx(self.packer.make_can_msg_panda("BCM_PO_11", 0, {"LFA_Pressed": 0}))
+      self._aol_state = toggle_on
 
-    # Toggle: press + release sequence
-    self._rx(self._button_msg(Buttons.NONE, main_button=1))
-    self._rx(self._button_msg(Buttons.NONE, main_button=0))
+    return self.packer.make_can_msg_panda("BCM_PO_11", 0, {"LFA_Pressed": 0})
 
-    self._aol_state = toggle_on
-    return None  # avoid duplicate message in harness
+  def _lkas_button_msg(self, pressed):
+    return self.packer.make_can_msg_panda("BCM_PO_11", 0, {"LFA_Pressed": pressed})
+
+  def _press_lkas_button(self):
+    self._rx(self._lkas_button_msg(1))
+    self._rx(self._lkas_button_msg(0))
+
+  def _aol_steer_allowed(self):
+    self._set_prev_torque(0)
+    return self._tx(self._torque_cmd_msg(1))
+
+  def _set_lkas_aol_path(self):
+    self.safety.set_safety_hooks(self.safety.get_current_safety_mode(), self.safety.get_current_safety_param() | Panda.FLAG_HYUNDAI_ALWAYS_ON_LATERAL_LKAS)
+    self.safety.init_tests()
+    self.safety.set_alternative_experience(ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL)
+
+  def test_always_on_lateral(self):
+    self._set_lkas_aol_path()
+    super().test_always_on_lateral()
+
+  def test_engaging_arms_lkas_aol(self):
+    self._set_lkas_aol_path()
+    self.safety.set_controls_allowed(False)
+    self._rx(self._lkas_button_msg(0))
+    self.assertFalse(self._aol_steer_allowed())
+
+    self.safety.set_controls_allowed(True)
+    self._rx(self._lkas_button_msg(0))
+    self._rx(self._user_brake_msg(True))
+    self.assertFalse(self.safety.get_controls_allowed())
+    self.assertTrue(self._aol_steer_allowed())
+
+    self._rx(self._user_brake_msg(False))
+    self.assertTrue(self._aol_steer_allowed())
+
+    self.safety.set_alternative_experience(0)
+    self.assertFalse(self._aol_steer_allowed())
+
+  def test_cruise_control_aol_ignores_lkas_state(self):
+    self.safety.set_alternative_experience(ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL)
+    self.safety.set_controls_allowed(True)
+    self._rx(self._lkas_button_msg(0))
+    self._rx(self._user_brake_msg(True))
+    self.assertFalse(self.safety.get_controls_allowed())
+    self.assertFalse(self._aol_steer_allowed())
+
+    self._press_lkas_button()
+    self.assertFalse(self._aol_steer_allowed())
+
+  def test_lkas_press_flips_aol_after_engaging(self):
+    self._set_lkas_aol_path()
+    self.safety.set_controls_allowed(True)
+    self._rx(self._lkas_button_msg(0))
+    self.safety.set_controls_allowed(False)
+
+    self._press_lkas_button()
+    self.assertFalse(self._aol_steer_allowed())
+
+    self._press_lkas_button()
+    self.assertTrue(self._aol_steer_allowed())
+
+    self._press_lkas_button()
+    self.assertFalse(self._aol_steer_allowed())
+
+    self.safety.set_controls_allowed(True)
+    self._rx(self._lkas_button_msg(0))
+    self.safety.set_controls_allowed(False)
+    self.assertTrue(self._aol_steer_allowed())
+
+  def test_lkas_press_while_engaged_stays_armed(self):
+    self._set_lkas_aol_path()
+    self.safety.set_controls_allowed(True)
+
+    for _ in range(2):
+      self._press_lkas_button()
+      self.safety.set_controls_allowed(False)
+      self.assertTrue(self._aol_steer_allowed())
+      self.safety.set_controls_allowed(True)
+
+  def test_lkas_aol_starts_disarmed(self):
+    self._set_lkas_aol_path()
+    self.safety.set_controls_allowed(True)
+    self._rx(self._lkas_button_msg(0))
+
+    self._set_lkas_aol_path()
+    self.safety.set_controls_allowed(False)
+    self.assertFalse(self._aol_steer_allowed())
 
 
 class HyundaiLongitudinalBase(common.LongitudinalAccelSafetyTest):
   # pylint: disable=no-member,abstract-method
-  __test__ = False
 
   DISABLED_ECU_UDS_MSG: tuple[int, int]
   DISABLED_ECU_ACTUATION_MSG: tuple[int, int]

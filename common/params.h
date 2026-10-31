@@ -43,6 +43,8 @@ public:
   inline bool getBool(const std::string &key, bool block = false) {
     return get(key, block) == "1";
   }
+
+  // FrogPilot variables
   inline int getInt(const std::string &key, bool block = false) {
     std::string value = get(key, block);
     return value.empty() ? 0 : std::stoi(value);
@@ -51,6 +53,7 @@ public:
     std::string value = get(key, block);
     return value.empty() ? 0.0 : std::stof(value);
   }
+
   std::map<std::string, std::string> readAll();
 
   // helpers for writing values
@@ -61,21 +64,33 @@ public:
   inline int putBool(const std::string &key, bool val) {
     return put(key.c_str(), val ? "1" : "0", 1);
   }
+
+  // FrogPilot variables
   inline int putInt(const std::string &key, int val) {
-    return put(key.c_str(), std::to_string(val).c_str(), std::to_string(val).size());
+    return put(key, std::to_string(val));
   }
   inline int putFloat(const std::string &key, float val) {
-    return put(key.c_str(), std::to_string(val).c_str(), std::to_string(val).size());
+    return put(key, std::to_string(val));
   }
+
   void putNonBlocking(const std::string &key, const std::string &val);
   inline void putBoolNonBlocking(const std::string &key, bool val) {
     putNonBlocking(key, val ? "1" : "0");
   }
+
+  // FrogPilot variables
   inline void putIntNonBlocking(const std::string &key, int val) {
     putNonBlocking(key, std::to_string(val));
   }
   inline void putFloatNonBlocking(const std::string &key, float val) {
     putNonBlocking(key, std::to_string(val));
+  }
+
+  // FrogPilot variables
+  void waitForPendingWrites() {
+    if (future.valid()) {
+      future.wait();
+    }
   }
 
 private:
@@ -87,4 +102,7 @@ private:
   // for nonblocking write
   std::future<void> future;
   SafeQueue<std::pair<std::string, std::string>> queue;
+
+  // FrogPilot variables
+  std::string cache_path;
 };

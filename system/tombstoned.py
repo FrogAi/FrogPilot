@@ -17,6 +17,9 @@ from openpilot.system.version import get_build_metadata
 MAX_SIZE = 1_000_000 * 100  # allow up to 100M
 MAX_TOMBSTONE_FN_LEN = 62  # 85 - 23 ("<dongle id>/crash/")
 
+# FrogPilot variables
+QUEUE_FLUSH_INTERVAL = 60
+
 TOMBSTONE_DIR = "/data/tombstones/"
 APPORT_DIR = "/var/crash/"
 
@@ -141,11 +144,14 @@ def report_tombstone_apport(fn):
 
 
 def main() -> NoReturn:
-  should_report = sentry.init(sentry.SentryProject.SELFDRIVE_NATIVE)
+  should_report = sentry.init(sentry.SentryProject.SELFDRIVE_NATIVE, native=True)
 
   # Clear apport folder on start, otherwise duplicate crashes won't register
   clear_apport_folder()
   initial_tombstones = set(get_tombstones())
+
+  # FrogPilot variables
+  last_queue_flush = 0.0
 
   while True:
     now_tombstones = set(get_tombstones())
@@ -169,6 +175,12 @@ def main() -> NoReturn:
         cloudlog.exception(f"Error reporting tombstone {fn}")
 
     initial_tombstones = now_tombstones
+
+    # FrogPilot variables
+    if should_report and time.monotonic() - last_queue_flush > QUEUE_FLUSH_INTERVAL:
+      last_queue_flush = time.monotonic()
+      sentry.flush_queued_tombstones()
+
     time.sleep(5)
 
 

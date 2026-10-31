@@ -1,14 +1,14 @@
-from cereal import car, custom
+from cereal import car
 from panda import Panda
 from panda.python import uds
 from openpilot.selfdrive.car.toyota.values import Ecu, CAR, DBC, ToyotaFlags, CarControllerParams, TSS2_CAR, RADAR_ACC_CAR, NO_DSU_CAR, \
-                                        MIN_ACC_SPEED, EPS_SCALE, UNSUPPORTED_DSU_CAR, NO_STOP_TIMER_CAR, ANGLE_CONTROL_CAR, STOP_AND_GO_CAR
+                                        MIN_ACC_SPEED, EPS_SCALE, UNSUPPORTED_DSU_CAR, NO_STOP_TIMER_CAR, ANGLE_CONTROL_CAR, STOP_AND_GO_CAR, \
+                                        dsu_bypass_enabled
 from openpilot.selfdrive.car import create_button_events, get_safety_config
 from openpilot.selfdrive.car.disable_ecu import disable_ecu
 from openpilot.selfdrive.car.interfaces import CarInterfaceBase
 
 ButtonType = car.CarState.ButtonEvent.Type
-FrogPilotButtonType = custom.FrogPilotCarState.ButtonEvent.Type
 EventName = car.CarEvent.EventName
 SteerControlType = car.CarParams.SteerControlType
 
@@ -16,7 +16,8 @@ SteerControlType = car.CarParams.SteerControlType
 class CarInterface(CarInterfaceBase):
   @staticmethod
   def get_pid_accel_limits(CP, current_speed, cruise_speed):
-    return CarControllerParams(CP).ACCEL_MIN, CarControllerParams(CP).ACCEL_MAX
+    params = CarControllerParams(CP)
+    return params.ACCEL_MIN, params.ACCEL_MAX
 
   @staticmethod
   def _get_params(ret, candidate, fingerprint, car_fw, experimental_long, docs, frogpilot_toggles):
@@ -28,9 +29,13 @@ class CarInterface(CarInterfaceBase):
     if DBC[candidate]["pt"] == "toyota_new_mc_pt_generated":
       ret.safetyConfigs[0].safetyParam |= Panda.FLAG_TOYOTA_ALT_BRAKE
 
+    # FrogPilot variables
     if ret.flags & ToyotaFlags.SECOC.value:
       ret.secOcRequired = True
       ret.safetyConfigs[0].safetyParam |= Panda.FLAG_TOYOTA_SECOC
+
+    if candidate in UNSUPPORTED_DSU_CAR:
+      ret.safetyConfigs[0].safetyParam |= Panda.FLAG_TOYOTA_UNSUPPORTED_DSU
 
     if candidate in ANGLE_CONTROL_CAR:
       ret.steerControlType = SteerControlType.angle
@@ -49,7 +54,7 @@ class CarInterface(CarInterfaceBase):
 
     # Detect smartDSU, which intercepts ACC_CMD from the DSU (or radar) allowing openpilot to send it
     # 0x2AA is sent by a similar device which intercepts the radar instead of DSU on NO_DSU_CARs
-    if 0x2FF in fingerprint[0] or (0x2AA in fingerprint[0] and candidate in NO_DSU_CAR):
+    if (0x2FF in fingerprint[0] and not ret.flags & ToyotaFlags.SECOC.value) or (0x2AA in fingerprint[0] and candidate in NO_DSU_CAR):
       ret.flags |= ToyotaFlags.SMART_DSU.value
 
     if 0x2AA in fingerprint[0] and candidate in NO_DSU_CAR:
@@ -108,7 +113,7 @@ class CarInterface(CarInterfaceBase):
 
       if not use_sdsu:
         # Disabling radar is only supported on TSS2 radar-ACC cars
-        if experimental_long and candidate in RADAR_ACC_CAR:
+        if experimental_long and candidate in RADAR_ACC_CAR and not frogpilot_toggles.disable_openpilot_long:
           ret.flags |= ToyotaFlags.DISABLE_RADAR.value
       else:
         use_sdsu = use_sdsu and experimental_long
@@ -122,30 +127,40 @@ class CarInterface(CarInterfaceBase):
     #  - TSS2 radar ACC cars w/o smartDSU installed (disables radar)
     #  - TSS-P DSU-less cars w/ CAN filter installed (no radar parser yet)
 
-    dsu_bypass = frogpilot_toggles.toyota_dsu_bypass and not use_sdsu and not ret.enableDsu and candidate not in (TSS2_CAR | UNSUPPORTED_DSU_CAR)
+    # FrogPilot variables
+    dsu_bypass = dsu_bypass_enabled(ret, candidate, frogpilot_toggles)
 
-    ret.openpilotLongitudinalControl = use_sdsu or ret.enableDsu or candidate in (TSS2_CAR - RADAR_ACC_CAR) or bool(ret.flags & ToyotaFlags.DISABLE_RADAR.value) or dsu_bypass
+    ret.openpilotLongitudinalControl = use_sdsu or ret.enableDsu or candidate in (TSS2_CAR - RADAR_ACC_CAR) or \
+                                       bool(ret.flags & ToyotaFlags.DISABLE_RADAR.value) or dsu_bypass
+
+    # FrogPilot variables
     ret.openpilotLongitudinalControl &= not frogpilot_toggles.disable_openpilot_long
 
     ret.autoResumeSng = ret.openpilotLongitudinalControl and candidate in NO_STOP_TIMER_CAR
-    ret.enableGasInterceptor = 0x201 in fingerprint[0] and ret.openpilotLongitudinalControl
+
+    # FrogPilot variables
+    ret.enableGasInterceptor = 0x201 in fingerprint[0] and ret.openpilotLongitudinalControl and not ret.flags & ToyotaFlags.SECOC.value
 
     if not ret.openpilotLongitudinalControl:
       ret.safetyConfigs[0].safetyParam |= Panda.FLAG_TOYOTA_STOCK_LONGITUDINAL
 
+    # FrogPilot variables
+    stop_and_go = candidate in STOP_AND_GO_CAR and not (docs and ret.flags & ToyotaFlags.SNG_WITHOUT_DSU)
+
     # min speed to enable ACC. if car can do stop and go, then set enabling speed
     # to a negative value, so it won't matter.
-    ret.minEnableSpeed = -1. if (candidate in STOP_AND_GO_CAR or ret.enableGasInterceptor or use_sdsu) else MIN_ACC_SPEED
+    ret.minEnableSpeed = -1. if (stop_and_go or ret.enableGasInterceptor or use_sdsu) else MIN_ACC_SPEED
 
-    ret.flags |= ToyotaFlags.RAISED_ACCEL_LIMIT.value
+    if candidate in TSS2_CAR:
+      ret.flags |= ToyotaFlags.RAISED_ACCEL_LIMIT.value
 
-    ret.vEgoStopping = 0.25
-    ret.vEgoStarting = 0.25
-    ret.stoppingDecelRate = 0.3  # reach stopping target smoothly
+      ret.vEgoStopping = 0.25
+      ret.vEgoStarting = 0.25
+      ret.stoppingDecelRate = 0.3  # reach stopping target smoothly
 
-    # Hybrids have much quicker longitudinal actuator response
-    if ret.flags & ToyotaFlags.HYBRID.value:
-      ret.longitudinalActuatorDelay = 0.05
+      # Hybrids have much quicker longitudinal actuator response
+      if ret.flags & ToyotaFlags.HYBRID.value:
+        ret.longitudinalActuatorDelay = 0.05
 
     return ret
 
@@ -160,13 +175,25 @@ class CarInterface(CarInterfaceBase):
   def _update(self, c, frogpilot_toggles):
     ret, fp_ret = self.CS.update(self.cp, self.cp_cam, c, frogpilot_toggles)
 
+    # FrogPilot variables
+    button_events = []
+    if self.CS.pcm_acc_status != self.CS.prev_pcm_acc_status and self.CS.pcm_acc_status in (9, 10):
+      if self.CS.pcm_acc_status == 9:
+        button_type = ButtonType.accelCruise
+      else:
+        button_type = ButtonType.decelCruise
+      button_events += create_button_events(1, 0, {1: button_type}) + create_button_events(0, 1, {1: button_type})
+
     if self.CP.carFingerprint in (TSS2_CAR - RADAR_ACC_CAR) or (self.CP.flags & ToyotaFlags.SMART_DSU and not self.CP.flags & ToyotaFlags.RADAR_CAN_FILTER):
-      ret.buttonEvents = [
-        *create_button_events(self.CS.cruise_decreased, False, {1: ButtonType.decelCruise}),
-        *create_button_events(self.CS.cruise_increased, False, {1: ButtonType.accelCruise}),
-        *create_button_events(self.CS.distance_button, self.CS.prev_distance_button, {1: ButtonType.gapAdjustCruise}),
-        *create_button_events(self.CS.lkas_enabled, self.CS.lkas_previously_enabled, {1: FrogPilotButtonType.lkas}),
-      ]
+      button_events += create_button_events(self.CS.distance_button, self.CS.prev_distance_button, {1: ButtonType.gapAdjustCruise})
+
+    # FrogPilot variables
+    if self.CP.carFingerprint in TSS2_CAR or (self.CP.flags & ToyotaFlags.SMART_DSU and not self.CP.flags & ToyotaFlags.RADAR_CAN_FILTER):
+      # Cycles between 1 and 2 when pressing the button, then rests back at 0 after ~3s
+      if self.CS.lkas_button != 0 and self.CS.lkas_button != self.CS.prev_lkas_button:
+        button_events += create_button_events(1, 0, {1: ButtonType.lkas}) + create_button_events(0, 1, {1: ButtonType.lkas})
+
+    ret.buttonEvents = button_events
 
     # events
     events = self.create_common_events(ret)

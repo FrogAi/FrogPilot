@@ -20,8 +20,21 @@ static qint64 convertTimestampToEpoch(const QString &timestamp) {
   return dt.isValid() ? dt.toSecsSinceEpoch() : 0;
 }
 
-static QString pondAddress(const QString &ip) {
-  return ip.isEmpty() ? QStringLiteral("Offline...") : QStringLiteral("%1:8082").arg(ip);
+// FrogPilot functions
+static QString pondSubtitle(const QString &ip) {
+  return ip.isEmpty() ? MapSettings::tr("Offline...") : MapSettings::tr("Manage at %1").arg(ip + ":8082");
+}
+
+static QJsonObject favoriteDestination(const QJsonObject &favorite) {
+  QJsonObject destination;
+  destination.insert("latitude", favorite.value("latitude"));
+  destination.insert("longitude", favorite.value("longitude"));
+  if (favorite.contains("name")) {
+    destination.insert("place_name", favorite.value("name"));
+    destination.insert("place_details", favorite.value("name"));
+  }
+  destination.insert("save_type", NAV_TYPE_FAVORITE);
+  return destination;
 }
 
 MapSettings::MapSettings(bool closeable, QWidget *parent) : QFrame(parent) {
@@ -66,7 +79,7 @@ MapSettings::MapSettings(bool closeable, QWidget *parent) : QFrame(parent) {
       title->setStyleSheet("color: #FFFFFF; font-size: 54px; font-weight: 600;");
       heading->addWidget(title);
 
-      subtitle = new QLabel(tr("Manage at %1").arg(pondAddress(frogpilotUIState()->wifi->getIp4Address())), this);
+      subtitle = new QLabel(pondSubtitle(frogpilotUIState()->wifi->ipv4_address), this);
       subtitle->setStyleSheet("color: #A0A0A0; font-size: 40px; font-weight: 300;");
       heading->addWidget(subtitle);
     }
@@ -126,6 +139,7 @@ void MapSettings::refresh() {
   home_widget->unset(NAV_FAVORITE_LABEL_HOME);
   work_widget->unset(NAV_FAVORITE_LABEL_WORK);
 
+  // FrogPilot variables
   QString favorite_destinations = QString::fromStdString(params.get("FavoriteDestinations"));
   QJsonDocument favorite_destinations_doc = QJsonDocument::fromJson(favorite_destinations.toUtf8());
   std::optional<QJsonObject> home_favorite;
@@ -151,67 +165,47 @@ void MapSettings::refresh() {
   }
 
   if (home_favorite.has_value()) {
-    QJsonObject home_destination;
-    home_destination.insert("latitude", home_favorite->value("latitude"));
-    home_destination.insert("longitude", home_favorite->value("longitude"));
-    if (home_favorite->contains("name")) {
-      home_destination.insert("place_name", home_favorite->value("name"));
-      home_destination.insert("place_details", home_favorite->value("name"));
-    }
-    home_destination.insert("save_type", NAV_TYPE_FAVORITE);
+    QJsonObject home_destination = favoriteDestination(*home_favorite);
     home_destination.insert("is_home", true);
     home_widget->set(home_destination, false);
+    home_widget->setVisible(!locationEqual(home_destination, current_dest));
   }
 
   if (work_favorite.has_value()) {
-    QJsonObject work_destination;
-    work_destination.insert("latitude", work_favorite->value("latitude"));
-    work_destination.insert("longitude", work_favorite->value("longitude"));
-    if (work_favorite->contains("name")) {
-      work_destination.insert("place_name", work_favorite->value("name"));
-      work_destination.insert("place_details", work_favorite->value("name"));
-    }
-    work_destination.insert("save_type", NAV_TYPE_FAVORITE);
+    QJsonObject work_destination = favoriteDestination(*work_favorite);
     work_destination.insert("is_work", true);
     work_widget->set(work_destination, false);
+    work_widget->setVisible(!locationEqual(work_destination, current_dest));
   }
 
   int n = 0;
 
+  // FrogPilot variables
   for (const QJsonValue &favorite_value : other_favorites) {
-    QJsonObject favorite_object = favorite_value.toObject();
-    QJsonObject destination;
-    destination.insert("latitude", favorite_object.value("latitude"));
-    destination.insert("longitude", favorite_object.value("longitude"));
-    if (favorite_object.contains("name")) {
-      destination.insert("place_name", favorite_object.value("name"));
-      destination.insert("place_details", favorite_object.value("name"));
-    }
-    destination.insert("save_type", NAV_TYPE_FAVORITE);
+    QJsonObject destination = favoriteDestination(favorite_value.toObject());
     DestinationWidget *destination_widget = get_w(n++);
-    destination_widget->set(destination, false);
-  }
-
-  for (QJsonValue location_value : NavManager::instance()->currentLocations()) {
-    DestinationWidget *destination_widget = nullptr;
-    QJsonObject destination = location_value.toObject();
-    if (destination["save_type"].toString() == NAV_TYPE_FAVORITE) {
-      QString label = destination["label"].toString();
-      if (label == NAV_FAVORITE_LABEL_HOME) {
-        destination_widget = home_widget;
-      }
-      if (label == NAV_FAVORITE_LABEL_WORK) {
-        destination_widget = work_widget;
-      }
-    }
-    destination_widget = destination_widget ? destination_widget : get_w(n++);
     destination_widget->set(destination, false);
     destination_widget->setVisible(!locationEqual(destination, current_dest));
   }
 
+  for (auto location : NavManager::instance()->currentLocations()) {
+    DestinationWidget *w = nullptr;
+    auto dest = location.toObject();
+    if (dest["save_type"].toString() == NAV_TYPE_FAVORITE) {
+      auto label = dest["label"].toString();
+      if (label == NAV_FAVORITE_LABEL_HOME) w = home_widget;
+      if (label == NAV_FAVORITE_LABEL_WORK) w = work_widget;
+    }
+    w = w ? w : get_w(n++);
+    w->set(dest, false);
+    w->setVisible(!locationEqual(dest, current_dest));
+  }
+  for (; n < widgets.size(); ++n) widgets[n]->setVisible(false);
+
   setUpdatesEnabled(true);
 
-  subtitle->setText(tr("Manage at %1").arg(pondAddress(frogpilotUIState()->wifi->getIp4Address())));
+  // FrogPilot variables
+  subtitle->setText(pondSubtitle(frogpilotUIState()->wifi->ipv4_address));
 }
 
 void MapSettings::navigateTo(const QJsonObject &place) {
@@ -299,9 +293,15 @@ void DestinationWidget::set(const QJsonObject &destination, bool current) {
   if (is_fav) {
     if (is_home) {
       icon_pixmap = icons().home;
+      if (destination["label"] == NAV_FAVORITE_LABEL_HOME) {
+        subtitle_text = title_text + ", " + subtitle_text;
+      }
       title_text = tr("Home");
     } else if (is_work) {
       icon_pixmap = icons().work;
+      if (destination["label"] == NAV_FAVORITE_LABEL_WORK) {
+        subtitle_text = title_text + ", " + subtitle_text;
+      }
       title_text = tr("Work");
     } else {
       icon_pixmap = icons().favorite;
@@ -408,6 +408,7 @@ void NavManager::parseLocationsResponse(const QString &response, bool success) {
     return;
   }
 
+  // set last activity time.
   QJsonArray remote_locations;
   if (doc.isArray()) {
     remote_locations = doc.array();
@@ -420,9 +421,9 @@ void NavManager::parseLocationsResponse(const QString &response, bool success) {
   }
 
   for (QJsonValueRef loc : remote_locations) {
-    QJsonObject obj = loc.toObject();
-    qint64 server_time = convertTimestampToEpoch(obj.value("modified").toString());
-    obj.insert("time", qMax(server_time, getLastActivity(obj)));
+    auto obj = loc.toObject();
+    auto serverTime = convertTimestampToEpoch(obj["modified"].toString());
+    obj.insert("time", qMax(serverTime, getLastActivity(obj)));
     loc = obj;
   }
 

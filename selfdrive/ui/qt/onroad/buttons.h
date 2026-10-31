@@ -25,21 +25,22 @@ private:
   bool engageable;
 
   // FrogPilot variables
+  QColor backgroundColor() const;
+  void hideEvent(QHideEvent *event) override;
   void showEvent(QShowEvent *event) override;
-  void updateBackgroundColor();
   void updateTheme();
 
-  bool use_stock_wheel;
+  bool wheel_is_stock = false;
 
-  int steering_angle;
+  int steering_angle_deg = 0;
 
-  Params params_memory{"/dev/shm/params"};
+  uint64_t wheel_image_update_count = 0;
 
   QColor background_color;
 
   QPixmap wheel_img;
 
-  QSharedPointer<QMovie> wheel_gif;
+  QSharedPointer<FrogPilotMovie> wheel_gif;
 };
 
 
@@ -50,7 +51,7 @@ public:
   explicit MapSettingsButton(QWidget *parent = 0);
 
   // FrogPilot variables
-  bool road_name_ui;
+  bool road_name_ui = false;
 
 private:
   void paintEvent(QPaintEvent *event) override;
@@ -58,4 +59,4 @@ private:
   QPixmap settings_img;
 };
 
-void drawIcon(QPainter &p, const QPoint &center, const QPixmap &img, const QBrush &bg, float opacity, const int &angle = 0);
+void drawIcon(QPainter &p, const QPoint &center, const QPixmap &img, const QBrush &bg, float opacity);

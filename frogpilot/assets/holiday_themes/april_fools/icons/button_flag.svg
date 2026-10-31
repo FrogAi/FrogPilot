@@ -1,0 +1,130 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="164" height="164" viewBox="0 0 164 164">
+  <defs xmlns="http://www.w3.org/2000/svg">
+    <radialGradient id="skin" cx=".5" cy=".61" r=".5">
+      <stop offset="0" stop-color="#29b62c"/>
+      <stop offset=".64" stop-color="#09a637"/>
+      <stop offset=".87" stop-color="#076d28"/>
+      <stop offset="1" stop-color="#003b16"/>
+    </radialGradient>
+    <radialGradient id="brow" cx=".5" cy=".48" r=".5" gradientUnits="userSpaceOnUse" gradientTransform="matrix(80 0 0 90 21 19)">
+      <stop offset="0" stop-color="#15c449"/>
+      <stop offset=".55" stop-color="#0dbb3b" stop-opacity=".9"/>
+      <stop offset=".8" stop-color="#08ae35" stop-opacity=".4"/>
+      <stop offset="1" stop-color="#08ae35" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="muzzle" cx=".5" cy=".58" r=".5" gradientUnits="userSpaceOnUse" gradientTransform="matrix(200 0 0 104 0 84)">
+      <stop offset="0" stop-color="#72d123" stop-opacity=".88"/>
+      <stop offset=".54" stop-color="#55c82b" stop-opacity=".72"/>
+      <stop offset=".79" stop-color="#38b825" stop-opacity=".3"/>
+      <stop offset="1" stop-color="#119b2f" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="bridge" cx=".5" cy=".5" r=".5">
+      <stop offset="0" stop-color="#005624" stop-opacity=".45"/>
+      <stop offset=".7" stop-color="#096d2a" stop-opacity=".15"/>
+      <stop offset="1" stop-color="#119b2f" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="eye" cx=".38" cy=".25" r=".8">
+      <stop offset="0" stop-color="#393d3a"/>
+      <stop offset=".38" stop-color="#151a17"/>
+      <stop offset=".8" stop-color="#050a06"/>
+      <stop offset="1" stop-color="#010402"/>
+    </radialGradient>
+    <radialGradient id="glint">
+      <stop offset="0" stop-color="#fff" stop-opacity=".95"/>
+      <stop offset=".55" stop-color="#edf6ef" stop-opacity=".75"/>
+      <stop offset="1" stop-color="#d2e2d6" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="mouth" cx="100" cy="97" r="101" gradientUnits="userSpaceOnUse" gradientTransform="matrix(1 0 0 .6634 0 32.65)">
+      <stop offset="0" stop-color="#790409"/>
+      <stop offset=".8" stop-color="#790409"/>
+      <stop offset=".86" stop-color="#68100b"/>
+      <stop offset=".91" stop-color="#56120c"/>
+      <stop offset=".95" stop-color="#2c160a"/>
+      <stop offset="1" stop-color="#020602"/>
+    </radialGradient>
+    <radialGradient id="mouth-shadow" cx="100" cy="125" r="105" gradientUnits="userSpaceOnUse" gradientTransform="matrix(1 0 0 .2 0 100)">
+      <stop offset="0" stop-color="#020602"/>
+      <stop offset=".62" stop-color="#020602" stop-opacity=".9"/>
+      <stop offset=".762" stop-color="#020602" stop-opacity=".7"/>
+      <stop offset="1" stop-color="#020602" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="lip" cx="100" cy="106.6" r="94.4" gradientUnits="userSpaceOnUse" gradientTransform="matrix(1 0 0 .6374 0 38.65)">
+      <stop offset="0" stop-color="#498d22"/>
+      <stop offset=".945" stop-color="#498d22"/>
+      <stop offset=".954" stop-color="#b1e548"/>
+      <stop offset=".964" stop-color="#b1e548"/>
+      <stop offset=".98" stop-color="#8ed63b" stop-opacity=".65"/>
+      <stop offset="1" stop-color="#60c92a" stop-opacity="0"/>
+    </radialGradient>
+    <path id="head" d="M100 39C87 26 75 21 60 21c-23 0-38 17-36 44 .5 7 .845 9.374-2 12C9 89 1 101 1 116c0 39 43 70 99 70s99-31 99-70c0-15-8-27-21-39-2.845-2.626-2.5-5-2-12 2-27-13-44-36-44-15 0-27 5-40 18"/>
+    <path id="brow-shape" d="M81.995 25.697C75.111 22.415 67.98 21 60 21c-23 0-38 17-36 44 .464 6.503.795 9.013-1.44 11.442a40 45 0 1 0 59.435-50.745"/>
+    <path id="mouth-shape" d="M13 123c36 21 138 21 174 0-14 25-45 41-87 41s-73-16-87-41"/>
+    <linearGradient id="brow-gloss">
+      <stop offset="0" stop-color="#63ee75" stop-opacity="0"/>
+      <stop offset=".43" stop-color="#63ee75" stop-opacity=".55"/>
+      <stop offset="1" stop-color="#63ee75" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <g transform="scale(.656)">
+    <g transform="matrix(.7 0 0 .7 55 116)">
+      <use xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#head" fill="url(#skin)"/>
+      <use xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#brow-shape" fill="url(#brow)"/>
+      <use xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#brow-shape" transform="matrix(-1 0 0 1 200 0)" fill="url(#brow)"/>
+      <use xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#head" fill="url(#muzzle)"/>
+      <ellipse xmlns="http://www.w3.org/2000/svg" cx="100" cy="98" rx="83" ry="17" fill="url(#bridge)"/>
+      <path xmlns="http://www.w3.org/2000/svg" d="M36 37c8-13 30-14 49-2" fill="none" stroke="url(#brow-gloss)" stroke-linecap="round" stroke-width="2.1"/>
+      <path xmlns="http://www.w3.org/2000/svg" d="M36 37c8-13 30-14 49-2" transform="matrix(-1 0 0 1 200 0)" fill="none" stroke="url(#brow-gloss)" stroke-linecap="round" stroke-width="2.1"/>
+      <ellipse xmlns="http://www.w3.org/2000/svg" cx="62" cy="64" rx="16" ry="22" transform="rotate(5 62 64)" fill="url(#eye)"/>
+      <ellipse xmlns="http://www.w3.org/2000/svg" cx="138" cy="64" rx="16" ry="22" transform="rotate(-5 138 64)" fill="url(#eye)"/>
+      <ellipse xmlns="http://www.w3.org/2000/svg" cx="62" cy="54" rx="5.3" ry="5.7" fill="url(#glint)"/>
+      <ellipse xmlns="http://www.w3.org/2000/svg" cx="138" cy="54" rx="5.3" ry="5.7" fill="url(#glint)"/>
+      <ellipse xmlns="http://www.w3.org/2000/svg" cx="86" cy="124.5" rx="2.8" ry="5.7" transform="rotate(-5 86 124.5)" fill="#16420d"/>
+      <ellipse xmlns="http://www.w3.org/2000/svg" cx="114" cy="124.5" rx="2.8" ry="5.7" transform="rotate(5 114 124.5)" fill="#16420d"/>
+      <use xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#mouth-shape" fill="url(#mouth)"/>
+      <use xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#mouth-shape" fill="url(#mouth-shadow)"/>
+      <path xmlns="http://www.w3.org/2000/svg" d="M13 123c14 25 45 41 87 41s73-16 87-41c-13 28-45 44-87 44s-74-16-87-44" fill="url(#lip)"/>
+      <path xmlns="http://www.w3.org/2000/svg" d="M13 123c36 21 138 21 174 0" fill="none" stroke="#032406" stroke-linecap="round" stroke-width="1.25"/>
+    </g>
+    <path id="jester-crown-join" d="m153.5 134 3-56c.41-5.544.948-11.089 1.802-16.477L160.5 66c-2 16-3 39-5 65Z" fill="#8662ff"/>
+    <path id="jester-orange" d="M102 125c-1-32 7-80-39-73-16 2-27 9-31 24 17-18 40-17 51 7 6 13 6 30 8 46Z" fill="#ff8c32"/>
+    <path id="jester-pink" d="M100 129c-1-42 0-88-37-115 24-6 52 5 67 31 7 21 13 49 12 86Z" fill="#eb28c6"/>
+    <path id="jester-yellow" d="M123 128c3-40 7-65 7-83 13-25 37-35 64-30-30 9-35 36-37 63l-3 56Z" fill="#e9d000"/>
+    <path id="jester-purple" d="M155 131c2-26 3-49 5-65 1-7 21-11 34-3 16 10 23 23 19 42-5-16-18-19-29-12-10 7-9 22-11 40Z" fill="#8662ff"/>
+    <defs>
+      <clipPath id="jester-lobes-clip">
+        <use xlink:href="#jester-orange"/>
+        <use xlink:href="#jester-pink"/>
+        <use xlink:href="#jester-yellow"/>
+        <use xlink:href="#jester-purple"/>
+      </clipPath>
+    </defs>
+    <g clip-path="url(#jester-lobes-clip)">
+      <path d="M46 60c35-8 50 18 51 55M76 20c31 27 32 55 39 104m54-92c-18 22-21 56-27 89m26-26c10-29 33-19 38-9" fill="none" stroke="#fff" stroke-linecap="round" stroke-opacity=".24" stroke-width="1.6"/>
+    </g>
+    <g fill="none" stroke="#101512" stroke-linejoin="round" stroke-width="2.6">
+      <path d="M91 129c-2-16-2-33-8-46-11-24-34-25-51-7 4-15 15-22 31-24 15.9-2.42 25.349 1.732 30.947 9.523C89.143 43.125 80.157 26.52 63 14c24-6 52 5 67 31"/>
+      <path d="M130 45c13-25 37-35 64-30-23.84 7.152-31.892 25.67-35.198 46.523L160 66c1-7 21-11 34-3 16 10 23 23 19 42-5-16-18-19-29-12-10 7-9 22-11 40"/>
+    </g>
+    <g fill="#91e150" stroke="#101512" stroke-width="2.6">
+      <circle cx="31.5" cy="75.5" r="9.2"/>
+      <circle cx="62.5" cy="14.5" r="9.2"/>
+      <circle cx="194" cy="14.8" r="9.2"/>
+      <circle cx="213.5" cy="105" r="9.2"/>
+    </g>
+    <defs>
+      <path id="jester-band" d="M88 123c23 2 51 3 76 5 8-1 11 5 8 10-4 7-28 7-58 4l-25-3c-10-1-13-9-8-13Z"/>
+    </defs>
+    <use xlink:href="#jester-band" fill="#ff202a" stroke="#101512" stroke-linejoin="round" stroke-width="2.6"/>
+    <defs>
+      <clipPath id="jester-band-clip">
+        <use xlink:href="#jester-band"/>
+      </clipPath>
+    </defs>
+    <g clip-path="url(#jester-band-clip)">
+      <path d="m100 124 15 1-1 17-15-1Z" fill="#8960ff"/>
+      <path d="m140 126 17 1-1 17-19-1Z" fill="#8262ff"/>
+      <path d="M84 126c25 4 63 6 83 5" fill="none" stroke="#ff6364" stroke-linecap="round" stroke-width="2"/>
+    </g>
+    <use xlink:href="#jester-band" fill="none" stroke="#101512" stroke-linejoin="round" stroke-width="2.6"/>
+  </g>
+</svg>

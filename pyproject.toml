@@ -41,6 +41,9 @@ testpaths = [
   "tools/replay",
   "tools/cabana",
   "cereal/messaging/tests",
+
+  # FrogPilot variables
+  "frogpilot/tests",
 ]
 
 [tool.mypy]
@@ -89,6 +92,9 @@ documentation = "https://docs.comma.ai"
 
 [tool.poetry.dependencies]
 python = "~3.11"
+
+flask = "*"
+zstandard = "*"
 
 # multiple users
 sounddevice = "*"  # micd + soundd

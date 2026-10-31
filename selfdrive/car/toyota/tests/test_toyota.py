@@ -3,7 +3,7 @@ from hypothesis import given, settings, strategies as st
 from cereal import car
 from openpilot.selfdrive.car.fw_versions import build_fw_dict
 from openpilot.selfdrive.car.toyota.fingerprints import FW_VERSIONS
-from openpilot.selfdrive.car.toyota.values import CAR, DBC, TSS2_CAR, ANGLE_CONTROL_CAR, RADAR_ACC_CAR, \
+from openpilot.selfdrive.car.toyota.values import CAR, DBC, TSS2_CAR, ANGLE_CONTROL_CAR, RADAR_ACC_CAR, SECOC_CAR, \
                                                   FW_QUERY_CONFIG, PLATFORM_CODE_ECUS, FUZZY_EXCLUDED_PLATFORMS, \
                                                   get_platform_codes
 
@@ -28,7 +28,7 @@ class TestToyotaInterfaces:
     # We make some assumptions about TSS2 platforms,
     # like looking up certain signals only in this DBC
     for car_model, dbc in DBC.items():
-      if car_model in TSS2_CAR:
+      if car_model in TSS2_CAR and car_model not in SECOC_CAR:
         assert dbc["pt"] == "toyota_nodsu_pt_generated"
 
   def test_essential_ecus(self, subtests):

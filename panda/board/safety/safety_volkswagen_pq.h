@@ -118,7 +118,9 @@ static void volkswagen_pq_rx_hook(const CANPacket_t *to_push) {
       update_sample(&torque_driver, torque_driver_new);
     }
 
+    // FrogPilot variables
     if (addr == MSG_MOTOR_5) {
+      // Signal: Motor_5.GRA_Hauptschalter
       acc_main_on = GET_BIT(to_push, 50U);
     }
 

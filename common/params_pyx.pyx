@@ -20,17 +20,24 @@ cdef extern from "common/params.h":
     c_Params(string) except + nogil
     string get(string, bool) nogil
     bool getBool(string, bool) nogil
-    int getInt(string, bool) nogil
-    float getFloat(string, bool) nogil
+
+    # FrogPilot variables
+    int getInt(string, bool) except + nogil
+    float getFloat(string, bool) except + nogil
+
     int remove(string) nogil
     int put(string, string) nogil
     void putNonBlocking(string, string) nogil
     void putBoolNonBlocking(string, bool) nogil
-    void putIntNonBlocking(string, int) nogil
+
+    # FrogPilot variables
     void putFloatNonBlocking(string, float) nogil
+
     int putBool(string, bool) nogil
+
+    # FrogPilot variables
     int putInt(string, int) nogil
-    int putFloat(string, float) nogil
+
     bool checkKey(string) nogil
     string getParamPath(string) nogil
     void clearAll(ParamKeyType)
@@ -38,6 +45,7 @@ cdef extern from "common/params.h":
 
     # FrogPilot variables
     ParamKeyType getKeyType(string) nogil
+    void waitForPendingWrites() nogil
 
 
 def ensure_bytes(v):
@@ -89,6 +97,7 @@ cdef class Params:
       r = self.p.getBool(k, block)
     return r
 
+  # FrogPilot variables
   def get_int(self, key, bool block=False):
     cdef string k = self.check_key(key)
     cdef int r
@@ -112,23 +121,26 @@ cdef class Params:
     """
     cdef string k = self.check_key(key)
     cdef string dat_bytes = ensure_bytes(dat)
+
+    # FrogPilot variables
+    cdef int result
+
     with nogil:
-      self.p.put(k, dat_bytes)
+      result = self.p.put(k, dat_bytes)
+
+    # FrogPilot variables
+    return result
 
   def put_bool(self, key, bool val):
     cdef string k = self.check_key(key)
     with nogil:
       self.p.putBool(k, val)
 
+  # FrogPilot variables
   def put_int(self, key, int val):
     cdef string k = self.check_key(key)
     with nogil:
       self.p.putInt(k, val)
-
-  def put_float(self, key, float val):
-    cdef string k = self.check_key(key)
-    with nogil:
-      self.p.putFloat(k, val)
 
   def put_nonblocking(self, key, dat):
     cdef string k = self.check_key(key)
@@ -141,11 +153,7 @@ cdef class Params:
     with nogil:
       self.p.putBoolNonBlocking(k, val)
 
-  def put_int_nonblocking(self, key, int val):
-    cdef string k = self.check_key(key)
-    with nogil:
-      self.p.putIntNonBlocking(k, val)
-
+  # FrogPilot variables
   def put_float_nonblocking(self, key, float val):
     cdef string k = self.check_key(key)
     with nogil:
@@ -166,3 +174,7 @@ cdef class Params:
   # FrogPilot variables
   def get_key_flag(self, key):
     return self.p.getKeyType(self.check_key(key))
+
+  def wait_for_pending_writes(self):
+    with nogil:
+      self.p.waitForPendingWrites()

@@ -44,8 +44,9 @@ const int SUBARU_PG_PARAM_REVERSED_DRIVER_TORQUE = 1;
 bool subaru_pg_reversed_driver_torque = false;
 
 // FrogPilot variables
-const uint16_t SUBARU_L_PARAM_SNG = 1024;
-bool subaru_l_sng = false;
+const uint16_t SUBARU_PG_PARAM_SNG = 1024;
+bool subaru_pg_sng = false;
+SubaruSngTx subaru_pg_throttle_tx = {.active = false, .ts_last = 0U};
 
 
 static void subaru_preglobal_rx_hook(const CANPacket_t *to_push) {
@@ -106,8 +107,12 @@ static bool subaru_preglobal_tx_hook(const CANPacket_t *to_send) {
 
   // FrogPilot variables
   if (addr == MSG_SUBARU_PG_Throttle) {
-    if (!subaru_l_sng) {
+    if (!subaru_pg_sng) {
       tx = 0;
+    }
+
+    if (subaru_pg_sng && ((int)GET_BUS(to_send) == SUBARU_PG_CAM_BUS)) {
+      subaru_sng_tx_update(&subaru_pg_throttle_tx);
     }
   }
 
@@ -119,7 +124,10 @@ static int subaru_preglobal_fwd_hook(int bus_num, int addr) {
 
   if (bus_num == SUBARU_PG_MAIN_BUS) {
     // FrogPilot variables
-    bool block_msg = subaru_l_sng && (addr == MSG_SUBARU_PG_Throttle);
+    bool block_msg = false;
+    if (addr == MSG_SUBARU_PG_Throttle) {
+      block_msg = subaru_sng_tx_active(&subaru_pg_throttle_tx);
+    }
     if (!block_msg) {
       bus_fwd = SUBARU_PG_CAM_BUS;  // Camera CAN
     }
@@ -139,7 +147,8 @@ static safety_config subaru_preglobal_init(uint16_t param) {
   subaru_pg_reversed_driver_torque = GET_FLAG(param, SUBARU_PG_PARAM_REVERSED_DRIVER_TORQUE);
 
   // FrogPilot variables
-  subaru_l_sng = GET_FLAG(param, SUBARU_L_PARAM_SNG);
+  subaru_pg_sng = GET_FLAG(param, SUBARU_PG_PARAM_SNG);
+  subaru_pg_throttle_tx.active = false;
 
   return BUILD_SAFETY_CFG(subaru_preglobal_rx_checks, SUBARU_PG_TX_MSGS);
 }

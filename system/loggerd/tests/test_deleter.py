@@ -6,7 +6,8 @@ from collections.abc import Sequence
 
 import openpilot.system.loggerd.deleter as deleter
 from openpilot.common.timeout import Timeout, TimeoutException
-from openpilot.system.loggerd.tests.loggerd_tests_common import UploaderTestCase
+from openpilot.system.hardware.hw import Paths
+from openpilot.system.loggerd.tests.loggerd_tests_common import UploaderTestCase, create_random_file
 
 Stats = namedtuple("Stats", ['f_bavail', 'f_blocks', 'f_frsize'])
 
@@ -89,6 +90,29 @@ class TestDeleter(UploaderTestCase):
       self.make_file_with_data("boot", self.seg_format[:-4]),
       self.make_file_with_data("crash", self.seg_format2[:-4]),
     ])
+
+  def test_delete_order_across_log_roots(self, monkeypatch):
+    log_root = Paths.log_root()
+
+    def fake_log_root(HD=False, konik=False, raw=False):
+      if HD:
+        return f"{log_root}_HD"
+      if konik:
+        return f"{log_root}_konik"
+      return log_root
+
+    monkeypatch.setattr(deleter.Paths, "log_root", fake_log_root)
+
+    f_paths = [
+      Path(f"{log_root}_HD") / self.seg_format.format(0) / self.f_type,
+      Path(log_root) / self.seg_format2.format(0) / self.f_type,
+      Path(f"{log_root}_konik") / self.seg_format2.format(1) / self.f_type,
+      Path(f"{log_root}_HD") / "boot" / self.seg_format[:-4],
+    ]
+    for f_path in f_paths:
+      create_random_file(f_path, .1)
+
+    self.assertDeleteOrder(f_paths)
 
   def test_no_delete_when_available_space(self):
     f_path = self.make_file_with_data(self.seg_dir, self.f_type)

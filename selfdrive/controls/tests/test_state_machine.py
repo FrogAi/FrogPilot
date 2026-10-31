@@ -1,4 +1,4 @@
-from cereal import car, log
+from cereal import car, custom, log
 from openpilot.common.realtime import DT_CTRL
 from openpilot.selfdrive.car.car_helpers import interfaces
 from openpilot.selfdrive.controls.controlsd import Controls, SOFT_DISABLE_TIME
@@ -30,7 +30,7 @@ class TestStateMachine:
   def setup_method(self):
     CarInterface, CarController, CarState = interfaces[MOCK.MOCK]
     CP = CarInterface.get_non_essential_params(MOCK.MOCK)
-    CI = CarInterface(CP, CarController, CarState)
+    CI = CarInterface(CP, custom.FrogPilotCarParams.new_message(), CarController, CarState)
 
     self.controlsd = Controls(CI=CI)
     self.controlsd.events = Events()

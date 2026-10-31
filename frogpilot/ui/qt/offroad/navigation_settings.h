@@ -6,7 +6,7 @@ class FrogPilotNavigationPanel : public FrogPilotListWidget {
   Q_OBJECT
 
 public:
-  explicit FrogPilotNavigationPanel(FrogPilotSettingsWindow *parent);
+  explicit FrogPilotNavigationPanel(FrogPilotSettingsWindow *parent, bool forceOpen = false);
 
 signals:
   void closeSubPanel();
@@ -17,38 +17,39 @@ protected:
   void showEvent(QShowEvent *event) override;
 
 private:
-  void createKeyControl(ButtonControl *&control, const QString &label, const std::string &paramKey, const QString &prefix, const int &minLength, FrogPilotListWidget *list);
   void mousePressEvent(QMouseEvent *event);
   void updateButtons();
   void updateState(const UIState &s, const FrogPilotUIState &fs);
   void updateStep();
 
-  bool forceOpenDescriptions;
-  bool mapboxPublicKeySet;
-  bool mapboxSecretKeySet;
-  bool setupCompleted;
+  bool forceOpenDescriptions = false;
+  bool mapboxPublicKeySet = false;
+  bool mapboxSecretKeySet = false;
+  bool setupCompleted = false;
 
-  ButtonControl *amapKeyControl1;
-  ButtonControl *amapKeyControl2;
-  FrogPilotButtonsControl *publicMapboxKeyControl;
-  FrogPilotButtonsControl *secretMapboxKeyControl;
-  ButtonControl *setupButton;
+  std::map<QString, AbstractControl*> toggles;
 
-  FrogPilotButtonControl *updateSpeedLimitsToggle;
+  ButtonControl *amapKeyControl = nullptr;
+  ButtonControl *setupButton = nullptr;
 
-  FrogPilotButtonsControl *searchInput;
+  ParamControl *pairingToggle = nullptr;
+  ParamControl *speedLimitFillerToggle = nullptr;
 
-  FrogPilotSettingsWindow *parent;
+  FrogPilotButtonsControl *publicMapboxKeyControl = nullptr;
+  FrogPilotButtonsControl *searchProviderControl = nullptr;
+  FrogPilotButtonsControl *secretMapboxKeyControl = nullptr;
 
-  LabelControl *ipLabel;
+  FrogPilotSettingsWindow *parent = nullptr;
+
+  LabelControl *ipLabel = nullptr;
 
   Params params;
-  Params params_cache{"/cache/params"};
-  Params params_memory{"/dev/shm/params"};
 
-  QLabel *imageLabel;
+  QLabel *imageLabel = nullptr;
 
-  QNetworkAccessManager *networkManager;
+  QNetworkAccessManager *networkManager = nullptr;
 
-  QStackedLayout *primelessLayout;
+  QStackedLayout *primelessLayout = nullptr;
+
+  QString currentStep;
 };

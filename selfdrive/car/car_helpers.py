@@ -16,6 +16,8 @@ import cereal.messaging as messaging
 from openpilot.selfdrive.car import gen_empty_fingerprint
 from openpilot.system.version import get_build_metadata
 
+from openpilot.frogpilot.common import frogpilot_utilities, frogpilot_variables
+
 FRAME_FINGERPRINT = 100  # 1s
 
 EventName = car.CarEvent.EventName
@@ -189,20 +191,27 @@ def get_car_interface(CP, FPCP):
   return CarInterface(CP, FPCP, CarController, CarState)
 
 
-def get_car(logcan, sendcan, experimental_long_allowed, params, num_pandas=1, frogpilot_toggles=None):
+def get_car(logcan, sendcan, experimental_long_allowed, params, num_pandas, frogpilot_toggles):
   candidate, fingerprints, vin, car_fw, source, exact_match = fingerprint(logcan, sendcan, num_pandas)
 
-  if candidate is None or frogpilot_toggles.force_fingerprint:
-    if frogpilot_toggles.car_model is not None:
-      candidate = frogpilot_toggles.car_model
-    else:
-      cloudlog.event("car doesn't match any fingerprints", fingerprints=repr(fingerprints), error=True)
-      candidate = "MOCK"
+  # FrogPilot variables
+  car_model = params.get("CarModel", encoding="utf-8")
+
+  if (candidate is None or frogpilot_toggles.force_fingerprint) and car_model in interfaces:
+    candidate = car_model
+  elif candidate is None:
+    cloudlog.event("car doesn't match any fingerprints", fingerprints=repr(fingerprints), error=True)
+    candidate = "MOCK"
   else:
-    params.put_nonblocking("CarMake", candidate.split('_')[0].title())
+    if car_model != candidate:
+      params.remove("CarModelName")
+
+    car_make = candidate.split('_')[0]
+    params.put_nonblocking("CarMake", frogpilot_variables.CAR_MAKE_NAMES.get(car_make, car_make.title()))
     params.put_nonblocking("CarModel", candidate)
 
-  if frogpilot_toggles.block_user:
+  # FrogPilot variables
+  if frogpilot_utilities.block_user():
     candidate = MOCK.MOCK
     sentry.capture_block()
 

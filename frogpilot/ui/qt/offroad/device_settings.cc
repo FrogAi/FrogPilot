@@ -1,18 +1,8 @@
-#include "frogpilot/ui/screenrecorder/screenrecorder.h"
 #include "frogpilot/ui/qt/offroad/device_settings.h"
+#include "frogpilot/ui/qt/onroad/screen_recorder.h"
 
-FrogPilotDevicePanel::FrogPilotDevicePanel(FrogPilotSettingsWindow *parent) : FrogPilotListWidget(parent), parent(parent) {
-  QJsonObject shownDescriptions = QJsonDocument::fromJson(QString::fromStdString(params.get("ShownToggleDescriptions")).toUtf8()).object();
-  QString className = this->metaObject()->className();
-
-  if (!shownDescriptions.value(className).toBool(false)) {
-    forceOpenDescriptions = true;
-    shownDescriptions.insert(className, true);
-    params.put("ShownToggleDescriptions", QJsonDocument(shownDescriptions).toJson(QJsonDocument::Compact).toStdString());
-  }
-
-  ScreenRecorder *screenRecorder = new ScreenRecorder(this);
-  screenRecorder->setVisible(false);
+FrogPilotDevicePanel::FrogPilotDevicePanel(FrogPilotSettingsWindow *parent, bool forceOpen) : FrogPilotListWidget(parent), parent(parent) {
+  forceOpenDescriptions = forceOpen;
 
   QStackedLayout *deviceLayout = new QStackedLayout();
   addItem(deviceLayout);
@@ -33,27 +23,27 @@ FrogPilotDevicePanel::FrogPilotDevicePanel(FrogPilotSettingsWindow *parent) : Fr
   deviceLayout->addWidget(screenPanel);
 
   const std::vector<std::tuple<QString, QString, QString, QString>> deviceToggles {
-    {"DeviceManagement", tr("Device Settings"), tr("<b>Settings that control how the device runs, powers off, and manages driving data.</b>"), "../../frogpilot/assets/toggle_icons/icon_device.png"},
-    {"DeviceShutdown", tr("Device Shutdown Timer"), tr("<b>Keep the device on for the set amount of time after a drive</b> before it shuts down automatically."), ""},
-    {"NoLogging", tr("Disable Logging"), QString("<b>%1</b><br><br>%2").arg(tr("WARNING: This will prevent your drives from being recorded and all data will be unobtainable!")).arg(tr("<b>Prevent the device from saving driving data.</b>")), ""},
-    {"NoUploads", tr("Disable Uploads"), QString("<b>%1</b><br><br>%2").arg(tr("WARNING: This will prevent your drives from being uploaded to <b>comma connect</b> which will impact debugging and official support from comma!")).arg(tr("<b>Prevent the device from uploading driving data.</b>")), ""},
-    {"HigherBitrate", tr("High-Quality Recording"), tr("<b>Save drive footage in higher video quality.</b>"), ""},
-    {"LowVoltageShutdown", tr("Low-Voltage Cutoff"), tr("<b>While parked, if the battery voltage falls below the set level, the device shuts down</b> to prevent excessive battery drain."), ""},
-    {"IncreaseThermalLimits", tr("Raise Temperature Limits"), QString("<b>%1</b><br><br>%2").arg(tr("WARNING: Running at higher temperatures may damage your device!")).arg(tr("<b>Allow the device to run at higher temperatures</b> before throttling or shutting down. Use only if you understand the risks!")), ""},
-    {"FrogPilotTelemetry", tr("Share Driving Data"), tr("<b>Automatically share anonymized driving data with FrogPilot to help improve it.</b><br><br>Only driving signals are shared: no video, no GPS or location, no VIN, and no identifiers. Turn this off to opt out."), ""},
-    {"UseKonikServer", tr("Use Konik Server"), tr("<b>Upload driving data to \"connect.konik.ai\" instead of \"connect.comma.ai\".</b>"), ""},
+    {"DeviceManagement", tr("Device Settings"), tr("<b>Change how the device powers off, handles heat, and records your drives.</b>"), "../../frogpilot/assets/toggle_icons/icon_device.svg"},
+    {"DeviceShutdown", tr("Device Shutdown Timer"), tr("<b>How long the device stays on after you finish driving before it shuts itself off.</b><br><br>Shorter times use less of your car's battery. The lowest setting is 5 minutes."), ""},
+    {"NoLogging", tr("Disable Logging"), tr("<b>Stop the device from recording your drives.</b><br><br>No driving logs or camera footage are saved, so you won't be able to review your drives later or send a useful bug report, and FrogPilot driving logs are no longer shared. Screen recordings, speed limit sign photos, and the device's own system logs are still saved."), ""},
+    {"NoUploads", tr("Disable Uploads"), tr("<b>Stop the device from uploading your drives to \"comma connect\" or Konik and from sharing FrogPilot driving logs, speed limit sign photos, and learned speed limits.</b><br><br>Your drives are still saved on the device. comma uses uploads for debugging and official support, so turning this on limits the help they can give. Files that comma connect or Konik asks the device to upload, usage stats, device registration, crash reports, and weather and Mapbox lookups are not affected. \"Disable Onroad Only\" pauses uploads while you drive and lets them finish once you park, but only while the device is on Wi-Fi or Ethernet."), ""},
+    {"HigherBitrate", tr("High-Quality Recording"), tr("<b>Record your drives in higher video quality.</b><br><br>This row only appears once \"Disable Uploads\" is on and \"Disable Onroad Only\" is off, since the larger files are not meant to be uploaded. The device needs to reboot for it to take effect."), ""},
+    {"LowVoltageShutdown", tr("Low-Voltage Cutoff"), tr("<b>Shut the device down when your car's battery drops below the voltage you pick.</b><br><br>This only happens while parked, and keeps the device from draining the battery too far to start the car."), ""},
+    {"IncreaseThermalLimits", tr("Raise Temperature Limits"), tr("<b>Let the device run about 6 degrees Celsius hotter than normal before openpilot disengages because of the heat.</b><br><br>Normally openpilot disengages and will not re-engage once the device gets hot, and drops back to the offroad screen if it keeps climbing. This only makes the first happen later. The device still drops back to the offroad screen at the normal temperature. Running the device that hot can shorten its life or damage it, so only use this if you understand the risk."), ""},
+    {"UseKonikServer", tr("Use Konik Server"), tr("<b>Upload your drives to \"stable.konik.ai\" instead of \"connect.comma.ai\".</b><br><br>Device registration and remote access go through Konik too. Registering with Konik sends the device's IMEI and serial number. The device needs to reboot for this to take effect."), ""},
 
-    {"ScreenManagement", tr("Screen Settings"), tr("<b>Settings that control screen brightness, screen recording, and timeout duration.</b>"), "../../frogpilot/assets/toggle_icons/icon_light.png"},
-    {"ScreenBrightness", tr("Screen Brightness (Offroad)"), tr("<b>The screen brightness while not driving.</b>"), ""},
-    {"ScreenBrightnessOnroad", tr("Screen Brightness (Onroad)"), tr("<b>The screen brightness while driving.</b>"), ""},
-    {"ScreenRecorder", tr("Screen Recorder"), tr("<b>Add a button to the driving screen to record the display.</b>"), ""},
-    {"ScreenTimeout", tr("Screen Timeout (Offroad)"), tr("<b>How long the screen stays on after being tapped while not driving.</b>"), ""},
-    {"ScreenTimeoutOnroad", tr("Screen Timeout (Onroad)"), tr("<b>How long the screen stays on after being tapped while driving.</b>"), ""},
-    {"StandbyMode", tr("Standby Mode"), tr("<b>Turn the screen off while driving and automatically wake it up for alerts or engagement state changes.</b>"), ""}
+    {"ScreenManagement", tr("Screen Settings"), tr("<b>Change how bright the screen is, how long it stays on, and whether you can record it.</b>"), "../../frogpilot/assets/toggle_icons/icon_light.svg"},
+    {"InstantReplay", tr("Capture Recent Footage"), tr("<b>Save what just happened on your driving screen.</b><br><br>Choose how far back to keep, then tap \"CAPTURE\" to save a moment you want to review or share. There's no need to remember to start recording beforehand."), ""},
+    {"ScreenBrightness", tr("Screen Brightness (Offroad)"), tr("<b>How bright the screen is while you're not driving.</b><br><br>\"Auto\" only follows the light around you while you are driving. While you are parked it is a fixed 50%, whatever the light is like."), ""},
+    {"ScreenBrightnessOnroad", tr("Screen Brightness (Onroad)"), tr("<b>How bright the screen is while you're driving.</b><br><br>\"Auto\" matches the light around you, and \"Screen Off\" keeps the display dark until you tap it, an alert shows, or openpilot engages or disengages. A tap or wake-up brightens anything below 5% to 5% until the screen times out."), ""},
+    {"ScreenRecorder", tr("Screen Recorder"), tr("<b>Add a button to the driving screen that records what's on it.</b><br><br>Your recordings are saved on the device and can be renamed or deleted under \"Screen Recordings\" in the \"DATA\" panel."), ""},
+    {"ScreenTimeout", tr("Screen Timeout (Offroad)"), tr("<b>How long the screen stays on after you tap it while not driving.</b>"), ""},
+    {"ScreenTimeoutOnroad", tr("Screen Timeout (Onroad)"), tr("<b>How long the screen stays on after you tap it while driving.</b>"), ""},
+    {"StandbyMode", tr("Standby Mode"), tr("<b>Turn the screen off while driving, and wake it up automatically for alerts or when openpilot engages or disengages.</b><br><br>Tapping the screen wakes it up too."), ""}
   };
 
   for (const auto &[param, title, desc, icon] : deviceToggles) {
-    AbstractControl *deviceToggle;
+    AbstractControl *deviceToggle = nullptr;
 
     if (param == "DeviceManagement") {
       FrogPilotManageControl *deviceManagementToggle = new FrogPilotManageControl(param, title, desc, icon);
@@ -80,34 +70,47 @@ FrogPilotDevicePanel::FrogPilotDevicePanel(FrogPilotSettingsWindow *parent) : Fr
         deviceLayout->setCurrentWidget(screenPanel);
       });
       deviceToggle = screenToggle;
-    } else if (param == "ScreenBrightness" || param == "ScreenBrightnessOnroad") {
-      std::map<float, QString> brightnessLabels;
-      int minBrightness = (param == "ScreenBrightnessOnroad") ? 0 : 1;
-      for (int i = 0; i <= 101; ++i) {
-        brightnessLabels[i] = i == 0 ? tr("Screen Off") : i == 101 ? tr("Auto") : QString::number(i) + "%";
+    } else if (param == "InstantReplay") {
+      std::map<float, QString> replayLabels{{0, tr("Off")}, {30, tr("30 seconds")}, {60, tr("1 minute")}};
+      for (int seconds = 90; seconds <= 300; seconds += 30) {
+        replayLabels[seconds] = QString::number(seconds / 60.0) + tr(" minutes");
       }
-      deviceToggle = new FrogPilotParamValueControl(param, title, desc, icon, minBrightness, 101, QString(), brightnessLabels, 1, true);
+      deviceToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 300, QString(), replayLabels, 30);
+    } else if (param == "ScreenBrightness" || param == "ScreenBrightnessOnroad") {
+      std::map<float, QString> brightnessLabels{{0, tr("Screen Off")}, {101, tr("Auto")}};
+      int minBrightness = (param == "ScreenBrightnessOnroad") ? 0 : 1;
+      deviceToggle = new FrogPilotParamValueControl(param, title, desc, icon, minBrightness, 101, "%", brightnessLabels, 1, true);
     } else if (param == "ScreenRecorder") {
-      std::vector<QString> recorderButtonNames{tr("Start Recording"), tr("Stop Recording")};
-      FrogPilotButtonControl *recorderToggle = new FrogPilotButtonControl(param, title, desc, icon, recorderButtonNames, true);
-      QObject::connect(recorderToggle, &FrogPilotButtonControl::buttonClicked, [recorderToggle, screenRecorder](int id) {
-        if (id == 0) {
+      FrogPilotButtonToggleControl *recorderToggle = new FrogPilotButtonToggleControl(param, title, desc, icon, {}, {tr("Start Recording"), tr("Stop Recording")});
+      std::function<void()> updateRecorderToggle = [recorderToggle]() {
+        bool recording = ScreenRecorder::active();
+        if (recording) {
           recorderToggle->setCheckedButton(1);
-
-          recorderToggle->setVisibleButton(0, false);
-          recorderToggle->setVisibleButton(1, true);
-
-          screenRecorder->startRecording();
-        } else if (id == 1) {
-          recorderToggle->clearCheckedButtons(true);
-
-          recorderToggle->setVisibleButton(0, true);
-          recorderToggle->setVisibleButton(1, false);
-
-          screenRecorder->stopRecording();
+        } else {
+          recorderToggle->clearCheckedButtons();
+        }
+        recorderToggle->setVisibleButton(0, !recording);
+        recorderToggle->setVisibleButton(1, recording);
+      };
+      QObject::connect(recorderToggle, &FrogPilotButtonToggleControl::buttonClicked, [updateRecorderToggle](int id) {
+        if (id == 0) {
+          ScreenRecorder::start();
+        } else {
+          ScreenRecorder::stop();
+        }
+        updateRecorderToggle();
+      });
+      QObject::connect(recorderToggle, &ToggleControl::toggleFlipped, recorderToggle, [](bool state) {
+        if (!state) {
+          ScreenRecorder::stop();
         }
       });
-      recorderToggle->setVisibleButton(1, false);
+      QObject::connect(uiState(), &UIState::uiUpdate, recorderToggle, [recorderToggle, updateRecorderToggle]() {
+        if (recorderToggle->isVisible()) {
+          updateRecorderToggle();
+        }
+      });
+      updateRecorderToggle();
       deviceToggle = recorderToggle;
     } else if (param == "ScreenTimeout" || param == "ScreenTimeoutOnroad") {
       deviceToggle = new FrogPilotParamValueControl(param, title, desc, icon, 5, 60, tr(" seconds"), {}, 5);
@@ -125,7 +128,9 @@ FrogPilotDevicePanel::FrogPilotDevicePanel(FrogPilotSettingsWindow *parent) : Fr
     } else {
       deviceList->addItem(deviceToggle);
 
-      parentKeys.insert(param);
+      if (qobject_cast<FrogPilotManageControl*>(deviceToggle)) {
+        parentKeys.insert(param);
+      }
     }
 
     if (FrogPilotManageControl *frogPilotManageToggle = qobject_cast<FrogPilotManageControl*>(deviceToggle)) {
@@ -143,22 +148,27 @@ FrogPilotDevicePanel::FrogPilotDevicePanel(FrogPilotSettingsWindow *parent) : Fr
     });
   }
 
-  static_cast<ParamControl*>(toggles["FrogPilotTelemetry"])->setConfirmation(true, false);
   static_cast<ParamControl*>(toggles["IncreaseThermalLimits"])->setConfirmation(true, false);
   static_cast<ParamControl*>(toggles["NoLogging"])->setConfirmation(true, false);
   static_cast<ParamControl*>(toggles["NoUploads"])->setConfirmation(true, false);
 
+  if (QFile::exists("/data/openpilot/not_vetted")) {
+    static_cast<ParamControl*>(toggles["UseKonikServer"])->forceOn();
+  }
+
   QSet<QString> brightnessKeys = {"ScreenBrightness", "ScreenBrightnessOnroad"};
   for (const QString &key : brightnessKeys) {
     FrogPilotParamValueControl *paramControl = static_cast<FrogPilotParamValueControl*>(toggles[key]);
-    QObject::connect(paramControl, &FrogPilotParamValueControl::valueChanged, [key, this](int value) {
-      if (!started && key == "ScreenBrightness") {
-        Hardware::set_brightness(value);
-      } else if (started && key == "ScreenBrightnessOnroad") {
-        Hardware::set_brightness(value);
+    QObject::connect(paramControl, &FrogPilotParamValueControl::valueChanged, [key](float value) {
+      QJsonObject &frogpilot_toggles = frogpilotUIState()->frogpilot_scene.frogpilot_toggles;
+      if (key == "ScreenBrightnessOnroad" && frogpilot_toggles.value("force_onroad").toBool()) {
+        return;
       }
+      frogpilot_toggles.insert(key == "ScreenBrightness" ? "screen_brightness" : "screen_brightness_onroad", value);
     });
   }
+
+  QObject::connect(static_cast<ToggleControl*>(toggles["DeviceManagement"]), &ToggleControl::toggleFlipped, this, &FrogPilotDevicePanel::updateToggles);
 
   QSet<QString> forceUpdateKeys = {"NoUploads"};
   for (const QString &key : forceUpdateKeys) {
@@ -168,32 +178,7 @@ FrogPilotDevicePanel::FrogPilotDevicePanel(FrogPilotSettingsWindow *parent) : Fr
 
   QSet<QString> rebootKeys = {"HigherBitrate", "UseKonikServer"};
   for (const QString &key : rebootKeys) {
-    QObject::connect(static_cast<ToggleControl*>(toggles[key]), &ToggleControl::toggleFlipped, [key, this](bool state) {
-      QString filePath;
-      if (key == "HigherBitrate") {
-        filePath = "/cache/use_HD";
-      } else if (key == "UseKonikServer") {
-        filePath = "/cache/use_konik";
-      }
-
-      if (!filePath.isEmpty()) {
-        QFile toggleFile(filePath);
-        if (state) {
-          if (!toggleFile.exists()) {
-            toggleFile.open(QIODevice::WriteOnly);
-            toggleFile.close();
-          }
-        } else {
-          if (toggleFile.exists()) {
-            toggleFile.remove();
-          }
-        }
-      }
-
-      if (FrogPilotConfirmationDialog::toggleReboot(this)) {
-        Hardware::reboot();
-      }
-    });
+    QObject::connect(static_cast<ToggleControl*>(toggles[key]), &ToggleControl::toggleFlipped, frogpilotUIState(), &FrogPilotUIState::updateToggles);
   }
 
   openDescriptions(forceOpenDescriptions, toggles);
@@ -202,7 +187,6 @@ FrogPilotDevicePanel::FrogPilotDevicePanel(FrogPilotSettingsWindow *parent) : Fr
     openDescriptions(forceOpenDescriptions, toggles);
     deviceLayout->setCurrentWidget(devicePanel);
   });
-  QObject::connect(uiState(), &UIState::uiUpdate, this, &FrogPilotDevicePanel::updateState);
 }
 
 void FrogPilotDevicePanel::showEvent(QShowEvent *event) {
@@ -211,15 +195,11 @@ void FrogPilotDevicePanel::showEvent(QShowEvent *event) {
   updateToggles();
 }
 
-void FrogPilotDevicePanel::updateState(const UIState &s) {
-  if (!isVisible()) {
-    return;
-  }
-
-  started = s.scene.started;
-}
-
 void FrogPilotDevicePanel::updateToggles() {
+  const QString gitBranch = QString::fromStdString(params.get("GitBranch"));
+  const bool developmentBranch = gitBranch == "FrogPilot-Development";
+  const bool vettingBranch = gitBranch == "FrogPilot-Vetting";
+
   for (auto &[key, toggle] : toggles) {
     if (parentKeys.contains(key)) {
       toggle->setVisible(false);
@@ -233,12 +213,14 @@ void FrogPilotDevicePanel::updateToggles() {
 
     bool setVisible = parent->tuningLevel >= frogpilotToggleLevels[key].toDouble();
 
-    if (key == "HigherBitrate") {
+    if (key == "HigherBitrate" && !developmentBranch && !vettingBranch) {
       setVisible &= params.getBool("DeviceManagement") && params.getBool("NoUploads") && !params.getBool("DisableOnroadUploads");
     }
 
-    else if (key == "UseKonikServer" && QFile("/data/not_vetted").exists()) {
-      static_cast<ToggleControl*>(toggle)->forceOn(true);
+    else if ((key == "NoLogging" && vettingBranch) ||
+             (key == "NoUploads" && (developmentBranch || vettingBranch)) ||
+             (key == "HigherBitrate" && (developmentBranch || vettingBranch))) {
+      setVisible = false;
     }
 
     toggle->setVisible(setVisible);

@@ -55,12 +55,14 @@ FROGPILOT_EVENT_NAME = {v: k for k, v in FrogPilotEventName.schema.enumerants.it
 
 class Events:
   def __init__(self, frogpilot=False):
+    # FrogPilot variables
+    self.event_names = FROGPILOT_EVENT_NAME if frogpilot else EVENT_NAME
+    self.event_table = FROGPILOT_EVENTS if frogpilot else EVENTS
+    self.event_type = custom.FrogPilotCarEvent if frogpilot else car.CarEvent
+
     self.events: list[int] = []
     self.static_events: list[int] = []
-    self.event_counters = dict.fromkeys((FROGPILOT_EVENTS if frogpilot else EVENTS).keys(), 0)
-
-    # FrogPilot variables
-    self.frogpilot = frogpilot
+    self.event_counters = dict.fromkeys(self.event_table.keys(), 0)
 
   @property
   def names(self) -> list[int]:
@@ -79,7 +81,15 @@ class Events:
     self.events = self.static_events.copy()
 
   def contains(self, event_type: str) -> bool:
-    return any(event_type in (FROGPILOT_EVENTS if self.frogpilot else EVENTS).get(e, {}) for e in self.events)
+    return any(event_type in self.event_table.get(e, {}) for e in self.events)
+
+  # FrogPilot variables
+  def contains_disable_event(self) -> bool:
+    for e in self.events:
+      event_types = self.event_table.get(e, {})
+      if ET.NO_ENTRY in event_types and (ET.SOFT_DISABLE in event_types or ET.IMMEDIATE_DISABLE in event_types):
+        return True
+    return False
 
   def create_alerts(self, event_types: list[str], callback_args=None):
     if callback_args is None:
@@ -87,15 +97,15 @@ class Events:
 
     ret = []
     for e in self.events:
-      types = (FROGPILOT_EVENTS if self.frogpilot else EVENTS)[e].keys()
+      types = self.event_table[e].keys()
       for et in event_types:
         if et in types:
-          alert = (FROGPILOT_EVENTS if self.frogpilot else EVENTS)[e][et]
+          alert = self.event_table[e][et]
           if not isinstance(alert, Alert):
             alert = alert(*callback_args)
 
           if DT_CTRL * (self.event_counters[e] + 1) >= alert.creation_delay:
-            alert.alert_type = f"{(FROGPILOT_EVENT_NAME if self.frogpilot else EVENT_NAME)[e]}/{et}"
+            alert.alert_type = f"{self.event_names[e]}/{et}"
             alert.event_type = et
             ret.append(alert)
     return ret
@@ -107,9 +117,9 @@ class Events:
   def to_msg(self):
     ret = []
     for event_name in self.events:
-      event = (custom.FrogPilotCarEvent if self.frogpilot else car.CarEvent).new_message()
+      event = self.event_type.new_message()
       event.name = event_name
-      for event_type in (FROGPILOT_EVENTS if self.frogpilot else EVENTS).get(event_name, {}):
+      for event_type in self.event_table.get(event_name, {}):
         setattr(event, event_type, True)
       ret.append(event)
     return ret
@@ -216,7 +226,7 @@ def get_display_speed(speed_ms: float, metric: bool) -> str:
 
 # ********** alert callback functions **********
 
-AlertCallbackType = Callable[[car.CarParams, car.CarState, messaging.SubMaster, bool, int], Alert]
+AlertCallbackType = Callable[[car.CarParams, car.CarState, messaging.SubMaster, bool, int, SimpleNamespace], Alert]
 
 
 def soft_disable_alert(alert_text_2: str) -> AlertCallbackType:
@@ -344,65 +354,49 @@ def custom_startup_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubM
 
 
 def forcing_stop_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int, frogpilot_toggles: SimpleNamespace) -> Alert:
-  model_length = sm["frogpilotPlan"].forcingStopLength
-  model_length_msg = f"{model_length:.1f} meters" if metric else f"{model_length * CV.METER_TO_FOOT:.1f} feet"
+  if CS.standstill:
+    stop_message = "Holding at a forced stop"
+  else:
+    model_length = sm["frogpilotPlan"].forcingStopLength
+    model_length_msg = f"{model_length:.1f} meters" if metric else f"{model_length * CV.METER_TO_FOOT:.1f} feet"
+    stop_message = f"Stopping in {model_length_msg}"
 
   return Alert(
-    f"Forcing the car to stop in {model_length_msg}",
-    "Press the gas pedal or 'Resume' button to override",
+    stop_message,
+    "Press gas or RES/+ to release",
     FrogPilotAlertStatus.frogpilot, AlertSize.mid,
-    Priority.MID, VisualAlert.none, AudibleAlert.prompt, 1.)
+    Priority.LOW, VisualAlert.none, AudibleAlert.prompt, 1.)
 
 
 def holiday_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int, frogpilot_toggles: SimpleNamespace) -> Alert:
-  holiday_messages = {
-    "new_years": "Happy New Year! 🎉",
-    "valentines": "Happy Valentine's Day! ❤️",
-    "st_patricks": "Happy St. Patrick's Day! 🍀",
-    "world_frog_day": "Happy World Frog Day! 🐸",
-    "april_fools": "Happy April Fool's Day! 🤡",
-    "easter_week": "Happy Easter! 🐰",
-    "may_the_fourth": "May the 4th be with you! 🚀",
-    "cinco_de_mayo": "¡Feliz Cinco de Mayo! 🌮",
-    "stitch_day": "Happy Stitch Day! 💙",
-    "fourth_of_july": "Happy Fourth of July! 🎆",
-    "halloween_week": "Happy Halloween! 🎃",
-    "thanksgiving_week": "Happy Thanksgiving! 🦃",
-    "christmas_week": "Merry Christmas! 🎄",
-  }
-
   return Alert(
-    holiday_messages.get(frogpilot_toggles.current_holiday_theme, ""),
+    frogpilot_toggles.holiday_greeting,
     "",
     AlertStatus.normal, AlertSize.small,
     Priority.LOWEST, VisualAlert.none, FrogPilotAudibleAlert.startup, 5.)
 
 
+def nnff_loaded_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int, frogpilot_toggles: SimpleNamespace) -> Alert:
+  return Alert(
+    "NNFF Torque Controller loaded with:",
+    Params().get("NNFFModelName", encoding="utf-8"),
+    FrogPilotAlertStatus.frogpilot, AlertSize.mid,
+    Priority.LOW, VisualAlert.none, AudibleAlert.engage, 5.0)
+
+
 def no_lane_available_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int, frogpilot_toggles: SimpleNamespace) -> Alert:
   lane_width = sm["frogpilotPlan"].laneWidthLeft if CS.leftBlinker else sm["frogpilotPlan"].laneWidthRight
-  lane_width_msg = f"{lane_width:.1f} meters" if metric else f"{lane_width * CV.METER_TO_FOOT:.1f} feet"
+  lane_width_msg = f"{lane_width:.1f} Meters" if metric else f"{lane_width * CV.METER_TO_FOOT:.1f} Feet"
 
   return Alert(
-    "No lane available",
-    f"Detected lane width is only {lane_width_msg}",
+    "No Lane Available",
+    f"Detected Lane Width Is Only {lane_width_msg}",
     AlertStatus.normal, AlertSize.mid,
     Priority.LOWEST, VisualAlert.none, AudibleAlert.none, .2)
 
 
-def torque_nn_load_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int, frogpilot_toggles: SimpleNamespace) -> Alert:
-  model_name = Params().get("NNFFModelName", encoding="utf-8")
-  if model_name is None:
-    return Alert(
-      "NNFF Torque Controller not available",
-      "Donate logs to Twilsonco to get your car supported!",
-      AlertStatus.userPrompt, AlertSize.mid,
-      Priority.LOW, VisualAlert.none, AudibleAlert.prompt, 10.0)
-  else:
-    return Alert(
-      "NNFF Torque Controller loaded",
-      model_name,
-      FrogPilotAlertStatus.frogpilot, AlertSize.mid,
-      Priority.LOW, VisualAlert.none, AudibleAlert.engage, 5.0)
+def pedal_interceptor_no_brake_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int, frogpilot_toggles: SimpleNamespace) -> Alert:
+  return user_soft_disable_alert("Braking Unavailable: Shift to L")(CP, CS, sm, metric, soft_disable_time, frogpilot_toggles)
 
 
 EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
@@ -1040,7 +1034,7 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
 FROGPILOT_EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
   FrogPilotEventName.blockUser: {
     ET.PERMANENT: Alert(
-      "Don't use the 'Development' branch!",
+      "Don't use the 'MAKE-PRS-HERE' branch!",
       "Forcing you into 'Dashcam Mode' for your safety",
       AlertStatus.userPrompt, AlertSize.mid,
       Priority.HIGHEST, VisualAlert.none, AudibleAlert.none, 1.),
@@ -1064,7 +1058,7 @@ FROGPILOT_EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
 
   FrogPilotEventName.greenLight: {
     ET.PERMANENT: Alert(
-      "Light turned green",
+      "Light Turned Green",
       "",
       FrogPilotAlertStatus.frogpilot, AlertSize.small,
       Priority.MID, VisualAlert.none, AudibleAlert.prompt, 3.),
@@ -1084,10 +1078,14 @@ FROGPILOT_EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
 
   FrogPilotEventName.leadDeparting: {
     ET.PERMANENT: Alert(
-      "Lead departed",
+      "Lead Departed",
       "",
       FrogPilotAlertStatus.frogpilot, AlertSize.small,
       Priority.MID, VisualAlert.none, AudibleAlert.prompt, 3.),
+  },
+
+  FrogPilotEventName.nnffLoaded: {
+    ET.PERMANENT: nnff_loaded_alert,
   },
 
   FrogPilotEventName.noLaneAvailable: {
@@ -1095,25 +1093,70 @@ FROGPILOT_EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
   },
 
   FrogPilotEventName.openpilotCrashed: {
-    ET.IMMEDIATE_DISABLE: Alert(
-      "openpilot crashed",
-      "Please post the 'Error Log' in the FrogPilot Discord!",
-      AlertStatus.critical, AlertSize.mid,
-      Priority.HIGHEST, VisualAlert.none, AudibleAlert.prompt, .1),
+    ET.IMMEDIATE_DISABLE: ImmediateDisableAlert("openpilot crashed"),
 
     ET.NO_ENTRY: Alert(
       "openpilot crashed",
-      "Please post the 'Error Log' in the FrogPilot Discord!",
+      "Please post the \"Error Log\" in the FrogPilot Discord!",
       AlertStatus.critical, AlertSize.mid,
       Priority.HIGHEST, VisualAlert.none, AudibleAlert.prompt, .1),
   },
 
   FrogPilotEventName.pedalInterceptorNoBrake: {
-    ET.WARNING: Alert(
-      "Braking Unavailable",
-      "Shift to L",
-      AlertStatus.userPrompt, AlertSize.mid,
-      Priority.HIGH, VisualAlert.wrongGear, AudibleAlert.promptRepeat, 4.),
+    ET.SOFT_DISABLE: pedal_interceptor_no_brake_alert,
+    ET.NO_ENTRY: NoEntryAlert("Shift to L", alert_text_1="Braking Unavailable"),
+  },
+
+  FrogPilotEventName.pedalInterceptorNoBrakeNoEntry: {
+    ET.NO_ENTRY: NoEntryAlert("Shift to L", alert_text_1="Braking Unavailable"),
+  },
+
+  FrogPilotEventName.recordingFailed: {
+    ET.PERMANENT: Alert(
+      "Recording failed to save...",
+      "",
+      FrogPilotAlertStatus.frogpilot, AlertSize.small,
+      Priority.LOWEST, VisualAlert.none, AudibleAlert.refuse, 3.),
+  },
+
+  FrogPilotEventName.recordingSaved: {
+    ET.PERMANENT: Alert(
+      "Recording saved!",
+      "",
+      FrogPilotAlertStatus.frogpilot, AlertSize.small,
+      Priority.LOWEST, VisualAlert.none, AudibleAlert.prompt, 3.),
+  },
+
+  FrogPilotEventName.recordingStarted: {
+    ET.PERMANENT: Alert(
+      "Recording started",
+      "",
+      FrogPilotAlertStatus.frogpilot, AlertSize.small,
+      Priority.LOWEST, VisualAlert.none, AudibleAlert.prompt, 3.),
+  },
+
+  FrogPilotEventName.recordingStartFailed: {
+    ET.PERMANENT: Alert(
+      "Recording failed to start...",
+      "",
+      FrogPilotAlertStatus.frogpilot, AlertSize.small,
+      Priority.LOWEST, VisualAlert.none, AudibleAlert.refuse, 3.),
+  },
+
+  FrogPilotEventName.replayFailed: {
+    ET.PERMANENT: Alert(
+      "Footage failed to save...",
+      "",
+      FrogPilotAlertStatus.frogpilot, AlertSize.small,
+      Priority.LOWEST, VisualAlert.none, AudibleAlert.refuse, 3.),
+  },
+
+  FrogPilotEventName.replaySaved: {
+    ET.PERMANENT: Alert(
+      "Footage saved!",
+      "",
+      FrogPilotAlertStatus.frogpilot, AlertSize.small,
+      Priority.LOWEST, VisualAlert.none, AudibleAlert.prompt, 3.),
   },
 
   FrogPilotEventName.speedLimitChanged: {
@@ -1132,13 +1175,9 @@ FROGPILOT_EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       Priority.LOW, VisualAlert.steerRequired, FrogPilotAudibleAlert.thisIsFine, 2.),
   },
 
-  FrogPilotEventName.torqueNNLoad: {
-    ET.PERMANENT: torque_nn_load_alert,
-  },
-
   FrogPilotEventName.trafficModeActive: {
     ET.WARNING: Alert(
-      "Traffic Mode enabled",
+      "Traffic Mode Enabled",
       "",
       FrogPilotAlertStatus.frogpilot, AlertSize.small,
       Priority.LOW, VisualAlert.none, AudibleAlert.prompt, 3.),
@@ -1154,18 +1193,18 @@ FROGPILOT_EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
 
   FrogPilotEventName.turningLeft: {
     ET.WARNING: Alert(
-      "Turning left",
+      "Turning Left",
       "",
       AlertStatus.normal, AlertSize.small,
-      Priority.LOWEST, VisualAlert.none, AudibleAlert.none, .1, alert_rate=0.75),
+      Priority.LOWEST, VisualAlert.none, AudibleAlert.none, .1),
   },
 
   FrogPilotEventName.turningRight: {
     ET.WARNING: Alert(
-      "Turning right",
+      "Turning Right",
       "",
       AlertStatus.normal, AlertSize.small,
-      Priority.LOWEST, VisualAlert.none, AudibleAlert.none, .1, alert_rate=0.75),
+      Priority.LOWEST, VisualAlert.none, AudibleAlert.none, .1),
   },
 
   # Random Events
@@ -1214,19 +1253,15 @@ FROGPILOT_EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       "I'm sorry Dave",
       "I'm afraid I can't do that...",
       AlertStatus.normal, AlertSize.mid,
-      Priority.HIGH, VisualAlert.none, FrogPilotAudibleAlert.hal9000, 4.),
+      Priority.LOW, VisualAlert.none, FrogPilotAudibleAlert.hal9000, 4.),
   },
 
   FrogPilotEventName.openpilotCrashedRandomEvent: {
-    ET.IMMEDIATE_DISABLE: Alert(
-      "openpilot crashed 💩",
-      "Please post the 'Error Log' in the FrogPilot Discord!",
-      AlertStatus.normal, AlertSize.mid,
-      Priority.HIGHEST, VisualAlert.none, FrogPilotAudibleAlert.fart, 10.),
+    ET.IMMEDIATE_DISABLE: ImmediateDisableAlert("openpilot crashed 💩"),
 
     ET.NO_ENTRY: Alert(
       "openpilot crashed 💩",
-      "Please post the 'Error Log' in the FrogPilot Discord!",
+      "Please post the \"Error Log\" in the FrogPilot Discord!",
       AlertStatus.normal, AlertSize.mid,
       Priority.HIGHEST, VisualAlert.none, FrogPilotAudibleAlert.fart, 10.),
   },
@@ -1269,6 +1304,8 @@ if __name__ == '__main__':
   from cereal.services import SERVICE_LIST
   from collections import defaultdict
 
+  from openpilot.frogpilot.common import frogpilot_variables
+
   event_names = {v: k for k, v in EventName.schema.enumerants.items()}
   alerts_by_type: dict[str, dict[Priority, list[str]]] = defaultdict(lambda: defaultdict(list))
 
@@ -1279,7 +1316,7 @@ if __name__ == '__main__':
   for i, alerts in EVENTS.items():
     for et, alert in alerts.items():
       if callable(alert):
-        alert = alert(CP, CS, sm, False, 1)
+        alert = alert(CP, CS, sm, False, 1, frogpilot_variables.get_frogpilot_toggles(sm))
       alerts_by_type[et][alert.priority].append(event_names[i])
 
   all_alerts: dict[str, list[tuple[Priority, list[str]]]] = {}

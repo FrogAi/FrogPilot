@@ -7,18 +7,18 @@
 
 void OnroadAlerts::updateState(const UIState &s, const FrogPilotUIState &fs) {
   Alert a = getAlert(*(s.sm), *(fs.sm), s.scene.started_frame, fs.frogpilot_toggles);
-  if (!alert.equal(a)) {
-    if (alert.status == cereal::ControlsState::AlertStatus::NORMAL && fs.frogpilot_toggles.value("hide_alerts").toBool()) {
-      clear();
-    } else {
-      alert = a;
-
-      update();
-    }
-  }
 
   // FrogPilot variables
-  sidebarsOpen = fs.frogpilot_scene.sidebars_open;
+  static const QSet<QString> informational_alerts = {"calibrationIncomplete/permanent", "laneChange/warning", "noLaneAvailable/warning", "preLaneChangeLeft/warning", "preLaneChangeRight/warning", "turningLeft/warning", "turningRight/warning"};
+  if (informational_alerts.contains(a.type) && fs.frogpilot_toggles.value(QLatin1String("hide_alerts")).toBool()) {
+    a = {};
+  }
+
+  if (!alert.equal(a)) {
+    alert = a;
+
+    update();
+  }
 }
 
 void OnroadAlerts::clear() {
@@ -34,37 +34,44 @@ OnroadAlerts::Alert OnroadAlerts::getAlert(const SubMaster &sm, const SubMaster 
   const uint64_t controls_frame = sm.rcv_frame("controlsState");
 
   Alert a = {};
+  if (controls_frame >= started_frame) {  // Don't get old alert.
+    a = {cs.getAlertText1().cStr(), cs.getAlertText2().cStr(),
+         cs.getAlertType().cStr(), cs.getAlertSize(), cs.getAlertStatus()};
+  }
+
+  // FrogPilot variables
   static QString crash_log_path = "/data/error_logs/error.txt";
-  if (QFile::exists(crash_log_path)) {
-    if (frogpilot_toggles.value("random_events").toBool()) {
-      if (enableFerg) {
-        displayFerg = true;
+  bool crashed = QFile::exists(crash_log_path);
+  if (displayFerg && !crashed) {
+    displayFerg = false;
+    update();
+  }
+
+  if (a.size == cereal::ControlsState::AlertSize::NONE) {
+    if (crashed && fpcs.getAlertSize() != cereal::FrogPilotControlsState::AlertSize::FULL) {
+      bool random_events = frogpilot_toggles.value(QLatin1String("random_events")).toBool();
+      if (random_events && enableFerg) {
+        a = {};
+
+        if (!displayFerg) {
+          displayFerg = true;
+          ferg = loadPixmap("../../frogpilot/assets/random_events/icons/ferg.svg", {1080, 720});
+          update();
+        }
       } else {
-        a = {tr("openpilot crashed 💩"),
+        a = {random_events ? tr("openpilot crashed 💩") : tr("openpilot crashed"),
              tr("Please post the \"Error Log\" in the FrogPilot Discord!"),
-             "openpilotCrashedRandomEvent",
+             random_events ? "openpilotCrashedRandomEvent" : "openpilotCrashed",
              cereal::ControlsState::AlertSize::MID,
              cereal::ControlsState::AlertStatus::CRITICAL};
       }
-    } else {
-      a = {tr("openpilot crashed"),
-           tr("Please post the \"Error Log\" in the FrogPilot Discord!"),
-           "openpilotCrashed",
-           cereal::ControlsState::AlertSize::MID,
-           cereal::ControlsState::AlertStatus::CRITICAL};
-    }
-    return a;
-  } else if (controls_frame >= started_frame) {  // Don't get old alert.
-    a = {cs.getAlertText1().cStr(), cs.getAlertText2().cStr(),
-         cs.getAlertType().cStr(), cs.getAlertSize(), cs.getAlertStatus()};
-
-    if (a.size == cereal::ControlsState::AlertSize::NONE) {
+    } else if (controls_frame >= started_frame) {
       a = {fpcs.getAlertText1().cStr(), fpcs.getAlertText2().cStr(),
            fpcs.getAlertType().cStr(), static_cast<cereal::ControlsState::AlertSize>(fpcs.getAlertSize()), static_cast<cereal::ControlsState::AlertStatus>(fpcs.getAlertStatus())};
     }
   }
 
-  if (!sm.updated("controlsState") && (sm.frame - started_frame) > 5 * UI_FREQ && !frogpilot_toggles.value("force_onroad").toBool()) {
+  if (!sm.updated("controlsState") && (sm.frame - started_frame) > 5 * UI_FREQ && (uiState()->scene.ignition || !frogpilot_toggles.value("force_onroad").toBool())) {
     const int CONTROLS_TIMEOUT = 5;
     const int controls_missing = (nanos_since_boot() - sm.rcv_time("controlsState")) / 1e9;
 
@@ -91,13 +98,15 @@ OnroadAlerts::Alert OnroadAlerts::getAlert(const SubMaster &sm, const SubMaster 
 }
 
 void OnroadAlerts::paintEvent(QPaintEvent *event) {
-  if (displayFerg) {
-    QPainter p(this);
-    p.drawPixmap(QPoint((width() - ferg.width()) / 2, (height() - ferg.height()) / 2), ferg);
-    return;
-  }
   if (alert.size == cereal::ControlsState::AlertSize::NONE) {
+    // FrogPilot variables
     alertHeight = 0;
+
+    if (displayFerg) {
+      QPainter p(this);
+      p.drawPixmap(QPoint((width() - ferg.width()) / 2, (height() - ferg.height()) / 2), ferg);
+    }
+
     return;
   }
   static std::map<cereal::ControlsState::AlertSize, const int> alert_heights = {
@@ -139,15 +148,12 @@ void OnroadAlerts::paintEvent(QPaintEvent *event) {
   p.setPen(QColor(0xff, 0xff, 0xff));
   p.setRenderHint(QPainter::TextAntialiasing);
   if (alert.size == cereal::ControlsState::AlertSize::SMALL) {
-    bool long_alert1 = alert.text1.length() > 40;
-    p.setFont(InterFont(long_alert1 && sidebarsOpen ? 64 : 74, QFont::DemiBold));
+    p.setFont(fitInterFont(74, QFont::DemiBold, r.width(), {alert.text1}));
     p.drawText(r, Qt::AlignCenter, alert.text1);
   } else if (alert.size == cereal::ControlsState::AlertSize::MID) {
-    bool long_alert1 = alert.text1.length() > 30;
-    p.setFont(InterFont(long_alert1 && sidebarsOpen ? 78 : 88, QFont::Bold));
+    p.setFont(fitInterFont(88, QFont::Bold, r.width(), {alert.text1}));
     p.drawText(QRect(0, c.y() - 125, width(), 150), Qt::AlignHCenter | Qt::AlignTop, alert.text1);
-    bool long_alert2 = alert.text2.length() > 40;
-    p.setFont(InterFont(long_alert2 && sidebarsOpen ? 56 : 66));
+    p.setFont(fitInterFont(66, QFont::Normal, r.width(), {alert.text2}));
     p.drawText(QRect(0, c.y() + 21, width(), 90), Qt::AlignHCenter, alert.text2);
   } else if (alert.size == cereal::ControlsState::AlertSize::FULL) {
     bool l = alert.text1.length() > 15;

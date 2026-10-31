@@ -4,13 +4,17 @@ import json
 import os
 import xml.etree.ElementTree as ET
 
+# FrogPilot variables
 if "BASEDIR" in os.environ:
   BASEDIR = os.environ.get("BASEDIR")
 else:
   from openpilot.common.basedir import BASEDIR
 
 UI_DIR = os.path.join(BASEDIR, "selfdrive", "ui")
+
+# FrogPilot variables
 FROGPILOT_UI_DIR = os.path.join(BASEDIR, "frogpilot", "ui")
+
 TRANSLATIONS_DIR = os.path.join(UI_DIR, "translations")
 LANGUAGES_FILE = os.path.join(TRANSLATIONS_DIR, "languages.json")
 TRANSLATIONS_INCLUDE_FILE = os.path.join(TRANSLATIONS_DIR, "alerts_generated.h")
@@ -29,6 +33,7 @@ def generate_translations_include():
     f.write(content)
 
 
+# FrogPilot variables
 def backup_translation_types(root):
   backup = {}
   for context in root.findall("context"):
@@ -50,6 +55,7 @@ def backup_translation_types(root):
   return backup
 
 
+# FrogPilot variables
 def restore_translation_types(root, backup):
   for context in root.findall("context"):
     context_name = context.findtext("name")
@@ -66,7 +72,7 @@ def restore_translation_types(root, backup):
         continue
 
       translation = message.find("translation")
-      if translation is not None:
+      if translation is not None and translation.attrib.get("type") not in ("vanished", "obsolete"):
         translation.attrib["type"] = backup[key]
 
 
@@ -80,6 +86,7 @@ def update_translations(vanish: bool = False, translation_files: None | list[str
   for file in translation_files:
     tr_file = os.path.join(translations_dir, f"{file}.ts")
 
+    # FrogPilot variables
     tree = ET.parse(tr_file)
     root = tree.getroot()
     backup = backup_translation_types(root)
@@ -92,6 +99,7 @@ def update_translations(vanish: bool = False, translation_files: None | list[str
     ret = os.system(args)
     assert ret == 0
 
+    # FrogPilot variables
     tree = ET.parse(tr_file)
     root = tree.getroot()
     restore_translation_types(root, backup)

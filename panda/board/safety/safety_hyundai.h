@@ -60,14 +60,27 @@ const CanMsg HYUNDAI_CAMERA_SCC_TX_MSGS[] = {
 #define HYUNDAI_SCC12_ADDR_CHECK(scc_bus)                                                                                  \
   {.msg = {{0x421, (scc_bus), 8, .check_checksum = true, .max_counter = 15U, .frequency = 50U}, { 0 }, { 0 }}}, \
 
+// FrogPilot variables
+#define HYUNDAI_LDA_BUTTON_ADDR_CHECK \
+  {.msg = {{0x391, 0, 8, .frequency = 100U}, { 0 }, { 0 }}}, \
+
+#define HYUNDAI_SCC11_ADDR_CHECK(scc_bus) \
+  {.msg = {{0x420, (scc_bus), 8, .frequency = 50U}, { 0 }, { 0 }}}, \
+
 RxCheck hyundai_rx_checks[] = {
    HYUNDAI_COMMON_RX_CHECKS(false)
    HYUNDAI_SCC12_ADDR_CHECK(0)
+
+   // FrogPilot variables
+   HYUNDAI_SCC11_ADDR_CHECK(0)
 };
 
 RxCheck hyundai_cam_scc_rx_checks[] = {
   HYUNDAI_COMMON_RX_CHECKS(false)
   HYUNDAI_SCC12_ADDR_CHECK(2)
+
+  // FrogPilot variables
+  HYUNDAI_SCC11_ADDR_CHECK(2)
 };
 
 RxCheck hyundai_long_rx_checks[] = {
@@ -80,6 +93,37 @@ RxCheck hyundai_long_rx_checks[] = {
 RxCheck hyundai_legacy_rx_checks[] = {
   HYUNDAI_COMMON_RX_CHECKS(true)
   HYUNDAI_SCC12_ADDR_CHECK(0)
+
+  // FrogPilot variables
+  HYUNDAI_SCC11_ADDR_CHECK(0)
+};
+
+// FrogPilot variables
+RxCheck hyundai_rx_checks_lda[] = {
+   HYUNDAI_COMMON_RX_CHECKS(false)
+   HYUNDAI_SCC12_ADDR_CHECK(0)
+   HYUNDAI_SCC11_ADDR_CHECK(0)
+   HYUNDAI_LDA_BUTTON_ADDR_CHECK
+};
+
+RxCheck hyundai_cam_scc_rx_checks_lda[] = {
+  HYUNDAI_COMMON_RX_CHECKS(false)
+  HYUNDAI_SCC12_ADDR_CHECK(2)
+  HYUNDAI_SCC11_ADDR_CHECK(2)
+  HYUNDAI_LDA_BUTTON_ADDR_CHECK
+};
+
+RxCheck hyundai_long_rx_checks_lda[] = {
+  HYUNDAI_COMMON_RX_CHECKS(false)
+  {.msg = {{0x4F1, 0, 4, .check_checksum = false, .max_counter = 15U, .frequency = 50U}, { 0 }, { 0 }}},
+  HYUNDAI_LDA_BUTTON_ADDR_CHECK
+};
+
+RxCheck hyundai_legacy_rx_checks_lda[] = {
+  HYUNDAI_COMMON_RX_CHECKS(true)
+  HYUNDAI_SCC12_ADDR_CHECK(0)
+  HYUNDAI_SCC11_ADDR_CHECK(0)
+  HYUNDAI_LDA_BUTTON_ADDR_CHECK
 };
 
 bool hyundai_legacy = false;
@@ -168,6 +212,11 @@ static void hyundai_rx_hook(const CANPacket_t *to_push) {
     hyundai_common_cruise_state_check(cruise_engaged);
   }
 
+  // FrogPilot variables
+  if ((addr == 0x420) && !hyundai_longitudinal && (((bus == 0) && !hyundai_camera_scc) || ((bus == 2) && hyundai_camera_scc))) {
+    acc_main_on = GET_BIT(to_push, 0U);
+  }
+
   if (bus == 0) {
     if (addr == 0x251) {
       int torque_driver_new = (GET_BYTES(to_push, 0, 2) & 0x7ffU) - 1024U;
@@ -176,9 +225,8 @@ static void hyundai_rx_hook(const CANPacket_t *to_push) {
     }
 
     // FrogPilot variables
-    bool lkas_button = false;
     if (addr == 0x391) {
-      lkas_button = GET_BIT(to_push, 4U);
+      bool lkas_button = GET_BIT(to_push, 4U);
       hyundai_lkas_button_check(lkas_button);
     }
 
@@ -313,11 +361,11 @@ static safety_config hyundai_init(uint16_t param) {
 
   safety_config ret;
   if (hyundai_longitudinal) {
-    ret = BUILD_SAFETY_CFG(hyundai_long_rx_checks, HYUNDAI_LONG_TX_MSGS);
+    ret = hyundai_has_lda_button ? BUILD_SAFETY_CFG(hyundai_long_rx_checks_lda, HYUNDAI_LONG_TX_MSGS) : BUILD_SAFETY_CFG(hyundai_long_rx_checks, HYUNDAI_LONG_TX_MSGS);
   } else if (hyundai_camera_scc) {
-    ret = BUILD_SAFETY_CFG(hyundai_cam_scc_rx_checks, HYUNDAI_CAMERA_SCC_TX_MSGS);
+    ret = hyundai_has_lda_button ? BUILD_SAFETY_CFG(hyundai_cam_scc_rx_checks_lda, HYUNDAI_CAMERA_SCC_TX_MSGS) : BUILD_SAFETY_CFG(hyundai_cam_scc_rx_checks, HYUNDAI_CAMERA_SCC_TX_MSGS);
   } else {
-    ret = BUILD_SAFETY_CFG(hyundai_rx_checks, HYUNDAI_TX_MSGS);
+    ret = hyundai_has_lda_button ? BUILD_SAFETY_CFG(hyundai_rx_checks_lda, HYUNDAI_TX_MSGS) : BUILD_SAFETY_CFG(hyundai_rx_checks, HYUNDAI_TX_MSGS);
   }
   return ret;
 }
@@ -327,7 +375,7 @@ static safety_config hyundai_legacy_init(uint16_t param) {
   hyundai_legacy = true;
   hyundai_longitudinal = false;
   hyundai_camera_scc = false;
-  return BUILD_SAFETY_CFG(hyundai_legacy_rx_checks, HYUNDAI_TX_MSGS);
+  return hyundai_has_lda_button ? BUILD_SAFETY_CFG(hyundai_legacy_rx_checks_lda, HYUNDAI_TX_MSGS) : BUILD_SAFETY_CFG(hyundai_legacy_rx_checks, HYUNDAI_TX_MSGS);
 }
 
 const safety_hooks hyundai_hooks = {
