@@ -4208,6 +4208,14 @@ Kontynuuj tylko wtedy, gdy wiesz, jak działają.</translation>
         <translation>&lt;b&gt;Używaj własnego dostrojenia GM autorstwa FrogsGoMoo do zatrzymywania i ponownego ruszania.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Funkcja jest nadal rozwijana, więc spodziewaj się raczej innego zachowania niż jednoznacznej poprawy. Przejmuje wartości zatrzymywania i ruszania z sekcji „Sterowanie jazdą” oraz ukrywa odpowiednie wiersze, gdy jest włączona.</translation>
     </message>
     <message>
+        <source>GM CSLC</source>
+        <translation>GM CSLC</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Let your car's own adaptive cruise keep control of the gas and brakes, while openpilot presses the cruise buttons to match its planned speed.&lt;/b&gt;&lt;br&gt;&lt;br&gt;That speed follows your set speed, Curve Speed Controller, Speed Limit Controller, and Experimental Mode. Works on cars with adaptive cruise built into the camera or the Safety Data Gateway Module, and replaces openpilot Longitudinal Control on those cars.</source>
+        <translation>&lt;b&gt;Pozwól, aby tempomat adaptacyjny samochodu nadal sterował gazem i hamulcami, a openpilot naciskał przyciski tempomatu, aby dopasować prędkość do zaplanowanej przez siebie.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Ta prędkość zależy od prędkości zadanej, Sterownika prędkości na zakrętach, Sterownika ograniczenia prędkości i Trybu eksperymentalnego. Działa w samochodach z tempomatem adaptacyjnym wbudowanym w kamerę lub Safety Data Gateway Module i zastępuje w tych samochodach sterowanie wzdłużne openpilot.</translation>
+    </message>
+    <message>
         <source>Smooth Pedal Response on Hills</source>
         <translation>Płynna reakcja pedałów na wzniesieniach</translation>
     </message>

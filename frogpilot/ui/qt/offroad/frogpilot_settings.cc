@@ -340,6 +340,7 @@ void FrogPilotSettingsWindow::updateVariables() {
     alwaysOnLateralLKASButtonForced = frogpilot_toggles.value("always_on_lateral_lkas_button_forced").toBool();
     canDisableOpenpilotLong = frogpilot_toggles.value("can_disable_openpilot_long").toBool();
     canUseAlwaysOnLateralLKASButton = frogpilot_toggles.value("can_use_always_on_lateral_lkas_button").toBool();
+    canUseCSLC = frogpilot_toggles.value("can_use_cslc").toBool();
     canUseDSUBypass = frogpilot_toggles.value("can_use_dsu_bypass").toBool();
     carDetected = true;
     friction = CP.getLateralTuning().which() == cereal::CarParams::LateralTuning::TORQUE ? CP.getLateralTuning().getTorque().getFriction() : 0.0;
@@ -351,7 +352,7 @@ void FrogPilotSettingsWindow::updateVariables() {
     hasOldLongAPI = frogpilot_toggles.value("old_long_api").toBool();
     hasOpenpilotLongitudinal = hasLongitudinalControl(CP);
     hasDistanceButton = frogpilot_toggles.value("has_distance_button").toBool() || hasOpenpilotLongitudinal;
-    hasPCMCruise = CP.getPcmCruise();
+    hasPCMCruise = CP.getPcmCruise() && !frogpilot_toggles.value("cslc").toBool();
     hasPedal = CP.getEnableGasInterceptor();
     hasRadar = !CP.getRadarUnavailable();
     hasSDSU = frogpilot_toggles.value("has_sdsu").toBool();
@@ -359,6 +360,7 @@ void FrogPilotSettingsWindow::updateVariables() {
     hasStartingState = CP.getStartingState();
     hasZSS = frogpilot_toggles.value("has_zss").toBool();
     isAngleCar = CP.getSteerControlType() == cereal::CarParams::SteerControlType::ANGLE;
+    isCSLC = frogpilot_toggles.value("cslc").toBool();
     isGM = carMake == "gm";
     isGMCCOnly = frogpilot_toggles.value("is_gm_cc_only").toBool();
     isHKG = carMake == "hyundai";
