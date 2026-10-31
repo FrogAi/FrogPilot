@@ -105,6 +105,9 @@ const uint16_t GM_PARAM_NO_ACC = 64;
 const uint16_t GM_PARAM_PEDAL_LONG = 128;  // TODO: this can be inferred
 const uint16_t GM_PARAM_PEDAL_INTERCEPTOR = 256;
 
+// FrogPilot variables
+const uint16_t GM_PARAM_CSLC = 512;
+
 enum {
   GM_BTN_UNPRESS = 1,
   GM_BTN_RESUME = 2,
@@ -130,6 +133,7 @@ bool gm_skip_relay_check = false;
 bool gm_force_ascm = false;
 
 // FrogPilot variables
+bool gm_cslc = false;
 bool gm_main_press_allowed = false;
 
 static void handle_gm_wheel_buttons(const CANPacket_t *to_push) {
@@ -307,6 +311,11 @@ static bool gm_tx_hook(const CANPacket_t *to_send) {
     }
     allowed_btn |= main_press;
 
+    // For CSLC, allow spamming of SET / RESUME
+    if (gm_cslc) {
+      allowed_btn |= controls_allowed && cruise_engaged_prev && ((button == GM_BTN_SET) || (button == GM_BTN_RESUME));
+    }
+
     if (!allowed_btn) {
       tx = false;
     }
@@ -369,6 +378,9 @@ static safety_config gm_init(uint16_t param) {
   gm_has_acc = !GET_FLAG(param, GM_PARAM_NO_ACC);
   enable_gas_interceptor = GET_FLAG(param, GM_PARAM_PEDAL_INTERCEPTOR);
 
+  // FrogPilot variables
+  gm_cslc = GET_FLAG(param, GM_PARAM_CSLC);
+
   safety_config ret = BUILD_SAFETY_CFG(gm_ascm_rx_checks, GM_ASCM_TX_MSGS);
   if (gm_hw == GM_CAM) {
     if (gm_cc_long) {
@@ -379,7 +391,12 @@ static safety_config gm_init(uint16_t param) {
       ret = BUILD_SAFETY_CFG(gm_rx_checks, GM_CAM_TX_MSGS);
     }
   } else if (gm_hw == GM_SDGM) {
-    ret = BUILD_SAFETY_CFG(gm_rx_checks, GM_SDGM_TX_MSGS);
+    // FrogPilot variables
+    if (gm_cslc) {
+      ret = BUILD_SAFETY_CFG(gm_rx_checks, GM_CC_LONG_TX_MSGS);
+    } else {
+      ret = BUILD_SAFETY_CFG(gm_rx_checks, GM_SDGM_TX_MSGS);
+    }
   } else {
   }
 

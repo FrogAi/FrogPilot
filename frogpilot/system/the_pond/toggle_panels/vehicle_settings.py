@@ -95,7 +95,7 @@ def honda_low_speed_pedal_visible(context):
 
 def long_pitch_visible(context):
   reason = car_row_reason(context, "LongPitch", context.is_gm) or longitudinal_reason(context)
-  return reason or context.car_reason(not context.is_gm_cc_only)
+  return reason or context.car_reason(not context.is_cslc and not context.is_gm_cc_only)
 
 
 def longitudinal_reason(context):
@@ -290,11 +290,24 @@ ROWS = [
     "widget": "toggle"
   },
   {
+    "description": ("<b>Let your car's own adaptive cruise keep control of the gas and brakes, while openpilot presses the cruise buttons to match " +
+                    "its planned speed.</b><br><br>That speed follows your set speed, Curve Speed Controller, Speed Limit Controller, and Experimental " +
+                    "Mode. Works on cars with adaptive cruise built into the camera or the Safety Data Gateway Module, and replaces openpilot " +
+                    "Longitudinal Control on those cars."),
+    "key": "CSLCEnabled",
+    "on_change": reboot_when_started,
+    "order": 0,
+    "path": ("Vehicle Settings", "VEHICLE SETTINGS", "General Motors Settings"),
+    "title": "GM CSLC",
+    "visible": lambda context: car_row_reason(context, "CSLCEnabled", context.can_use_cslc),
+    "widget": "toggle"
+  },
+  {
     "description": ("<b>Add gas going uphill and ease off going downhill, so openpilot holds a steady pace on hills instead of correcting after the " +
                     "car has already slowed down or sped up.</b><br><br>Slopes gentler than about 1% are ignored. The brakes get the same adjustment " +
                     "above about 22 mph, and it fades out as you slow to about 11 mph so stops feel the same as on flat ground."),
     "key": "LongPitch",
-    "order": 0,
+    "order": 1,
     "path": ("Vehicle Settings", "VEHICLE SETTINGS", "General Motors Settings"),
     "title": "Smooth Pedal Response on Hills",
     "visible": long_pitch_visible,
@@ -305,7 +318,7 @@ ROWS = [
                     "factory.</b><br><br>Without it you have to press the gas or the resume button every time traffic moves off. Keep your foot near " +
                     "the brake the first few times so you can see how it behaves."),
     "key": "VoltSNG",
-    "order": 1,
+    "order": 2,
     "path": ("Vehicle Settings", "VEHICLE SETTINGS", "General Motors Settings"),
     "title": "Stop-and-Go Hack",
     "visible": volt_sng_visible,

@@ -1,15 +1,20 @@
-from cereal import car
+import cereal.messaging as messaging
+
+from cereal import car, custom, log
 from collections import defaultdict
-from parameterized import parameterized
+from parameterized import param, parameterized
 from types import SimpleNamespace
 
 from opendbc.can.packer import CANPacker
 from panda import ALTERNATIVE_EXPERIENCE
+from openpilot.common.conversions import Conversions as CV
 from openpilot.selfdrive.car import gen_empty_fingerprint
+from openpilot.selfdrive.car.card import Car
 from openpilot.selfdrive.car.gm import gmcan
 from openpilot.selfdrive.car.gm.carcontroller import CarController
+from openpilot.selfdrive.car.gm.carstate import CarState
 from openpilot.selfdrive.car.gm.fingerprints import FINGERPRINTS
-from openpilot.selfdrive.car.gm.interface import CarInterface
+from openpilot.selfdrive.car.gm.interface import CAM_MSG, CarInterface
 from openpilot.selfdrive.car.gm.values import CAMERA_ACC_CAR, DBC, GM_RX_OFFSET, CanBus, CruiseButtons
 from openpilot.selfdrive.car.tests.test_car_interfaces import Toggles
 
@@ -99,3 +104,49 @@ class TestGMButtons:
     for (button, counter), frame in frames.items():
       _, _, dat, _ = gmcan.create_buttons(packer, CP, CanBus.POWERTRAIN, float(counter), button)
       assert dat.hex() == frame, (button, counter)
+
+
+class TestGMCSLC:
+  @parameterized.expand([
+    param("experimental_mode", [CruiseButtons.RES_ACCEL], cruise_speed=60, experimental_mode=True, v_ego=70),
+    param("experimental_mode_above_set_speed", [CruiseButtons.DECEL_SET], accel=1.0, cruise_speed=70, experimental_mode=True),
+    param("experimental_mode_accelerating", [], accel=1.0, experimental_mode=True),
+    param("experimental_mode_planned_speed", [CruiseButtons.RES_ACCEL], accel=1.0, cruise_speed=55, experimental_mode=True, planned_speed=55, v_ego=50),
+    param("gas", [CruiseButtons.DECEL_SET], cruise_speed=60, gas_pressed=True, long_active=False, v_ego=62),
+    param("paused_experimental_mode", [], cruise_speed=60, experimental_mode=True, long_active=False, paused=True, v_ego=70),
+    param("paused_forced_deceleration", [], accel=-1.0, cruise_speed=55, paused=True, v_ego=55),
+    param("paused_forced_deceleration_experimental_mode", [CruiseButtons.DECEL_SET], accel=-1.0, experimental_mode=True, paused=True),
+    param("paused_gas", [], cruise_speed=60, gas_pressed=True, long_active=False, paused=True, v_ego=62),
+    param("paused_planned_speed", [], long_active=False, paused=True, planned_speed=55),
+    param("planned_speed", [CruiseButtons.DECEL_SET], planned_speed=55),
+  ])
+  def test_buttons(self, _, buttons, accel=0.0, cruise_speed=65, experimental_mode=False, gas_pressed=False, long_active=True, paused=False,
+                   planned_speed=65, v_ego=65):
+    toggles = Toggles(cslc=True)
+    fingerprint = gen_empty_fingerprint()
+    fingerprint[CanBus.CAMERA][CAM_MSG] = 8
+    CP = CarInterface.get_params("CHEVROLET_SILVERADO", fingerprint, [], False, toggles, False)
+
+    card = Car(CI=CarInterface(CP, custom.FrogPilotCarParams.new_message(), CarController, CarState))
+    card.CI.CS = SimpleNamespace(buttons_counter=0, cam_lka_steering_cmd_counter=0, CP=CP, cruise_buttons=CruiseButtons.UNPRESS, cruise_main_off_seen=False,
+                                 distance_button=0, loopback_lka_steering_cmd_ts_nanos=0, loopback_lka_steering_cmd_updated=False,
+                                 out=car.CarState.new_message(gasPressed=gas_pressed, vEgo=v_ego * CV.MPH_TO_MS), pscm_status=defaultdict(int),
+                                 pt_lka_steering_cmd_counter=0)
+    card.CI.CS.out.cruiseState.speed = cruise_speed * CV.MPH_TO_MS
+    card.frogpilot_card.pause_longitudinal = paused
+    card.frogpilot_toggles = toggles
+    card.initialized_prev = True
+    card.sm.alive["carControl"] = True
+    card.sm.data["controlsState"] = log.ControlsState.new_message(experimentalMode=experimental_mode)
+    card.sm.data["frogpilotPlan"] = custom.FrogPilotPlan.new_message(vCruise=planned_speed * CV.MPH_TO_MS)
+
+    CC = car.CarControl.new_message(enabled=True, longActive=long_active)
+    CC.actuators.accel = accel
+    CC.hudControl.setSpeed = 65 * CV.MPH_TO_MS
+
+    sendcan_sock = messaging.sub_sock("sendcan")
+
+    card.controls_update(car.CarState.new_message(canValid=True), CC.as_reader())
+
+    sendcan = messaging.recv_one_or_none(sendcan_sock).sendcan
+    assert sorted({(msg.dat[5] >> 4) & 0x7 for msg in sendcan if msg.address == 0x1E1}) == buttons

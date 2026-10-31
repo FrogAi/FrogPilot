@@ -21,6 +21,7 @@ public:
   bool alwaysOnLateralLKASButtonForced = false;
   bool canDisableOpenpilotLong = true;
   bool canUseAlwaysOnLateralLKASButton = true;
+  bool canUseCSLC = false;
   bool canUseDSUBypass = false;
   bool canUsePedal = false;
   bool carDetected = false;
@@ -41,6 +42,7 @@ public:
   bool hasStartingState = true;
   bool hasZSS = false;
   bool isAngleCar = false;
+  bool isCSLC = false;
   bool isGM = true;
   bool isGMCCOnly = false;
   bool isHKG = true;

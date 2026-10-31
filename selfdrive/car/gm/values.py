@@ -325,6 +325,8 @@ CAMERA_ACC_CAR = {CAR.CHEVROLET_BOLT_EUV, CAR.CHEVROLET_SILVERADO, CAR.CHEVROLET
 CAMERA_ACC_CAR.update(CC_ONLY_CAR)
 
 # FrogPilot variables
+CSLC_CAR = (CAMERA_ACC_CAR - CC_ONLY_CAR) | SDGM_CAR
+
 # The K2 trucks without ACC offset their cruise button frames' checksum by counter
 K2_CC_CAR = {CAR.CHEVROLET_SUBURBAN_CC, CAR.GMC_YUKON_CC}
 

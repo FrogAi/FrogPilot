@@ -798,6 +798,7 @@ ROWS = [
     "order": 2,
     "path": ("Driving Controls", "GAS / BRAKE", "Quality of Life"),
     "title": "Force Stop at \"Detected\" Stop Lights/Signs",
+    "visible": lambda context: context.level_reason("ForceStops") or context.car_reason(not context.is_cslc),
     "widget": "toggle"
   },
   {

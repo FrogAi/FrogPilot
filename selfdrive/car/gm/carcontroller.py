@@ -48,7 +48,12 @@ class CarController(CarControllerBase):
     self.packer_ch = CANPacker(DBC[self.CP.carFingerprint]['chassis'])
 
     # FrogPilot variables
+    self.experimental_mode = False
+    self.pause_longitudinal = False
+
     self.send_main_off = CP.carFingerprint in CAMERA_ACC_CAR
+
+    self.planned_speed = 0.
 
     self.pitch = FirstOrderFilter(0., 0.09 * 4, DT_CTRL * 4)  # runs at 25 Hz
 
@@ -108,7 +113,7 @@ class CarController(CarControllerBase):
       idx = self.lka_steering_cmd_counter % 4
       can_sends.append(gmcan.create_steering_control(self.packer_pt, CanBus.POWERTRAIN, apply_steer, idx, CC.latActive))
 
-    if self.CP.openpilotLongitudinalControl:
+    if self.CP.openpilotLongitudinalControl and not frogpilot_toggles.cslc:
       # Gas/regen, brakes, and UI commands - all at 25Hz
       if self.frame % 4 == 0:
         stopping = actuators.longControlState == LongCtrlState.stopping
@@ -232,6 +237,23 @@ class CarController(CarControllerBase):
             can_sends.append(gmcan.create_buttons(self.packer_pt, self.CP, CanBus.POWERTRAIN, CS.buttons_counter, CruiseButtons.CANCEL))
           else:
             can_sends.append(gmcan.create_buttons(self.packer_pt, self.CP, CanBus.CAMERA, CS.buttons_counter, CruiseButtons.CANCEL))
+
+      # FrogPilot variables
+      if frogpilot_toggles.cslc and CC.enabled and ((CC.longActive and self.experimental_mode) or not self.pause_longitudinal) and \
+         CS.cruise_buttons == CruiseButtons.UNPRESS and not CS.distance_button:
+        sdgm = self.CP.carFingerprint in SDGM_CAR
+        target_speed = min(self.planned_speed, hud_v_cruise)
+
+        if not CS.out.gasPressed:
+          can_sends.extend(gmcan.create_cslc_buttons(self.packer_pt, self.frame, CS, target_speed, hud_v_cruise, actuators.accel, self.experimental_mode, sdgm,
+                                                     frogpilot_toggles.is_metric))
+        elif self.frame % 51 == 0 and CS.out.cruiseState.speed < CS.out.vEgo < target_speed:
+          if sdgm:
+            message_count = 25
+          else:
+            message_count = 1
+
+          can_sends.extend([gmcan.create_buttons(self.packer_pt, self.CP, CanBus.CAMERA, (CS.buttons_counter + 1) % 4, CruiseButtons.DECEL_SET)] * message_count)
 
     if self.CP.networkLocation == NetworkLocation.fwdCamera:
       # Silence "Take Steering" alert sent by camera, forward PSCMStatus with HandsOffSWlDetectionStatus=1

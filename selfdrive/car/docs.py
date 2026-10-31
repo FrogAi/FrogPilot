@@ -15,8 +15,8 @@ from openpilot.selfdrive.car.car_helpers import interfaces, get_interface_attr
 from openpilot.selfdrive.car.values import PLATFORMS
 
 # FrogPilot variables
-DOCS_FROGPILOT_TOGGLES = SimpleNamespace(disable_openpilot_long=False, force_torque_controller=False, honda_alt_tune=False, nnff_lite_selected=False,
-                                         nnff_selected=False, old_long_api=False, toyota_dsu_bypass=False)
+DOCS_FROGPILOT_TOGGLES = SimpleNamespace(cslc=False, disable_openpilot_long=False, force_torque_controller=False, honda_alt_tune=False,
+                                         nnff_lite_selected=False, nnff_selected=False, old_long_api=False, toyota_dsu_bypass=False)
 
 
 def get_all_footnotes() -> dict[Enum, int]:

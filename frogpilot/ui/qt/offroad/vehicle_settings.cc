@@ -180,6 +180,7 @@ FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(FrogPilotSettingsWindow *parent, 
     {"HondaLowSpeedPedal", tr("Responsive Pedal at Low Speeds"), tr("<b>Give openpilot a stronger push on the gas when pulling away from a stop, so takeoff feels less sluggish around town.</b><br><br>The softening it removes is openpilot's own, not Honda's. openpilot normally cuts its pedal command to 40% at a standstill and ramps it back to full by about 22 mph. It needs a comma pedal fitted to do anything."), ""},
 
     {"GMToggles", tr("General Motors Settings"), tr("<b>Settings that only work on Buick, Cadillac, Chevrolet, GMC, and Holden cars, covering how openpilot stops, starts, and handles hills.</b><br><br>Which of these you see depends on your exact model."), ""},
+    {"CSLCEnabled", tr("GM CSLC"), tr("<b>Let your car's own adaptive cruise keep control of the gas and brakes, while openpilot presses the cruise buttons to match its planned speed.</b><br><br>That speed follows your set speed, Curve Speed Controller, Speed Limit Controller, and Experimental Mode. Works on cars with adaptive cruise built into the camera or the Safety Data Gateway Module, and replaces openpilot Longitudinal Control on those cars."), ""},
     {"LongPitch", tr("Smooth Pedal Response on Hills"), tr("<b>Add gas going uphill and ease off going downhill, so openpilot holds a steady pace on hills instead of correcting after the car has already slowed down or sped up.</b><br><br>Slopes gentler than about 1% are ignored. The brakes get the same adjustment above about 22 mph, and it fades out as you slow to about 11 mph so stops feel the same as on flat ground."), ""},
     {"VoltSNG", tr("Stop-and-Go Hack"), tr("<b>Make the car pull away by itself after a full stop on a Chevrolet Volt, which does not do this from the factory.</b><br><br>Without it you have to press the gas or the resume button every time traffic moves off. Keep your foot near the brake the first few times so you can see how it behaves."), ""},
 
@@ -328,7 +329,7 @@ FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(FrogPilotSettingsWindow *parent, 
 
   static_cast<FrogPilotParamValueControl*>(toggles["LockDoorsTimer"])->setWarning(tr("<b>Warning:</b> openpilot can't tell whether your keys are still in the car, so keep a spare somewhere safe before you rely on this!"));
 
-  QSet<QString> rebootKeys = {"HondaAltTune", "NewLongAPI", "SubaruSNG", "TacoTuneHacks", "ToyotaDSUBypass"};
+  QSet<QString> rebootKeys = {"CSLCEnabled", "HondaAltTune", "NewLongAPI", "SubaruSNG", "TacoTuneHacks", "ToyotaDSUBypass"};
   for (const QString &key : rebootKeys) {
     QObject::connect(static_cast<ToggleControl*>(toggles[key]), &ToggleControl::toggleFlipped, [this](bool) {
       if (uiState()->scene.started && FrogPilotConfirmationDialog::toggleReboot(this)) {
@@ -424,7 +425,11 @@ void FrogPilotVehiclesPanel::updateToggles() {
       setVisible &= parent->hasOpenpilotLongitudinal;
     }
 
-    if (key == "HondaAltTune") {
+    if (key == "CSLCEnabled") {
+      setVisible &= parent->canUseCSLC;
+    }
+
+    else if (key == "HondaAltTune") {
       setVisible &= parent->isHondaNidec;
     }
 
@@ -437,7 +442,7 @@ void FrogPilotVehiclesPanel::updateToggles() {
     }
 
     else if (key == "LongPitch") {
-      setVisible &= !parent->isGMCCOnly;
+      setVisible &= !parent->isCSLC && !parent->isGMCCOnly;
     }
 
     else if (key == "SNGHack") {
