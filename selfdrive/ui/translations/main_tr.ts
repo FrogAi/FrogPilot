@@ -4709,6 +4709,14 @@ Yalnızca bu ayarların ne yaptığını biliyorsanız devam edin.</translation>
         <source>&lt;b&gt;The make of the car openpilot is using.&lt;/b&gt; If openpilot doesn't recognize your car, pick it here and openpilot uses it instead. To always use the car you pick, turn on "Disable Automatic Fingerprint Detection" ("Advanced" tuning level).</source>
         <translation>&lt;b&gt;openpilot'ın kullandığı araç markası.&lt;/b&gt; openpilot aracınızı tanımıyorsa buradan seçin; openpilot bunun yerine seçtiğiniz aracı kullanır. Seçtiğiniz aracı her zaman kullanmak için "Otomatik Araç Tanımayı Devre Dışı Bırak" ayarını açın ("Gelişmiş" ayarlama seviyesi).</translation>
     </message>
+    <message>
+        <source>GM CSLC</source>
+        <translation>GM CSLC</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Let your car's own adaptive cruise keep control of the gas and brakes, while openpilot presses the cruise buttons to match its planned speed.&lt;/b&gt;&lt;br&gt;&lt;br&gt;That speed follows your set speed, Curve Speed Controller, Speed Limit Controller, and Experimental Mode. Works on cars with adaptive cruise built into the camera or the Safety Data Gateway Module, and replaces openpilot Longitudinal Control on those cars.</source>
+        <translation>&lt;b&gt;Aracınızın kendi uyarlanabilir hız sabitleyicisi gaz ve frenleri kontrol etmeye devam etsin; openpilot ise planladığı hıza ulaşmak için hız sabitleyici düğmelerine bassın.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Bu hız; ayarlanan hızınıza, Viraj Hızı Denetleyicisi'ne, Hız Sınırı Denetleyicisi'ne ve Deneysel Mod'a göre belirlenir. Uyarlanabilir hız sabitleyicisi kameraya veya Safety Data Gateway Module'e entegre olan araçlarda çalışır ve bu araçlarda openpilot Boyuna Kontrolü'nün yerini alır.</translation>
+    </message>
 </context>
 <context>
     <name>FrogPilotVisualsPanel</name>

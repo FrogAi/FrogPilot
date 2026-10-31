@@ -11,7 +11,7 @@ from cereal import car, custom, log
 from openpilot.common.conversions import Conversions as CV
 from openpilot.common.params import Params
 from openpilot.selfdrive.car import gen_empty_fingerprint
-from openpilot.selfdrive.car.gm.values import CC_ONLY_CAR, GMFlags
+from openpilot.selfdrive.car.gm.values import CC_ONLY_CAR, CSLC_CAR, GMFlags
 from openpilot.selfdrive.car.hyundai.values import HyundaiFrogPilotFlags
 from openpilot.selfdrive.car.interfaces import CarInterfaceBase
 from openpilot.selfdrive.car.mock.interface import CarInterface as MockCarInterface
@@ -803,6 +803,7 @@ SETTING_LABELS = {
   "ColorScheme": {"name": "Color Scheme"},
   "Compass": {"name": "Compass"},
   "ConditionalExperimental": {"name": "Conditional Experimental Mode"},
+  "CSLCEnabled": {"name": "General Motors Settings: GM CSLC"},
   "CurveSpeedController": {"name": "Curve Speed Controller"},
   "CurveSpeedProfile": {"name": "Curve Speed Profile", "values": {0: "Gentle", 1: "Standard", 2: "Sport", 3: "Adaptive"}},
   "CustomAlerts": {"name": "Extra Alerts"},
@@ -1297,6 +1298,7 @@ frogpilot_default_params: list[tuple[str, str | bytes, int, str]] = [
   ("ColorScheme", "frog", 0, "stock"),
   ("Compass", "0", 1, "0"),
   ("ConditionalExperimental", "1", 1, "0"),
+  ("CSLCEnabled", "0", 2, "0"),
   ("CurvatureData", "", 2, ""),
   ("CurveSpeedController", "1", 1, "0"),
   ("CurveSpeedProfile", "3", 2, "3"),
@@ -1758,9 +1760,16 @@ class FrogPilotVariables:
     toggle.force_fingerprint = self.get_value("ForceFingerprint", condition=bool(selected_car_model))
 
     toggle.always_on_lateral_set = bool(CP.alternativeExperience & ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL)
+    toggle.can_use_cslc = CP.carFingerprint in CSLC_CAR and not CP.enableGasInterceptor and not CP.flags & GMFlags.NO_CAMERA.value
     toggle.car_make = CP.carName
     toggle.car_model = selected_car_model if toggle.force_fingerprint else CP.carFingerprint
     toggle.can_disable_openpilot_long = frogpilot_utilities.can_disable_openpilot_long(CP, FPCP)
+
+    if started:
+      toggle.cslc = toggle.car_make == "gm" and bool(CP.safetyConfigs[0].safetyParam & Panda.FLAG_GM_CSLC)
+    else:
+      toggle.cslc = self.get_value("CSLCEnabled", condition=toggle.can_use_cslc)
+
     toggle.disable_openpilot_long = self.get_value("DisableOpenpilotLongitudinal")
     friction = CP.lateralTuning.torque.friction
     has_bsm = CP.enableBsm
@@ -1779,7 +1788,7 @@ class FrogPilotVariables:
     latAccelFactor = CP.lateralTuning.torque.latAccelFactor
     longitudinalActuatorDelay = CP.longitudinalActuatorDelay
     toggle.openpilot_longitudinal = CP.openpilotLongitudinalControl and (toggle.is_honda_nidec or toggle.car_make == "gm" or not toggle.disable_openpilot_long)
-    pcm_cruise = CP.pcmCruise
+    pcm_cruise = CP.pcmCruise and not toggle.cslc
     startAccel = CP.startAccel
     steerActuatorDelay = CP.steerActuatorDelay
     steerKp = CP.lateralTuning.torque.kp
@@ -2125,7 +2134,7 @@ class FrogPilotVariables:
     quality_of_life_longitudinal = toggle.openpilot_longitudinal and self.get_value("QOLLongitudinal")
     toggle.cruise_increase = self.get_value("CustomCruise", cast=float, condition=not pcm_cruise and quality_of_life_longitudinal)
     toggle.cruise_increase_long = self.get_value("CustomCruiseLong", cast=float, condition=not pcm_cruise and quality_of_life_longitudinal)
-    toggle.force_stops = self.get_value("ForceStops", condition=quality_of_life_longitudinal)
+    toggle.force_stops = self.get_value("ForceStops", condition=quality_of_life_longitudinal and not toggle.cslc)
     toggle.increase_stopped_distance = self.get_value("IncreasedStoppedDistance", cast=float, condition=quality_of_life_longitudinal, conversion=distance_conversion)
     toggle.can_map_gears = (toggle.car_make in MAP_GEARS_BRANDS or hyundai_canfd) and not CP.secOcRequired
     map_gears = self.get_value("MapGears", condition=toggle.can_map_gears and quality_of_life_longitudinal)

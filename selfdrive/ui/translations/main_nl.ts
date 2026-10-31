@@ -4208,6 +4208,14 @@ Alleen als je weet wat ze doen.</translation>
         <translation>&lt;b&gt;Swap in FrogsGoMoo's eigen GM tuning voor het komen tot een halt en trekken weer weg.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Er wordt nog aan gewerkt, dus verwacht dat het zich anders voelt dan strikt beter. Het neemt uw stop- en startwaarden van "Rijbediening" over en verbergt deze rijen terwijl het aan is.</translation>
     </message>
     <message>
+        <source>GM CSLC</source>
+        <translation>GM CSLC</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Let your car's own adaptive cruise keep control of the gas and brakes, while openpilot presses the cruise buttons to match its planned speed.&lt;/b&gt;&lt;br&gt;&lt;br&gt;That speed follows your set speed, Curve Speed Controller, Speed Limit Controller, and Experimental Mode. Works on cars with adaptive cruise built into the camera or the Safety Data Gateway Module, and replaces openpilot Longitudinal Control on those cars.</source>
+        <translation>&lt;b&gt;Laat de eigen adaptieve cruisecontrol van uw auto het gas en de remmen blijven regelen, terwijl openpilot de cruiseknoppen indrukt om zijn geplande snelheid te volgen.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Die snelheid volgt uw ingestelde snelheid, de Bochtsnelheidsregelaar, de Snelheidslimietregelaar en de Experimentele modus. Werkt op auto's met adaptieve cruisecontrol die in de camera of de Safety Data Gateway Module is ingebouwd, en vervangt op die auto's de openpilot-lengteregeling.</translation>
+    </message>
+    <message>
         <source>Smooth Pedal Response on Hills</source>
         <translation>Vloeiende pedaalrespons op hellingen</translation>
     </message>

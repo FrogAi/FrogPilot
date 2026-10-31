@@ -4711,6 +4711,14 @@ Keep going only if you know what they do.</translation>
         <source>&lt;b&gt;The make of the car openpilot is using.&lt;/b&gt; If openpilot doesn't recognize your car, pick it here and openpilot uses it instead. To always use the car you pick, turn on "Disable Automatic Fingerprint Detection" ("Advanced" tuning level).</source>
         <translation>&lt;b&gt;Make of car openpilot is using.&lt;/b&gt; If openpilot does not recognize your car, pick it here and openpilot uses it instead. To always use car you pick, turn on "Disable Automatic Fingerprint Detection" ("Advanced" tuning level).</translation>
     </message>
+    <message>
+        <source>GM CSLC</source>
+        <translation>GM CSLC</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Let your car's own adaptive cruise keep control of the gas and brakes, while openpilot presses the cruise buttons to match its planned speed.&lt;/b&gt;&lt;br&gt;&lt;br&gt;That speed follows your set speed, Curve Speed Controller, Speed Limit Controller, and Experimental Mode. Works on cars with adaptive cruise built into the camera or the Safety Data Gateway Module, and replaces openpilot Longitudinal Control on those cars.</source>
+        <translation>&lt;b&gt;Let car adaptive cruise keep control of gas and brakes, while openpilot presses cruise buttons to match openpilot planned speed.&lt;/b&gt;&lt;br&gt;&lt;br&gt;That speed follows set speed, Curve Speed Controller, Speed Limit Controller, and Experimental Mode. Works on cars with adaptive cruise built into camera or Safety Data Gateway Module, and replaces openpilot Longitudinal Control on those cars.</translation>
+    </message>
 </context>
 <context>
     <name>FrogPilotVisualsPanel</name>

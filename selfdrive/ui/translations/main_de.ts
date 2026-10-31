@@ -4711,6 +4711,14 @@ Fahre nur fort, wenn du ihre Wirkung kennst.</translation>
         <source>&lt;b&gt;The make of the car openpilot is using.&lt;/b&gt; If openpilot doesn't recognize your car, pick it here and openpilot uses it instead. To always use the car you pick, turn on "Disable Automatic Fingerprint Detection" ("Advanced" tuning level).</source>
         <translation>&lt;b&gt;Die von openpilot verwendete Fahrzeugmarke.&lt;/b&gt; Wenn openpilot dein Fahrzeug nicht erkennt, wähle es hier aus. openpilot verwendet es dann stattdessen. Um immer das von dir ausgewählte Fahrzeug zu verwenden, schalte „Automatische Fahrzeugerkennung deaktivieren“ ein (Anpassungsstufe „Erweitert“).</translation>
     </message>
+    <message>
+        <source>GM CSLC</source>
+        <translation>GM CSLC</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Let your car's own adaptive cruise keep control of the gas and brakes, while openpilot presses the cruise buttons to match its planned speed.&lt;/b&gt;&lt;br&gt;&lt;br&gt;That speed follows your set speed, Curve Speed Controller, Speed Limit Controller, and Experimental Mode. Works on cars with adaptive cruise built into the camera or the Safety Data Gateway Module, and replaces openpilot Longitudinal Control on those cars.</source>
+        <translation>&lt;b&gt;Lass den adaptiven Tempomaten deines Fahrzeugs weiterhin Gas und Bremse steuern, während openpilot die Tempomattasten drückt, um seine geplante Geschwindigkeit einzustellen.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Diese Geschwindigkeit richtet sich nach deiner Sollgeschwindigkeit, der Kurvengeschwindigkeitsregelung, der Geschwindigkeitsbegrenzungsregelung und dem Experimentellen Modus. Funktioniert bei Fahrzeugen, deren adaptiver Tempomat in die Kamera oder das Safety Data Gateway Module integriert ist, und ersetzt bei diesen Fahrzeugen die openpilot-Längsregelung.</translation>
+    </message>
 </context>
 <context>
     <name>FrogPilotVisualsPanel</name>

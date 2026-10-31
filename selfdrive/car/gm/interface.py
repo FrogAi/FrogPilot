@@ -7,7 +7,7 @@ from panda import Panda
 from openpilot.common.conversions import Conversions as CV
 from openpilot.selfdrive.car import create_button_events, get_safety_config
 from openpilot.selfdrive.car.gm.radar_interface import RADAR_HEADER_MSG
-from openpilot.selfdrive.car.gm.values import CAR, CruiseButtons, CarControllerParams, EV_CAR, CAMERA_ACC_CAR, CanBus, GMFlags, CC_ONLY_CAR, SDGM_CAR
+from openpilot.selfdrive.car.gm.values import CAR, CruiseButtons, CarControllerParams, EV_CAR, CAMERA_ACC_CAR, CanBus, GMFlags, CC_ONLY_CAR, CSLC_CAR, SDGM_CAR
 from openpilot.selfdrive.car.interfaces import CarInterfaceBase, TorqueFromLateralAccelCallbackType, FRICTION_THRESHOLD, LateralAccelFromTorqueCallbackType
 from openpilot.selfdrive.controls.lib.drive_helpers import get_friction
 
@@ -99,6 +99,10 @@ class CarInterface(CarInterfaceBase):
       ret.enableGasInterceptor = True
       ret.safetyConfigs[0].safetyParam |= Panda.FLAG_GM_GAS_INTERCEPTOR
 
+    # FrogPilot variables
+    has_camera = candidate in SDGM_CAR or CAM_MSG in fingerprint[CanBus.CAMERA]
+    cslc = candidate in CSLC_CAR and has_camera and not ret.enableGasInterceptor and frogpilot_toggles.cslc
+
     if candidate in EV_CAR:
       ret.transmissionType = TransmissionType.direct
     else:
@@ -107,7 +111,7 @@ class CarInterface(CarInterfaceBase):
     ret.longitudinalTuning.kiBP = [5., 35.]
 
     if candidate in CAMERA_ACC_CAR:
-      ret.experimentalLongitudinalAvailable = candidate not in CC_ONLY_CAR
+      ret.experimentalLongitudinalAvailable = candidate not in CC_ONLY_CAR and not cslc
       ret.networkLocation = NetworkLocation.fwdCamera
       ret.radarUnavailable = True  # no radar
       ret.pcmCruise = True
@@ -151,6 +155,11 @@ class CarInterface(CarInterfaceBase):
       if ret.enableGasInterceptor:
         # Need to set ASCM long limits when using pedal interceptor, instead of camera ACC long limits
         ret.safetyConfigs[0].safetyParam |= Panda.FLAG_GM_HW_ASCM_LONG
+
+    # FrogPilot variables
+    if cslc:
+      # Used for CEM with CSLC
+      ret.openpilotLongitudinalControl = True
 
     # Start with a baseline tuning for all GM vehicles. Override tuning as needed in each model section below.
     ret.lateralTuning.pid.kiBP, ret.lateralTuning.pid.kpBP = [[0.], [0.]]
@@ -304,6 +313,18 @@ class CarInterface(CarInterfaceBase):
 
     if ACCELERATOR_POS_MSG not in fingerprint[CanBus.POWERTRAIN]:
       ret.flags |= GMFlags.NO_ACCELERATOR_POS_MSG.value
+
+    # FrogPilot variables
+    if cslc:
+      ret.safetyConfigs[0].safetyParam |= Panda.FLAG_GM_CSLC
+
+      if candidate in SDGM_CAR:
+        ret.stoppingDecelRate = 7.45  # == 16.67 mph/s (OFF + ON = 30 frames)
+      else:
+        ret.stoppingDecelRate = 3.25  # == 8.33 mph/s (OFF + ON = 12 frames)
+
+      ret.longitudinalTuning.kiBP = [0.]
+      ret.longitudinalTuning.kiV = [0.]
 
     return ret
 

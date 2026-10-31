@@ -268,6 +268,7 @@ std::unordered_map<std::string, uint32_t> keys = {
     {"ColorScheme", PERSISTENT},
     {"Compass", PERSISTENT},
     {"ConditionalExperimental", PERSISTENT},
+    {"CSLCEnabled", PERSISTENT},
     {"CurvatureData", PERSISTENT | DONT_LOG},
     {"CurveSpeedController", PERSISTENT},
     {"CurveSpeedProfile", PERSISTENT},

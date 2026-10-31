@@ -4709,6 +4709,14 @@ Only continue if you know what they do.</source>
         <source>&lt;b&gt;The make of the car openpilot is using.&lt;/b&gt; If openpilot doesn't recognize your car, pick it here and openpilot uses it instead. To always use the car you pick, turn on "Disable Automatic Fingerprint Detection" ("Advanced" tuning level).</source>
         <translation>&lt;b&gt;openpilot が使用している車両のメーカーです。&lt;/b&gt;openpilot が車両を認識しない場合は、ここで選択すると、openpilot はその車両を代わりに使用します。選択した車両を常に使用するには、"車両フィンガープリント自動検出を無効化"をオンにしてください（"上級"の調整レベル）。</translation>
     </message>
+    <message>
+        <source>GM CSLC</source>
+        <translation>GM CSLC</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Let your car's own adaptive cruise keep control of the gas and brakes, while openpilot presses the cruise buttons to match its planned speed.&lt;/b&gt;&lt;br&gt;&lt;br&gt;That speed follows your set speed, Curve Speed Controller, Speed Limit Controller, and Experimental Mode. Works on cars with adaptive cruise built into the camera or the Safety Data Gateway Module, and replaces openpilot Longitudinal Control on those cars.</source>
+        <translation>&lt;b&gt;車両純正のアダプティブクルーズコントロールにアクセルとブレーキの制御を任せたまま、openpilot がクルーズボタンを押して計画した速度に合わせます。&lt;/b&gt;&lt;br&gt;&lt;br&gt;この速度は、設定速度、カーブ速度コントローラー、制限速度コントローラー、実験モードに従います。カメラまたは Safety Data Gateway Module にアダプティブクルーズコントロールが組み込まれた車両で動作し、これらの車両では openpilot の縦方向制御に代わって使用されます。</translation>
+    </message>
 </context>
 <context>
     <name>FrogPilotVisualsPanel</name>

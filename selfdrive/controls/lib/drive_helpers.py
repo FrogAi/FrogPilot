@@ -54,6 +54,9 @@ class VCruiseHelper:
     self.button_timers = {ButtonType.decelCruise: 0, ButtonType.accelCruise: 0}
     self.button_change_states = {btn: {"standstill": False, "enabled": False} for btn in self.button_timers}
 
+    # FrogPilot variables
+    self.resume_pressed = False
+
   @property
   def v_cruise_initialized(self):
     return self.v_cruise_kph != V_CRUISE_UNSET
@@ -66,7 +69,7 @@ class VCruiseHelper:
       self.confirming_speed_limit = speed_limit_changed
 
     if CS.cruiseState.available:
-      if not self.CP.pcmCruise:
+      if not self.CP.pcmCruise or frogpilot_toggles.cslc:
         # if stock cruise is completely disabled, then we can use our own set speed logic
         self._update_v_cruise_non_pcm(CS, enabled, is_metric, frogpilot_toggles)
         self.v_cruise_cluster_kph = self.v_cruise_kph
@@ -80,6 +83,14 @@ class VCruiseHelper:
     else:
       self.v_cruise_kph = V_CRUISE_UNSET
       self.v_cruise_cluster_kph = V_CRUISE_UNSET
+
+    # FrogPilot variables
+    # Track the last engage-relevant button for CSLC resume/set logic, including while disabled
+    for b in CS.buttonEvents:
+      if b.type in (ButtonType.accelCruise, ButtonType.resumeCruise):
+        self.resume_pressed = True
+      elif b.type in (ButtonType.decelCruise, ButtonType.setCruise):
+        self.resume_pressed = False
 
   def _update_v_cruise_non_pcm(self, CS, enabled, is_metric, frogpilot_toggles):
     # handle button presses. TODO: this should be in state_control, but a decelCruise press
@@ -154,13 +165,16 @@ class VCruiseHelper:
 
   def initialize_v_cruise(self, CS, experimental_mode: bool, desired_speed_limit, frogpilot_toggles) -> None:
     # initializing is handled by the PCM
-    if self.CP.pcmCruise:
+    if self.CP.pcmCruise and not frogpilot_toggles.cslc:
       return
 
     initial = V_CRUISE_INITIAL_EXPERIMENTAL_MODE if experimental_mode and not frogpilot_toggles.conditional_experimental_mode else V_CRUISE_INITIAL
 
+    # FrogPilot variables
+    cslc_resume = self.resume_pressed and frogpilot_toggles.cslc
+
     # 250kph or above probably means we never had a set speed
-    if any(b.type in (ButtonType.accelCruise, ButtonType.resumeCruise) for b in CS.buttonEvents) and self.v_cruise_kph_last < 250:
+    if (any(b.type in (ButtonType.accelCruise, ButtonType.resumeCruise) for b in CS.buttonEvents) or cslc_resume) and self.v_cruise_kph_last < 250:
       self.v_cruise_kph = self.v_cruise_kph_last
     else:
       if desired_speed_limit != 0 and frogpilot_toggles.set_speed_limit:
