@@ -47,7 +47,10 @@ UNLOCK_CMD = b"\x40\x05\x30\x11\x00\x40\x00\x00"
 
 
 def get_long_tune(CP, params):
-  if CP.carFingerprint in TSS2_CAR or CP.enableGasInterceptorDEPRECATED:
+  # non-TSS2 gains oscillate on the non-hybrid RX
+  rx_non_hybrid = CP.carFingerprint == CAR.LEXUS_RX and not CP.flags & ToyotaFlags.HYBRID.value
+
+  if CP.carFingerprint in TSS2_CAR or CP.enableGasInterceptorDEPRECATED or rx_non_hybrid:
     kiBP = [2., 5.]
     kiV = [0.5, 0.25]
   else:

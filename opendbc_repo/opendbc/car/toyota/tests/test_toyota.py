@@ -21,6 +21,22 @@ class TestToyotaInterfaces:
     assert len(ANGLE_CONTROL_CAR - TSS2_CAR) == 0
     assert len(RADAR_ACC_CAR - TSS2_CAR) == 0
 
+  def test_rx_long_tune_scope(self):
+    from opendbc.car.toyota.carcontroller import get_long_tune
+    from opendbc.car.toyota.interface import CarInterface
+    from opendbc.car.toyota.values import CarControllerParams, ToyotaFlags
+
+    def ki_at(car, flags=0, speed=0.):
+      CP = CarInterface.get_non_essential_params(car)
+      CP.flags = flags
+      pid = get_long_tune(CP, CarControllerParams(CP))
+      pid.speed = speed
+      return pid.k_i
+
+    assert ki_at(CAR.LEXUS_RX) == ki_at(CAR.TOYOTA_RAV4_TSS2)
+    assert ki_at(CAR.LEXUS_RX, speed=30.) == ki_at(CAR.TOYOTA_RAV4_TSS2, speed=30.)
+    assert ki_at(CAR.LEXUS_RX, flags=ToyotaFlags.HYBRID.value) == ki_at(CAR.TOYOTA_RAV4)
+
   def test_lta_platforms(self):
     # At this time, only RAV4 2023 is expected to use LTA/angle control
     assert ANGLE_CONTROL_CAR == {CAR.TOYOTA_RAV4_TSS2_2023}
