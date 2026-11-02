@@ -30,11 +30,14 @@ public:
   void downloadTheme(const QString &component, const QStringList &themes);
   void experimentalModePressed();
   void flashPanda();
+  void requestAccountLink();
+  void requestAccountUrl(const QString &purpose);
   void resetStats();
   void restoreSettingsBackup(const QString &name);
   void runUpdateChecks();
   void setDistanceButtonPressed(bool pressed);
   void testAlert(const QString &alert, float volume);
+  void unlinkAccount();
   void update();
   void updateToggles();
 
@@ -42,6 +45,8 @@ public:
 
   FrogPilotUIScene frogpilot_scene = {};
 
+  uint64_t account_link_request_time = 0;
+  uint64_t account_url_request_time = 0;
   uint64_t download_theme_request_time = 0;
   uint64_t flash_panda_request_time = 0;
   uint64_t settings_backup_request_time = 0;

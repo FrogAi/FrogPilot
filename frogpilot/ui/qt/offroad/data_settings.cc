@@ -1,6 +1,7 @@
 #include <sys/xattr.h>
 
 #include "frogpilot/ui/qt/offroad/data_settings.h"
+#include "frogpilot/ui/qt/widgets/account_popup.h"
 
 namespace {
   QString friendlyDate(const QDate &date, const QString &detail) {
@@ -597,6 +598,24 @@ FrogPilotDataPanel::FrogPilotDataPanel(FrogPilotSettingsWindow *parent, bool for
   dataMainList->addItem(viewStatsButton);
 
   accountButton = new FrogPilotButtonsControl(tr("FrogPilot.com Account"), tr("<b>Link this device to your FrogPilot.com account, or delete the data FrogPilot keeps about it.</b><br><br>A linked device's stats and reports show in your account. Both show a code to scan with your phone."), "", {tr("LINK"), tr("DELETE"), tr("UNLINK")});
+  QObject::connect(accountButton, &FrogPilotButtonsControl::buttonClicked, [this](int id) {
+    if (id == 0) {
+      FrogPilotAccountPopup popup("pair", this);
+      popup.exec();
+      frogpilotUIState()->requestAccountLink();
+    } else if (id == 1) {
+      if (ConfirmationDialog::confirm(tr("This shows a code to scan with your phone. On FrogPilot.com you'll see exactly what will be deleted before anything is."), tr("Continue"), this)) {
+        FrogPilotAccountPopup popup("delete", this);
+        popup.exec();
+      }
+    } else if (id == 2) {
+      if (ConfirmationDialog::confirm(tr("Unlink this device from your FrogPilot.com account?"), tr("Unlink"), this)) {
+        accountButton->setEnabled(false);
+        accountButton->setValue(tr("Unlinking..."));
+        frogpilotUIState()->unlinkAccount();
+      }
+    }
+  });
   accountButton->setVisible(false);
   dataMainList->addItem(accountButton);
 
@@ -613,6 +632,38 @@ FrogPilotDataPanel::FrogPilotDataPanel(FrogPilotSettingsWindow *parent, bool for
   QObject::connect(parent, &FrogPilotSettingsWindow::closeSubPanel, [dataLayout, dataMainPanel] {
     dataLayout->setCurrentWidget(dataMainPanel);
   });
+
+  QObject::connect(uiState(), &UIState::uiUpdate, this, &FrogPilotDataPanel::updateState);
+}
+
+void FrogPilotDataPanel::showEvent(QShowEvent *event) {
+  frogpilotUIState()->requestAccountLink();
+}
+
+void FrogPilotDataPanel::updateState(const UIState &s, const FrogPilotUIState &fs) {
+  if (!isVisible() || s.sm->frame % UI_FREQ != 0) {
+    return;
+  }
+
+  const cereal::FrogPilotAccountState::Reader &frogpilotAccountState = (*fs.sm)["frogpilotAccountState"].getFrogpilotAccountState();
+  if (frogpilotAccountState.getLinkRequestTime() < fs.account_link_request_time) {
+    return;
+  }
+
+  QJsonObject accountLink = QJsonDocument::fromJson(frogpilotAccountState.getLink().cStr()).object();
+  bool linked = accountLink.value("linked").toBool();
+
+  accountButton->setEnabled(true);
+  accountButton->setVisible(linked || accountLink.value("available").toBool());
+  accountButton->setVisibleButton(0, !linked);
+  accountButton->setVisibleButton(1, !linked);
+  accountButton->setVisibleButton(2, linked);
+
+  if (linked) {
+    accountButton->setValue(tr("Linked as @%1").arg(accountLink.value("username").toString()));
+  } else {
+    accountButton->setValue("");
+  }
 }
 
 void FrogPilotDataPanel::updateStatsLabels(FrogPilotListWidget *labelsList) {
