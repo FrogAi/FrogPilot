@@ -13,6 +13,9 @@ GLYPH_PADDING = 6
 EXTRA_CHARS = "–‑✓×°§•X⚙✕◀▶✔⌫⇧␣○●↳çêüñ–‑✓×°§•€£¥"
 UNIFONT_LANGUAGES = {"ar", "th", "zh-CHT", "zh-CHS", "ko", "ja"}
 
+# FrogPilot variables
+EXTRA_CHARS += "".join(map(chr, range(0xC0, 0x180)))
+
 
 def _languages():
   if not LANGUAGES_FILE.exists():

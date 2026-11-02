@@ -1,6 +1,7 @@
 #include <sys/xattr.h>
 
 #include "frogpilot/ui/qt/offroad/data_settings.h"
+#include "frogpilot/ui/qt/widgets/account_popup.h"
 
 namespace {
   QString friendlyDate(const QDate &date, const QString &detail) {
@@ -24,9 +25,23 @@ namespace {
       .arg(detail);
   }
 
+  qint64 restoreSourceSize(const QFileInfo &source) {
+    if (source.isFile()) {
+      return source.size();
+    }
+
+    qint64 size = 0;
+    QDirIterator iterator(source.absoluteFilePath(), QDir::Files | QDir::Hidden | QDir::System | QDir::NoSymLinks, QDirIterator::Subdirectories);
+    while (iterator.hasNext()) {
+      iterator.next();
+      size += iterator.fileInfo().size();
+    }
+    return size;
+  }
+
   bool hasRestoreSpace(const QString &sourcePath) {
     QStorageInfo storage("/data");
-    qint64 sourceSize = QFileInfo(sourcePath).size();
+    qint64 sourceSize = restoreSourceSize(QFileInfo(sourcePath));
     return storage.isValid() && storage.isReady() && sourceSize > 0 && storage.bytesAvailable() / 4 > sourceSize;
   }
 
@@ -161,12 +176,14 @@ FrogPilotDataPanel::FrogPilotDataPanel(FrogPilotSettingsWindow *parent, bool for
             char preserveValue[10] = {0};
             char routePreserveValue[10] = {0};
             bool isPreserved = (getxattr(entry.absoluteFilePath().toUtf8().constData(), "user.preserve", preserveValue, sizeof(preserveValue)) > 0 && strcmp(preserveValue, "1") == 0);
-            isPreserved |= (getxattr(entry.absoluteFilePath().toUtf8().constData(), "user.frogpilot_preserve", routePreserveValue, sizeof(routePreserveValue)) > 0 && strcmp(routePreserveValue, "1") == 0);
+            isPreserved |= (getxattr(entry.absoluteFilePath().toUtf8().constData(), "user.preserve_route", routePreserveValue, sizeof(routePreserveValue)) > 0 && strcmp(routePreserveValue, "1") == 0);
             if (!isPreserved) {
               success &= QDir(entry.absoluteFilePath()).removeRecursively();
             }
           }
         }
+
+        success &= QDir("/data/media/speed_limit_captures").removeRecursively();
 
         runOnUIThread(deleteDrivingDataButton, [=]() {
           deleteDrivingDataButton->setValue(success ? tr("Deleted!") : tr("Delete failed..."));
@@ -331,7 +348,7 @@ FrogPilotDataPanel::FrogPilotDataPanel(FrogPilotSettingsWindow *parent, bool for
   QObject::connect(frogpilotBackupButton, &FrogPilotButtonsControl::buttonClicked, [=](int id) {
     QDir backupDir("/data/backups");
 
-    QFileInfoList backupList = backupDir.entryInfoList(QDir::Files | QDir::Hidden | QDir::NoDotAndDotDot);
+    QFileInfoList backupList = backupDir.entryInfoList(QDir::Dirs | QDir::Files | QDir::Hidden | QDir::NoDotAndDotDot);
     std::sort(backupList.begin(), backupList.end(), [](const QFileInfo &a, const QFileInfo &b) {
       return a.lastModified() > b.lastModified();
     });
@@ -346,10 +363,17 @@ FrogPilotDataPanel::FrogPilotDataPanel(FrogPilotSettingsWindow *parent, bool for
         continue;
       }
 
-      QString friendlyName = fileName;
+      QString baseName = fileName;
+      if (baseName.endsWith(".tar.gz")) {
+        baseName.chop(7);
+      } else if (baseName.endsWith(".tar.zst")) {
+        baseName.chop(8);
+      }
 
-      if (fileName.endsWith("_auto.tar.zst")) {
-        QStringList parts = QString(fileName).remove(".tar.zst").split("_");
+      QString friendlyName = baseName;
+
+      if (baseName.endsWith("_auto")) {
+        QStringList parts = baseName.split("_");
 
         if (parts.size() >= 3) {
           QDate date = fileInfo.lastModified().date();
@@ -360,10 +384,7 @@ FrogPilotDataPanel::FrogPilotDataPanel(FrogPilotSettingsWindow *parent, bool for
         }
       }
 
-      if (friendlyName == fileName) {
-        if (friendlyName.endsWith(".tar.zst")) {
-          friendlyName.chop(8);
-        }
+      if (friendlyName == baseName) {
         friendlyName.replace("_", " ");
       }
 
@@ -379,7 +400,7 @@ FrogPilotDataPanel::FrogPilotDataPanel(FrogPilotSettingsWindow *parent, bool for
           return;
         }
 
-        if (QFileInfo(backupDir.absoluteFilePath(name + ".tar.zst")).isFile()) {
+        if (backupDir.exists(name) || backupDir.exists(name + ".tar.gz") || backupDir.exists(name + ".tar.zst")) {
           ConfirmationDialog::alert(tr("Name already in use. Please choose a different name."), this);
           return;
         }
@@ -416,7 +437,12 @@ FrogPilotDataPanel::FrogPilotDataPanel(FrogPilotSettingsWindow *parent, bool for
           runDataOperation(parent, frogpilotBackupButton, {0, 2, 3}, tr("Deleting..."), tr("Deleted!"), tr("Delete failed..."), [=]() {
             bool success = true;
             for (const QString &selection : selections) {
-              success &= QFile::remove(backupDir.absoluteFilePath(backupMap[selection]));
+              QString path = backupDir.absoluteFilePath(backupMap[selection]);
+              if (QFileInfo(path).isDir()) {
+                success &= QDir(path).removeRecursively();
+              } else {
+                success &= QFile::remove(path);
+              }
             }
             return success;
           });
@@ -468,21 +494,30 @@ FrogPilotDataPanel::FrogPilotDataPanel(FrogPilotSettingsWindow *parent, bool for
             QDir(extractDirectory).removeRecursively();
             QDir().mkpath(extractDirectory);
 
+            QString restoreDirectory = extractDirectory;
+
             bool success = hasRestoreSpace(archivePath);
 
-            if (success) {
-              success = QProcess::execute("tar", {"--use-compress-program=zstd", "-xf", archivePath, "-C", extractDirectory}) == 0;
+            if (success && QFileInfo(archivePath).isDir()) {
+              restoreDirectory = archivePath;
+            } else if (success) {
+              QString compression = "zstd";
+              if (archivePath.endsWith(".tar.gz")) {
+                compression = "gzip";
+              }
+
+              success = QProcess::execute("tar", {"--use-compress-program=" + compression, "-xpf", archivePath, "-C", extractDirectory}) == 0;
             }
 
             QString sourceRoot;
             if (success) {
-              QDir extracted(extractDirectory);
+              QDir extracted(restoreDirectory);
 
               QStringList candidates{extracted.absoluteFilePath("data/openpilot")};
               for (const QString &entry : extracted.entryList(QDir::Dirs | QDir::NoDotAndDotDot)) {
                 candidates << extracted.absoluteFilePath(entry);
               }
-              candidates << extractDirectory;
+              candidates << restoreDirectory;
 
               for (const QString &candidate : candidates) {
                 if (QFileInfo(candidate + "/launch_openpilot.sh").isFile() && QFileInfo(candidate + "/launch_chffrplus.sh").isFile() &&
@@ -712,8 +747,34 @@ FrogPilotDataPanel::FrogPilotDataPanel(FrogPilotSettingsWindow *parent, bool for
   });
   dataMainList->addItem(viewStatsButton);
 
+  accountButton = new FrogPilotButtonsControl(tr("FrogPilot.com Account"), tr("<b>Link this device to your FrogPilot.com account, or delete the data FrogPilot keeps about it.</b><br><br>A linked device's stats and reports show in your account. Both show a code to scan with your phone."), "", {tr("LINK"), tr("DELETE"), tr("UNLINK")});
+  QObject::connect(accountButton, &FrogPilotButtonsControl::buttonClicked, [this](int id) {
+    if (id == 0) {
+      FrogPilotAccountPopup popup("pair", this);
+      popup.exec();
+      frogpilotUIState()->requestAccountLink();
+    } else if (id == 1) {
+      if (ConfirmationDialog::confirm(tr("This shows a code to scan with your phone. On FrogPilot.com you'll see exactly what will be deleted before anything is."), tr("Continue"), this)) {
+        FrogPilotAccountPopup popup("delete", this);
+        popup.exec();
+      }
+    } else if (id == 2) {
+      if (ConfirmationDialog::confirm(tr("Unlink this device from your FrogPilot.com account?"), tr("Unlink"), this)) {
+        accountButton->setEnabled(false);
+        accountButton->setValue(tr("Unlinking..."));
+        frogpilotUIState()->unlinkAccount();
+      }
+    }
+  });
+  accountButton->setVisible(false);
+  dataMainList->addItem(accountButton);
+
+  QSizePolicy accountButtonPolicy = accountButton->sizePolicy();
+  accountButtonPolicy.setRetainSizeWhenHidden(true);
+  accountButton->setSizePolicy(accountButtonPolicy);
+
   if (forceOpen) {
-    for (AbstractControl *control : std::initializer_list<AbstractControl*>{deleteDrivingDataButton, deleteErrorLogsButton, screenRecordingsButton, frogpilotBackupButton, toggleBackupButton, viewStatsButton}) {
+    for (AbstractControl *control : std::initializer_list<AbstractControl*>{deleteDrivingDataButton, deleteErrorLogsButton, screenRecordingsButton, frogpilotBackupButton, toggleBackupButton, viewStatsButton, accountButton}) {
       control->showDescription();
     }
   }
@@ -721,6 +782,38 @@ FrogPilotDataPanel::FrogPilotDataPanel(FrogPilotSettingsWindow *parent, bool for
   QObject::connect(parent, &FrogPilotSettingsWindow::closeSubPanel, [dataLayout, dataMainPanel] {
     dataLayout->setCurrentWidget(dataMainPanel);
   });
+
+  QObject::connect(uiState(), &UIState::uiUpdate, this, &FrogPilotDataPanel::updateState);
+}
+
+void FrogPilotDataPanel::showEvent(QShowEvent *event) {
+  frogpilotUIState()->requestAccountLink();
+}
+
+void FrogPilotDataPanel::updateState(const UIState &s, const FrogPilotUIState &fs) {
+  if (!isVisible() || s.sm->frame % UI_FREQ != 0) {
+    return;
+  }
+
+  const cereal::FrogPilotAccountState::Reader &frogpilotAccountState = (*fs.sm)["frogpilotAccountState"].getFrogpilotAccountState();
+  if (frogpilotAccountState.getLinkRequestTime() < fs.account_link_request_time) {
+    return;
+  }
+
+  QJsonObject accountLink = QJsonDocument::fromJson(frogpilotAccountState.getLink().cStr()).object();
+  bool linked = accountLink.value("linked").toBool();
+
+  accountButton->setEnabled(true);
+  accountButton->setVisible(linked || accountLink.value("available").toBool());
+  accountButton->setVisibleButton(0, !linked);
+  accountButton->setVisibleButton(1, !linked);
+  accountButton->setVisibleButton(2, linked);
+
+  if (linked) {
+    accountButton->setValue(tr("Linked as @%1").arg(accountLink.value("username").toString()));
+  } else {
+    accountButton->setValue("");
+  }
 }
 
 void FrogPilotDataPanel::updateStatsLabels(FrogPilotListWidget *labelsList) {

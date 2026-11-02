@@ -88,6 +88,10 @@ function refresh() {
 function resetButton(button) {
   button.disabled = false;
   button.lastChild.textContent = button.dataset.label;
+
+  if (document.activeElement === document.body) {
+    button.focus();
+  }
 }
 
 function showProgress(handle, report) {
@@ -110,6 +114,17 @@ function typeField() {
         </div>`;
 }
 
+function followReport(handle, requestTime) {
+  return P.poll(async () => {
+    const current = await P.get(`/api/issue_report?request_time=${requestTime}`);
+    showProgress(handle, current);
+
+    if (!isBusy(current.status)) {
+      return current;
+    }
+  });
+}
+
 async function send(path, body, button) {
   sending = true;
 
@@ -122,14 +137,7 @@ async function send(path, body, button) {
   let report;
   try {
     const { request_time } = await P.request("POST", path, body);
-    report = await P.poll(async () => {
-      const current = await P.get(`/api/issue_report?request_time=${request_time}`);
-      showProgress(handle, current);
-
-      if (!isBusy(current.status)) {
-        return current;
-      }
-    });
+    report = await followReport(handle, request_time);
   } catch (error) {
     sending = false;
     resetButton(button);
@@ -138,7 +146,10 @@ async function send(path, body, button) {
   }
 
   sending = false;
+  showResult(handle, report);
+}
 
+function showResult(handle, report) {
   if (report.status === "sent") {
     handle.done("Report sent");
   } else if (report.total === undefined) {
@@ -169,24 +180,30 @@ async function confirmSize(body) {
     body: `<p>This report sends ${P.size(files.size_bytes)} of logs${video}, which counts against your data plan.</p>`,
     confirm: "Send report"
   });
-  return dialog !== null;
+  if (dialog === null) {
+    return false;
+  }
+
+  body.metered_confirmed = true;
+  return true;
 }
 
-function watch() {
+async function watch() {
   sending = true;
 
-  P.poll(async () => {
-    const report = await P.get("/api/issue_report");
-    if (!isBusy(report.status)) {
-      return report.status;
-    }
-  }).then(() => {
+  const handle = P.job({ label: "Sending report" });
+
+  let report;
+  try {
+    report = await followReport(handle, 0);
+  } catch (error) {
     sending = false;
-    refresh();
-  }, error => {
-    sending = false;
-    P.fail(error, "Couldn't check on the report");
-  });
+    handle.fail(error, "Couldn't check on the report");
+    return;
+  }
+
+  sending = false;
+  showResult(handle, report);
 }
 
 P.page("report", {
@@ -200,11 +217,16 @@ P.page("report", {
         throw error;
       }
 
-      const unavailable = "<h3>Reporting isn't available</h3><p>Reports reach the FrogPilot team only from FrogPilot installed from its own GitHub.</p>";
+      const unavailable = "<h2>Reporting isn't available</h2><p>Reports reach the FrogPilot team only from FrogPilot installed from its own GitHub.</p>";
       return { body: `<section class="panel report-panel"><div class="empty">${unavailable}</div></section>` };
     }
 
-    const routes = await P.get("/api/routes");
+    const routes = [];
+    for (const route of await P.get("/api/routes")) {
+      if (route.logs.includes("qlog")) {
+        routes.push(route);
+      }
+    }
     routes.sort((a, b) => {
       return b.date - a.date;
     });
@@ -235,13 +257,13 @@ P.page("report", {
 
     const issueOptions = [];
     for (const issue of report.issues) {
-      issueOptions.push([issue, issue]);
+      issueOptions.push([issue, issue.replace(/:$/, "")]);
     }
 
     errors = {
       ...REPORT_ERRORS,
       invalid_description: `Describe what happened in ${report.description_min_length} to ${report.description_max_length} characters`,
-      invalid_discord_user: `Enter your Discord username (up to ${report.discord_user_max_length} characters)`
+      invalid_discord_user: `Enter your Discord name (up to ${report.discord_user_max_length} characters)`
     };
 
     const pending = sending || isBusy(report.status);
@@ -267,7 +289,7 @@ P.page("report", {
       aria-describedby="report-discord-error" value="${P.esc(report.discord_user)}" placeholder="So the FrogPilot team can reach you">`;
 
     const logContents = "exact locations and times, your car's data and VIN, driver monitoring, your device's settings and IDs, "
-      + "road snapshots about once a minute, and cabin audio if \"Record and Upload Microphone Audio\" is on";
+      + "road snapshots about once a minute, and cabin audio if “Record and Upload Microphone Audio” is on";
     const privacy = `<span data-report-privacy> The drive's logs go with it too, as recorded, so they include ${logContents}. `
       + "FrogPilot keeps them until they're deleted.</span>";
     const video = `<span data-report-video> Full details also includes road video, which can show license plates and people.</span>`;
@@ -540,6 +562,7 @@ P.page("report", {
 
             if (!confirmed) {
               resetButton(button);
+              button.focus();
               return;
             }
           }

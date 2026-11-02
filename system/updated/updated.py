@@ -229,6 +229,10 @@ def handle_agnos_update(update_progress) -> None:
   c3_manifest_path = os.path.join(OVERLAY_MERGED, "system/hardware/tici/c3_agnos.json")
   if HARDWARE.get_device_type() in ("tici", "tizi") and os.path.exists(c3_manifest_path):
     manifest_path = c3_manifest_path
+  elif HARDWARE.get_device_type() not in ("tici", "tizi") and not os.path.exists(c3_manifest_path):
+    set_offroad_alert("Offroad_NeosUpdate", False)
+    set_offroad_alert("Offroad_UnsupportedDevice", True)
+    raise RuntimeError(f"AGNOS {updated_version} is only for the comma 3 and comma 3X")
 
   update_progress.start_agnos(manifest_path)
 
@@ -461,6 +465,9 @@ def main() -> None:
 
     # set initial state
     params.put("UpdaterState", "idle")
+
+    # FrogPilot variables
+    params.remove("UpdaterDownloadProgress")
 
     # Run the update loop
     first_run = True

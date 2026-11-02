@@ -67,7 +67,7 @@ def build_report(report, frogpilot_toggles):
   if "Route" in report:
     payload["route"] = report["Route"]
 
-  return {"files": files, "payload": json.dumps(payload), "report_id": report_id}
+  return {"files": files, "metered_confirmed": report.get("metered_confirmed", False), "payload": json.dumps(payload), "report_id": report_id}
 
 def capture_report(report, frogpilot_toggles, frogpilot_api, publish):
   if "DiscordUser" in report:
@@ -88,7 +88,15 @@ def capture_report(report, frogpilot_toggles, frogpilot_api, publish):
     print("Successfully sent error report!")
 
     total_bytes = sum(file["size_bytes"] for file in report["files"])
-    report = {"done": 0, "files": report["files"], "report_id": report["report_id"], "sent_bytes": 0, "total": len(report["files"]), "total_bytes": total_bytes}
+    report = {
+      "done": 0,
+      "files": report["files"],
+      "metered_confirmed": report["metered_confirmed"],
+      "report_id": report["report_id"],
+      "sent_bytes": 0,
+      "total": len(report["files"]),
+      "total_bytes": total_bytes,
+    }
 
   return upload_files(report, frogpilot_api, publish)
 

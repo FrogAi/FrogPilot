@@ -46,17 +46,23 @@ def random_themes_visible(context):
 
 def random_themes_changed(context, old_value, new_value):
   if new_value:
-    context.notice = {"action": None, "cancel": "", "confirm": "Ok", "text": RANDOM_THEMES_NOTICE}
+    context.notice = {"action": None, "cancel": "", "confirm": "OK", "text": RANDOM_THEMES_NOTICE}
   return False
 
 
 def startup_alert(context):
   params = context.params
-  message = (params.get("StartupMessageTop"), params.get("StartupMessageBottom"))
+
+  top = params.get("StartupMessageTop")
+  bottom = params.get("StartupMessageBottom")
+
+  message = (top, bottom)
   if message == (params.get_stock_value("StartupMessageTop"), params.get_stock_value("StartupMessageBottom")):
     return "Stock"
   if message == (params.get_default_value("StartupMessageTop"), params.get_default_value("StartupMessageBottom")):
     return "FrogPilot"
+  if not top.strip() and not bottom.strip():
+    return ""
   return "Custom"
 
 
@@ -100,7 +106,7 @@ ROWS = [
   },
   {
     "description": ("<b>Change the icons on the driving personality button, the one you tap on the driving screen to switch between Aggressive, " +
-                    "Standard, and Relaxed.</b><br><br>Each pack draws four icons: one each for Aggressive, Standard, and Relaxed, plus one that takes " +
+                    "Standard, and Relaxed.</b><br><br>Each pack draws four icons, one each for Aggressive, Standard, and Relaxed, plus one that takes " +
                     "over while Traffic Mode is on. This row only appears while that button is switched on under \"Driving Personality Button\"."),
     "display": lambda context: theme_name(context, "DistanceIconPack"),
     "key": "DistanceIconPack",
@@ -198,8 +204,8 @@ ROWS = [
   {
     "description": ("<b>Start every drive with a theme picked at random from the built-in Frog theme and the packs you have already " +
                     "downloaded.</b><br><br>A downloaded pack only joins the mix once you have its colors, icons, and sounds, and the same theme can " +
-                    "come up twice in a row. With \"Include Holiday Themes\" on, the holiday themes are in the mix too. While this is on, the rows " +
-                    "inside \"Custom Themes\" stop offering \"SELECT\", and turning it back off gives you your own picks again."),
+                    "come up twice in a row. With \"Include Holiday Themes\" on, the holiday themes are in the mix too. While this is on, the " +
+                    "\"Themes\" page stops offering \"Use\", and turning it back off gives you your own picks again."),
     "key": "RandomThemes",
     "on_change": random_themes_changed,
     "order": 4,
@@ -210,8 +216,8 @@ ROWS = [
     "widget": "button_toggle"
   },
   {
-    "description": ("<b>Change the two lines of text openpilot shows on screen at the start of every drive.</b><br><br>\"STOCK\" is openpilot's " +
-                    "usual safety reminder and \"FROGPILOT\" is the frog version. \"CUSTOM\" lets you write your own, up to 35 characters on the top " +
+    "description": ("<b>Change the two lines of text openpilot shows on screen at the start of every drive.</b><br><br>\"Stock\" is openpilot's " +
+                    "usual safety reminder and \"FrogPilot\" is the frog version. \"Custom\" lets you write your own, up to 35 characters on the top " +
                     "line and 45 on the bottom."),
     "display": startup_alert,
     "id": "StartupAlert",

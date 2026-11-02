@@ -4,6 +4,8 @@ import pyray as rl
 from cereal import messaging, car
 from dataclasses import dataclass, field
 from openpilot.common.params import Params
+from openpilot.frogpilot.ui.mici.frogpilot_road import FrogPilotRoad
+from openpilot.frogpilot.ui.mici.frogpilot_theme import theme
 from openpilot.common.filter_simple import FirstOrderFilter
 from openpilot.selfdrive.locationd.calibrationd import HEIGHT_INIT
 from openpilot.selfdrive.ui.ui_state import ui_state, UIStatus
@@ -89,6 +91,9 @@ class ModelRenderer(Widget):
       cp = messaging.log_from_bytes(car_params, car.CarParams)
       self._longitudinal_control = cp.openpilotLongitudinalControl
 
+    # FrogPilot variables
+    self._frogpilot_road = FrogPilotRoad()
+
   def set_transform(self, transform: np.ndarray):
     self._car_space_transform = transform.astype(np.float32)
     self._transform_dirty = True
@@ -139,8 +144,15 @@ class ModelRenderer(Widget):
 
     # Draw elements (hide when disengaged)
     if ui_state.status != UIStatus.DISENGAGED:
+      # FrogPilot variables
+      self._frogpilot_road.draw_adjacent_paths(self._rect)
+
       self._draw_lane_lines()
       self._draw_path(sm)
+
+      # FrogPilot variables
+      self._frogpilot_road.draw_path_edges(self._rect, self._experimental_mode)
+      self._frogpilot_road.draw_stopping_point(self._rect, self._path.projected_points)
 
     # if render_lead_indicator and radar_state:
     #   self._draw_lead_indicator()
@@ -177,7 +189,7 @@ class ModelRenderer(Widget):
 
   def _update_model(self, lead, path_x_array):
     """Update model visualization data based on model message"""
-    max_distance = np.clip(path_x_array[-1], MIN_DRAW_DISTANCE, MAX_DRAW_DISTANCE)
+    max_distance = np.clip(path_x_array[-1], MIN_DRAW_DISTANCE, self._frogpilot_road.max_draw_distance(MAX_DRAW_DISTANCE))
     max_idx = self._get_path_length_idx(self._lane_lines[0].raw_points[:, 0], max_distance)
 
     # Update lane lines using raw points
@@ -186,12 +198,12 @@ class ModelRenderer(Widget):
       if i in (1, 2):
         line_width_factor = 0.16
       lane_line.projected_points = self._map_line_to_polygon(
-        lane_line.raw_points, line_width_factor * self._lane_line_probs[i], 0.0, max_idx
+        lane_line.raw_points, self._frogpilot_road.lane_line_width(line_width_factor) * self._lane_line_probs[i], 0.0, max_idx
       )
 
     # Update road edges using raw points
     for road_edge in self._road_edges:
-      road_edge.projected_points = self._map_line_to_polygon(road_edge.raw_points, line_width_factor, 0.0, max_idx)
+      road_edge.projected_points = self._map_line_to_polygon(road_edge.raw_points, self._frogpilot_road.road_edge_width(line_width_factor), 0.0, max_idx)
 
     # Update path using raw points
     if lead and lead.status:
@@ -209,17 +221,29 @@ class ModelRenderer(Widget):
     else:
       y_off = 0.9
 
+    # FrogPilot variables
+    path_width = self._frogpilot_road.path_width(y_off)
+    y_off = self._frogpilot_road.inner_path_width(path_width)
+
     max_idx = self._get_path_length_idx(path_x_array, max_distance)
     self._path.projected_points = self._map_line_to_polygon(
       self._path.raw_points, y_off, self._path_offset_z, max_idx, allow_invert=False
     )
 
+    # FrogPilot variables
+    self._frogpilot_road.update_adjacent_paths(self._map_line_to_polygon, self._lane_lines, max_idx)
+    self._frogpilot_road.update_stopping_point()
+    self._frogpilot_road.update_path_edges(self._map_line_to_polygon, self._path.raw_points, path_width, y_off, self._path_offset_z, max_idx)
+
     self._update_experimental_gradient()
 
   def _update_experimental_gradient(self):
     """Pre-calculate experimental mode gradient colors"""
-    if not self._experimental_mode:
+    if not self._experimental_mode and not self._frogpilot_road.path_gradient_enabled():
       return
+
+    # FrogPilot variables
+    self._frogpilot_road.update_rainbow()
 
     max_len = min(len(self._path.projected_points) // 2, len(self._acceleration_x))
 
@@ -246,6 +270,9 @@ class ModelRenderer(Widget):
 
       # Use HSL to RGB conversion
       color = self._hsla_to_color(path_hue / 360.0, saturation, lightness, alpha)
+
+      # FrogPilot variables
+      color = self._frogpilot_road.path_gradient_color(color, lin_grad_point, self._acceleration_x[i], self._experimental_mode)
 
       gradient_stops.append(lin_grad_point)
       segment_colors.append(color)
@@ -285,6 +312,14 @@ class ModelRenderer(Widget):
     alpha = np.clip(prob, 0.0, 0.7)
     if adjacent:
       _base_color = LANE_LINE_COLORS.get(ui_state.status, LANE_LINE_COLORS[UIStatus.DISENGAGED])
+
+      # FrogPilot variables
+      lane_lines_color = theme.lane_lines_color()
+
+      if lane_lines_color is not None:
+        _base_color = lane_lines_color
+        alpha *= lane_lines_color.a / 255
+
       color = rl.Color(_base_color.r, _base_color.g, _base_color.b, int(alpha * 255))
 
       # turn adjacent lls orange if torque is high
@@ -319,7 +354,7 @@ class ModelRenderer(Widget):
         continue
 
       # if closest lane lines are not confident, make road edges green
-      color = self._get_ll_color(float(1.0 - self._road_edge_stds[i]), float(self._lane_line_probs[i + 1]) < 0.25, i == 0)
+      color = self._get_ll_color(float(1.0 - self._road_edge_stds[i]), float(self._lane_line_probs[i + 1]) < 0.25 and theme.lane_lines_color() is None, i == 0)
       draw_polygon(self._rect, road_edge.projected_points, color)
 
   def _draw_path(self, sm):
@@ -330,7 +365,7 @@ class ModelRenderer(Widget):
     allow_throttle = sm['longitudinalPlan'].allowThrottle or not self._longitudinal_control
     self._blend_filter.update(int(allow_throttle))
 
-    if self._experimental_mode:
+    if self._experimental_mode or self._frogpilot_road.path_gradient_enabled():
       # Draw with acceleration coloring
       if ui_state.status == UIStatus.DISENGAGED:
         draw_polygon(self._rect, self._path.projected_points, rl.Color(0, 0, 0, 90))
@@ -341,7 +376,7 @@ class ModelRenderer(Widget):
     else:
       # Blend throttle/no throttle colors based on transition
       blend_factor = round(self._blend_filter.x * 100) / 100
-      blended_colors = self._blend_colors(NO_THROTTLE_COLORS, THROTTLE_COLORS, blend_factor)
+      blended_colors = self._blend_colors(NO_THROTTLE_COLORS, theme.throttle_colors(THROTTLE_COLORS), blend_factor)
       gradient = Gradient(
         start=(0.0, 1.0),  # Bottom of path
         end=(0.0, 0.0),  # Top of path
@@ -477,3 +512,7 @@ class ModelRenderer(Widget):
       int(inv_t * start.b + t * end.b),
       int(inv_t * start.a + t * end.a)
     ) for start, end in zip(begin_colors, end_colors, strict=True)]
+
+
+# FrogPilot variables
+LANE_LINE_COLORS[UIStatus.ALWAYS_ON_LATERAL] = LANE_LINE_COLORS[UIStatus.OVERRIDE]

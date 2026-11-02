@@ -40,10 +40,8 @@ class ConditionalExperimentalMode:
 
     self.status_value = frogpilot_variables.CE_STATUS["OFF"]
 
-    self.press_count = None
-
   def update(self, v_ego, sm, frogpilot_toggles):
-    self.update_override(sm)
+    self.update_override(sm, frogpilot_toggles)
 
     if self.prev_standstill and not sm["carState"].standstill:
       self.stop_light_filter.x = 0
@@ -86,19 +84,14 @@ class ConditionalExperimentalMode:
     if self.status_value not in (frogpilot_variables.CE_STATUS["USER_DISABLED"], frogpilot_variables.CE_STATUS["USER_OVERRIDDEN"]):
       self.status_value = frogpilot_variables.CE_STATUS["OFF"]
 
-  def update_override(self, sm):
-    press_count = sm["frogpilotCarState"].experimentalModePressCount
-
-    pressed = self.frogpilot_planner.experimental_mode_pressed or (self.press_count is not None and press_count > self.press_count)
-    if pressed and sm["selfdriveState"].enabled:
+  def update_override(self, sm, frogpilot_toggles):
+    if self.frogpilot_planner.experimental_mode_pressed and sm["selfdriveState"].enabled and frogpilot_toggles.conditional_experimental_mode:
       if self.status_value in (frogpilot_variables.CE_STATUS["USER_DISABLED"], frogpilot_variables.CE_STATUS["USER_OVERRIDDEN"]):
         self.status_value = frogpilot_variables.CE_STATUS["OFF"]
       elif sm["selfdriveState"].experimentalMode:
         self.status_value = frogpilot_variables.CE_STATUS["USER_DISABLED"]
       else:
         self.status_value = frogpilot_variables.CE_STATUS["USER_OVERRIDDEN"]
-
-    self.press_count = press_count
 
   def check_conditions(self, v_ego, sm, frogpilot_toggles):
     if self.curve_detected and (not self.frogpilot_planner.frogpilot_following.following_lead or frogpilot_toggles.conditional_curves_lead or self.status_value == frogpilot_variables.CE_STATUS["CURVATURE"]) and frogpilot_toggles.conditional_curves:
@@ -156,7 +149,7 @@ class ConditionalExperimentalMode:
       lead_speed = np.maximum(self.frogpilot_planner.lead_one.vLead + np.array(sm["modelV2"].leadsV3[0].v) - sm["modelV2"].leadsV3[0].v[0], 0)
       lead_distance = self.frogpilot_planner.lead_one.dRel + np.cumsum((lead_speed[:-1] + lead_speed[1:]) / 2 * np.diff(LEAD_T_IDXS))
 
-      following_distance = STOP_DISTANCE + self.frogpilot_planner.frogpilot_following.t_follow * lead_speed[1:]
+      following_distance = STOP_DISTANCE + self.frogpilot_planner.frogpilot_following.base_t_follow * lead_speed[1:]
       safe_distance = np.minimum(following_distance, LEAD_GAP_RATIO * self.frogpilot_planner.lead_one.dRel)
       required_deceleration = max(2 * (v_ego * LEAD_T_IDXS[1:] + safe_distance - lead_distance) / LEAD_T_IDXS[1:]**2)
 

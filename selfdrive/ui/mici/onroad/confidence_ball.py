@@ -1,5 +1,6 @@
 import math
 import pyray as rl
+from openpilot.frogpilot.ui.mici.frogpilot_road import ALWAYS_ON_LATERAL_COLOR
 from openpilot.selfdrive.ui.mici.onroad import SIDE_PANEL_WIDTH
 from openpilot.selfdrive.ui.ui_state import ui_state, UIStatus
 from openpilot.system.ui.widgets import Widget
@@ -68,6 +69,11 @@ class ConfidenceBall(Widget):
     elif ui_state.status == UIStatus.OVERRIDE:
       top_dot_color = rl.Color(255, 255, 255, 255)
       bottom_dot_color = rl.Color(82, 82, 82, 255)
+
+    # FrogPilot variables
+    elif ui_state.status == UIStatus.ALWAYS_ON_LATERAL:
+      top_dot_color = rl.Color(40, 225, 220, 255)
+      bottom_dot_color = ALWAYS_ON_LATERAL_COLOR
 
     else:
       top_dot_color = rl.Color(50, 50, 50, 255)

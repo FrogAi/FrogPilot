@@ -114,10 +114,10 @@ def time_remaining(context):
 ROWS = [
   {
     "description": ("<b>How often openpilot re-downloads the speed limit map data for the places you picked under \"Map Sources\". \"Weekly\" runs " +
-                    "every Sunday, \"Monthly\" runs on the 1st, and \"Manually\" waits until you press \"DOWNLOAD\" yourself.</b><br><br>There is " +
-                    "one exception. Whenever the map data is missing from the device, openpilot starts the download on its own, usually within the " +
-                    "hour. Automatic downloads only start on an unmetered connection, such as Wi-Fi, and unlike \"DOWNLOAD\" they do not wait until " +
-                    "you park."),
+                    "every Sunday, \"Monthly\" runs on the 1st, and \"Manually\" waits until you press \"Download regions\" yourself.</b><br><br>There " +
+                    "is one exception. Whenever the map data is missing from the device, openpilot starts the download on its own, usually within the " +
+                    "hour. Automatic downloads only start on an unmetered connection, such as Wi-Fi, and unlike \"Download regions\" they do not wait " +
+                    "until you park."),
     "key": "PreferredSchedule",
     "options": ({"label": "Manually", "value": 0}, {"label": "Weekly", "value": 1}, {"label": "Monthly", "value": 2}),
     "order": 0,

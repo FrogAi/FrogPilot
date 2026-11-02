@@ -43,7 +43,7 @@ void FrogPilotSettingsWindow::createPanelButtons(FrogPilotListWidget *list) {
     {tr("Maps and Navigation"), tr("<b>Download the speed limit data openpilot uses, and set up Mapbox as a fallback speed limit source.</b> Speed limits come from offline map data for the states or countries you pick, so they work without cell signal."), "../../frogpilot/assets/toggle_icons/icon_navigate.svg"},
     {tr("System Settings"), tr("<b>Manage your saved data, how the device and screen behave, and tools for fixing problems.</b> This is also where your drive stats and backups of your settings live."), "../../frogpilot/assets/toggle_icons/icon_system.svg"},
     {tr("Theme and Appearance"), tr("<b>Change what appears on the driving screen, and how openpilot looks and sounds.</b> Anything from hiding on-screen icons to full theme packs with new colors, sounds, and turn signal animations."), "../../frogpilot/assets/toggle_icons/icon_display.svg"},
-    {tr("Vehicle Settings"), tr("<b>Tell openpilot what car you drive, turn on features made for your brand, and change what your steering wheel buttons do.</b><br><br>Brand features include things like smoother stop-and-go and automatic door locks. \"WHEEL BUTTONS\" only appears once your \"Tuning Level\" is \"Advanced\" or higher."), "../../frogpilot/assets/toggle_icons/icon_vehicle.svg"}
+    {tr("Vehicle Settings"), tr("<b>Tell openpilot what car you drive, turn on features made for your brand, and change what your steering wheel buttons do.</b><br><br>Brand features include things like smoother stop-and-go and automatic door locks. \"WHEEL BUTTONS\" only appears on cars with a button it can use, once your \"Tuning Level\" is \"Advanced\" or higher."), "../../frogpilot/assets/toggle_icons/icon_vehicle.svg"}
   };
 
   FrogPilotButtonsControl **panelMembers[] = {&soundPanelButtons, &drivingPanelButtons, &navigationPanelButtons, &systemPanelButtons, &themePanelButtons, &vehiclePanelButtons};
@@ -317,8 +317,6 @@ void FrogPilotSettingsWindow::updateVariables() {
   FrogPilotUIScene &frogpilot_scene = fs.frogpilot_scene;
   QJsonObject &frogpilot_toggles = frogpilot_scene.frogpilot_toggles;
 
-  bool migratedStockValues = false;
-
   carParamsWatcher->addParam("CarParamsPersistent");
 
   std::string carParams = params.get("CarParamsPersistent");
@@ -344,6 +342,7 @@ void FrogPilotSettingsWindow::updateVariables() {
     hasLKASButton = frogpilot_toggles.value("has_lkas_button").toBool();
     hasNNFFLog = frogpilot_toggles.value("has_nnff").toBool();
     hasOpenpilotLongitudinal = hasLongitudinalControl(CP);
+    hasDistanceButton = frogpilot_toggles.value("has_distance_button").toBool() || hasOpenpilotLongitudinal;
     hasPCMCruise = CP.getPcmCruise();
     hasPedal = CP.getEnableGasInterceptorDEPRECATED();
     hasRadar = !CP.getRadarUnavailable();
@@ -371,36 +370,6 @@ void FrogPilotSettingsWindow::updateVariables() {
     stoppingDecelRate = CP.getStoppingDecelRate();
     vEgoStarting = CP.getVEgoStarting();
     vEgoStopping = CP.getVEgoStopping();
-
-    std::vector<std::pair<std::string, float>> stockValues = {
-      {"LongitudinalActuatorDelay", longitudinalActuatorDelay},
-      {"StartAccel", startAccel},
-      {"SteerDelay", steerActuatorDelay},
-      {"SteerFriction", friction},
-      {"SteerKP", steerKp},
-      {"SteerLatAccel", latAccelFactor},
-      {"SteerRatio", steerRatio},
-      {"StopAccel", stopAccel},
-      {"StoppingDecelRate", stoppingDecelRate},
-      {"VEgoStarting", vEgoStarting},
-      {"VEgoStopping", vEgoStopping}
-    };
-    for (const auto &[key, value] : stockValues) {
-      float currentStock = params.getFloat(key + "Stock");
-      float storedValue = std::stof(std::to_string(value));
-
-      if (currentStock != storedValue && (value != 0 || key == "StartAccel")) {
-        if (params.getFloat(key) == currentStock || currentStock == 0) {
-          params.putFloat(key, value);
-        }
-        params.putFloat(key + "Stock", value);
-        migratedStockValues = true;
-      }
-    }
-  }
-
-  if (migratedStockValues) {
-    frogpilotUIState()->updateToggles();
   }
 
   std::string frogpilotCarParams = params.get("FrogPilotCarParamsPersistent");
@@ -421,7 +390,7 @@ void FrogPilotSettingsWindow::updateVariables() {
 
   themePanelButtons->setVisibleButton(0, hasOpenpilotLongitudinal || tuningLevel >= frogpilotToggleLevels.value("Compass").toDouble());
 
-  vehiclePanelButtons->setVisibleButton(1, tuningLevel >= frogpilotToggleLevels.value("WheelControls").toDouble());
+  vehiclePanelButtons->setVisibleButton(1, (hasDistanceButton || hasLKASButton) && tuningLevel >= frogpilotToggleLevels.value("WheelControls").toDouble());
 
   update();
 }

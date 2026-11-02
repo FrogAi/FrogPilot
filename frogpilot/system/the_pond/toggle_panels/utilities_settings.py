@@ -12,7 +12,6 @@ FLASH_CHECK_INTERVAL = 1
 REBOOT_DELAY = 5
 
 RESET_MESSAGES = {"busy": BUSY_MESSAGE, "car_on": "Settings can't be reset while the car is on. Turn the car off and try again."}
-RESET_STATUS = {"failure": "Tailscale sign-out failed...", "success": "Reset!"}
 
 action_lock = asyncio.Lock()
 
@@ -72,6 +71,14 @@ async def force_onroad(context, body):
   return True
 
 
+def force_onroad_guard(context):
+  if frogpilot_utilities.is_ignition_on(context.the_pond.sm):
+    return "car_on"
+  if context.params.get("CarParamsPersistent") is None:
+    return "car_unknown"
+  return None
+
+
 async def reflash_panda(context, body):
   return await run_exclusively(flash_panda(context.the_pond))
 
@@ -82,10 +89,11 @@ def report_visible(context):
 
 async def reset_settings(the_pond, stock):
   try:
-    await asyncio.to_thread(backups.reset_settings, stock)
-    return await backups.sign_out_of_tailscale(the_pond)
+    await backups.reset_settings(the_pond, stock)
   finally:
     action_lock.release()
+
+  return True
 
 
 async def reset_to_default(context, body):
@@ -123,8 +131,9 @@ ROWS = [
         "run": force_offroad
       },
       "ONROAD": {
-        "guard": lambda context: "car_on" if frogpilot_utilities.is_ignition_on(context.the_pond.sm) else None,
-        "messages": {"car_on": "The running state can't be forced while the car is on. Turn the car off and try again."},
+        "guard": force_onroad_guard,
+        "messages": {"car_on": "The running state can't be forced while the car is on. Turn the car off and try again.",
+                     "car_unknown": "openpilot hasn't learned your car yet, so it can't be forced onroad. Complete a drive first."},
         "run": force_onroad
       }
     },
@@ -132,7 +141,7 @@ ROWS = [
     "current": drive_state,
     "description": ("<b>Make openpilot behave as though the car is running, or as though it is parked, without the car actually being " +
                     "either.</b><br><br>This is a testing tool. Forcing the running state ignores your \"Screen Brightness (Onroad)\" setting and " +
-                    "stops openpilot warning you that its controls are unresponsive, so leave it on \"OFF\" unless you know why you need it. Forcing " +
+                    "stops openpilot warning you that its controls are unresponsive, so leave it on \"Off\" unless you know why you need it. Forcing " +
                     "the running state ends when you turn the car on, and either state clears itself the next time the device restarts. While it is " +
                     "forced, the device still drops back to offroad if it overheats and still shuts down on its usual timer or a low car battery. " +
                     "With the car off, a forced running state runs on the car's battery until the device powers itself off."),
@@ -153,7 +162,7 @@ ROWS = [
         "messages": {"busy": BUSY_MESSAGE, "car_on": "The Panda can't be reflashed while the car is on. Turn the car off and try again."},
         "restart": "Rebooting",
         "run": reflash_panda,
-        "status": {"failure": "Flash failed...", "success": "Flashed!"}
+        "status": {"failure": "Couldn't reflash the Panda. Try again.", "success": "Panda reflashed"}
       }
     },
     "description": ("<b>Reinstall the software on the Panda, the small box that lets your device talk to your car.</b><br><br>Try this if openpilot " +
@@ -175,32 +184,30 @@ ROWS = [
     "link": "report",
     "order": 3,
     "path": ("System Settings", "UTILITIES"),
-    "title": "Report a Bug or an Issue",
+    "title": "Report an Issue",
     "visible": report_visible,
     "widget": "action"
   },
   {
     "actions": {
       "RESET": {
-        "confirm": {"cancel": "Cancel", "confirm": "Reset",
-                    "text": ("Reset all FrogPilot and some openpilot settings? This also erases your saved keys, favorite places, Discord name, " +
-                             "timezone, map settings, driving stats, Speed Limit Filler data, saved car details, SSH keys, and paired browsers, turns " +
-                             "SSH off, signs out of Tailscale, and asks again whether to share FrogPilot data. You will have to accept the terms, redo " +
-                             "the training, and set your language again.")},
+        "confirm": {"cancel": "Cancel", "confirm": "Reset", "consequences": backups.RESET_CONSEQUENCES,
+                    "text": "Reset all FrogPilot and some openpilot settings?"},
         "guard": action_guard,
         "messages": RESET_MESSAGES,
-        "run": reset_to_default,
-        "status": RESET_STATUS
+        "restart": "Rebooting",
+        "run": reset_to_default
       }
     },
     "description": ("<b>Put every FrogPilot setting back to the value it shipped with, along with some of openpilot's own settings.</b><br><br>Those " +
                     "openpilot settings are \"Enable openpilot\", \"Disengage on Accelerator Pedal\", \"Driving Personality\", and \"Cellular " +
                     "Metered\". This also clears your accepted terms, your completed training, and your language, so you go through first-time setup " +
-                    "again in English the next time the device starts. It also erases your saved keys (Mapbox, weather, and Toyota security keys), " +
-                    "favorite places, Discord name, timezone, map settings, FrogPilot driving stats, Speed Limit Filler data, saved car details, SSH " +
-                    "keys, and the browsers paired with \"The Pond\" (making a new pairing code if pairing is on), turns SSH off, signs out of " +
-                    "Tailscale, and asks again whether to share FrogPilot data, so the device is clean to sell or hand on. Your drives, backups, and " +
-                    "downloaded themes are left alone, and settings backups still hold your keys and favorite places until you delete them."),
+                    "again in English. It also erases your saved keys (Mapbox and weather), favorite places, Discord name, timezone, chosen car make " +
+                    "and model, SSH keys, and map settings, turns SSH and tethering off, asks again whether to share FrogPilot data, and unlinks this " +
+                    "device from your FrogPilot.com account. The reset happens while the device reboots. Your drives, backups, downloaded themes, " +
+                    "learned driving data, Speed Limit Filler data, FrogPilot Stats, Toyota security keys, \"The Pond\" pairing, Tailscale sign-in, " +
+                    "\"Experimental Mode\", and \"openpilot Longitudinal Control (Alpha)\" are left alone, and settings backups still hold your keys " +
+                    "and favorite places until you delete them."),
     "id": "ResetSettingsToDefault",
     "key": None,
     "order": 4,
@@ -211,24 +218,22 @@ ROWS = [
   {
     "actions": {
       "RESET": {
-        "confirm": {"cancel": "Cancel", "confirm": "Reset",
-                    "text": ("Reset every setting to match stock openpilot? This also erases your saved keys, favorite places, Discord name, " +
-                             "timezone, map settings, driving stats, Speed Limit Filler data, saved car details, SSH keys, and paired browsers, turns " +
-                             "SSH off, signs out of Tailscale, and asks again whether to share FrogPilot data. You will have to accept the terms, redo " +
-                             "the training, and set your language again.")},
+        "confirm": {"cancel": "Cancel", "confirm": "Reset", "consequences": backups.RESET_CONSEQUENCES,
+                    "text": "Reset every setting to match stock openpilot?"},
         "guard": action_guard,
         "messages": RESET_MESSAGES,
-        "run": reset_to_stock,
-        "status": RESET_STATUS
+        "restart": "Rebooting",
+        "run": reset_to_stock
       }
     },
     "description": ("<b>Put every setting back to what plain openpilot uses, turning FrogPilot's own features off rather than back to FrogPilot's " +
                     "defaults.</b><br><br>This also clears your accepted terms, your completed training, and your language, so you go through " +
-                    "first-time setup again in English the next time the device starts. It also erases your saved keys (Mapbox, weather, and Toyota " +
-                    "security keys), favorite places, Discord name, timezone, map settings, FrogPilot driving stats, Speed Limit Filler data, saved " +
-                    "car details, SSH keys, and the browsers paired with \"The Pond\" (making a new pairing code if pairing is on), turns SSH off, " +
-                    "signs out of Tailscale, and asks again whether to share FrogPilot data, so the device is clean to sell or hand on. Your drives, " +
-                    "backups, and downloaded themes are left alone, and settings backups still hold your keys and favorite places until you delete them."),
+                    "first-time setup again in English. It also erases your saved keys (Mapbox and weather), favorite places, Discord name, timezone, " +
+                    "chosen car make and model, SSH keys, and map settings, turns SSH and tethering off, asks again whether to share FrogPilot " +
+                    "data, and unlinks this device from your FrogPilot.com account. The reset happens while the device reboots. Your drives, " +
+                    "backups, downloaded themes, learned driving data, Speed Limit Filler data, FrogPilot Stats, Toyota security keys, \"The Pond\" " +
+                    "pairing, Tailscale sign-in, \"Experimental Mode\", and \"openpilot Longitudinal Control (Alpha)\" are left alone, and settings " +
+                    "backups still hold your keys and favorite places until you delete them."),
     "id": "ResetSettingsToStockOpenpilot",
     "key": None,
     "order": 5,

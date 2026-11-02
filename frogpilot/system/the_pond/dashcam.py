@@ -71,15 +71,17 @@ def get_route_info(route, segments, recording):
   name = get_xattr(first_segment, NAME_ATTR_NAME)
 
   size = 0
-  video = False
+  file_names = set()
   for path in segments.values():
     for file in path.iterdir():
       size += file.stat().st_size
-      video |= file.name == CAMERA_FILES["low"]
+      file_names.add(file.name)
 
   return {
     "bookmarked": any(is_bookmarked(path) for path in segments.values()),
+    "cameras": [camera for camera, file_name in CAMERA_FILES.items() if file_name in file_names],
     "date": int(first_segment.stat().st_mtime),
+    "logs": [kind for kind, file_name in LOG_FILES.items() if file_name in file_names],
     "name": name.decode() if name is not None else "",
     "preserved": frogpilot_utilities.is_route_preserved(first_segment),
     "recording": recording,
@@ -88,7 +90,7 @@ def get_route_info(route, segments, recording):
     "segment_numbers": list(segments),
     "segments": len(segments),
     "size": size,
-    "video": video,
+    "video": CAMERA_FILES["low"] in file_names,
   }
 
 
@@ -176,11 +178,15 @@ async def summarize_drive(the_pond, route, qlogs):
   drive_path = frogpilot_paths.THE_POND_DRIVES_PATH / f"{route}.json"
   async with the_pond.file_locks.setdefault(drive_path, asyncio.Lock()):
     drive = load_drive(route, qlogs)
-    if drive is None or drive.get("failed"):
+    if drive is None:
       source = get_drive_source(qlogs)
       qlog_list = json.dumps([[position, str(qlog)] for position, qlog in qlogs.items()])
-      output = await utilities.run_heavy_process(the_pond, [sys.executable, "-m", "openpilot.frogpilot.system.the_pond.drive_summary", qlog_list])
-      drive = {**json.loads(output), "source": source}
+      try:
+        output = await utilities.run_heavy_process(the_pond, [sys.executable, "-m", "openpilot.frogpilot.system.the_pond.drive_summary", qlog_list])
+        drive = {**json.loads(output), "source": source}
+      except RuntimeError as exception:
+        sentry.capture_exception(exception, crash_log=False)
+        drive = {"failed": True, "source": source}
 
       save_drive(route, drive)
   return drive
@@ -237,6 +243,13 @@ def delete_driving_data(recording_route):
 
   for route in deleted_routes:
     remove_route_files(route)
+
+  if frogpilot_paths.SPEED_LIMIT_CAPTURES_PATH.is_dir():
+    try:
+      shutil.rmtree(frogpilot_paths.SPEED_LIMIT_CAPTURES_PATH)
+    except OSError:
+      deleted = False
+
   return deleted
 
 
@@ -281,7 +294,12 @@ async def create_thumbnail(the_pond, thumbnail_path, source, output_options):
   middle = await get_duration(source) / 2
   cmd = ["ffmpeg", "-loglevel", "error", "-skip_frame", "nokey", "-noaccurate_seek", "-ss", f"{middle:.2f}", "-i", str(source), *output_options,
          "-frames:v", "1", "-q:v", "4", "-f", "image2"]
-  await utilities.create_file(the_pond, thumbnail_path, cmd)
+  try:
+    await utilities.create_file(the_pond, thumbnail_path, cmd)
+  except FileNotFoundError:
+    cmd = ["ffmpeg", "-loglevel", "error", "-skip_frame", "nokey", "-i", str(source), *output_options,
+           "-frames:v", "1", "-q:v", "4", "-f", "image2"]
+    await utilities.create_file(the_pond, thumbnail_path, cmd)
 
 
 async def prepare_preview(the_pond, route, sources):
@@ -410,10 +428,18 @@ async def get_route_details(request):
     audio = bool(output.strip())
     break
 
+  duration = len(segments) * SEGMENT_LENGTH
+  last_low_camera = segments[max(segments)] / CAMERA_FILES["low"]
+  if last_low_camera.is_file():
+    try:
+      duration += await get_duration(last_low_camera) - SEGMENT_LENGTH
+    except (RuntimeError, ValueError):
+      pass
+
   return web.json_response({
     **await asyncio.to_thread(get_route_info, route, segments, recording),
     "audio": audio,
-    "cameras": [camera for camera, file_name in CAMERA_FILES.items() if any((path / file_name).is_file() for path in segments.values())],
+    "duration": duration,
     "route_ids": sorted(await asyncio.to_thread(get_routes), reverse=True),
     "uploaded": uploaded,
   })
@@ -449,7 +475,7 @@ async def download_route(request):
     raise web.HTTPNotFound(text="not_found")
 
   if kind == "low":
-    source = ["-f", "concat", "-safe", "0", "-protocol_whitelist", "file,pipe", "-i", "pipe:0"]
+    source = ["-f", "concat", "-safe", "0", "-protocol_whitelist", "file,pipe", "-i", "pipe:0", "-bsf:a", "aac_adtstoasc"]
     concat_list = "".join(f"file 'file:{file}'\n" for file in files).encode()
   else:
     source = ["-framerate", str(CAMERA_FPS), "-i", f"concat:{'|'.join(files)}", "-tag:v", "hvc1"]
@@ -469,6 +495,8 @@ async def get_drive(request):
     raise web.HTTPNotFound(text="not_found")
 
   drive = await summarize_drive(the_pond, route, qlogs)
+  if drive.get("failed"):
+    raise web.HTTPUnprocessableEntity(text="unreadable_log")
   return web.json_response({key: value for key, value in drive.items() if key != "source"})
 
 

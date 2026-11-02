@@ -2,12 +2,12 @@
 import random
 import unittest
 
-from opendbc.car.hyundai.values import HyundaiSafetyFlags
+from opendbc.car.hyundai.values import HyundaiFrogPilotSafetyFlags, HyundaiSafetyFlags
 from opendbc.car.structs import CarParams
 from opendbc.safety.tests.libsafety import libsafety_py
 import opendbc.safety.tests.common as common
 from opendbc.safety.tests.common import CANPackerSafety
-from opendbc.safety.tests.hyundai_common import HyundaiButtonBase, HyundaiLongitudinalBase
+from opendbc.safety.tests.hyundai_common import HyundaiButtonBase, HyundaiLkasButtonBase, HyundaiLongitudinalBase
 
 
 # 4 bit checkusm used in some hyundai messages
@@ -115,6 +115,9 @@ class TestHyundaiSafety(HyundaiButtonBase, common.CarSafetyTest, common.DriverTo
   def _acc_state_msg(self, main_on):
     values = {"MainMode_ACC": main_on}
     return self.packer.make_can_msg_safety("SCC11", self.SCC_BUS, values)
+
+  def _lkas_button_msg(self, pressed):
+    return self.packer.make_can_msg_safety("BCM_PO_11", 0, {"LDA_BTN": pressed})
 
 
 class TestHyundaiSafetyAltLimits(TestHyundaiSafety):
@@ -274,6 +277,23 @@ class TestHyundaiLongitudinalSafetyCameraSCC(HyundaiLongitudinalBase, TestHyunda
 
   def test_disabled_ecu_alive(self):
     pass
+
+
+# FrogPilot variables
+class TestHyundaiSafetyLdaButton(HyundaiLkasButtonBase, TestHyundaiSafety):
+  def setUp(self):
+    self.packer = CANPackerSafety("hyundai_kia_generic")
+    self.safety = libsafety_py.libsafety
+    self.safety.set_safety_hooks(CarParams.SafetyModel.hyundai, HyundaiFrogPilotSafetyFlags.HAS_LDA_BUTTON)
+    self.safety.init_tests()
+
+
+class TestHyundaiLongitudinalSafetyLdaButton(HyundaiLkasButtonBase, TestHyundaiLongitudinalSafety):
+  def setUp(self):
+    self.packer = CANPackerSafety("hyundai_kia_generic")
+    self.safety = libsafety_py.libsafety
+    self.safety.set_safety_hooks(CarParams.SafetyModel.hyundai, HyundaiSafetyFlags.LONG | HyundaiFrogPilotSafetyFlags.HAS_LDA_BUTTON)
+    self.safety.init_tests()
 
 
 class TestHyundaiSafetyFCEVLong(TestHyundaiLongitudinalSafety, TestHyundaiSafetyFCEV):

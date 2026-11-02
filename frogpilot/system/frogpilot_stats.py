@@ -111,7 +111,7 @@ def send_stats(params, frogpilot_toggles, api):
   if not params.get_bool("FrogPilotTelemetryConfirmed"):
     return
 
-  if frogpilot_toggles.car_make == "mock":
+  if frogpilot_toggles.car_make in frogpilot_variables.NO_STATS_BRANDS:
     return
 
   payload = {
@@ -135,6 +135,8 @@ def send_stats(params, frogpilot_toggles, api):
       "toggles": vars(frogpilot_toggles),
       "using_default_model": frogpilot_toggles.model == frogpilot_variables.DEFAULT_MODEL["id"],
     }
+  else:
+    params.remove("SpeedLimitFillerUploadedHash")
 
   response = api.post_gzip("/v1/stats", json.dumps(payload, separators=(",", ":")).encode(), timeout=30)
   if not api.succeeded(response):

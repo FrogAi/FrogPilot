@@ -72,11 +72,12 @@ QString FrogPilotTelemetryPage::description() {
             "before they are sent.<br><br>"
             "<b>Driving logs</b> record vehicle behavior and FrogPilot's driving decisions. Before upload, we remove camera footage, audio, driver face data, "
             "account details, SSH keys, navigation routes, and map road names and IDs. Exact GPS coordinates and recording date/time fields are cleared, "
-            "and <b>the VIN field is removed entirely</b>. Driver-monitoring data is limited to awareness level and whether your car is right-hand drive. "
+            "and <b>the VIN field is removed entirely</b>. Driver-monitoring data is removed. "
             "We also discard CAN messages captured during startup vehicle identification. Each drive gets an ID that hides when it was recorded, "
             "and uploaded logs are linked to your FrogPilot device ID.<br><br>"
-            "Raw CAN data recorded during driving is kept to help improve car support. On some cars, these vehicle messages can still contain GPS, VIN, "
-            "date/time, odometer, or seat occupancy information.<br><br>"
+            "Raw CAN data recorded during driving is kept to help improve car support. Known GPS position and VIN messages are dropped on GM, Toyota, "
+            "Ford, and Tesla. Other data, including clocks and odometers, can remain, and other cars may still carry GPS position or VIN messages. "
+            "On some cars, these vehicle messages can still contain seat occupancy information.<br><br>"
             "<b>Usage stats</b> cover your device, software, car and calibration details, FrogPilot settings, model usage and scores, and lifetime driving totals, including drives from before you turned sharing on. "
             "<b>Your location is generalized on your device.</b> It reports the nearest city in your country or US state from a list filtered to populations "
             "of <b>50,000 or more</b>. If that region has no qualifying city, it uses its capital instead. "
@@ -88,7 +89,7 @@ QString FrogPilotTelemetryPage::description() {
             "No GPS coordinates or recording date/time are attached, and clip IDs hide the original recording time. Each clip includes the speed limit "
             "or the reader's reading, camera calibration, and basic device, camera, and software details, and is linked to your FrogPilot device ID. Video is uploaded as recorded "
             "and can show license plates, people, and identifiable places. Clips picked to train or test the reader may be kept for up to 2 years. "
-            "Clips may be matched to driving logs.<br><br>"
+            "Clips may be matched to driving logs. Small crops showing only a speed-limit sign may be shown to signed-in FrogPilot.com users who help label them.<br><br>"
             "<b>Learned speed limits</b> are the limits \"Speed Limit Filler\" learns from the signs the camera reads, when that setting is on. "
             "They are used to improve speed limits for everyone using FrogPilot. "
             "Each one includes the speed limit, the map ID of the road it was learned on, the direction of travel, the GPS location and heading where the sign was seen, "
@@ -103,5 +104,5 @@ QString FrogPilotTelemetryPage::description() {
             "Startup and after-drive check-ins continue without your usage stats, settings, or location. "
             "Crash reports also continue, tagged with your comma device ID (or your Konik device ID when you use the Konik server) "
             "and software details. Python crash reports do not automatically collect local variable values.<br><br>"
-            "Read FrogPilot's full privacy policy at <b>frogpilot.com/privacy</b>.") + deviceId;
+            "Read FrogPilot's full privacy policy at <b>FrogPilot.com/privacy</b>.") + deviceId;
 }

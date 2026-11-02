@@ -173,7 +173,7 @@ def read_panel_file(path, panel_paths):
   return {"branch_keys": branch_keys, "panel_at": panel_at, "rows": rows, "sub_controls": sub_controls, "text": text}
 
 
-def find_row(key, rows, panel_files):
+def find_row(key, label, rows, panel_files):
   if key in rows:
     return key, rows[key]["description"]
 
@@ -186,7 +186,7 @@ def find_row(key, rows, panel_files):
     if key in panel_file["branch_keys"]:
       return panel_file["branch_keys"][key], ""
 
-  name = backups.get_setting_label(frogpilot_variables.SETTING_LABELS[key]["name"], False)
+  name = backups.get_setting_label(label, False)
   for panel_file in panel_files:
     position = panel_file["text"].find(f'tr("{name}")')
     if position != -1:
@@ -216,9 +216,14 @@ def get_settings():
       for key, row in panel_file["rows"].items():
         rows.setdefault(key, row)
 
+  names = {key: labels["name"] for key, labels in frogpilot_variables.SETTING_LABELS.items()}
+
+  for key in sorted(toggles.WRITABLE_ROWS.keys() - names.keys()):
+    names[key] = toggles.WRITABLE_ROWS[key][0]["title"]
+
   settings = []
-  for key, labels in frogpilot_variables.SETTING_LABELS.items():
-    owner, description = find_row(key, rows, panel_files)
+  for key, name in names.items():
+    owner, description = find_row(key, name, rows, panel_files)
     if owner is None:
       continue
 
@@ -237,11 +242,15 @@ def get_settings():
       "description": description or rows[owner]["description"],
       "key": key,
       "level": max(tuning_levels.get(row_key, 0) for row_key in [key, *chain]),
-      "name": labels["name"],
+      "name": name,
       "path": path,
       "toggle": key in toggles.KEYS,
     })
   return settings
+
+
+def shown_setting(setting):
+  return not (utilities.IS_COMMA_FOUR and setting["key"] in toggles.COMMA_FOUR_HIDDEN_KEYS)
 
 
 @routes.get("/api/search")
@@ -249,5 +258,5 @@ async def get_search(request):
   metric = request.app[utilities.THE_POND].params.get_bool("IsMetric")
   return web.json_response({
     "levels": list(frogpilot_variables.SETTING_LABELS["TuningLevel"]["values"].values()),
-    "settings": [{**setting, "name": backups.get_setting_label(setting["name"], metric)} for setting in get_settings()],
+    "settings": [{**setting, "name": backups.get_setting_label(setting["name"], metric)} for setting in get_settings() if shown_setting(setting)],
   })

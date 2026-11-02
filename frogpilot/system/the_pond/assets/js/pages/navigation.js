@@ -3,13 +3,33 @@
 
 const P = window.Pond;
 
+const BUILDINGS_LAYER = {
+  filter: ["==", "extrude", "true"],
+  id: "buildings",
+  minzoom: 15,
+  paint: {
+    "fill-extrusion-base": ["interpolate", ["linear"], ["zoom"], 15, 0, 15.05, ["get", "min_height"]],
+    "fill-extrusion-color": "#aaa",
+    "fill-extrusion-height": ["interpolate", ["linear"], ["zoom"], 15, 0, 15.05, ["get", "height"]],
+    "fill-extrusion-opacity": 0.6
+  },
+  source: "composite",
+  "source-layer": "building",
+  type: "fill-extrusion"
+};
 const FAVORITE_TYPES = { home: { icon: "home", label: "Home" }, work: { icon: "flag", label: "Work" } };
+const KEYS_PAGE_DETAIL = `Check it on the <a class="link" href="/keys">Keys</a> page.`;
 const MAPBOX_API_URL = "https://api.mapbox.com";
 const MESSAGES = {
   invalid_name: "The name is empty or too long",
   too_many_favorites: "You have as many favorites as you can save. Delete one first"
 };
+const ROUTE_REFRESH_TIME = 3000;
+const SEARCH_DELAY = 800;
 const SEARCH_LIMIT = 5;
+const SEARCH_MIN_LENGTH = 3;
+const SUGGEST_LIMIT = 10;
+const TRAFFIC_COLOR = ["match", ["get", "congestion"], "heavy", "#e67e22", "moderate", "#f1c40f", "severe", "#e74c3c", "#2ecc71"];
 const UNNAMED_PLACE = "Unnamed place";
 
 const previews = new Map();
@@ -28,6 +48,8 @@ let lastPosition = null;
 let map = null;
 let picked = null;
 let publicKey = "";
+let routeState = null;
+let searchedQuery = "";
 let sessionToken = newSessionToken();
 
 function newSessionToken() {
@@ -49,6 +71,15 @@ function showError(error, title) {
   P.fail(error, title, MESSAGES);
 }
 
+async function mapboxMessage(response) {
+  try {
+    const data = await response.json();
+    return data.message;
+  } catch {
+    return "";
+  }
+}
+
 async function mapbox(path, query) {
   const url = new URL(`${MAPBOX_API_URL}/${path}`);
   url.search = new URLSearchParams({ ...query, access_token: publicKey });
@@ -62,7 +93,15 @@ async function mapbox(path, query) {
   }
 
   if (response.status === 401 || response.status === 403) {
-    throw new MapboxError("Mapbox didn't accept your public key", `Check it on the <a class="link" href="/keys">Keys</a> page.`);
+    throw new MapboxError("Mapbox didn't accept your public key", KEYS_PAGE_DETAIL);
+  }
+
+  if (response.status >= 400 && response.status < 500 && response.status !== 429) {
+    const message = await mapboxMessage(response);
+
+    if (message) {
+      throw new MapboxError("Mapbox refused the request", `It said "${P.esc(message)}".`);
+    }
   }
 
   if (!response.ok) {
@@ -164,6 +203,7 @@ async function setDestination(place) {
   await P.request("PUT", "/api/navigation/destination", { latitude: place.latitude, longitude: place.longitude, name: place.name });
   found = null;
   picked = null;
+  searchedQuery = "";
 }
 
 async function saveFavorite(place) {
@@ -186,9 +226,21 @@ function arrival(seconds) {
   return P.fmt(time, { weekday: "short", hour: "numeric", minute: "2-digit" });
 }
 
+function routeDistance(meters) {
+  if (P.state.is_metric && meters < 1000) {
+    return `${Math.round(meters)}${P.NB}m`;
+  }
+
+  if (!P.state.is_metric && meters < 1609.344) {
+    return `${Math.round(meters * 3.28084).toLocaleString("en-US")}${P.NB}ft`;
+  }
+
+  return P.distance(meters);
+}
+
 function statsHTML(entry) {
   const route = entry.routes[entry.selected];
-  return `<dt>Distance</dt><dd>${P.distance(route.distance)}</dd>
+  return `<dt>Distance</dt><dd>${routeDistance(route.distance)}</dd>
     <dt>Travel time</dt><dd>${P.duration(route.duration)}</dd>
     <dt>Arrival</dt><dd>${arrival(route.duration)}</dd>`;
 }
@@ -212,7 +264,7 @@ function routeHTML(entry) {
   }
 
   if (entry.error) {
-    return `<div class="notice danger">${P.ic("alert")}<span><b>${entry.error.title}</b> ${entry.error.detail}</span></div>`;
+    return `<div class="notice danger">${P.ic("alert")}<span><b>${entry.error.title}.</b> ${entry.error.detail}</span></div>`;
   }
 
   return `<div class="nav-map" data-nav-map></div>
@@ -237,13 +289,18 @@ function previewPanel(place) {
   }
 
   const actions = [];
+  const favorite = favoriteAt(place);
 
   if (!own) {
     actions.push(`<button class="btn btn-primary btn-small" data-act="nav-preview-go">Navigate</button>`);
   }
 
-  if (!own && !favoriteAt(place)) {
+  if (!own && !favorite) {
     actions.push(`<button class="btn btn-quiet btn-small" data-act="nav-preview-save">${P.ic("star")}Save as favorite</button>`);
+  }
+
+  if (!own && favorite) {
+    actions.push(`<button class="btn btn-danger-quiet btn-small" data-act="nav-favorite-delete" data-id="${P.esc(favorite.id)}">Delete favorite</button>`);
   }
 
   let foot = "";
@@ -269,14 +326,45 @@ function color(name) {
 
 function routePaint(selected) {
   if (selected) {
-    return { "line-color": color("--pond"), "line-opacity": 1, "line-width": 6 };
+    return { "line-opacity": 1, "line-width": 6 };
   }
 
-  return { "line-color": color("--ink-3"), "line-opacity": 0.8, "line-width": 4 };
+  return { "line-opacity": 0.5, "line-width": 4 };
 }
 
 function point(coordinates) {
   return { data: { geometry: { coordinates, type: "Point" }, type: "Feature" }, type: "geojson" };
+}
+
+function trafficSource(route) {
+  const coordinates = route.geometry.coordinates;
+  const features = [];
+  let feature = null;
+
+  route.legs[0].annotation.congestion.forEach((congestion, index) => {
+    if (!feature || feature.properties.congestion !== congestion) {
+      feature = { geometry: { coordinates: [coordinates[index]], type: "LineString" }, properties: { congestion }, type: "Feature" };
+      features.push(feature);
+    }
+
+    feature.geometry.coordinates.push(coordinates[index + 1]);
+  });
+
+  return { data: { features, type: "FeatureCollection" }, type: "geojson" };
+}
+
+function labelLayer(shown) {
+  for (const layer of shown.getStyle().layers) {
+    if (layer.type === "symbol" && layer.layout["text-field"]) {
+      return layer.id;
+    }
+  }
+}
+
+function addStart(shown, coordinates) {
+  const paint = { "circle-color": color("--card"), "circle-radius": 6, "circle-stroke-color": color("--pond"), "circle-stroke-width": 3 };
+  shown.addSource("start", point(coordinates));
+  shown.addLayer({ id: "start", paint, source: "start", type: "circle" });
 }
 
 function selectRoute(index) {
@@ -299,6 +387,40 @@ function selectRoute(index) {
   }
 }
 
+function newMap(holder, options) {
+  mapboxgl.accessToken = publicKey;
+  const shown = new mapboxgl.Map({ ...options, container: holder, style: P.MAP_STYLE });
+  map = shown;
+  let loaded = false;
+
+  const fail = event => {
+    if (loaded || event.tile || event.sourceId) {
+      return;
+    }
+
+    shown.off("error", fail);
+    removeMap();
+
+    let detail = "Try again in a moment.";
+    let title = "The map didn't load";
+
+    if (event.error.status === 401 || event.error.status === 403) {
+      detail = KEYS_PAGE_DETAIL;
+      title = "Mapbox didn't accept your public key";
+    }
+
+    holder.outerHTML = `<div class="notice danger">${P.ic("alert")}<span><b>${title}.</b> ${detail}</span></div>`;
+  };
+
+  shown.on("error", fail);
+  shown.on("load", () => {
+    loaded = true;
+    shown.addLayer(BUILDINGS_LAYER, labelLayer(shown));
+  });
+
+  return shown;
+}
+
 async function drawMap(holder, place, entry) {
   await P.loadMapbox();
 
@@ -316,39 +438,72 @@ async function drawMap(holder, place, entry) {
     }
   }
 
-  mapboxgl.accessToken = publicKey;
-  const shown = new mapboxgl.Map({ bounds, container: holder, fitBoundsOptions: { maxZoom: 16, padding: 40 }, style: P.MAP_STYLE });
-  map = shown;
-  let loaded = false;
+  const shown = newMap(holder, { bounds, fitBoundsOptions: { maxZoom: 16, padding: 40 } });
 
-  const fail = () => {
-    if (loaded) {
-      return;
-    }
-
-    shown.off("error", fail);
-    removeMap();
-    holder.outerHTML = `<div class="notice danger">${P.ic("alert")}<span><b>The map didn't load</b> Try again in a moment.</span></div>`;
-  };
-
-  shown.on("error", fail);
   shown.on("load", () => {
     const endPaint = { "circle-color": color("--season"), "circle-radius": 8, "circle-stroke-color": "#fff", "circle-stroke-width": 3 };
     const layout = { "line-cap": "round", "line-join": "round" };
-    const startPaint = { "circle-color": color("--card"), "circle-radius": 6, "circle-stroke-color": color("--pond"), "circle-stroke-width": 3 };
-    loaded = true;
 
     entry.routes.forEach((route, index) => {
-      shown.addSource(`route-${index}`, { data: { geometry: route.geometry, type: "Feature" }, type: "geojson" });
-      shown.addLayer({ id: `route-${index}`, layout, paint: routePaint(index === entry.selected), source: `route-${index}`, type: "line" });
+      const paint = { ...routePaint(index === entry.selected), "line-color": TRAFFIC_COLOR };
+      shown.addSource(`route-${index}`, trafficSource(route));
+      shown.addLayer({ id: `route-${index}`, layout, paint, source: `route-${index}`, type: "line" });
     });
 
-    shown.addSource("start", point(start));
+    addStart(shown, start);
     shown.addSource("end", point(end));
-    shown.addLayer({ id: "start", paint: startPaint, source: "start", type: "circle" });
     shown.addLayer({ id: "end", paint: endPaint, source: "end", type: "circle" });
     shown.moveLayer(`route-${entry.selected}`, "start");
   });
+}
+
+function favoritePin(favorite) {
+  const pin = document.createElement("button");
+  const type = favoriteType(favorite);
+  let icon = "star";
+
+  if (type) {
+    icon = FAVORITE_TYPES[type].icon;
+  }
+
+  pin.className = "nav-pin";
+  pin.dataset.act = "nav-favorite-preview";
+  pin.dataset.id = favorite.id;
+  pin.innerHTML = `${P.ic(icon)}<span class="nav-pin-name">${P.esc(favorite.name)}</span>`;
+  pin.type = "button";
+  pin.setAttribute("aria-label", `Preview ${favorite.name}`);
+  pin.setAttribute("role", "button");
+  return pin;
+}
+
+async function drawFavoritesMap(holder) {
+  await P.loadMapbox();
+
+  if (!holder.isConnected) {
+    return;
+  }
+
+  const car = [lastPosition.longitude, lastPosition.latitude];
+  const bounds = new mapboxgl.LngLatBounds(car, car);
+
+  for (const favorite of favorites) {
+    bounds.extend([favorite.longitude, favorite.latitude]);
+  }
+
+  const shown = newMap(holder, { bounds, fitBoundsOptions: { maxZoom: 17, padding: 48, pitch: 45 } });
+
+  shown.on("load", () => {
+    addStart(shown, car);
+  });
+
+  for (const favorite of favorites) {
+    new mapboxgl.Marker({ element: favoritePin(favorite) }).setLngLat([favorite.longitude, favorite.latitude]).addTo(shown);
+  }
+}
+
+function mapPanel() {
+  return `<section class="panel" aria-labelledby="nav-map-h"><div class="panel-head"><h2 id="nav-map-h">Map</h2></div>
+    <div class="panel-body"><div class="nav-map" data-nav-map></div></div></section>`;
 }
 
 async function loadRoutes(place) {
@@ -361,7 +516,7 @@ async function loadRoutes(place) {
     const path = `directions/v5/mapbox/driving-traffic/${entry.start.join(",")};${place.longitude},${place.latitude}`;
 
     try {
-      const data = await mapbox(path, { alternatives: "true", geometries: "geojson", overview: "full" });
+      const data = await mapbox(path, { alternatives: "true", annotations: "congestion", geometries: "geojson", overview: "full" });
       entry.routes = data.routes || [];
     } catch (error) {
       if (!(error instanceof MapboxError)) {
@@ -399,6 +554,12 @@ function showPreview() {
   removeMap();
   const place = shownPlace();
 
+  if (!place && lastPosition) {
+    holder.innerHTML = mapPanel();
+    drawFavoritesMap(holder.querySelector("[data-nav-map]"));
+    return;
+  }
+
   if (!place) {
     holder.innerHTML = "";
     return;
@@ -430,6 +591,24 @@ function previewPlace(place) {
   document.querySelector("[data-nav-preview]").scrollIntoView({ behavior, block: "nearest" });
 }
 
+function routeStateHTML() {
+  if (routeState === "failed") {
+    const cause = "It keeps trying. Your secret key or the device's internet connection is the likely cause.";
+    const check = `Check the key on the <a class="link" href="/keys">Keys</a> page.`;
+    return `<div class="notice danger">${P.ic("alert")}<span><b>The device couldn't get a route.</b> ${cause} ${check}</span></div>`;
+  }
+
+  if (routeState === "finding") {
+    return `<p class="hint">The device is getting its route…</p>`;
+  }
+
+  if (routeState === "routed") {
+    return `<p class="hint">The device has its route.</p>`;
+  }
+
+  return "";
+}
+
 function destinationPanel() {
   let body = `<p class="muted">No destination is set. Search for a place or choose a favorite to preview its route.</p>`;
 
@@ -443,9 +622,10 @@ function destinationPanel() {
 
     body = `<div class="list-row">
         <span class="grow"><b>${name}</b><span>${destination.latitude.toFixed(5)}, ${destination.longitude.toFixed(5)}</span></span>
-        <span class="acts">${save}<button class="btn btn-danger-quiet btn-small" data-act="nav-cancel">Cancel destination</button></span>
+        <span class="acts nav-destination-acts">${save}<button class="btn btn-danger-quiet btn-small" data-act="nav-cancel">Cancel destination</button></span>
       </div>
-      <p class="hint">The device keeps it until you arrive or turn the car off.</p>`;
+      <p class="hint">The device keeps it until you arrive or turn the car off.</p>
+      <div class="nav-route-state" data-nav-route aria-live="polite">${routeStateHTML()}</div>`;
   }
 
   return `<section class="panel" aria-labelledby="nav-destination-h"><div class="panel-head"><h2 id="nav-destination-h">Destination</h2></div>
@@ -454,13 +634,18 @@ function destinationPanel() {
 
 function resultRow(result, index) {
   const name = P.esc(result.name);
-  const address = P.esc(result.full_address || result.place_formatted || "");
+  let address = P.esc(result.full_address || result.place_formatted || "");
+
+  if (result.feature_type === "brand") {
+    address = "";
+  }
+
   const save = `<button class="icon-btn" data-act="nav-result-save" data-index="${index}" aria-label="Save ${name} as a favorite" title="Save as favorite">`;
   return `<div class="list-row">
     <span class="grow"><b>${name}</b><span>${address}</span></span>
     <span class="acts">
       ${save}${P.ic("star")}</button>
-      <button class="btn btn-quiet btn-small" data-act="nav-result-preview" data-index="${index}">Preview</button>
+      <button class="btn btn-quiet btn-small" data-act="nav-result-preview" data-index="${index}" aria-label="Preview ${name}">Preview</button>
     </span>
   </div>`;
 }
@@ -488,13 +673,16 @@ function searchPanel() {
     query = P.esc(found.query);
   }
 
-  const input = `<input class="input" type="search" name="query" value="${query}" placeholder="Place or address" autocomplete="off" enterkeyhint="search">`;
+  const input = `<input class="input" type="search" name="query" value="${query}" placeholder="Place or address" autocomplete="off" enterkeyhint="search"
+    aria-describedby="nav-search-error">`;
+  const error = `<small class="hint nav-search-error" id="nav-search-error" role="alert" data-nav-search-error hidden>Enter a place or address first</small>`;
   return `<section class="panel" aria-labelledby="nav-search-h"><div class="panel-head"><h2 id="nav-search-h">Find a place</h2></div>
     <div class="panel-body">
       <form class="nav-search" data-nav-search>
         <label class="search"><span class="sr">Search for a place</span>${P.ic("search")}${input}</label>
         <button class="btn btn-primary" type="submit">Search</button>
       </form>
+      ${error}
       <p class="hint nav-privacy">Your searches and route previews go to Mapbox.</p>
       <div class="nav-results" data-nav-results aria-live="polite">${resultsHTML()}</div>
     </div></section>`;
@@ -521,19 +709,19 @@ function favoriteRow(favorite) {
       value = "";
     }
 
-    const item = `<button class="menu-item" role="menuitem" data-act="nav-favorite-type" data-id="${id}" data-type="${value}">`;
+    const item = `<button class="menu-item" data-act="nav-favorite-type" data-id="${id}" data-type="${value}">`;
     typeItems.push(`${item}${P.ic(info.icon)}<span>${label}</span></button>`);
   }
 
-  const more = `<button class="icon-btn" data-act="menu" aria-expanded="false" aria-haspopup="true" aria-label="More for ${name}" title="More">`;
-  const rename = `<button class="menu-item" role="menuitem" data-act="nav-favorite-rename" data-id="${id}">`;
+  const more = `<button class="icon-btn" data-act="menu" aria-expanded="false" aria-label="More for ${name}" title="More">`;
+  const rename = `<button class="menu-item" data-act="nav-favorite-rename" data-id="${id}">`;
   const remove = `<button class="icon-btn danger" data-act="nav-favorite-delete" data-id="${id}" aria-label="Delete ${name}" title="Delete">`;
   return `<div class="list-row">
     <span class="grow"><b>${name}</b>${meta}</span>
     <span class="acts">
-      <button class="btn btn-quiet btn-small" data-act="nav-favorite-preview" data-id="${id}">Preview</button>
+      <button class="btn btn-quiet btn-small" data-act="nav-favorite-preview" data-id="${id}" aria-label="Preview ${name}">Preview</button>
       <span class="menu-wrap">${more}${P.ic("dots")}</button>
-        <div class="menu" role="menu" hidden>
+        <div class="menu" hidden>
           ${rename}${P.ic("pencil")}<span>Rename…</span></button>
           ${typeItems.join("")}
         </div></span>
@@ -566,30 +754,53 @@ function favoritesPanel() {
     <div class="panel-body">${body}</div></section>`;
 }
 
-async function searchPlaces(form) {
+async function searchPlaces(form, button) {
   const input = form.query;
   const query = input.value.trim();
+  const message = form.closest(".panel").querySelector("[data-nav-search-error]");
 
   if (!query) {
     input.setAttribute("aria-invalid", "true");
-    P.toast("Enter a place or address first", "", "alert");
+    message.hidden = false;
+    input.focus();
     return;
   }
 
   input.removeAttribute("aria-invalid");
+  message.hidden = true;
 
-  const parameters = { limit: SEARCH_LIMIT, q: query, session_token: sessionToken };
+  if (query === searchedQuery) {
+    return;
+  }
+
+  searchedQuery = query;
+
+  const parameters = { limit: SUGGEST_LIMIT, q: query, session_token: sessionToken };
 
   if (lastPosition) {
     parameters.proximity = `${lastPosition.longitude},${lastPosition.latitude}`;
   }
 
+  let request = mapbox("search/searchbox/v1/suggest", parameters);
+
+  if (button) {
+    request = P.busy(button, request);
+  }
+
   let data;
 
   try {
-    data = await P.busy(form.querySelector("[type=submit]"), mapbox("search/searchbox/v1/suggest", parameters));
+    data = await request;
   } catch (error) {
+    if (searchedQuery === query) {
+      searchedQuery = "";
+    }
+
     showError(error, "Couldn't search");
+    return;
+  }
+
+  if (searchedQuery !== query) {
     return;
   }
 
@@ -601,7 +812,7 @@ async function searchPlaces(form) {
     }
   }
 
-  found = { query, results };
+  found = { query, results: results.slice(0, SEARCH_LIMIT) };
   form.closest(".panel").querySelector("[data-nav-results]").innerHTML = resultsHTML();
 }
 
@@ -664,26 +875,23 @@ P.act("nav-favorite-preview", button => {
 
 P.act("nav-favorite-rename", async button => {
   const favorite = favoriteById(button.dataset.id);
-  const dialog = await P.dialog({
+  let name = favorite.name;
+  await P.dialog({
     icon: "pencil", title: `Rename ${P.esc(favorite.name)}`,
     body: `<label class="field"><span>Name</span><input class="input" data-name value="${P.esc(favorite.name)}" autocomplete="off"></label>`,
-    confirm: "Save name"
+    confirm: "Save name",
+    errors: MESSAGES,
+    onConfirm: async dialog => {
+      const typed = dialog.querySelector("[data-name]").value.trim();
+
+      if (typed !== favorite.name) {
+        await P.request("PUT", `/api/navigation/favorites/${encodeURIComponent(favorite.id)}`, { name: typed });
+        name = typed;
+      }
+    }
   });
 
-  if (!dialog) {
-    return;
-  }
-
-  const name = dialog.querySelector("[data-name]").value.trim();
-
   if (name === favorite.name) {
-    return;
-  }
-
-  try {
-    await P.request("PUT", `/api/navigation/favorites/${encodeURIComponent(favorite.id)}`, { name });
-  } catch (error) {
-    P.fail(error, "Couldn't rename the favorite", MESSAGES);
     return;
   }
 
@@ -790,11 +998,11 @@ P.act("nav-route", button => {
 P.page("navigation", {
   title: "Navigation",
   async render() {
-    const [navigation, keys] = await Promise.all([P.get("/api/navigation"), P.get("/api/keys")]);
+    const navigation = await P.get("/api/navigation");
 
-    if (!keys.mapbox_public || !keys.mapbox_secret) {
+    if (!navigation.mapbox_public || !navigation.mapbox_secret) {
       return {
-        body: `<section class="panel"><div class="empty"><h3>Add your Mapbox keys first</h3>
+        body: `<section class="panel"><div class="empty"><h2>Add your Mapbox keys first</h2>
           <p>Navigation needs both Mapbox keys. Your public key finds places and previews routes,
             and your secret key lets the device show the route on your driving screen.</p>
           <a class="btn btn-primary btn-small" href="/keys">${P.ic("keys")}Go to Keys</a></div></section>`
@@ -804,11 +1012,20 @@ P.page("navigation", {
     destination = navigation.destination;
     favorites = navigation.favorites;
     lastPosition = navigation.last_position;
-    publicKey = keys.mapbox_public;
+    publicKey = navigation.mapbox_public;
+    routeState = navigation.route;
+
+    let rebootNotice = "";
+
+    if (navigation.map_reboot_required) {
+      rebootNotice = P.mapRebootNotice;
+    }
+
     return {
       body: `
       <div class="two-col wide-left">
         <div class="stack">
+          ${rebootNotice}
           ${destinationPanel()}
           <div class="nav-preview" data-nav-preview></div>
         </div>
@@ -818,20 +1035,70 @@ P.page("navigation", {
         </div>
       </div>`,
       mount: root => {
-        root.querySelector("[data-nav-search]").addEventListener("submit", event => {
+        const form = root.querySelector("[data-nav-search]");
+        let searchTimer = 0;
+
+        form.addEventListener("submit", event => {
           event.preventDefault();
-          searchPlaces(event.currentTarget);
+          clearTimeout(searchTimer);
+          searchPlaces(form, form.querySelector("[type=submit]"));
+        });
+
+        form.query.addEventListener("input", () => {
+          const query = form.query.value.trim();
+          clearTimeout(searchTimer);
+
+          if (!query) {
+            found = null;
+            searchedQuery = "";
+            root.querySelector("[data-nav-results]").innerHTML = resultsHTML();
+            return;
+          }
+
+          if (query.length >= SEARCH_MIN_LENGTH) {
+            searchTimer = setTimeout(() => {
+              searchPlaces(form);
+            }, SEARCH_DELAY);
+          }
         });
 
         showPreview();
 
+        const timer = setInterval(async () => {
+          if (document.hidden || !destination) {
+            return;
+          }
+
+          let next;
+
+          try {
+            next = await P.get("/api/navigation");
+          } catch (error) {
+            if (error.code === "connection_lost") {
+              return;
+            }
+
+            clearInterval(timer);
+            P.fail(error, "Couldn't refresh the route status");
+            return;
+          }
+
+          if (next.route !== routeState) {
+            routeState = next.route;
+            root.querySelector("[data-nav-route]").innerHTML = routeStateHTML();
+          }
+        }, ROUTE_REFRESH_TIME);
+
         return () => {
+          clearInterval(timer);
+          clearTimeout(searchTimer);
           removeMap();
 
           if (location.pathname !== "/navigation") {
             found = null;
             picked = null;
             previews.clear();
+            searchedQuery = "";
           }
         };
       }

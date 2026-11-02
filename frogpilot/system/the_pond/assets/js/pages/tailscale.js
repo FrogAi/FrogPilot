@@ -8,7 +8,8 @@ const GUIDE = {
   sections: [
     ["On this page", [
       "Choose <b>Install Tailscale</b>, then <b>Sign in</b>.",
-      "Open the sign-in page, or scan its code with your phone, and log in with the account you want to use. The status here changes to <b>Connected</b>."
+      `Open the sign-in page<span class="ts-scan">, or scan its code with your phone,</span> and log in with the account you want to use. `
+        + "The status here changes to <b>Connected</b>."
     ]],
     ["On your phone or computer", [
       `Install the Tailscale app: from the ${link("https://apps.apple.com/app/tailscale/id1470499037", "App Store")} on an iPhone or iPad, from ${link("https://play.google.com/store/apps/details?id=com.tailscale.ipn", "Google Play")} on Android, or from ${link("https://tailscale.com/download", "tailscale.com/download")} on Windows and Mac.`,
@@ -28,8 +29,8 @@ const GUIDE = {
     ["The phone or computer uses a different account", "Sign out of the Tailscale app there and sign in with the account this device uses. Both must show on the same Machines page."],
     ["Tailscale is off on the phone or computer", "Open the Tailscale app and turn it on, then try the link again."],
     ["The short address doesn't open", "MagicDNS is off in your tailnet, or that device doesn't use Tailscale's DNS settings. Turn on MagicDNS on the admin console's DNS page, or use the IP address link."],
-    ["Another VPN is on", "iPhones and Android phones run only one VPN at a time, so a work or other VPN turns Tailscale off. Turn the other VPN off. On a computer, another VPN can also block Tailscale's addresses."],
-    ["The Pond asks for a pairing code", "Each address counts as a new browser. Enter the code shown on the device next to <b>Manage Your Settings At</b> in FrogPilot's Navigation settings."]
+    ["Another VPN is on", "iPhones and Android phones run only one VPN at a time, so a work or other VPN turns Tailscale off. Turn the other VPN off. "
+      + "On a computer, another VPN can also block Tailscale's addresses."]
   ]
 };
 const MESSAGES = { invalid_hostname: "Use up to 63 letters, numbers, and dashes, starting and ending with a letter or number" };
@@ -53,11 +54,18 @@ function link(href, text) {
 }
 
 function guideBody() {
+  const pairing = ["The Pond asks for a pairing code", `Each address counts as a new browser. Enter the code shown ${P.pairingCodePlace()}.`];
+
+  let problems = "";
+  for (const [problem, fix] of [...GUIDE.problems, pairing]) {
+    problems += `<dt>${problem}</dt><dd>${fix}</dd>`;
+  }
+
   return `<p>${GUIDE.intro}</p>
     <div class="guide">
       ${GUIDE.sections.map(([heading, steps]) => `<section><h3>${heading}</h3><ol class="guide-steps">${steps.map(step => `<li><span>${step}</span></li>`).join("")}</ol></section>`).join("")}
       <section><h3>When it works</h3><p>${GUIDE.works}</p></section>
-      <section><h3>If it doesn't work</h3><dl class="guide-problems">${GUIDE.problems.map(([problem, fix]) => `<dt>${problem}</dt><dd>${fix}</dd>`).join("")}</dl></section>
+      <section><h3>If it doesn't work</h3><dl class="guide-problems">${problems}</dl></section>
     </div>`;
 }
 
@@ -272,6 +280,22 @@ function qrCode(text) {
   return `<svg viewBox="0 0 ${size + 8} ${size + 8}" shape-rendering="crispEdges" aria-hidden="true"><rect width="100%" height="100%" fill="#fff"/><path d="${path}" fill="#000"/></svg>`;
 }
 
+function nameFocus(root) {
+  const form = root.querySelector("[data-ts-name]");
+  if (!form) {
+    return "";
+  }
+
+  const button = form.querySelector("[type=submit]");
+  if (document.activeElement === form.hostname) {
+    return "[name=hostname]";
+  }
+  if (document.activeElement === button || (document.activeElement === document.body && button.classList.contains("is-busy"))) {
+    return "[type=submit]";
+  }
+  return "";
+}
+
 function signature(data) {
   return JSON.stringify([data.installed, data.job?.kind, data.job?.state, data.status?.backend_state, data.status?.auth_url, data.status?.dns_name, data.status?.hostname,
     data.status?.magic_dns, data.status?.peers_online]);
@@ -322,8 +346,15 @@ function statusBody(ts, signingIn, port) {
   }
   if (signingIn && ts.auth_url) {
     const qr = qrCode(ts.auth_url);
-    return `<div class="ts-signin">${qr ? `<span class="ts-qr" role="img" aria-label="QR code for the Tailscale sign-in page">${qr}</span>` : ""}
-      <div><p>Open the sign-in page${qr ? ", or scan the code with your phone," : ""} and add this device to your tailnet. This page updates once you're signed in.</p>
+    let code = "";
+    let scan = "";
+    if (qr) {
+      code = `<span class="ts-qr" role="img" aria-label="QR code for the Tailscale sign-in page">${qr}</span>`;
+      scan = `<span class="ts-scan">, or scan the code with your phone,</span>`;
+    }
+
+    return `<div class="ts-signin">${code}
+      <div><p>Open the sign-in page${scan} and add this device to your tailnet. This page updates once you're signed in.</p>
       <p class="mt-12"><a class="link" href="${P.esc(ts.auth_url)}" target="_blank" rel="noopener noreferrer">${P.ic("link")}Sign in to Tailscale</a></p></div></div>`;
   }
   if (signingIn) {
@@ -359,7 +390,16 @@ P.page("tailscale", {
         if (next.status?.backend_state === "Running" && data.status?.backend_state !== "Running") {
           P.toast("Tailscale connected");
         }
-        P.refresh();
+
+        const focused = nameFocus(root);
+        await P.refresh();
+
+        if (focused) {
+          const control = document.querySelector(`[data-ts-name] ${focused}`);
+          if (control) {
+            control.focus();
+          }
+        }
         return true;
       }, 3000).catch(error => {
         if (!stopped) {
@@ -371,9 +411,16 @@ P.page("tailscale", {
       };
     };
     if (!data.installed) {
+      let disabled = "";
+      if (busy) {
+        disabled = "disabled";
+      }
+
       return {
-        body: `<section class="panel"><div class="empty"><h3>Tailscale isn't installed</h3><p>Open The Pond away from the car's Wi-Fi. Install Tailscale, then sign in with the link it gives you.</p><button class="btn btn-primary btn-small" data-act="tailscale-install" ${busy ? "disabled" : ""}>${P.ic("download")}Install Tailscale</button>
-          <button class="btn btn-text btn-small" data-act="tailscale-guide">${P.ic("info")}How to open The Pond over Tailscale</button></div></section>`,
+        body: `<section class="panel"><div class="empty"><h2>Tailscale isn't installed</h2>
+          <p>Tailscale lets you open The Pond away from the car's Wi-Fi. Install it, then sign in with the link it gives you.</p>
+          <button class="btn btn-primary btn-small" data-act="tailscale-install" ${disabled}>${P.ic("download")}Install Tailscale</button>
+          <button class="btn btn-text btn-small ts-guide" data-act="tailscale-guide">${P.ic("info")}How to open The Pond over Tailscale</button></div></section>`,
         mount
       };
     }
@@ -385,13 +432,27 @@ P.page("tailscale", {
     const foot = running ? `<button class="btn btn-quiet btn-small" data-act="tailscale-logout">Sign out…</button>`
       : ts && !signingIn ? `<button class="btn btn-quiet btn-small" data-act="tailscale-login">${ts.backend_state === "Stopped" ? "Connect" : "Sign in"}</button>` : "";
     const uninstall = `<button class="btn btn-danger-quiet btn-small" data-act="tailscale-uninstall" ${busy && !signingIn ? "disabled" : ""}>Uninstall Tailscale…</button>`;
-    const guideButton = showGuide ? "" : `<button class="btn btn-text btn-small ts-guide" data-act="tailscale-guide">${P.ic("info")}How to connect a phone or computer</button>`;
+
+    let guideButton = "";
+    if (!showGuide) {
+      guideButton = `<button class="btn btn-text btn-small ts-guide" data-act="tailscale-guide">${P.ic("info")}How to open The Pond over Tailscale</button>`;
+    }
+
     const name = running ? `<section class="panel"><div class="panel-head"><h2>Device name</h2></div>
       <div class="panel-body"><form class="form-grid" data-ts-name>
         <p class="muted">The name in this device's short address. Use letters, numbers, and dashes. Signing out of Tailscale sets it back to the default.</p>
-        <label class="field"><span>Name</span><input class="input mono" name="hostname" value="${P.esc(ts.hostname || "")}" autocomplete="off" autocapitalize="off" spellcheck="false"></label>
+        <label class="field"><span>Name</span><input class="input mono" name="hostname" value="${P.esc(ts.hostname || "")}" autocomplete="off"
+          autocapitalize="off" spellcheck="false" aria-describedby="ts-name-error">
+          <small class="hint ts-name-error" id="ts-name-error" role="alert" data-ts-name-error hidden></small></label>
         <div><button class="btn btn-primary btn-small" type="submit">Save name</button></div>
       </form></div></section>` : "";
+
+    let secondColumn = name;
+    if (showGuide) {
+      const heading = `<div class="panel-head"><h2>Open The Pond over Tailscale</h2></div>`;
+      secondColumn = `<section class="panel">${heading}<div class="panel-body ts-guide-body">${guideBody()}</div></section>`;
+    }
+
     return {
       body: `
       <div class="two-col">
@@ -402,19 +463,34 @@ P.page("tailscale", {
           ${showGuide ? name : ""}
         </div>
         <div class="stack">
-          ${showGuide ? `<section class="panel"><div class="panel-head"><h2>Open The Pond from your phone or computer</h2></div><div class="panel-body ts-guide-body">${guideBody()}</div></section>` : name}
+          ${secondColumn}
         </div>
       </div>`,
       mount: root => {
         root.querySelector("[data-ts-name]")?.addEventListener("submit", async e => {
           e.preventDefault();
           const form = e.currentTarget;
+          const message = form.querySelector("[data-ts-name-error]");
+
           try {
             await P.busy(form.querySelector("[type=submit]"), P.request("PUT", "/api/tailscale/hostname", { hostname: form.hostname.value.trim() }));
           } catch (error) {
-            P.fail(error, "Couldn't change the device name", MESSAGES);
+            if (!(error instanceof P.PondError)) {
+              throw error;
+            }
+
+            if (!error.handled) {
+              form.hostname.setAttribute("aria-invalid", "true");
+              message.textContent = MESSAGES[error.code] || error.message;
+              message.hidden = false;
+              form.hostname.focus();
+            }
+
             return;
           }
+
+          form.hostname.removeAttribute("aria-invalid");
+          message.hidden = true;
           P.toast("Device name saved", "The address updates once Tailscale picks up the new name.");
         });
         return mount(root);

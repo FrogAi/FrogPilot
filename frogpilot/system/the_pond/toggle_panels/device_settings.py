@@ -15,7 +15,7 @@ def konik_forced():
 
 
 def konik_server_changed(context, old_value, new_value):
-  context.notice = {"action": "REBOOT", "cancel": "Reboot Later", "confirm": "Reboot Now", "text": "Reboot required to take effect."}
+  context.notice = {"action": "REBOOT", "cancel": "Reboot later", "confirm": "Reboot now", "text": "Reboot required to take effect."}
   return False
 
 
@@ -57,9 +57,9 @@ def shutdown_labels():
   labels = {}
   for index in range(34):
     if index == 0:
-      labels[index] = "5 mins"
+      labels[index] = "5 minutes"
     elif index <= 3:
-      labels[index] = f"{index * 15} mins"
+      labels[index] = f"{index * 15} minutes"
     elif index == 4:
       labels[index] = f"{index - 3} hour"
     else:
@@ -138,7 +138,7 @@ ROWS = [
     "confirm_enable": rows.ENABLE_CONFIRMATION,
     "description": ("<b>Let the device run about 6 degrees Celsius hotter than normal before openpilot disengages because of the " +
                     "heat.</b><br><br>Normally openpilot disengages and will not re-engage once the device gets hot, and drops back to the offroad " +
-                    "screen if it keeps climbing. This only makes the first happen later: the device still drops back to the offroad screen at the " +
+                    "screen if it keeps climbing. This only makes the first happen later. The device still drops back to the offroad screen at the " +
                     "normal temperature. Running the device that hot can shorten its life or damage it, so only use this if you understand the risk."),
     "key": "IncreaseThermalLimits",
     "order": 5,
@@ -188,7 +188,7 @@ ROWS = [
   },
   {
     "description": ("<b>How bright the screen is while you're not driving.</b><br><br>\"Auto\" only follows the light around you while you are " +
-                    "driving. While you are parked it is a fixed 50%, whatever the light is like."),
+                    "driving. While you are parked it stays at a fixed brightness, whatever the light is like."),
     "key": "ScreenBrightness",
     "order": 1,
     "path": ("System Settings", "DEVICE / SCREEN", "Screen Settings"),
@@ -209,7 +209,7 @@ ROWS = [
   },
   {
     "description": ("<b>Add a button to the driving screen that records what's on it.</b><br><br>Your recordings are saved on the device and can be " +
-                    "renamed or deleted under \"Screen Recordings\" in the \"DATA\" panel."),
+                    "renamed or deleted under \"Screen Recordings\" in the \"Data\" panel."),
     "key": "ScreenRecorder",
     "order": 3,
     "note": "Start and stop recordings on the device.",

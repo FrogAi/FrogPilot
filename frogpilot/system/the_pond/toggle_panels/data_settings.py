@@ -10,11 +10,13 @@ TELEMETRY_DESCRIPTION = ("<b>Help make FrogPilot better by sharing filtered driv
                          "location included in usage stats is generalized, before they are sent.<br><br><b>Driving logs</b> record vehicle behavior and " +
                          "FrogPilot's driving decisions. Before upload, we remove camera footage, audio, driver face data, account details, SSH keys, " +
                          "navigation routes, and map road names and IDs. Exact GPS coordinates and recording date/time fields are cleared, and <b>the VIN " +
-                         "field is removed entirely</b>. Driver-monitoring data is limited to awareness level and whether your car is right-hand drive. " +
+                         "field is removed entirely</b>. Driver-monitoring data is removed. " +
                          "We also discard CAN messages captured during startup vehicle identification. Each drive gets an ID that hides when it was " +
                          "recorded, and uploaded logs are linked to your FrogPilot device ID.<br><br>Raw CAN data recorded during driving is kept to help " +
-                         "improve car support. On some cars, these vehicle messages can still contain GPS, VIN, date/time, odometer, or seat occupancy " +
-                         "information.<br><br><b>Usage stats</b> cover your device, software, car and calibration details, FrogPilot settings, model " +
+                         "improve car support. Known GPS position and VIN messages are dropped on GM, Toyota, Ford, and Tesla. Other data, including clocks " +
+                         "and odometers, can remain, and other cars may still carry GPS position or VIN messages. On some cars, these vehicle messages can " +
+                         "still contain seat occupancy information.<br><br><b>Usage stats</b> cover your device, software, car and calibration " +
+                         "details, FrogPilot settings, model " +
                          "usage and scores, and lifetime driving totals, including drives from before you turned sharing on. <b>Your location is " +
                          "generalized on your device.</b> It reports the nearest city in your country or US state from a list filtered to populations of " +
                          "<b>50,000 or more</b>. If that region has no qualifying city, it uses its capital instead. This helps protect location privacy " +
@@ -25,7 +27,8 @@ TELEMETRY_DESCRIPTION = ("<b>Help make FrogPilot better by sharing filtered driv
                          "date/time are attached, and clip IDs hide the original recording time. Each clip includes the speed limit or the reader's " +
                          "reading, camera calibration, and basic device, camera, and software details, and is linked to your FrogPilot device ID. Video is " +
                          "uploaded as recorded and can show license plates, people, and identifiable places. Clips picked to train or test the reader may " +
-                         "be kept for up to 2 years. Clips may be matched to driving logs.<br><br><b>Learned speed limits</b> are the limits \"Speed Limit " +
+                         "be kept for up to 2 years. Clips may be matched to driving logs. Small crops showing only a speed-limit sign may be shown to " +
+                         "signed-in FrogPilot.com users who help label them.<br><br><b>Learned speed limits</b> are the limits \"Speed Limit " +
                          "Filler\" learns from the signs the camera reads, when that setting is on. They are used to improve speed limits for everyone " +
                          "using FrogPilot. Each one includes the speed limit, the map ID of the road it was learned on, the direction of travel, the GPS " +
                          "location and heading where the sign was seen, the date, and how far the car drove with that limit, and they are linked to your " +
@@ -39,9 +42,8 @@ TELEMETRY_DESCRIPTION = ("<b>Help make FrogPilot better by sharing filtered driv
                          "device type, operating system and software build details, and a public authentication key. Startup and after-drive check-ins " +
                          "continue without your usage stats, settings, or location. Crash reports also continue, tagged with your comma device ID (or your " +
                          "Konik device ID when you use the Konik server) and software details. Python crash reports do not automatically collect local " +
-                         "variable values.<br><br>Read FrogPilot's full privacy policy at <b>frogpilot.com/privacy</b>.")
-
-DELETE_STATUS = {"failure": "Delete failed...", "success": "Deleted!"}
+                         "variable values.<br><br>Read FrogPilot's full privacy policy at " +
+                         "<a href=\"https://frogpilot.com/privacy\">FrogPilot.com/privacy</a>.")
 
 
 async def delete_driving_data(context, body):
@@ -76,13 +78,13 @@ ROWS = [
     "actions": {
       "DELETE": {
         "confirm": {"cancel": "Cancel", "confirm": "Delete",
-                    "text": "Delete all driving footage and data? Only the flagged one-minute chunks and the drives preserved in \"The Pond\" will be kept."},
+                    "text": "Delete all driving footage and data? Only the flagged one-minute chunks and your favorite drives will be kept."},
         "run": delete_driving_data,
-        "status": DELETE_STATUS
+        "status": {"failure": "Couldn't delete all of the driving data. Try again.", "success": "Driving data deleted"}
       }
     },
     "description": ("<b>Delete every recorded drive to free up space and clear personal footage off the device.</b><br><br>Only the one-minute chunk " +
-                    "of footage containing the moment you flagged is kept, not the rest of that drive. Drives preserved in \"The Pond\" are kept " +
+                    "of footage containing the moment you flagged is kept, not the rest of that drive. Drives you marked as favorites are kept " +
                     "whole."),
     "id": "DeleteDrivingData",
     "key": None,
@@ -96,7 +98,7 @@ ROWS = [
       "DELETE": {
         "confirm": {"cancel": "Cancel", "confirm": "Delete", "text": "Delete all error logs?"},
         "run": delete_error_logs,
-        "status": DELETE_STATUS
+        "status": {"failure": "Couldn't delete the error logs. Try again.", "success": "Error logs deleted"}
       }
     },
     "description": ("<b>Delete openpilot's saved crash logs.</b><br><br>Bug reports sent after deleting won't include crash details until a new " +
@@ -110,7 +112,7 @@ ROWS = [
   },
   {
     "description": ("<b>Delete or rename your recordings of the driving screen.</b><br><br>Recordings are made with the \"Screen Recorder\" button " +
-                    "on the driving screen. \"DELETE ALL\" removes every recording at once."),
+                    "on the driving screen. Select several on the \"Screen Recordings\" page to delete them at once."),
     "id": "ScreenRecordings",
     "key": None,
     "link": "recordings",
@@ -123,7 +125,7 @@ ROWS = [
   {
     "description": ("<b>Back up the FrogPilot software, restore a backup to go back to that version, or delete ones you no longer " +
                     "need.</b><br><br>Restoring reboots the device on its own and puts the software back exactly as it was when the backup was made, " +
-                    "without changing your settings. Automatic updates turn off after a restore until you update manually. \"DELETE ALL\" also " +
+                    "without changing your settings. Automatic updates turn off after a restore until you update manually. \"Delete all\" also " +
                     "removes the backups FrogPilot makes automatically."),
     "id": "FrogpilotBackups",
     "key": None,

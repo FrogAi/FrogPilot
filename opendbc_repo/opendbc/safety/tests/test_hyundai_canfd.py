@@ -8,7 +8,7 @@ from opendbc.car.structs import CarParams
 from opendbc.safety.tests.libsafety import libsafety_py
 import opendbc.safety.tests.common as common
 from opendbc.safety.tests.common import CANPackerSafety, MAX_SAMPLE_VALS
-from opendbc.safety.tests.hyundai_common import HyundaiButtonBase, HyundaiLongitudinalBase
+from opendbc.safety.tests.hyundai_common import HyundaiButtonBase, HyundaiLkasButtonBase, HyundaiLongitudinalBase
 
 # All combinations of radar/camera-SCC and gas/hybrid/EV cars
 ALL_GAS_EV_HYBRID_COMBOS = [
@@ -23,7 +23,7 @@ ALL_GAS_EV_HYBRID_COMBOS = [
 ]
 
 
-class TestHyundaiCanfdBase(HyundaiButtonBase, common.CarSafetyTest, common.DriverTorqueSteeringSafetyTest, common.SteerRequestCutSafetyTest):
+class TestHyundaiCanfdBase(HyundaiLkasButtonBase, HyundaiButtonBase, common.CarSafetyTest, common.DriverTorqueSteeringSafetyTest, common.SteerRequestCutSafetyTest):
 
   TX_MSGS = [[0x50, 0], [0x1CF, 1], [0x2A4, 0]]
   STANDSTILL_THRESHOLD = 12  # 0.375 kph
@@ -90,6 +90,13 @@ class TestHyundaiCanfdBase(HyundaiButtonBase, common.CarSafetyTest, common.Drive
   def _toggle_aol(self, toggle_on):
     self._rx(self.packer.make_can_msg_safety("CRUISE_BUTTONS", self.PT_BUS, {"LDA_BTN": 0}))
     return self.packer.make_can_msg_safety("CRUISE_BUTTONS", self.PT_BUS, {"LDA_BTN": int(toggle_on != self.safety.get_lkas_on())})
+
+  def _lkas_button_msg(self, pressed):
+    return self.packer.make_can_msg_safety("CRUISE_BUTTONS", self.PT_BUS, {"LDA_BTN": pressed})
+
+  def test_always_on_lateral(self):
+    self._set_lkas_aol_path()
+    super().test_always_on_lateral()
 
 
 class TestHyundaiCanfdLFASteeringBase(TestHyundaiCanfdBase):
@@ -164,6 +171,9 @@ class TestHyundaiCanfdLFASteeringAltButtonsBase(TestHyundaiCanfdLFASteeringBase)
   def _toggle_aol(self, toggle_on):
     self._rx(self.packer.make_can_msg_safety("CRUISE_BUTTONS_ALT", self.PT_BUS, {"LDA_BTN": 0}))
     return self.packer.make_can_msg_safety("CRUISE_BUTTONS_ALT", self.PT_BUS, {"LDA_BTN": int(toggle_on != self.safety.get_lkas_on())})
+
+  def _lkas_button_msg(self, pressed):
+    return self.packer.make_can_msg_safety("CRUISE_BUTTONS_ALT", self.PT_BUS, {"LDA_BTN": pressed})
 
 
 @parameterized_class(ALL_GAS_EV_HYBRID_COMBOS)

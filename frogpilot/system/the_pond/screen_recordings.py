@@ -53,7 +53,12 @@ def get_recording_info(file):
     except ValueError:
       pass
 
-  return {**file, "recorded": recorded, "replay": "_replay_" in clean_name}
+  size = 0
+  for path in get_recording_files(frogpilot_paths.SCREEN_RECORDINGS_PATH / file["name"]):
+    if path.is_file():
+      size += path.stat().st_size
+
+  return {**file, "recorded": recorded, "replay": "_replay_" in clean_name, "size": size}
 
 
 def get_recording_paths():
@@ -71,6 +76,9 @@ async def prepare_preview(the_pond, path):
 
 async def prepare_recordings(the_pond, previous_recordings):
   for path in get_recording_paths() - previous_recordings:
+    if not await dashcam.is_readable(path):
+      continue
+
     await utilities.run_and_report(prepare_thumbnail(the_pond, path))
     await utilities.run_and_report(prepare_preview(the_pond, path))
 
@@ -146,12 +154,18 @@ async def rename_recording(request):
     raise web.HTTPBadRequest(text="invalid_name")
 
   name = name.strip().replace(" ", "_")
-  new_name = f"{name}.mp4"
   recorder_name = RECORDER_NAME_PATTERN.match(path.stem)
-  if recorder_name is not None:
-    new_name = f"{recorder_name[0]}_{new_name}"
-  if len(new_name) > MAX_FILE_NAME_LENGTH or not utilities.is_valid_name(name):
-    raise web.HTTPBadRequest(text="invalid_name")
+
+  if recorder_name is not None and not name:
+    new_name = f"{recorder_name[0]}.mp4"
+  else:
+    new_name = f"{name}.mp4"
+
+    if recorder_name is not None:
+      new_name = f"{recorder_name[0]}_{new_name}"
+
+    if len(new_name) > MAX_FILE_NAME_LENGTH or not utilities.is_valid_name(name):
+      raise web.HTTPBadRequest(text="invalid_name")
 
   targets = get_recording_files(path.with_name(new_name))
   if any(target.exists() for target in targets):

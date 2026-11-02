@@ -5,7 +5,7 @@ import os
 import threading
 import time
 
-from cereal import messaging
+from cereal import car, messaging
 from openpilot.common.params import Params
 from openpilot.common.realtime import Priority, set_core_affinity
 from openpilot.common.time_helpers import system_time_valid
@@ -35,12 +35,16 @@ class FrogPilotRequests:
     self.downloading_themes = False
     self.flashed_panda = False
 
+    self.account_link_request_time = 0
+
+    self.account_url = ""
     self.door_command = ""
     self.settings_backup = ""
 
     self.pending = {}
     self.request_times = {}
 
+    self.account_link = "{}"
     self.issue_report = "{}"
 
     self.failed_report = None
@@ -69,6 +73,15 @@ class FrogPilotRequests:
       self.door_command = "locked" if lock else "unlocked"
     else:
       self.door_command = "failed"
+
+  def update_account_link(self, api, unlink, request_time):
+    if unlink:
+      api.unlink_account()
+
+    account_link = api.account_link()
+    if account_link:
+      self.account_link = json.dumps(account_link)
+    self.account_link_request_time = request_time
 
   def publish_issue_report(self, issue_report):
     self.issue_report = json.dumps(issue_report)
@@ -142,13 +155,26 @@ class FrogPilotRequests:
       self.thread_manager.run_in_thread(self.flash_panda)
 
     if time_validated and not self.thread_manager.is_thread_alive("send_report"):
+      report_waiting = self.failed_report is not None and sm["deviceState"].networkMetered and not self.failed_report.get("metered_confirmed")
+
       request = self.take("issueReport")
       if request is not None:
         self.issue_report = json.dumps({"status": "pending"})
         self.thread_manager.run_in_thread(self.send_report, (json.loads(request.issueReport), dict(vars(frogpilot_toggles)), api))
-      elif self.take("retryIssueReport") is not None and self.failed_report is not None:
+      elif not report_waiting and self.take("retryIssueReport") is not None and self.failed_report is not None:
         self.issue_report = json.dumps({"status": "pending"})
         self.thread_manager.run_in_thread(self.send_report, (self.failed_report, dict(vars(frogpilot_toggles)), api))
+
+    if not self.thread_manager.is_thread_alive("update_account_link"):
+      refresh = self.take("accountLink") is not None
+      unlink = self.take("unlinkAccount") is not None
+      if refresh or unlink:
+        request_time = max(self.request_times.get("accountLink", 0), self.request_times.get("unlinkAccount", 0))
+        self.thread_manager.run_in_thread(self.update_account_link, (api, unlink, request_time))
+
+    request = self.take("accountUrl")
+    if request is not None:
+      self.account_url = api.account_url(request.accountUrl)
 
     if not self.thread_manager.is_thread_alive("update_maps") and self.take("downloadMaps") is not None:
       self.thread_manager.run_in_thread(frogpilot_functions.update_maps, (now, params, self.cancel_maps_download, sm, True))
@@ -187,6 +213,16 @@ class FrogPilotRequests:
 
   def publish(self, pm, stats_saved_count, toggles_json):
     flashing_panda = self.thread_manager.is_thread_alive("flash_panda")
+
+    frogpilot_account_state_send = messaging.new_message("frogpilotAccountState")
+    frogpilotAccountState = frogpilot_account_state_send.frogpilotAccountState
+
+    frogpilotAccountState.link = self.account_link
+    frogpilotAccountState.linkRequestTime = self.account_link_request_time
+    frogpilotAccountState.url = self.account_url
+    frogpilotAccountState.urlRequestTime = self.request_times.get("accountUrl", 0)
+
+    pm.send("frogpilotAccountState", frogpilot_account_state_send)
 
     frogpilot_process_state_send = messaging.new_message("frogpilotProcessState")
     frogpilotProcessState = frogpilot_process_state_send.frogpilotProcessState
@@ -261,6 +297,45 @@ def update_checks(now, model_manager, speed_limit_reader_models, theme_manager, 
   if frogpilot_toggles.show_speed_limits or frogpilot_toggles.speed_limit_controller or frogpilot_toggles.speed_limit_filler:
     speed_limit_reader_models.update(sm)
 
+def update_stock_tuning_values(params, car_params_key):
+  msg_bytes = params.get(car_params_key)
+  if msg_bytes is None:
+    return
+
+  CP = messaging.log_from_bytes(msg_bytes, car.CarParams)
+
+  if CP.lateralTuning.which() == "torque":
+    friction = CP.lateralTuning.torque.friction
+    lat_accel_factor = CP.lateralTuning.torque.latAccelFactor
+    steer_kp = 1.0
+  else:
+    friction = 0.0
+    lat_accel_factor = 0.0
+    steer_kp = 0.0
+
+  stock_values = {
+    "LongitudinalActuatorDelay": CP.longitudinalActuatorDelay,
+    "StartAccel": CP.startAccel,
+    "SteerDelay": CP.steerActuatorDelay,
+    "SteerFriction": friction,
+    "SteerKP": steer_kp,
+    "SteerLatAccel": lat_accel_factor,
+    "SteerRatio": CP.steerRatio,
+    "StopAccel": CP.stopAccel,
+    "StoppingDecelRate": CP.stoppingDecelRate,
+    "VEgoStarting": CP.vEgoStarting,
+    "VEgoStopping": CP.vEgoStopping,
+  }
+
+  for key, stock_value in stock_values.items():
+    previous_stock_value = params.get(f"{key}Stock")
+
+    if stock_value != previous_stock_value and (stock_value != 0 or key == "StartAccel"):
+      if round(params.get(key), 6) == round(previous_stock_value, 6):
+        params.put(key, stock_value)
+
+      params.put(f"{key}Stock", stock_value)
+
 def update_toggles(variables, started, model_manager, theme_manager, thread_manager, time_validated, params):
   frogpilot_toggles = variables.frogpilot_toggles
 
@@ -288,7 +363,7 @@ def update_toggles(variables, started, model_manager, theme_manager, thread_mana
     thread_manager.run_in_thread(frogpilot_backups.backup_toggles, (params,))
 
 def frogpilot_thread():
-  pm = messaging.PubMaster(["frogpilotPlan", "frogpilotProcessState"])
+  pm = messaging.PubMaster(["frogpilotAccountState", "frogpilotPlan", "frogpilotProcessState"])
   sm = messaging.SubMaster(["carControl", "carState", "controlsState", "deviceState",
                             "frogpilotCarParams", "frogpilotCarState", "frogpilotDeviceState", "frogpilotModelV2",
                             "frogpilotSelfdriveState", "frogpilotSignReading", "gpsLocation", "gpsLocationExternal",
@@ -296,6 +371,8 @@ def frogpilot_thread():
                             poll="modelV2")
 
   params = Params(return_defaults=True)
+
+  update_stock_tuning_values(params, "CarParamsPersistent")
 
   api = frogpilot_api.FrogPilotAPI(params)
   api.register_device()
@@ -375,7 +452,11 @@ def frogpilot_thread():
     frogpilot_requests.publish(pm, stats_saved_count, variables.toggles_json)
 
     toggles_updated |= sm["frogpilotDeviceState"].forceOnroadClearedCount > force_onroad_cleared_count
-    toggles_updated |= waiting_for_car_params and sm.updated["frogpilotCarParams"]
+
+    if waiting_for_car_params and sm.updated["frogpilotCarParams"]:
+      update_stock_tuning_values(params, "CarParams")
+
+      toggles_updated = True
 
     force_onroad_cleared_count = sm["frogpilotDeviceState"].forceOnroadClearedCount
     waiting_for_car_params &= not sm.updated["frogpilotCarParams"]

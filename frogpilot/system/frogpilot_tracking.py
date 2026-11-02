@@ -6,8 +6,7 @@ from openpilot.selfdrive.selfdrived.events import FROGPILOT_EVENT_NAME, FrogPilo
 from openpilot.selfdrive.selfdrived.selfdrived import LONGITUDINAL_PERSONALITY_MAP, State
 from openpilot.selfdrive.selfdrived.state import ACTIVE_STATES
 
-from openpilot.frogpilot.common import frogpilot_paths, frogpilot_variables
-from openpilot.frogpilot.controls.lib.weather_checker import weather_category
+from openpilot.frogpilot.common import frogpilot_paths, frogpilot_status, frogpilot_variables
 
 class FrogPilotTracking:
   def __init__(self, frogpilot_planner, frogpilot_toggles):
@@ -174,7 +173,7 @@ class FrogPilotTracking:
     self.add("WeatherCalls", self.frogpilot_weather.weather_calls)
     self.frogpilot_weather.weather_calls = 0
 
-    self.add_to("WeatherTimes", weather_category(self.frogpilot_weather.weather_id), DT_MDL)
+    self.add_to("WeatherTimes", frogpilot_status.weather_category(self.frogpilot_weather.weather_id), DT_MDL)
 
     if not self.drive_added and self.drive_time >= 60 and self.previously_enabled:
       self.add("FrogPilotDrives")

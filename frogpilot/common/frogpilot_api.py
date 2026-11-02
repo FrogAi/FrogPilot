@@ -26,6 +26,8 @@ AUTH_VERSION = 1
 FROGPILOT_API_HOST = "api.frogpilot.com"
 FROGPILOT_API = f"https://{FROGPILOT_API_HOST}"
 
+ACCOUNT_URLS = {"delete": "https://frogpilot.com/delete/#d=", "pair": "https://frogpilot.com/account/devices/pair/#t="}
+
 class FrogPilotAPIError(RuntimeError):
   pass
 
@@ -109,6 +111,34 @@ class FrogPilotAPI:
                              tags={"upload_kind": upload_kind})
 
       raise FrogPilotAPIError(f"{description} upload failed ({response.status_code})")
+
+  def account_link(self):
+    response = self.get("/v1/account-link")
+    if not self.succeeded(response):
+      return {}
+    return response.json()
+
+  def account_url(self, purpose):
+    algorithm, private_key, _ = get_key_pair()
+    device_id = self.params.get("FrogPilotDongleId")
+    if not private_key or not device_id:
+      return ""
+
+    signing_key = serialization.load_pem_private_key(private_key.encode(), password=None, unsafe_skip_rsa_key_validation=True)
+
+    now = int(time.time())
+    token = jwt.encode({
+      "aud": f"frogpilot.com/{purpose}",
+      "device_id": device_id,
+      "exp": now + 5 * 60,
+      "iat": now,
+      "jti": secrets.token_urlsafe(16),
+      purpose: True,
+    }, signing_key, algorithm=algorithm)
+    return ACCOUNT_URLS[purpose] + token
+
+  def unlink_account(self):
+    return self.succeeded(self.post("/v1/account-link/unlink", json={}))
 
   def regenerate_token(self, failed_token, session=requests):
     with self.credential_lock():

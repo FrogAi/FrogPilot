@@ -28,10 +28,18 @@ MAX_LOG_SIZE = 256 * 1024 * 1024
 
 SCHEMA_FILES = ("car.capnp", "custom.capnp", "include/c++.capnp", "legacy.capnp", "log.capnp")
 
+EXCLUDED_CAN_ADDRESSES = {
+  "ford": frozenset((0x462, 0x465)),
+  "gm": frozenset((0x32A, 0x4E1, 0x514)),
+  "tesla": frozenset((0x3D8,)),
+  "toyota": frozenset((0x580, 0x581, 0x582)),
+}
+
 EXCLUDED_MESSAGE_TYPES = frozenset((
   "androidLog",
   "audioFeedback",
   "bookmarkButton",
+  "cameraOdometry",
   "clocks",
   "customReservedRawData0",
   "customReservedRawData1",
@@ -43,9 +51,17 @@ EXCLUDED_MESSAGE_TYPES = frozenset((
   "drivingModelData",
   "errorLogMessage",
   "frogpilotDeviceState",
+  "frogpilotProcessState",
+  "frogpilotSignReading",
+  "frogpilotUIEvent",
+  "frogpilotUIRequest",
   "gnssMeasurements",
+  "gpsLocation",
+  "gpsLocationExternal",
   "gpsNMEA",
   "lightSensor",
+  "livePose",
+  "liveTracks",
   "logMessage",
   "magnetometer",
   "managerState",
@@ -64,36 +80,50 @@ EXCLUDED_MESSAGE_TYPES = frozenset((
   "soundPressure",
   "temperatureSensor",
   "testJoystick",
+  "thePondRequest",
   "thumbnail",
   "touch",
   "ubloxGnss",
   "ubloxRaw",
   "uiDebug",
   "uploaderState",
+  "userBookmark",
   "wideRoadCameraState",
   "wideRoadEncodeIdx",
 ))
 
 REMOVED_FIELDS = {
   "carParams": ("carVin",),
-  "livePose": ("debugFilterState",),
 }
 
 REPLACEMENT_FIELDS = {
   "carControl": {"orientationNED.2": 0},
-  "frogpilotPlan": {"gpsBearing": 0},
-  "gpsLocation": {"altitude": 0, "bearingDeg": 0, "latitude": 0, "longitude": 0, "unixTimestampMillis": 0, "vNED": []},
-  "gpsLocationExternal": {"altitude": 0, "bearingDeg": 0, "latitude": 0, "longitude": 0, "unixTimestampMillis": 0, "vNED": []},
-  "livePose": {"orientationNED.z": 0},
+  "frogpilotPlan": {"frogpilotToggles": "", "gpsBearing": 0, "themeUpdateCount": 0, "weatherDaytime": False, "wheelImageUpdateCount": 0},
+  "frogpilotSelfdriveState": {"alertText1": "", "alertText2": ""},
   "longitudinalPlan": {"processingDelay": 0},
   "mapdOut": {"roadName": "", "wayId": 0, "wayName": "", "wayRef": ""},
-  "modelV2": {"rawPredictions": b""},
+  "modelV2": {"leads": [], "rawPredictions": b""},
+  "selfdriveState": {"alertText1": "", "alertText2": ""},
 }
 
 WHITELIST_FIELDS = {
-  "driverMonitoringState": ("awarenessStatus", "isRHD"),
-  "initData": ("deviceType", "dirty", "gitCommit", "gitCommitDate", "osVersion", "version"),
+  "driverMonitoringState": (),
+  "initData": ("gitCommit", "version"),
 }
+
+
+def get_car_make(data, schema):
+  try:
+    for event in schema.Event.read_multiple_bytes(data):
+      try:
+        if event.which() == "carParams":
+          return event.carParams.brand
+      except capnp.KjException:
+        continue
+  except capnp.KjException:
+    pass
+
+  return frogpilot_variables.get_frogpilot_toggles().car_make
 
 
 def filter_log(data, schema):
@@ -101,61 +131,72 @@ def filter_log(data, schema):
 
   fingerprinting = False
 
+  excluded_can_addresses = EXCLUDED_CAN_ADDRESSES.get(get_car_make(data, schema))
+
   filtered_data = bytearray()
 
-  for event in schema.Event.read_multiple_bytes(data):
-    try:
-      which = event.which()
-    except capnp.KjException:
-      continue
+  try:
+    for event in schema.Event.read_multiple_bytes(data):
+      try:
+        which = event.which()
+      except capnp.KjException:
+        continue
 
-    if which == "sentinel" and event.sentinel.type == "startOfRoute":
-      fingerprinting = True
-    elif which == "carParams":
-      car_fingerprint = event.carParams.carFingerprint
-      fingerprinting = False
-    elif which == "carState":
-      fingerprinting = False
+      if which == "sentinel" and event.sentinel.type == "startOfRoute":
+        fingerprinting = True
+      elif which == "carParams":
+        car_fingerprint = event.carParams.carFingerprint
+        fingerprinting = False
+      elif which == "carState":
+        fingerprinting = False
 
-    if which in EXCLUDED_MESSAGE_TYPES or which.endswith("DEPRECATED"):
-      continue
+      if which in EXCLUDED_MESSAGE_TYPES or which.endswith("DEPRECATED"):
+        continue
 
-    if which in ("can", "sendcan") and fingerprinting:
-      continue
+      if which in ("can", "sendcan") and fingerprinting:
+        continue
 
-    builder = event.as_builder()
+      builder = event.as_builder()
 
-    if which in REMOVED_FIELDS:
-      message = getattr(builder, which)
+      if which == "can" and excluded_can_addresses:
+        kept_frames = [frame for frame in event.can if frame.address not in excluded_can_addresses]
 
-      for field in REMOVED_FIELDS[which]:
-        message.disown(field)
+        if len(kept_frames) != len(event.can):
+          builder.can = kept_frames
 
-    if which in REPLACEMENT_FIELDS:
-      message = getattr(builder, which)
+      if which in REMOVED_FIELDS:
+        message = getattr(builder, which)
 
-      for field, value in REPLACEMENT_FIELDS[which].items():
-        target = message
-        *parents, field = field.split(".")
+        for field in REMOVED_FIELDS[which]:
+          message.disown(field)
 
-        for parent in parents:
-          target = getattr(target, parent)
+      if which in REPLACEMENT_FIELDS:
+        message = getattr(builder, which)
 
-        if field.isdigit():
-          index = int(field)
-          if index < len(target):
-            target[index] = value
-        elif hasattr(target, field):
-          setattr(target, field, value)
+        for field, value in REPLACEMENT_FIELDS[which].items():
+          target = message
+          *parents, field = field.split(".")
 
-    elif which in WHITELIST_FIELDS:
-      kept = builder.init(which)
-      source = getattr(event, which)
+          for parent in parents:
+            target = getattr(target, parent)
 
-      for field in WHITELIST_FIELDS[which]:
-        setattr(kept, field, getattr(source, field))
+          if field.isdigit():
+            index = int(field)
+            if index < len(target):
+              target[index] = value
+          elif hasattr(target, field):
+            setattr(target, field, value)
 
-    filtered_data.extend(builder.to_bytes())
+      elif which in WHITELIST_FIELDS:
+        kept = builder.init(which)
+        source = getattr(event, which)
+
+        for field in WHITELIST_FIELDS[which]:
+          setattr(kept, field, getattr(source, field))
+
+      filtered_data.extend(builder.to_bytes())
+  except capnp.KjException:
+    pass
 
   return car_fingerprint, filtered_data
 

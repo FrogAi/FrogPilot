@@ -1,7 +1,11 @@
+from openpilot.frogpilot.system.the_pond.toggle_panels import account_settings
+
 DEVELOPER_CONFIRMATION = ("\"Developer\" unlocks settings that can drastically change how openpilot drives, and any you changed before will start being " +
                           "used again.\n\nOnly continue if you know what they do.")
 
 REBOOT_KEYS = ("ForceTorqueController", "LateralTune", "NNFF", "NNFFLite")
+
+TUNING_LEVEL_HINT = "but you can change this at any time with \"Tuning Level\" at the top of the Toggles page!"
 
 
 def first_open(params):
@@ -9,22 +13,16 @@ def first_open(params):
   openpilot_hours = (params.get("KonikMinutes") + params.get("openpilotMinutes")) // 60
 
   if frogpilot_hours < 1 and openpilot_hours < 10:
-    return 0, ("Welcome to FrogPilot! Since you're new to openpilot, the \"Minimal\" toggle preset has been applied, but you can change this at any time " +
-               "via the \"Tuning Level\" button!")
+    return 0, f"Welcome to FrogPilot! Since you're new to openpilot, the \"Minimal\" toggle preset has been applied, {TUNING_LEVEL_HINT}"
   if frogpilot_hours < 1 and openpilot_hours < 100:
-    return 0, ("Welcome to FrogPilot! Since you're new to FrogPilot, the \"Minimal\" toggle preset has been applied, but you can change this at any time " +
-               "via the \"Tuning Level\" button!")
+    return 0, f"Welcome to FrogPilot! Since you're new to FrogPilot, the \"Minimal\" toggle preset has been applied, {TUNING_LEVEL_HINT}"
   if frogpilot_hours < 50 and openpilot_hours < 100:
-    return 0, ("Since you're fairly new to FrogPilot, the \"Minimal\" toggle preset has been applied, but you can change this at any time via the " +
-               "\"Tuning Level\" button!")
+    return 0, f"Since you're fairly new to FrogPilot, the \"Minimal\" toggle preset has been applied, {TUNING_LEVEL_HINT}"
   if frogpilot_hours < 100 and openpilot_hours >= 100:
-    return 1, ("Since you're experienced with openpilot, the \"Standard\" toggle preset has been applied, but you can change this at any time via the " +
-               "\"Tuning Level\" button!")
+    return 1, f"Since you're experienced with openpilot, the \"Standard\" toggle preset has been applied, {TUNING_LEVEL_HINT}"
   if frogpilot_hours < 100:
-    return 1, ("Since you're experienced with FrogPilot, the \"Standard\" toggle preset has been applied, but you can change this at any time via the " +
-               "\"Tuning Level\" button!")
-  return 2, ("Since you're very experienced with FrogPilot, the \"Advanced\" toggle preset has been applied, but you can change this at any time via the " +
-             "\"Tuning Level\" button!")
+    return 1, f"Since you're experienced with FrogPilot, the \"Standard\" toggle preset has been applied, {TUNING_LEVEL_HINT}"
+  return 2, f"Since you're very experienced with FrogPilot, the \"Advanced\" toggle preset has been applied, {TUNING_LEVEL_HINT}"
 
 
 def tuning_level_changed(context, old_level, new_level):
@@ -48,12 +46,6 @@ def device_screen_visible(context):
   if context.level >= min(levels):
     return None
   return {"kind": "level", "level": min(levels)}
-
-
-def driving_view_visible(context):
-  if context.has_openpilot_longitudinal:
-    return None
-  return context.level_reason("Compass")
 
 
 ROWS = [
@@ -88,7 +80,7 @@ ROWS = [
     "widget": "buttons"
   },
   {
-    "description": ("<b>Adjust how openpilot accelerates, brakes, steers, and changes lanes.</b><br><br>\"GAS / BRAKE\" only appears on cars where " +
+    "description": ("<b>Adjust how openpilot accelerates, brakes, steers, and changes lanes.</b><br><br>\"Gas / Brake\" only appears on cars where " +
                     "openpilot handles the gas and brake."),
     "id": "DrivingControls",
     "key": None,
@@ -124,9 +116,10 @@ ROWS = [
     "id": "SystemSettings",
     "key": None,
     "options": (
-      {"children": ("System Settings", "DATA"), "label": "DATA", "value": 0},
-      {"children": ("System Settings", "DEVICE / SCREEN"), "label": "DEVICE / SCREEN", "value": 1, "visible": device_screen_visible},
-      {"children": ("System Settings", "UTILITIES"), "label": "UTILITIES", "value": 2}
+      {"children": ("System Settings", "ACCOUNT"), "label": "ACCOUNT", "value": 0, "visible": account_settings.account_visible},
+      {"children": ("System Settings", "DATA"), "label": "DATA", "value": 1},
+      {"children": ("System Settings", "DEVICE / SCREEN"), "label": "DEVICE / SCREEN", "value": 2, "visible": device_screen_visible},
+      {"children": ("System Settings", "UTILITIES"), "label": "UTILITIES", "value": 3}
     ),
     "order": 4,
     "path": (),
@@ -139,7 +132,8 @@ ROWS = [
     "id": "ThemeAndAppearance",
     "key": None,
     "options": (
-      {"children": ("Theme and Appearance", "DRIVING VIEW"), "label": "DRIVING VIEW", "value": 0, "visible": driving_view_visible},
+      {"children": ("Theme and Appearance", "DRIVING VIEW"), "label": "DRIVING VIEW", "value": 0,
+       "visible": lambda context: context.panel_reason(("Theme and Appearance", "DRIVING VIEW"))},
       {"children": ("Theme and Appearance", "THEME"), "label": "THEME", "value": 1}
     ),
     "order": 5,
@@ -149,14 +143,14 @@ ROWS = [
   },
   {
     "description": ("<b>Tell openpilot what car you drive, turn on features made for your brand, and change what your steering wheel buttons " +
-                    "do.</b><br><br>Brand features include things like smoother stop-and-go and automatic door locks. \"WHEEL BUTTONS\" only appears " +
-                    "once your \"Tuning Level\" is \"Advanced\" or higher."),
+                    "do.</b><br><br>Brand features include things like smoother stop-and-go and automatic door locks. \"Wheel Buttons\" only appears " +
+                    "on cars with a button it can use, once your \"Tuning Level\" is \"Advanced\" or higher."),
     "id": "VehicleSettings",
     "key": None,
     "options": (
       {"children": ("Vehicle Settings", "VEHICLE SETTINGS"), "label": "VEHICLE SETTINGS", "value": 0},
       {"children": ("Vehicle Settings", "WHEEL BUTTONS"), "label": "WHEEL BUTTONS", "value": 1,
-       "visible": lambda context: context.level_reason("WheelControls")}
+       "visible": lambda context: context.level_reason("WheelControls") or context.car_reason(context.has_distance_button or context.has_lkas_button)}
     ),
     "order": 6,
     "path": (),

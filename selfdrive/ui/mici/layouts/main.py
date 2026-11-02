@@ -1,6 +1,7 @@
 import pyray as rl
 from enum import IntEnum
 import cereal.messaging as messaging
+from openpilot.frogpilot.ui.mici.frogpilot_theme import theme
 from openpilot.selfdrive.ui.mici.layouts.home import MiciHomeLayout
 from openpilot.selfdrive.ui.mici.layouts.settings.settings import SettingsLayout
 from openpilot.selfdrive.ui.mici.layouts.offroad_alerts import MiciOffroadAlerts
@@ -96,6 +97,9 @@ class MiciMainLayout(Widget):
       self._settings_layout.render(self._rect)
 
     self._handle_transitions()
+
+    # FrogPilot variables
+    theme.update()
 
   def _set_mode(self, mode: MainState):
     if mode != self._current_mode:

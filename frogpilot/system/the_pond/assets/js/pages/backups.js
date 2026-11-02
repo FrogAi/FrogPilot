@@ -3,7 +3,10 @@
 
 const P = window.Pond;
 
-const BACKUP_NAME_ERRORS = { invalid_name: "Use letters, numbers, dots, dashes, and underscores, and leave out “_auto” and “_in_progress”" };
+const BACKUP_NAME_ERRORS = {
+  invalid_name: "Use letters, numbers, dots, dashes, and underscores, and leave out “_auto” and “_in_progress”",
+  no_name: "Give the backup a name"
+};
 const FROGPILOT_IMPORT_ERRORS = { ...BACKUP_NAME_ERRORS, invalid_file: "That file isn't a FrogPilot backup" };
 const SETTINGS_ERRORS = {
   invalid_file: "That file isn't a settings backup",
@@ -31,41 +34,54 @@ function newBackupName(backups) {
   return name;
 }
 
-async function askBackupName(icon, failure) {
-  const dlg = await P.dialog({ icon, title: "Name your backup", body: `<label class="field"><span>Backup name</span><input class="input mono" autocomplete="off" spellcheck="false" placeholder="before-0.10.4"></label><p class="muted small-print">Letters, numbers, dots, dashes, and underscores. Spaces become underscores.</p>`, confirm: "Back up" });
-  if (!dlg) {
-    return "";
-  }
-  const name = dlg.querySelector("input").value.trim().replaceAll(" ", "_");
-  if (!name) {
-    P.toast(failure, "Give the backup a name", "alert");
-  }
-  return name;
+function askBackupName(icon, save) {
+  const input = `<input class="input mono" autocomplete="off" spellcheck="false" placeholder="before-0.10.4">`;
+  const hint = `<p class="muted small-print">Letters, numbers, dots, dashes, and underscores. Spaces become underscores.</p>`;
+
+  return P.dialog({
+    icon, title: "Name your backup", body: `<label class="field"><span>Backup name</span>${input}</label>${hint}`,
+    confirm: "Back up", errors: BACKUP_NAME_ERRORS,
+    onConfirm: async dialog => {
+      const name = dialog.querySelector("input").value.trim().replaceAll(" ", "_");
+
+      if (!name) {
+        throw new P.PondError(400, "no_name");
+      }
+
+      await save(name);
+    }
+  });
 }
 
 P.act("backups-new", async () => {
-  const name = await askBackupName("backups", "Couldn't back up your settings");
-  if (!name) {
+  const dialog = await askBackupName("backups", name => {
+    return P.request("POST", "/api/settings_backups", { name });
+  });
+
+  if (!dialog) {
     return;
   }
-  const handle = P.job({ label: "Backing up settings" });
-  try {
-    await P.request("POST", "/api/settings_backups", { name });
-  } catch (error) {
-    handle.fail(error, "Couldn't back up your settings", BACKUP_NAME_ERRORS);
-    return;
-  }
-  handle.done("Backup saved on the device");
+
+  P.toast("Backup saved on the device");
+
   if (location.pathname === "/backups") {
     P.refresh();
   }
 });
 
 P.act("backups-now", async button => {
-  const failure = button.closest(".dlg-body").querySelector("[data-backup-failure]");
+  const body = button.closest(".dlg-body");
+  const done = body.querySelector("[data-backup-done]");
+  const failure = body.querySelector("[data-backup-failure]");
+  done.hidden = true;
   failure.hidden = true;
+
+  let name = "";
   try {
-    await P.busy(button, P.get("/api/settings_backups").then(backups => P.request("POST", "/api/settings_backups", { name: newBackupName(backups) })));
+    await P.busy(button, P.get("/api/settings_backups").then(backups => {
+      name = newBackupName(backups);
+      return P.request("POST", "/api/settings_backups", { name });
+    }));
   } catch (error) {
     if (!(error instanceof P.PondError)) {
       throw error;
@@ -74,6 +90,10 @@ P.act("backups-now", async button => {
     failure.hidden = error.handled;
     return;
   }
+
+  done.hidden = false;
+  done.querySelector("span").textContent = `Your settings are backed up as “${name}”.`;
+
   if (location.pathname === "/backups") {
     P.refresh();
   }
@@ -155,16 +175,33 @@ P.act("backups-restore", async button => {
 
 P.act("backups-reset", async button => {
   const stock = button.dataset.kind === "stock";
+
+  let summary;
+  if (stock) {
+    summary = "FrogPilot's features are turned off and openpilot's own settings are used.";
+  } else {
+    summary = "Every FrogPilot setting and some of openpilot's own settings go back to how they shipped.";
+  }
+
+  let consequences;
+  try {
+    consequences = await P.get("/api/settings/reset");
+  } catch (error) {
+    P.fail(error, "Couldn't reset your settings");
+    return;
+  }
+
   const ok = await P.dialog({
     icon: "alert", tone: "danger", confirmTone: "danger",
     title: stock ? "Reset to stock openpilot?" : "Reset to FrogPilot defaults?",
-    body: `<p>${stock ? "FrogPilot's features are turned off and openpilot's own settings are used." : "Every FrogPilot setting goes back to how it shipped."}</p>
-      ${P.lossList(["Saved keys (Mapbox, weather, and Toyota security keys)", "Favorite places", "Discord name", "Timezone", "Map settings", "Speed Limit Filler data", "FrogPilot Stats", "Paired browsers", "Tailscale sign-in"], ["Drives", "Backups", "Downloaded themes", "Learned driving data"])}
-      <p>SSH and tethering are turned off. If “Pairing Code” is on, every browser, this one included, pairs again with a new code.</p>
+    body: `<p>${summary}</p>
+      ${P.lossList(consequences.lost, consequences.kept)}
+      <p>${P.esc(consequences.note)}</p>
       <p><button type="button" class="btn btn-text btn-small backups-first" data-act="backups-now">${P.ic("plus")}Back up my settings first</button></p>
+      <div class="notice" data-backup-done role="status" hidden>${P.ic("check")}<span></span></div>
       <div class="notice danger" data-backup-failure role="alert" hidden>${P.ic("alert")}<span></span></div>`,
     confirm: stock ? "Erase and reset to stock" : "Erase and reset to defaults",
-    requireCheck: "I understand my saved keys, favorite places, Discord name, timezone, map settings, Speed Limit Filler data, FrogPilot Stats, paired browsers, and Tailscale sign-in are erased"
+    requireCheck: "I understand everything under “What goes” is removed"
   });
   if (!ok) {
     return;
@@ -177,6 +214,7 @@ P.act("backups-reset", async button => {
     return;
   }
   handle.done("Settings reset");
+  P.restart("Rebooting");
 });
 
 async function importBackup(input) {
@@ -268,16 +306,16 @@ async function track(kind, name) {
 }
 
 P.act("frogbackups-new", async () => {
-  const name = await askBackupName("frogbackups", "Couldn't back up FrogPilot");
+  let name = "";
+  await askBackupName("frogbackups", async typed => {
+    await P.request("POST", "/api/frogpilot_backups", { name: typed });
+    name = typed;
+  });
+
   if (!name) {
     return;
   }
-  try {
-    await P.request("POST", "/api/frogpilot_backups", { name });
-  } catch (error) {
-    P.fail(error, "Couldn't back up FrogPilot", BACKUP_NAME_ERRORS);
-    return;
-  }
+
   track("create", name);
 });
 
@@ -351,7 +389,8 @@ P.page("backups", {
             ${backups.length ? `<ul class="rows rule-list">${backups.map(b => `<li class="list-row">
               <span class="grow"><b class="mono">${P.esc(b.name)}</b><span>${b.automatic ? "Automatic" : "Made by you"} · ${P.whenLabel(b.modified)}</span></span>
               <span class="acts">
-                <button class="btn btn-quiet btn-small" data-act="backups-restore" data-name="${P.esc(b.name)}">Restore…</button>
+                <button class="btn btn-quiet btn-small" data-act="backups-restore" data-name="${P.esc(b.name)}"
+                  aria-label="Restore ${P.esc(b.name)}">Restore…</button>
                 <button class="icon-btn" data-act="backups-download" data-name="${P.esc(b.name)}" aria-label="Download ${P.esc(b.name)}" title="Download">${P.ic("download")}</button>
                 <button class="icon-btn danger" data-act="backups-delete" data-name="${P.esc(b.name)}" aria-label="Delete ${P.esc(b.name)}" title="Delete">${P.ic("trash")}</button>
               </span>
@@ -372,10 +411,12 @@ P.page("backups", {
           <p class="hint backups-lede">The whole FrogPilot install, so you can go back to an earlier version. Your settings and drives stay as they are.</p>
           <div class="panel-body">
             ${frogpilot.backups.map(b => `<div class="list-row"><span class="grow"><b class="mono">${P.esc(b.name)}</b><span>${b.automatic ? "Automatic" : "Made by you"} · ${P.whenLabel(b.modified)} · ${P.size(b.size)}</span></span><span class="acts">
-              <button class="btn btn-quiet btn-small" data-act="frogbackups-restore" data-name="${P.esc(b.name)}">Restore…</button>
+              <button class="btn btn-quiet btn-small" data-act="frogbackups-restore" data-name="${P.esc(b.name)}"
+                aria-label="Restore ${P.esc(b.name)}">Restore…</button>
               <button class="icon-btn" data-act="frogbackups-download" data-name="${P.esc(b.name)}" aria-label="Download ${P.esc(b.name)}" title="Download">${P.ic("download")}</button>
               <button class="icon-btn danger" data-act="frogbackups-delete" data-name="${P.esc(b.name)}" data-size="${b.size}" aria-label="Delete ${P.esc(b.name)}">${P.ic("trash")}</button>
-            </span></div>`).join("") || `<div class="empty"><h3>No FrogPilot backups</h3></div>`}
+            </span></div>`).join("") || `<div class="empty"><h3>No FrogPilot backups</h3>
+              <p>Back up FrogPilot to keep a copy of the version installed today.</p></div>`}
           </div>
         </section>
       </div>`,

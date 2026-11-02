@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import json
+import time
 
 import cereal.messaging as messaging
 import numpy as np
@@ -46,10 +47,12 @@ class FrogPilotPlanner:
 
     self.accel_press_count = 0
     self.decel_press_count = 0
+    self.experimental_mode_press_count = None
     self.lane_width_left = 0
     self.lane_width_right = 0
     self.lateral_acceleration = 0
     self.model_length = 0
+    self.next_gps_position_save = 0
     self.peak_lateral_acceleration = 0
     self.road_curvature = 0
     self.road_curvature_peak = 0
@@ -73,10 +76,13 @@ class FrogPilotPlanner:
     self.accel_pressed = sm["frogpilotCarState"].accelPressCount > self.accel_press_count
     self.decel_pressed = sm["frogpilotCarState"].decelPressCount > self.decel_press_count
 
+    if self.experimental_mode_press_count is not None:
+      self.experimental_mode_pressed = sm["frogpilotCarState"].experimentalModePressCount > self.experimental_mode_press_count
+
     self.accel_press_count = sm["frogpilotCarState"].accelPressCount
     self.decel_press_count = sm["frogpilotCarState"].decelPressCount
+    self.experimental_mode_press_count = sm["frogpilotCarState"].experimentalModePressCount
 
-    self.experimental_mode_pressed = False
     self.speed_limit_accepted = False
     for msg in messaging.drain_sock(self.ui_event_sock):
       ui_event = msg.frogpilotUIEvent
@@ -120,6 +126,10 @@ class FrogPilotPlanner:
         "bearing": gps_location.bearingDeg,
       }
       self.last_gps_position = self.gps_position
+
+      if time.monotonic() >= self.next_gps_position_save:
+        self.params.put_nonblocking("LastGPSPosition", json.dumps(self.gps_position))
+        self.next_gps_position_save = time.monotonic() + frogpilot_variables.GPS_POSITION_SAVE_INTERVAL
     else:
       self.gps_position = None
 

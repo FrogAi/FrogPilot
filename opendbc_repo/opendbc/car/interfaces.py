@@ -220,6 +220,11 @@ class CarInterfaceBase(ABC):
         if CP.flags & HyundaiFlags.CANFD and frogpilot_toggles.taco_tune_hacks:
           CP.safetyConfigs[-1].safetyParam |= HyundaiFrogPilotSafetyFlags.TACO_TUNE_HACK.value
 
+        lkas_allowed_for_aol = CP.flags & (HyundaiFlags.CANFD | HyundaiFlags.HAS_LDA_BUTTON)
+        lkas_required_for_aol = CP.flags & HyundaiFlags.CANFD and not CP.openpilotLongitudinalControl
+        if lkas_allowed_for_aol and frogpilot_toggles.always_on_lateral and (frogpilot_toggles.always_on_lateral_lkas_selected or lkas_required_for_aol):
+          CP.safetyConfigs[-1].safetyParam |= HyundaiFrogPilotSafetyFlags.ALWAYS_ON_LATERAL_LKAS.value
+
       elif platform in SUBARU:
         if CP.autoResumeSng and frogpilot_toggles.subaru_sng:
           CP.safetyConfigs[0].safetyParam |= SubaruSafetyFlags.SNG.value

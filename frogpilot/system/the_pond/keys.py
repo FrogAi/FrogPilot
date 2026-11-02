@@ -54,6 +54,17 @@ def is_valid_weather(data):
   return isinstance(weather, list) and len(weather) > 0 and isinstance(weather[0], dict) and is_valid_integer(weather[0].get("id"))
 
 
+def navigation_keys(the_pond):
+  params = the_pond.params
+  mapbox_secret = params.get("MapboxSecretKey")
+
+  return {
+    "map_reboot_required": bool(mapbox_secret) and mapbox_secret != the_pond.mapbox_secret_at_start,
+    "mapbox_public": params.get("MapboxPublicKey") or None,
+    "mapbox_secret": bool(mapbox_secret),
+  }
+
+
 @routes.delete("/api/keys/{kind}")
 async def delete_key(request):
   request.app[utilities.THE_POND].params.remove(KEYS[get_kind(request)])
@@ -62,7 +73,8 @@ async def delete_key(request):
 
 @routes.get("/api/keys")
 async def get_keys(request):
-  params = request.app[utilities.THE_POND].params
+  the_pond = request.app[utilities.THE_POND]
+  params = the_pond.params
 
   now = datetime.datetime.now()
   mapbox_requests = params.get("MapBoxRequests")
@@ -72,10 +84,9 @@ async def get_keys(request):
     request_count = 0
 
   return web.json_response({
-    "mapbox_public": params.get("MapboxPublicKey") or None,
+    **navigation_keys(the_pond),
     "mapbox_request_limit": frogpilot_variables.MAPBOX_MONTHLY_REQUEST_LIMIT,
     "mapbox_requests": request_count,
-    "mapbox_secret": bool(params.get("MapboxSecretKey")),
     "weather": bool(params.get("WeatherToken")),
   })
 

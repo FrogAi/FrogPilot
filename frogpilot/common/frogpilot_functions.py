@@ -8,6 +8,7 @@ from multiprocessing import Process
 from pathlib import Path
 
 from cereal import messaging
+from opendbc.car.mock.values import CAR as MOCK
 from openpilot.common.constants import CV
 from openpilot.common.params import Params
 from openpilot.common.time_helpers import system_time_valid
@@ -23,6 +24,11 @@ def boot_backup(build_metadata):
     time.sleep(1)
 
   frogpilot_backups.backup_frogpilot(build_metadata, Params())
+
+
+def cleanup_error_logs():
+  for error_log in sorted(frogpilot_paths.ERROR_LOGS_PATH.glob("*.log"))[:-frogpilot_variables.MAX_ERROR_LOGS]:
+    error_log.unlink()
 
 
 def cleanup_screen_recordings(limit_bytes):
@@ -128,7 +134,7 @@ def frogpilot_boot_functions(build_metadata, params):
         for nation in data.get("nations", []):
           new_items.append(f"nation.{nation}")
         for state in data.get("states", []):
-          new_items.append(f"us_state.{state}")
+          new_items.append(f"us_state.{state.replace('GU', 'GM')}")
         new_items.sort()
         params.put("MapsSelected", ",".join(new_items))
     except json.JSONDecodeError:
@@ -174,6 +180,7 @@ def install_frogpilot():
   for path in paths:
     path.mkdir(parents=True, exist_ok=True)
 
+  cleanup_error_logs()
   cleanup_screen_recordings(10 * 1024 * 1024 * 1024)
 
   update_boot_logo(frogpilot_paths.FROGPILOT_BOOT_LOGO_PATH)
@@ -189,6 +196,16 @@ def migrate_params(params, params_cache):
       value = param_store.get(key)
 
       if value is not None and not isinstance(value, expected_type):
+        param_store.remove(key)
+
+  mock_values = {
+    "CarMake": "mock",
+    "CarModel": MOCK.MOCK,
+  }
+
+  for key, mock_value in mock_values.items():
+    for param_store in (params, params_cache):
+      if param_store.get(key) == mock_value:
         param_store.remove(key)
 
   if params.get_bool("IsMetric"):
@@ -214,6 +231,43 @@ def migrate_params(params, params_cache):
 
 def register_konik():
   Params().put("KonikDongleId", register(register_konik=True))
+
+
+def reset_settings(params, params_cache):
+  stock = params.get_bool("DoToggleResetStock")
+  if not stock and not params.get_bool("DoToggleReset"):
+    return
+
+  for key in params.all_keys():
+    key = key.decode()
+    if key in frogpilot_variables.EXCLUDED_KEYS:
+      continue
+
+    if stock:
+      value = params.get_stock_value(key)
+    else:
+      value = params.get_default_value(key)
+
+    if value == "":
+      params.remove(key)
+      params_cache.remove(key)
+    elif value is not None and value != params.get(key):
+      params.put(key, value)
+
+  for key in frogpilot_variables.RESET_REMOVED_KEYS:
+    params.remove(key)
+    params_cache.remove(key)
+
+  if stock:
+    params.put("TuningLevel", frogpilot_variables.TUNING_LEVELS["DEVELOPER"])
+    params.put_bool("TuningLevelConfirmed", True)
+
+  if params.get_bool("IsMetric"):
+    for key in frogpilot_variables.METRIC_CONVERSIONS:
+      params.put(key, frogpilot_utilities.convert_metric(key, params.get(key), True))
+
+  params.remove("DoToggleReset")
+  params.remove("DoToggleResetStock")
 
 
 def run_frogsgomoo(build_metadata):

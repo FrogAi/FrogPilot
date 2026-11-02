@@ -84,6 +84,11 @@ def steer_torque_visible(context, key, car_value):
   return reason or context.setting_reason(torque_steering, "ForceTorqueController") or context.setting_reason(not is_using_nnff(context), "NNFF", wanted=False)
 
 
+def always_on_lateral_lkas_visible(context):
+  lkas_optional = context.lkas_allowed_for_aol and (not context.is_hkg_can_fd or context.has_openpilot_longitudinal)
+  return context.level_reason("AlwaysOnLateralLKASButton") or context.car_reason(lkas_optional)
+
+
 ROWS = [
   {
     "children": ("Driving Controls", "STEERING", "Advanced Lateral Tuning"),
@@ -100,27 +105,29 @@ ROWS = [
   },
   {
     "buttons": ("Reset",),
+    "current": lambda context: rows.tuning_value(context, "SteerDelay", context.steer_actuator_delay),
     "default": lambda context: context.steer_actuator_delay,
     "description": ("<b>How long your car takes to respond after openpilot turns the wheel.</b><br><br>Raise it if your car reacts late. Lower it if " +
                     "the steering feels jumpy. openpilot learns this on its own by default."),
     "key": "SteerDelay",
     "order": 0,
     "path": ("Driving Controls", "STEERING", "Advanced Lateral Tuning"),
-    "reset_confirm": {"cancel": "No", "confirm": "Yes", "text": "Reset <b>Actuator Delay</b> to its default value?"},
+    "reset_confirm": {"cancel": "Cancel", "confirm": "Reset", "text": "Reset <b>Actuator Delay</b> to its default value?"},
     "title": lambda context: rows.car_title(context, "Actuator Delay", context.steer_actuator_delay),
-    "value": rows.number(0.01, 1, 0.01),
+    "value": rows.number(0.01, 1, 0.01, unit=" seconds", labels={1: "1.00 second"}),
     "visible": lambda context: context.level_reason("SteerDelay") or context.car_reason(context.steer_actuator_delay != 0),
     "widget": "value_buttons"
   },
   {
     "buttons": ("Reset",),
+    "current": lambda context: rows.tuning_value(context, "SteerFriction", context.friction),
     "default": lambda context: context.friction,
     "description": ("<b>How much extra effort openpilot uses to get the wheel moving off center.</b><br><br>Raise it if the wheel sticks near center " +
                     "and openpilot is slow to start correcting. Lower it if the wheel jitters on a straight road."),
     "key": "SteerFriction",
     "order": 1,
     "path": ("Driving Controls", "STEERING", "Advanced Lateral Tuning"),
-    "reset_confirm": {"cancel": "No", "confirm": "Yes", "text": "Reset <b>Friction</b> to its default value?"},
+    "reset_confirm": {"cancel": "Cancel", "confirm": "Reset", "text": "Reset <b>Friction</b> to its default value?"},
     "title": lambda context: rows.car_title(context, "Friction", context.friction),
     "value": rows.number(0.01, 1, 0.01),
     "visible": lambda context: steer_torque_visible(context, "SteerFriction", context.friction),
@@ -128,6 +135,7 @@ ROWS = [
   },
   {
     "buttons": ("Reset",),
+    "current": lambda context: rows.tuning_value(context, "SteerKP", context.steer_kp),
     "default": lambda context: context.steer_kp,
     "description": ("<b>How hard openpilot pushes the wheel to pull your car back to the middle of the lane.</b><br><br>Raise it if your car sits " +
                     "off to one side or is slow to come back. Lower it if the wheel feels twitchy or keeps overshooting. openpilot never changes " +
@@ -135,7 +143,7 @@ ROWS = [
     "key": "SteerKP",
     "order": 2,
     "path": ("Driving Controls", "STEERING", "Advanced Lateral Tuning"),
-    "reset_confirm": {"cancel": "No", "confirm": "Yes", "text": "Reset <b>Kp Factor</b> to its default value?"},
+    "reset_confirm": {"cancel": "Cancel", "confirm": "Reset", "text": "Reset <b>Kp Factor</b> to its default value?"},
     "title": lambda context: rows.car_title(context, "Kp Factor", context.steer_kp),
     "value": rows.number(lambda context: context.steer_kp * 0.5, lambda context: context.steer_kp * 1.5, 0.01),
     "visible": steer_kp_visible,
@@ -143,6 +151,7 @@ ROWS = [
   },
   {
     "buttons": ("Reset",),
+    "current": lambda context: rows.tuning_value(context, "SteerLatAccel", context.lat_accel_factor),
     "default": lambda context: context.lat_accel_factor,
     "description": ("<b>How much steering effort openpilot uses to turn your car, where lower values make it steer harder and higher values make it " +
                     "steer more gently.</b><br><br>Lower it if your car drifts wide in curves. Raise it if the car turns in more sharply than you " +
@@ -150,7 +159,7 @@ ROWS = [
     "key": "SteerLatAccel",
     "order": 3,
     "path": ("Driving Controls", "STEERING", "Advanced Lateral Tuning"),
-    "reset_confirm": {"cancel": "No", "confirm": "Yes", "text": "Reset <b>Lateral Acceleration</b> to its default value?"},
+    "reset_confirm": {"cancel": "Cancel", "confirm": "Reset", "text": "Reset <b>Lateral Acceleration</b> to its default value?"},
     "title": lambda context: rows.car_title(context, "Lateral Acceleration", context.lat_accel_factor),
     "value": rows.number(lambda context: context.lat_accel_factor * 0.5, lambda context: context.lat_accel_factor * 1.5, 0.01),
     "visible": lambda context: steer_torque_visible(context, "SteerLatAccel", context.lat_accel_factor),
@@ -158,6 +167,7 @@ ROWS = [
   },
   {
     "buttons": ("Reset",),
+    "current": lambda context: rows.tuning_value(context, "SteerRatio", context.steer_ratio),
     "default": lambda context: context.steer_ratio,
     "description": ("<b>How far your steering wheel turns to swing the front wheels a set amount, where raising it makes openpilot turn the wheel " +
                     "further for the same corner.</b><br><br>Lower it if openpilot feels twitchy or keeps overshooting the middle of the lane. Raise " +
@@ -165,7 +175,7 @@ ROWS = [
     "key": "SteerRatio",
     "order": 4,
     "path": ("Driving Controls", "STEERING", "Advanced Lateral Tuning"),
-    "reset_confirm": {"cancel": "No", "confirm": "Yes", "text": "Reset <b>Steer Ratio</b> to its default value?"},
+    "reset_confirm": {"cancel": "Cancel", "confirm": "Reset", "text": "Reset <b>Steer Ratio</b> to its default value?"},
     "title": lambda context: rows.car_title(context, "Steer Ratio", context.steer_ratio),
     "value": rows.number(lambda context: context.steer_ratio * 0.5, lambda context: context.steer_ratio * 1.5, 0.01),
     "visible": steer_ratio_visible,
@@ -204,11 +214,12 @@ ROWS = [
   },
   {
     "children": ("Driving Controls", "STEERING", "Always On Lateral"),
-    "description": ("<b>openpilot keeps steering for you even when it isn't controlling the gas and brake, so it holds your lane when you press a " +
-                    "pedal, cancel, or haven't engaged openpilot at all.</b><br><br>It steers from the moment your car's cruise control is switched " +
-                    "on until you switch that back off or shift out of drive, and it pauses while you brake below the speed set in \"Pause on Brake " +
-                    "Press Below\", except at a full stop. On the newer Hyundai, Kia, and Genesis cars, the LKAS button takes the place of cruise " +
-                    "control while \"Enable With LKAS\" is on."),
+    "description": ("<b>openpilot keeps steering for you even when it isn't controlling the gas and brake, so it holds your lane when you press a pedal, " +
+                    "cancel, or haven't engaged openpilot at all.</b><br><br>It steers from the moment your car's cruise control is switched on until " +
+                    "you switch that back off or shift out of drive, and it pauses while you brake below the speed set in \"Pause on Brake Press " +
+                    "Below\", except at a full stop. If cruise control is already on when you start the car, it waits until you engage openpilot or " +
+                    "switch cruise control off and on. On Hyundai, Kia, and Genesis cars with CAN FD where your car handles the gas and brake, or with " +
+                    "\"Enable With LKAS\" on, engaging openpilot or pressing the LKAS button takes the place of cruise control."),
     "key": "AlwaysOnLateral",
     "on_change": lambda context, old_value, new_value: context.started and new_value,
     "order": 1,
@@ -218,20 +229,20 @@ ROWS = [
     "widget": "manage"
   },
   {
-    "description": ("<b>Use the LKAS button to arm steering, so openpilot keeps steering even when it is not engaged.</b><br><br>openpilot does not " +
-                    "read your car's LKAS status for this. It starts every drive disarmed and each press of the LKAS button flips it, so expect one " +
-                    "press after starting the car. With this off, the LKAS button is free to reassign under \"LKAS Button\", and steering stops as " +
-                    "soon as openpilot is no longer engaged, unless openpilot handles the gas and brake, in which case the cruise control button " +
-                    "arms it instead."),
-    "key": "AlwaysOnLateralLKAS",
+    "description": ("<b>Use the LKAS button instead of cruise control to arm steering, so openpilot keeps steering even when it is not " +
+                    "engaged.</b><br><br>openpilot does not read your car's LKAS status for this. It starts every drive disarmed, engaging openpilot " +
+                    "arms it, and each press of the LKAS button while openpilot isn't engaged flips it. Switching cruise control off doesn't stop it. " +
+                    "With this off, cruise control arms steering and the LKAS button is free to reassign under \"LKAS Button\"."),
+    "key": "AlwaysOnLateralLKASButton",
+    "on_change": reboot_when_started,
     "order": 0,
     "path": ("Driving Controls", "STEERING", "Always On Lateral"),
     "title": "Enable With LKAS",
-    "visible": lambda context: context.level_reason("AlwaysOnLateralLKAS") or context.car_reason(context.lkas_allowed_for_aol),
+    "visible": always_on_lateral_lkas_visible,
     "widget": "toggle"
   },
   {
-    "description": "<b>Pause \"Always On Lateral\" below the set speed while the brake pedal is pressed, except at a full stop.</b>",
+    "description": "<b>Pause \"Always On Lateral\" below the speed set here while the brake pedal is pressed, except at a full stop.</b>",
     "key": "PauseAOLOnBrake",
     "order": 1,
     "path": ("Driving Controls", "STEERING", "Always On Lateral"),

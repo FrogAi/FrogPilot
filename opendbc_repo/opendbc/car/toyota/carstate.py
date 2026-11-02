@@ -237,6 +237,15 @@ class CarState(CarStateBase):
 
       buttonEvents += create_button_events(self.distance_button, prev_distance_button, {1: ButtonType.gapAdjustCruise})
 
+      if self.CP.carFingerprint != CAR.TOYOTA_PRIUS_V:
+        prev_lkas_button = self.lkas_button
+        self.lkas_button = self.lkas_hud["LDA_ON_MESSAGE"]
+
+        # Cycles between 1 and 2 when pressing the button, then rests back at 0 after ~3s
+        if self.lkas_button != 0 and self.lkas_button != prev_lkas_button:
+          buttonEvents.extend(create_button_events(1, 0, {1: ButtonType.lkas}) +
+                              create_button_events(0, 1, {1: ButtonType.lkas}))
+
     if self.pcm_acc_status != self.prev_pcm_acc_status and self.pcm_acc_status in (9, 10):
       if self.pcm_acc_status == 9:
         button_type = ButtonType.accelCruise

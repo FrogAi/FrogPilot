@@ -6,6 +6,9 @@
 .dd-menu { max-height: min(360px, 60dvh); overflow-y: auto; }
 .dd-menu .menu-item[aria-selected="false"] .ic { visibility: hidden; }
 .dd-menu .menu-item[aria-selected="true"] .ic { color: var(--pond); }
+.dots { display: flex; flex-wrap: wrap; margin-left: -.65em; clip-path: inset(0 0 0 .65em); }
+.dots > * { position: relative; margin-left: .65em; }
+.dots > ::before { content: "·"; position: absolute; right: 100%; width: .65em; text-align: center; }
 .grid-10 { display: grid; gap: 10px; }
 .grid-12 { display: grid; gap: 12px; }
 .guide { counter-reset: step; display: grid; gap: 18px; }
@@ -39,8 +42,9 @@
 :where(.is-busy) { position: relative; }
 @keyframes shimmer { from { background-position: 100% 0; } to { background-position: 0 0; } }
 
-@media (min-width: 720px) {
+@media (min-width: 720px) and (min-height: 500px) {
   .dd-menu { left: 0; right: auto; min-width: 100%; }
+  .dlg .dd-menu { margin-top: 6px; position: static; }
 }
 
 @media (prefers-reduced-motion: reduce) {

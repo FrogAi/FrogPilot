@@ -20,13 +20,12 @@ from opendbc.car.toyota.values import ToyotaFlags, ToyotaFrogPilotFlags
 from openpilot.common.constants import CV
 from openpilot.common.params import Params
 from openpilot.selfdrive.controls.lib.drive_helpers import MAX_LATERAL_ACCEL_NO_ROLL
-from openpilot.selfdrive.controls.lib.latcontrol_torque import KP
 from openpilot.selfdrive.locationd import torqued
 from openpilot.selfdrive.modeld.constants import ModelConstants
 from openpilot.system.hardware.power_monitoring import VBATT_PAUSE_CHARGING
 from openpilot.system.version import get_build_metadata
 
-from openpilot.frogpilot.common import frogpilot_paths
+from openpilot.frogpilot.common import frogpilot_paths, frogpilot_status
 
 CITY_SPEED_LIMIT = 25                     # m/s, ~56 mph; at or above this counts as highway driving
 CRUISING_SPEED = 5                        # m/s, roughly the speed cars go when not touching the gas while in drive
@@ -35,6 +34,7 @@ CURVE_AHEAD_EXIT = 0.4                    # m/s^2, peak lateral acceleration on 
 DEFAULT_LATERAL_ACCELERATION = 2.0        # m/s^2, typical lateral acceleration when taking curves
 DOOR_COMMAND_ATTEMPTS = 10                # Lock or unlock frames sent, one per second, before a door command gives up
 EARTH_RADIUS = 6378137                    # Radius of the Earth in meters
+GPS_POSITION_SAVE_INTERVAL = 60           # Seconds between saves of the last GPS position and bearing while driving
 LATERAL_DELAY_OFFSET = 0.2                # Seconds added to the steering actuator delay to get the total lateral delay
 LEAD_DEPARTURE_SPEED = 1.0                # m/s, leads moving slower than this are treated as stopped
 LEAD_STOP_MARGIN = 4                      # Meters past the planned stopping point where a lead still counts as relevant
@@ -42,6 +42,7 @@ MAPBOX_MONTHLY_REQUEST_LIMIT = 100_000    # Mapbox's free monthly request allowa
 MAPD_ARCHIVE_SIZE_DEGREES = 2             # Size of mapd's downloadable archive cells in degrees
 MAPD_MAX_MAP_AGE_DAYS = 28                # Maximum age of downloaded archive cells before refreshing
 MAX_ACCELERATION = 4.0                    # ISO 15622:2018
+MAX_ERROR_LOGS = 50                       # Newest error logs kept in the error logs folder at each boot
 MAX_T_FOLLOW = 3.0                        # Maximum allowed following duration. Larger values risk losing track of the lead but may be increased as models improve
 MINIMUM_LATERAL_ACCELERATION = 1.3        # m/s^2, typical minimum lateral acceleration when taking curves
 MINIMUM_PLANNED_SPEED = 2.0               # m/s, model path points predicted slower than this are stop approaches, not curves
@@ -58,8 +59,10 @@ UPDATE_COPY_SECONDS = 22                  # Seconds an update's copy takes until
 UPDATE_PROGRESS_INTERVAL = 0.1            # Seconds between update progress checks; the shown percent climbs at most 1% per check so it counts up smoothly
 
 DISABLE_OPENPILOT_LONG_BRANDS = {"ford", "toyota"}
+DISTANCE_BUTTON_BRANDS = {"chrysler", "ford", "gm", "honda", "hyundai", "mazda", "nissan", "volkswagen"}
 LKAS_BUTTON_BRANDS = {"chrysler", "ford", "gm", "honda", "mazda", "nissan"}
 MAP_GEARS_BRANDS = {"gm", "toyota"}
+NO_STATS_BRANDS = {"body", "mock"}
 
 NON_DRIVING_GEARS = [GearShifter.neutral, GearShifter.park, GearShifter.reverse, GearShifter.unknown]
 
@@ -67,13 +70,10 @@ RANDOM_EVENT_END = custom.FrogPilotOnroadEvent.EventName.youveGotMail
 RANDOM_EVENT_START = custom.FrogPilotOnroadEvent.EventName.accel30
 
 RESET_REMOVED_KEYS = {
-  "CarParamsPersistent",
-  "CarParamsPrevRoute",
   "FrogPilotTelemetry",
   "FrogPilotTelemetryConfirmed",
   "GithubSshKeys",
   "GithubUsername",
-  "LastGPSPosition",
   "SshEnabled"
 }
 
@@ -142,7 +142,7 @@ WEATHER_KEY_TEST_URL = f"{WEATHER_API_URL}?lat=42.4293&lon=-83.9850&appid={{}}"
 
 USER_CREATED_THEME_SUFFIX = "-user_created"
 
-ROUTE_PRESERVE_ATTR_NAME = "user.frogpilot_preserve"
+ROUTE_PRESERVE_ATTR_NAME = "user.preserve_route"
 ROUTE_PRESERVED = b"1"
 
 UPLOAD_ATTR_NAME = "user.frogpilot_telemetry"
@@ -240,17 +240,7 @@ CAR_MAKE_FOLDERS = {
   "volkswagen": "volkswagen"
 }
 
-CE_STATUS = {
-  "OFF": 0,              # Off
-  "USER_DISABLED": 1,    # "Experimental Mode" disabled by user
-  "USER_OVERRIDDEN": 2,  # "Experimental Mode" enabled by user
-  "CURVATURE": 3,        # Road curvature condition
-  "LEAD": 4,             # Slower lead vehicle condition
-  "SIGNAL": 5,           # Turn signal condition
-  "SPEED": 6,            # Speed condition
-  "SPEED_LIMIT": 7,      # Speed limit controller condition
-  "STOP_LIGHT": 8,       # Stop light or sign condition
-}
+CE_STATUS = frogpilot_status.CE_STATUS
 
 CURVE_DATA_KEYS = {"CalibrationProgress", "CurvatureData", "MaxLateralAcceleration"}
 
@@ -395,6 +385,9 @@ EXCLUDED_KEYS = {
   "PreviousSpeedLimit",
   "RandomizedModel",
   "RouteCount",
+  "SecOCKey",
+  "SecOCKeys",
+  "SpeedLimitFillerUploadedHash",
   "StockDongleId",
   "ThemesDownloaded",
   "ThePondPairedBrowsers",
@@ -775,7 +768,7 @@ SETTING_LABELS = {
   "AlphaLongitudinalEnabled": {"name": "openpilot Longitudinal Control (Alpha)"},
   "AlwaysOnDM": {"name": "Always-On Driver Monitoring"},
   "AlwaysOnLateral": {"name": "Always On Lateral"},
-  "AlwaysOnLateralLKAS": {"name": "Always On Lateral: Enable With LKAS"},
+  "AlwaysOnLateralLKASButton": {"name": "Always On Lateral: Enable With LKAS"},
   "AutomaticallyDownloadModels": {"name": "Automatically Download New Models"},
   "AutomaticUpdates": {"name": "Automatically Update FrogPilot"},
   "BlacklistedModels": {"name": "Model Blacklist"},
@@ -1170,7 +1163,8 @@ SETTING_LABELS = {
   "WheelSpeed": {"name": "Use Wheel Speed"}
 }
 
-SETTINGS_BACKUP_KEYS = {"FavoriteDestinations", "SecOCKey", "SecOCKeys", *SETTING_LABELS}
+SETTINGS_BACKUP_EXCLUDED_KEYS = {"DebugMode", "JoystickDebugMode", "LongitudinalManeuverMode", "NavDestination"}
+SETTINGS_BACKUP_KEYS = {*SECRET_KEYS, *SETTING_LABELS} - SETTINGS_BACKUP_EXCLUDED_KEYS
 
 SPEED_LIMIT_PRIORITIES = {
   "HIGHEST": "Highest",
@@ -1221,6 +1215,8 @@ TUNING_LEVELS = {
   "ADVANCED": 2,
   "DEVELOPER": 3
 }
+
+ZERO_ALLOWED_TUNING_KEYS = ("LongitudinalActuatorDelay", "StartAccel", "StopAccel")
 
 @cache
 def get_mock_car_params():
@@ -1352,7 +1348,8 @@ class FrogPilotVariables:
       FPCP = interfaces[MOCK.MOCK].get_frogpilot_params(MOCK.MOCK, gen_empty_fingerprint(), [], CP, toggle)
 
     selected_car_model = self.params.get("CarModel")
-    toggle.force_fingerprint = self.get_value("ForceFingerprint", condition=selected_car_model != self.default_values["CarModel"])
+    car_model_selected = selected_car_model != self.default_values["CarModel"] and selected_car_model != MOCK.MOCK
+    toggle.force_fingerprint = self.get_value("ForceFingerprint", condition=car_model_selected)
 
     alpha_longitudinal = CP.alphaLongitudinalAvailable
     toggle.car_make = CP.brand
@@ -1362,7 +1359,7 @@ class FrogPilotVariables:
     has_bsm = CP.enableBsm
     toggle.has_dashboard_speed_limit = FPCP.hasDashboardSpeedLimit
     toggle.has_nnff = frogpilot_utilities.nnff_supported(toggle.car_model)
-    has_radar = not CP.radarUnavailable
+    toggle.has_radar = not CP.radarUnavailable
     toggle.has_sdsu = toggle.car_make == "toyota" and bool(FPCP.flags & ToyotaFrogPilotFlags.SMART_DSU.value)
     has_sng = CP.autoResumeSng
     toggle.has_zss = toggle.car_make == "toyota" and bool(FPCP.flags & ToyotaFrogPilotFlags.ZSS.value)
@@ -1373,15 +1370,21 @@ class FrogPilotVariables:
     learned_lateral_profile = self.params.get("MaxLateralAcceleration")
     learned_lateral_acceleration = learned_lateral_profile.get("value", 0.0) if learned_lateral_profile.get("car_fingerprint") == toggle.car_model else 0.0
     toggle.lkas_allowed_for_aol = toggle.car_make == "hyundai" and bool(CP.flags & HyundaiFlags.CANFD or CP.flags & HyundaiFlags.HAS_LDA_BUTTON)
-    toggle.has_lkas_button = toggle.car_make in LKAS_BUTTON_BRANDS or toggle.lkas_allowed_for_aol or (toggle.car_make == "toyota" and bool(CP.flags & ToyotaFlags.TSS2))
+    toggle.has_lkas_button = toggle.car_make in LKAS_BUTTON_BRANDS or toggle.lkas_allowed_for_aol
+    toggle.has_lkas_button |= toggle.car_make == "toyota" and bool(CP.flags & ToyotaFlags.TSS2)
+    toggle.has_lkas_button |= toggle.has_sdsu and not FPCP.flags & ToyotaFrogPilotFlags.RADAR_CAN_FILTER.value
+    toggle.has_distance_button = toggle.car_make in DISTANCE_BUTTON_BRANDS
+    toggle.has_distance_button |= (toggle.car_make == "toyota" and bool(CP.flags & ToyotaFlags.TSS2) and
+                                   not CP.flags & (ToyotaFlags.RADAR_ACC | ToyotaFlags.SECOC))
+    toggle.has_distance_button |= toggle.has_sdsu and not FPCP.flags & ToyotaFrogPilotFlags.RADAR_CAN_FILTER.value
     longitudinalActuatorDelay = CP.longitudinalActuatorDelay
     toggle.openpilot_longitudinal = CP.openpilotLongitudinalControl and (started or not toggle.disable_openpilot_long)
     pcm_cruise = CP.pcmCruise
-    prohibited_main_aol = not toggle.openpilot_longitudinal and toggle.lkas_allowed_for_aol
+    lkas_required_for_aol = not toggle.openpilot_longitudinal and toggle.car_make == "hyundai" and bool(CP.flags & HyundaiFlags.CANFD)
     startAccel = CP.startAccel
     stopAccel = CP.stopAccel
     steerActuatorDelay = CP.steerActuatorDelay
-    steerKp = KP
+    steerKp = 1.0
     steerRatio = CP.steerRatio
     stoppingDecelRate = CP.stoppingDecelRate
     vEgoStarting = CP.vEgoStarting
@@ -1407,8 +1410,10 @@ class FrogPilotVariables:
     max_lateral_accel = CP.maxLateralAccel
     if is_angle_car:
       max_lateral_accel = max(max_lateral_accel, learned_lateral_acceleration)
-    elif is_torque_car and toggle.liveValid:
-      max_lateral_accel *= LTP.latAccelFactorFiltered / latAccelFactor
+    else:
+      if is_torque_car and toggle.liveValid:
+        max_lateral_accel *= LTP.latAccelFactorFiltered / latAccelFactor
+      max_lateral_accel = max(max_lateral_accel, DEFAULT_LATERAL_ACCELERATION)
     toggle.maxLateralAccel = min(max_lateral_accel, MAX_LATERAL_ACCEL_NO_ROLL)
 
     toggle.debug_mode = self.params.get_bool("DebugMode")
@@ -1434,14 +1439,14 @@ class FrogPilotVariables:
     toggle.force_auto_tune_off = self.get_value("ForceAutoTuneOff", condition=is_torque_car and not is_angle_car and toggle.has_auto_tune and advanced_lateral_tuning)
     toggle.force_torque_controller = self.get_value("ForceTorqueController", condition=advanced_lateral_tuning)
     toggle.steerActuatorDelay = self.get_value("SteerDelay", cast=float, condition=advanced_lateral_tuning and self.params.get("SteerDelay") != 0, default=steerActuatorDelay, minimum=0.01, maximum=1.0)
-    toggle.use_custom_steerActuatorDelay = round(toggle.steerActuatorDelay, 2) != round(steerActuatorDelay, 2)
-    toggle.friction = self.get_value("SteerFriction", cast=float, condition=advanced_lateral_tuning and self.params.get("SteerFriction") != 0, default=friction, minimum=0.01, maximum=1)
-    toggle.use_custom_friction = (round(toggle.friction, 2) != round(friction, 2) and is_torque_car and not toggle.has_auto_tune and not toggle.force_auto_tune) or toggle.force_auto_tune_off
+    toggle.use_custom_steerActuatorDelay = round(toggle.steerActuatorDelay, 6) != round(steerActuatorDelay, 6)
+    toggle.friction = self.get_value("SteerFriction", cast=float, condition=advanced_lateral_tuning and self.params.get("SteerFriction") != 0, default=friction, minimum=min(friction, 0.01), maximum=1)
+    toggle.use_custom_friction = (round(toggle.friction, 6) != round(friction, 6) and is_torque_car and not toggle.has_auto_tune and not toggle.force_auto_tune) or toggle.force_auto_tune_off
     toggle.steerKp = self.get_value("SteerKP", cast=float, condition=is_torque_car and not is_angle_car and advanced_lateral_tuning and self.params.get("SteerKP") != 0, default=steerKp, minimum=steerKp * 0.5, maximum=steerKp * 1.5)
     toggle.latAccelFactor = self.get_value("SteerLatAccel", cast=float, condition=advanced_lateral_tuning and self.params.get("SteerLatAccel") != 0, default=latAccelFactor, minimum=latAccelFactor * 0.5, maximum=latAccelFactor * 1.5)
-    toggle.use_custom_latAccelFactor = (round(toggle.latAccelFactor, 2) != round(latAccelFactor, 2) and is_torque_car and not toggle.has_auto_tune and not toggle.force_auto_tune) or toggle.force_auto_tune_off
+    toggle.use_custom_latAccelFactor = (round(toggle.latAccelFactor, 6) != round(latAccelFactor, 6) and is_torque_car and not toggle.has_auto_tune and not toggle.force_auto_tune) or toggle.force_auto_tune_off
     toggle.steerRatio = self.get_value("SteerRatio", cast=float, condition=advanced_lateral_tuning and self.params.get("SteerRatio") != 0, default=steerRatio, minimum=steerRatio * 0.5, maximum=steerRatio * 1.5)
-    toggle.use_custom_steerRatio = (round(toggle.steerRatio, 2) != round(steerRatio, 2) and not toggle.force_auto_tune) or toggle.force_auto_tune_off
+    toggle.use_custom_steerRatio = (round(toggle.steerRatio, 6) != round(steerRatio, 6) and not toggle.force_auto_tune) or toggle.force_auto_tune_off
 
     advanced_longitudinal_tuning = toggle.openpilot_longitudinal and self.get_value("AdvancedLongitudinalTune")
     toggle.longitudinalActuatorDelay = self.get_value("LongitudinalActuatorDelay", cast=float, condition=advanced_longitudinal_tuning and (self.params.get("LongitudinalActuatorDelay") != 0 or self.params.get("LongitudinalActuatorDelayStock") != 0), default=longitudinalActuatorDelay, minimum=0, maximum=1)
@@ -1462,8 +1467,9 @@ class FrogPilotVariables:
     toggle.warning_immediate_volume = self.get_value("WarningImmediateVolume", cast=float, condition=toggle.alert_volume_controller, minimum=25)
 
     toggle.always_on_lateral = self.get_value("AlwaysOnLateral")
-    toggle.always_on_lateral_lkas = toggle.always_on_lateral and toggle.lkas_allowed_for_aol and self.get_value("AlwaysOnLateralLKAS")
-    toggle.always_on_lateral_main = toggle.always_on_lateral and not prohibited_main_aol and not toggle.always_on_lateral_lkas
+    toggle.always_on_lateral_lkas_selected = self.get_value("AlwaysOnLateralLKASButton")
+    toggle.always_on_lateral_lkas = toggle.always_on_lateral and toggle.lkas_allowed_for_aol and (toggle.always_on_lateral_lkas_selected or lkas_required_for_aol)
+    toggle.always_on_lateral_main = toggle.always_on_lateral and not toggle.always_on_lateral_lkas
     toggle.always_on_lateral_pause_speed = self.get_value("PauseAOLOnBrake", cast=float, condition=toggle.always_on_lateral, conversion=speed_conversion)
 
     toggle.automatic_updates = self.get_value("AutomaticUpdates", condition=self.release_branch or self.vetting_branch or self.frogs_go_moo, default=True) and not frogpilot_paths.BACKUP_PATH.is_file()
@@ -1573,8 +1579,8 @@ class FrogPilotVariables:
     toggle.developer_sidebar_metric6 = self.get_value("DeveloperSidebarMetric6", cast=None, condition=toggle.developer_sidebar, default=DEVELOPER_SIDEBAR_METRICS["LONGITUDINAL_MPC_JERK_DANGER_ZONE"] if toggle.debug_mode else None)
     toggle.developer_sidebar_metric7 = self.get_value("DeveloperSidebarMetric7", cast=None, condition=toggle.developer_sidebar, default=DEVELOPER_SIDEBAR_METRICS["LONGITUDINAL_MPC_JERK_SPEED_CONTROL"] if toggle.debug_mode else None)
     developer_widgets = self.get_value("DeveloperWidgets", condition=toggle.developer_ui)
-    toggle.adjacent_lead_tracking = has_radar and (self.get_value("AdjacentLeadsUI", condition=developer_widgets) or toggle.debug_mode)
-    toggle.radar_tracks = has_radar and (self.get_value("RadarTracksUI", condition=developer_widgets) or toggle.debug_mode)
+    toggle.adjacent_lead_tracking = toggle.has_radar and (self.get_value("AdjacentLeadsUI", condition=developer_widgets) or toggle.debug_mode)
+    toggle.radar_tracks = toggle.has_radar and (self.get_value("RadarTracksUI", condition=developer_widgets) or toggle.debug_mode)
     toggle.show_stopping_point = toggle.openpilot_longitudinal and (self.get_value("ShowStoppingPoint", condition=developer_widgets) or toggle.debug_mode)
     toggle.show_stopping_point_metrics = self.get_value("ShowStoppingPointMetrics", condition=toggle.show_stopping_point) or toggle.debug_mode
 
@@ -1653,7 +1659,7 @@ class FrogPilotVariables:
     toggle.deceleration_profile = self.get_value("DecelerationProfile", cast=float, condition=longitudinal_tuning)
     toggle.human_acceleration = self.get_value("HumanAcceleration", condition=longitudinal_tuning)
     toggle.human_following = self.get_value("HumanFollowing", condition=longitudinal_tuning)
-    toggle.human_lane_changes = has_radar and self.get_value("HumanLaneChanges", condition=longitudinal_tuning)
+    toggle.human_lane_changes = toggle.has_radar and self.get_value("HumanLaneChanges", condition=longitudinal_tuning)
     toggle.lead_detection_probability = self.get_value("LeadDetectionThreshold", cast=float, condition=longitudinal_tuning, conversion=0.01, minimum=0.25, maximum=0.5)
     toggle.taco_tune = self.get_value("TacoTune", condition=longitudinal_tuning)
 
@@ -1735,6 +1741,7 @@ class FrogPilotVariables:
     toggle.random_events = self.get_value("RandomEvents")
 
     screen_management = self.get_value("ScreenManagement")
+    toggle.screen_management = screen_management
     toggle.instant_replay = self.get_value("InstantReplay", cast=int, condition=screen_management)
     toggle.screen_brightness = self.get_value("ScreenBrightness", cast=float, condition=screen_management, minimum=1)
     toggle.screen_brightness_onroad = self.get_value("ScreenBrightnessOnroad", cast=float, condition=screen_management and not toggle.force_onroad)
@@ -1785,7 +1792,6 @@ class FrogPilotVariables:
 
     toggle.tailscale_installed = (frogpilot_paths.TAILSCALE_PATH / "tailscaled").is_file()
 
-    toggle.reset_removed_keys = sorted(RESET_REMOVED_KEYS)
 
     toggle.can_use_dsu_bypass = toggle.car_make == "toyota" and not toggle.has_sdsu and not CP.flags & (ToyotaFlags.NO_DSU | ToyotaFlags.UNSUPPORTED_DSU)
     toggle.toyota_dsu_bypass = self.get_value("ToyotaDSUBypass")

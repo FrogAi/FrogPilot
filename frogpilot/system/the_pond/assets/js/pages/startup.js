@@ -14,16 +14,31 @@ function presetOf(alert, top, bottom) {
   return "custom";
 }
 
-async function save(button, alert, top, bottom, text) {
+function lineField(label, name, value, maxLength) {
+  const input = `<input class="input" name="${name}" maxlength="${maxLength}" value="${P.esc(value)}" aria-describedby="startup-${name}-hint">`;
+  const hint = `<small class="hint" id="startup-${name}-hint" aria-hidden="true">Up to ${maxLength} characters</small>`;
+  return `<label class="field"><span>${label}</span>${input}${hint}</label>`;
+}
+
+async function save(form, alert) {
+  const top = form.top.value.trim();
+  const bottom = form.bottom.value.trim();
+  form.top.setAttribute("aria-invalid", String(!top));
+  form.bottom.setAttribute("aria-invalid", String(!bottom));
+
   try {
-    await P.busy(button, P.request("PUT", "/api/themes/startup_alert", { StartupMessageBottom: bottom, StartupMessageTop: top }));
+    if (!top || !bottom) {
+      form.querySelector("[aria-invalid='true']").focus();
+      throw new P.PondError(400, "invalid_text");
+    }
+
+    await P.busy(form.querySelector("[type=submit]"), P.request("PUT", "/api/themes/startup_alert", { StartupMessageBottom: bottom, StartupMessageTop: top }));
   } catch (error) {
     const invalidText = `Both lines need some text, up to ${alert.StartupMessageTop.max_length} characters on top and ${alert.StartupMessageBottom.max_length} on the bottom`;
     P.fail(error, "Couldn't save the startup message", { invalid_text: invalidText });
-    return false;
+    return;
   }
-  P.toast(text, "Shows next time the car starts");
-  return true;
+  P.toast("Startup message saved", "Shows next time the car starts");
 }
 
 P.page("startup", {
@@ -38,11 +53,14 @@ P.page("startup", {
       <div class="two-col">
         <section class="panel"><div class="panel-body"><form class="form-grid" data-startup>
           <div class="field"><span>Message</span><div class="seg startup-presets" role="group" aria-label="Message">${PRESETS.map(([id, label]) => `<button type="button" data-preset="${id}" aria-pressed="${id === preset}">${label}</button>`).join("")}</div></div>
-          <label class="field"><span>Top line</span><input class="input" name="top" maxlength="${alert.StartupMessageTop.max_length}" value="${P.esc(top)}"></label>
-          <label class="field"><span>Bottom line</span><input class="input" name="bottom" maxlength="${alert.StartupMessageBottom.max_length}" value="${P.esc(bottom)}"></label>
+          ${lineField("Top line", "top", top, alert.StartupMessageTop.max_length)}
+          ${lineField("Bottom line", "bottom", bottom, alert.StartupMessageBottom.max_length)}
           <div><button class="btn btn-primary btn-small" type="submit">Save message</button></div>
         </form></div></section>
-        <section class="panel"><div class="panel-head"><h2>On the car</h2></div><div class="panel-body"><div class="alert-preview"><b data-pt>${P.esc(top)}</b><span data-pb>${P.esc(bottom)}</span></div></div></section>
+        <section class="panel"><div class="panel-head"><h2>On the car</h2></div><div class="panel-body">
+          <div class="alert-preview"><b data-pt>${P.esc(top)}</b><span data-pb>${P.esc(bottom)}</span></div>
+          <p class="hint mt-12">openpilot shows this on the car's screen at the start of every drive.</p>
+        </div></section>
       </div>`,
       mount: root => {
         const form = root.querySelector("[data-startup]");
@@ -53,23 +71,27 @@ P.page("startup", {
           form.querySelectorAll("[data-preset]").forEach(button => button.setAttribute("aria-pressed", String(button.dataset.preset === current)));
         };
         form.addEventListener("input", show);
-        form.querySelectorAll("[data-preset]").forEach(button => button.addEventListener("click", async () => {
-          const id = button.dataset.preset;
-          if (id === "custom") {
-            form.querySelectorAll("[data-preset]").forEach(other => other.setAttribute("aria-pressed", String(other === button)));
-            form.top.focus();
-            return;
-          }
-          const label = PRESETS.find(([preset]) => preset === id)[1];
-          if (await save(button, alert, alert.StartupMessageTop[id], alert.StartupMessageBottom[id], `${label} startup message saved`)) {
+        for (const button of form.querySelectorAll("[data-preset]")) {
+          button.addEventListener("click", () => {
+            const id = button.dataset.preset;
+            if (id === "custom") {
+              for (const other of form.querySelectorAll("[data-preset]")) {
+                other.setAttribute("aria-pressed", String(other === button));
+              }
+
+              form.top.focus();
+              return;
+            }
+
             form.top.value = alert.StartupMessageTop[id];
             form.bottom.value = alert.StartupMessageBottom[id];
             show();
-          }
-        }));
+          });
+        }
+
         form.addEventListener("submit", e => {
           e.preventDefault();
-          save(form.querySelector("[type=submit]"), alert, form.top.value.trim(), form.bottom.value.trim(), "Startup message saved");
+          save(form, alert);
         });
       }
     };

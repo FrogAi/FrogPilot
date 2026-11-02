@@ -122,14 +122,21 @@ P.act("secoc-del", async b => {
 });
 
 P.act("secoc-add", async () => {
-  const d = await P.dialog({ icon: "keys", title: "Add a security key", body: `<label class="field"><span>Name</span><input class="input" data-key-name placeholder="Spare" autocomplete="off"></label><label class="field"><span>Key</span><input class="input mono" data-key-value placeholder="32 hex characters" autocomplete="off" spellcheck="false"></label>`, confirm: "Save key" });
+  const nameField = `<label class="field"><span>Name</span>
+    <input class="input" data-key-name maxlength="64" required placeholder="Spare" autocomplete="off"></label>`;
+  const keyField = `<label class="field"><span>Key</span>
+    <input class="input mono" data-key-value required placeholder="32 hex characters" autocomplete="off" spellcheck="false" aria-describedby="secoc-key-hint">
+    <small class="hint" id="secoc-key-hint" aria-hidden="true">32 characters, using only 0 to 9 and a to f</small></label>`;
+  const save = dialog => {
+    const name = dialog.querySelector("[data-key-name]").value;
+    const value = dialog.querySelector("[data-key-value]").value.trim();
+    return P.request("POST", "/api/secoc_keys", { name, value });
+  };
+
+  const d = await P.dialog({
+    icon: "keys", title: "Add a security key", body: `${nameField}${keyField}`, confirm: "Save key", errors: SECOC_ERRORS, onConfirm: save
+  });
   if (!d) {
-    return;
-  }
-  try {
-    await P.request("POST", "/api/secoc_keys", { name: d.querySelector("[data-key-name]").value, value: d.querySelector("[data-key-value]").value.trim() });
-  } catch (error) {
-    P.fail(error, "Couldn't save the key", SECOC_ERRORS);
     return;
   }
   P.toast("Key saved");
@@ -183,7 +190,7 @@ P.page("vehicle", {
     const c = v.capabilities;
     const caps = c ? [["Blind spot monitoring", c.blind_spot_support], ["openpilot speed control", c.openpilot_longitudinal], ["Radar", c.radar_support], ["Stop and go", c.sng_support]] : [];
     if (c?.pedal_support) {
-      caps.push(["Comma pedal", true]);
+      caps.push(["comma pedal", true]);
     }
     if (c?.sdsu_support) {
       caps.push(["SDSU", true]);
@@ -224,6 +231,10 @@ P.page("vehicle", {
           try {
             next = await P.get("/api/doors");
           } catch (error) {
+            if (error.code === "connection_lost") {
+              return;
+            }
+
             clearInterval(timer);
             P.fail(error, "Couldn't refresh the door status");
             return;

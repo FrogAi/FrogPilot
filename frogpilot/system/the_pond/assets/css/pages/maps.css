@@ -3,9 +3,9 @@
 .maps-group { margin: 22px 0 8px; }
 .maps-search { flex: 1 1 220px; }
 .maps-tools { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
-@media (max-width: 1099px) {
+@media (max-width: 1099px), (max-height: 499px) {
   .maps-device { order: -1; }
 }
-@media (max-width: 719px) {
+@media (max-width: 719px), (max-height: 499px) {
   .maps-device .panel-foot .btn { flex: 1 1 auto; }
 }

@@ -5,7 +5,7 @@
     <rect x="16" y="56" width="168" height="98" rx="30" fill="none" stroke="#fff" stroke-width="14"/>
     <rect x="30" y="68" width="140" height="74" rx="14" fill="#393939"/>
     <path d="M80 142 97 80h6l17 62Z" fill="#30ff9c"/>
-    <path d="M62 142 93 80M138 142 107 80" stroke="#c4c4c4" stroke-linecap="round" stroke-width="2.6"/>
+    <path d="M62 142 93 80M138 142 107 80" stroke="#fff" stroke-linecap="round" stroke-width="2.6"/>
     <path d="M40 142 89 80M160 142 111 80" stroke="#ff0000" stroke-linecap="round" stroke-width="2.2"/>
     <rect x="34" y="98" width="132" height="40" rx="5.5" fill="#178644"/>
     <path d="M54 111.2h92" stroke="#fff" stroke-linecap="round" stroke-width="7"/>

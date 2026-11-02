@@ -8,6 +8,6 @@
 .themes-row.in-use { background: color-mix(in srgb, var(--pond) 7%, transparent); }
 .themes-row.in-use, .themes-row.in-use + .list-row { border-top-color: transparent; }
 
-@media (max-width: 719px) {
-  .themes-row .acts { grid-template-columns: auto 44px; justify-content: start; }
+@media (max-width: 719px), (max-height: 499px) {
+  .themes-row .acts { grid-template-columns: auto 44px; }
 }

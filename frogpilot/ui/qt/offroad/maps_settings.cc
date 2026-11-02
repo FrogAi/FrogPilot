@@ -57,10 +57,6 @@ FrogPilotMapsPanel::FrogPilotMapsPanel(FrogPilotSettingsWindow *parent, bool for
   downloadETA = new LabelControl(tr("Time Remaining"));
   settingsList->addItem(downloadETA);
 
-  downloadETA->setVisible(false);
-  downloadStatus->setVisible(false);
-  downloadTimeElapsed->setVisible(false);
-
   removeMapsButton = new ButtonControl(tr("Remove Maps"), tr("REMOVE"), tr("<b>Delete your downloaded map data and clear the places you picked under \"Map Sources\", to free up storage.</b><br><br>Only the map data around where you park comes back on its own, the next time the device is on Wi-Fi. Everywhere else, \"Speed Limit Controller\" has no map speed limits until you pick your places again and start a new download."));
   QObject::connect(removeMapsButton, &ButtonControl::clicked, [this] {
     if (FrogPilotConfirmationDialog::yesorno(tr("Delete all downloaded maps and clear your selected map sources?"), this)) {
@@ -106,6 +102,9 @@ FrogPilotMapsPanel::FrogPilotMapsPanel(FrogPilotSettingsWindow *parent, bool for
     }
   });
   settingsList->addItem(removeMapsButton);
+
+  lastMapsDownload->setVisible(false);
+  removeMapsButton->setVisible(false);
 
   mapsSize = new LabelControl(tr("Storage Used"));
   settingsList->addItem(mapsSize);

@@ -39,6 +39,8 @@ public:
   void experimentalModePressed();
   void flashPanda();
   void reportIssue(const QString &report);
+  void requestAccountLink();
+  void requestAccountUrl(const QString &purpose);
   void restoreSettingsBackup(const QString &name);
   void retryIssueReport();
   void runUpdateChecks();
@@ -47,6 +49,7 @@ public:
   void setTethering(int mode);
   void speedLimitAccepted();
   void testAlert(const QString &alert, float volume);
+  void unlinkAccount();
   void update();
   void updateToggles();
 
@@ -54,6 +57,8 @@ public:
 
   FrogPilotUIScene frogpilot_scene = {};
 
+  uint64_t account_link_request_time = 0;
+  uint64_t account_url_request_time = 0;
   uint64_t download_maps_request_time = 0;
   uint64_t download_model_request_time = 0;
   uint64_t download_theme_request_time = 0;

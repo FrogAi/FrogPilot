@@ -8,9 +8,33 @@ from openpilot.common.params import Params, ParamKeyType
 from openpilot.frogpilot.common import frogpilot_utilities, frogpilot_variables
 from openpilot.frogpilot.system import frogpilot_stats
 from openpilot.frogpilot.system.the_pond import utilities
-from openpilot.frogpilot.system.the_pond.toggle_panels import (data_settings, device_settings, frogpilot_settings, lateral_settings, longitudinal_settings,
-                                                               maps_settings, model_settings, navigation_settings, sounds_settings, theme_settings,
-                                                               utilities_settings, vehicle_settings, visual_settings, wheel_settings)
+from openpilot.frogpilot.system.the_pond.toggle_panels import (account_settings, data_settings, device_settings, frogpilot_settings, lateral_settings,
+                                                               longitudinal_settings, maps_settings, model_settings, navigation_settings, sounds_settings,
+                                                               theme_settings, utilities_settings, vehicle_settings, visual_settings, wheel_settings)
+
+COMMA_FOUR_HIDDEN_ROWS = {
+  "AdjacentLeadsUI",
+  "AdjacentPathMetrics",
+  "BorderMetrics",
+  "Compass",
+  "DeveloperSidebar",
+  "DistanceIconPack",
+  "FPSCounter",
+  "HideLeadMarker",
+  "HideSpeed",
+  "InstantReplay",
+  "LeadInfo",
+  "NumericalTemp",
+  "OnroadDistanceButton",
+  "PedalsOnUI",
+  "RadarTracksUI",
+  "RotatingWheel",
+  "ScreenRecorder",
+  "ScreenRecordings",
+  "SidebarMetrics",
+  "SpeedLimitSources",
+  "WheelSpeed",
+}
 
 EPSILON = 1e-6
 
@@ -20,8 +44,9 @@ NUMBER_WIDGETS = ("value", "value_buttons")
 STATE_FIELDS = ("changed", "current", "default", "disabled", "display", "hidden", "locked", "manage_visible", "reboot", "sub_toggles")
 WRITABLE_WIDGETS = ("button_toggle", "manage", "select", "toggle", "value", "value_buttons")
 
-SERVED_PANELS = (data_settings, device_settings, frogpilot_settings, lateral_settings, longitudinal_settings, maps_settings, model_settings,
-                 navigation_settings, sounds_settings, theme_settings, utilities_settings, vehicle_settings, visual_settings, wheel_settings)
+SERVED_PANELS = (account_settings, data_settings, device_settings, frogpilot_settings, lateral_settings, longitudinal_settings, maps_settings,
+                 model_settings, navigation_settings, sounds_settings, theme_settings, utilities_settings, vehicle_settings, visual_settings,
+                 wheel_settings)
 
 routes = web.RouteTableDef()
 
@@ -137,6 +162,15 @@ WRITABLE_ROWS = group_by_key([row for row in ROWS if is_writable(row)])
 
 KEYS = {*TABLE_ROWS, *SUB_TOGGLE_ROWS, *ROW_IDS, *ROW_KEYS}
 
+COMMA_FOUR_HIDDEN_PATHS = [path for identifier in COMMA_FOUR_HIDDEN_ROWS for path in child_paths(ROW_IDS[identifier])]
+COMMA_FOUR_HIDDEN_KEYS = {
+  key
+  for row in ROWS
+  if row_id(row) in COMMA_FOUR_HIDDEN_ROWS or any(row["path"][:len(path)] == path for path in COMMA_FOUR_HIDDEN_PATHS)
+  for key in (row["key"], *(sub_toggle["key"] for sub_toggle in row.get("sub_toggles", ())), *row.get("keys", ()))
+  if key is not None
+}
+
 
 @cache
 def get_tuning_levels():
@@ -145,7 +179,7 @@ def get_tuning_levels():
 
 
 def convert_metric(key, value, metric):
-  converted = utilities.convert_metric(key, value, metric)
+  converted = frogpilot_utilities.convert_metric(key, value, metric)
   if key not in METRIC_CLAMPED_KEYS:
     return converted
 
@@ -176,7 +210,6 @@ class Context:
     self.request = request
     self.the_pond = the_pond
     self.frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles(sm)
-    self.level = params.get("TuningLevel")
     self.metric = params.get_bool("IsMetric")
     self.online = frogpilot_utilities.is_online(sm["deviceState"])
     self.started = sm["deviceState"].started
@@ -184,6 +217,11 @@ class Context:
     git_branch = params.get("GitBranch")
     self.development_branch = git_branch == frogpilot_variables.DEVELOPMENT_BRANCH
     self.vetting_branch = git_branch == frogpilot_variables.VETTING_BRANCH
+
+    if params.get_bool("TuningLevelConfirmed"):
+      self.level = params.get("TuningLevel")
+    else:
+      self.level, _ = frogpilot_settings.first_open(params)
 
     self.can_disable_openpilot_long = True
     self.can_map_gears = True
@@ -195,6 +233,7 @@ class Context:
     self.has_auto_tune = True
     self.has_bsm = True
     self.has_dash_speed_limits = True
+    self.has_distance_button = True
     self.has_lkas_button = True
     self.has_nnff_log = True
     self.has_openpilot_longitudinal = True
@@ -264,6 +303,7 @@ class Context:
     self.has_lkas_button = frogpilot_toggles.has_lkas_button
     self.has_nnff_log = frogpilot_toggles.has_nnff
     self.has_openpilot_longitudinal = frogpilot_utilities.has_openpilot_longitudinal(self.params, car_params, frogpilot_car_params)
+    self.has_distance_button = frogpilot_toggles.has_distance_button or self.has_openpilot_longitudinal
     self.has_pcm_cruise = car_params["pcmCruise"]
     self.has_pedal = car_params["enableGasInterceptorDEPRECATED"]
     self.has_radar = not car_params["radarUnavailable"]
@@ -348,7 +388,9 @@ class Context:
   def row_reason(self, row):
     identifier = row_id(row)
     if identifier not in self.reasons:
-      if "pair" in row:
+      if utilities.IS_COMMA_FOUR and identifier in COMMA_FOUR_HIDDEN_ROWS:
+        self.reasons[identifier] = {"kind": "device"}
+      elif "pair" in row:
         self.reasons[identifier] = self.row_reason(ROW_IDS[row["pair"]])
       elif "visible" in row:
         self.reasons[identifier] = row["visible"](self)
@@ -404,7 +446,7 @@ class Context:
 
 def displayed_value(value, spec):
   factor = 10 ** spec["decimals"]
-  return min(max(utilities.round_half_away(value * factor) / factor, spec["min"]), spec["max"])
+  return min(max(frogpilot_utilities.round_half_away(value * factor) / factor, spec["min"]), spec["max"])
 
 
 def is_changed(current, default, spec):
@@ -412,7 +454,7 @@ def is_changed(current, default, spec):
     return False
   if spec is not None:
     factor = 10 ** spec["decimals"]
-    return utilities.round_half_away(current * factor) != utilities.round_half_away(default * factor)
+    return frogpilot_utilities.round_half_away(current * factor) != frogpilot_utilities.round_half_away(default * factor)
   return current != default
 
 
@@ -542,7 +584,7 @@ def serialize_row(row, context, reboot_required):
     for label, action in row["actions"].items():
       blocked = action["guard"](context) if "guard" in action else None
       data["actions"].append({"blocked": blocked, "confirm": action.get("confirm"), "label": label, "messages": action.get("messages", {}),
-                              "restart": action.get("restart", False), "status": action.get("status")})
+                              "opens": action.get("opens", False), "restart": action.get("restart", False), "status": action.get("status")})
 
   if "buttons" in row:
     data["buttons"] = row["buttons"]
@@ -614,6 +656,7 @@ def serialize_row(row, context, reboot_required):
         "changed": current != default,
         "current": current,
         "default": default,
+        "hidden": context.option_reason(sub_toggle),
         "key": sub_toggle["key"],
         "label": sub_toggle["label"],
       })
@@ -653,7 +696,9 @@ def get_state(the_pond):
 
 @routes.get("/api/toggles")
 async def get_toggles(request):
-  return web.json_response(get_payload(request.app[utilities.THE_POND]))
+  the_pond = request.app[utilities.THE_POND]
+  the_pond.send_request("accountLink")
+  return web.json_response(get_payload(the_pond))
 
 
 @routes.get("/api/toggles/state")
@@ -712,9 +757,13 @@ async def run_action(request):
     if error is not None:
       raise web.HTTPConflict(text=error)
 
-  succeeded = await action["run"](context, body)
+  result = await action["run"](context, body)
   the_pond.send_request("updateToggles")
-  return web.json_response({**get_state(the_pond), "succeeded": succeeded})
+
+  response = {**get_state(the_pond), "succeeded": bool(result)}
+  if action.get("opens"):
+    response["open"] = result
+  return web.json_response(response)
 
 
 @routes.put("/api/toggles/{key}")

@@ -1,6 +1,7 @@
 .btn.keys-guide { margin-left: auto; }
 .keys-body { display: grid; gap: 14px; }
 .keys-buttons { display: flex; gap: 10px; flex-wrap: wrap; }
+.keys-error { color: var(--danger); }
 .keys-progress { margin-top: 8px; }
 .keys-result > span { flex: 1; overflow-wrap: anywhere; }
 .keys-result .icon-btn { flex: none; margin: -8px -10px -8px 0; }

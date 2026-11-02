@@ -124,6 +124,9 @@ def restore_settings_backup(params, backup_path):
     if not path.is_file() or key not in frogpilot_variables.SETTINGS_BACKUP_KEYS:
       continue
 
+    if frogpilot_utilities.is_unset_secret(key, path.read_bytes()):
+      continue
+
     temporary_path = params_path / f".{key}.restore"
     shutil.copy2(path, temporary_path)
     os.replace(temporary_path, params_path / key)

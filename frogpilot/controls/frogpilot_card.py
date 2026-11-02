@@ -2,7 +2,7 @@
 import cereal.messaging as messaging
 
 from cereal import log
-from opendbc.car import create_button_events
+from opendbc.car import create_button_events, structs
 from opendbc.safety import ALTERNATIVE_EXPERIENCE
 from openpilot.common.params import Params
 from openpilot.selfdrive.car.cruise import CRUISE_LONG_PRESS, ButtonType
@@ -18,9 +18,11 @@ class FrogPilotCard:
     self.params = Params(return_defaults=True)
 
     self.always_on_lateral_allowed = False
+    self.car_safety_mode_set = True
     self.cruise_available_previously = True
     self.distance_pressed_previously = False
     self.force_coast = False
+    self.manual_transmission = CP.transmissionType == structs.CarParams.TransmissionType.manual
     self.onroad_distance_button = False
     self.pause_lateral = False
     self.pause_longitudinal = False
@@ -53,7 +55,7 @@ class FrogPilotCard:
       self.traffic_mode_enabled = not self.traffic_mode_enabled
 
   def handle_experimental_mode(self, sm, frogpilot_toggles):
-    if frogpilot_toggles.conditional_experimental_mode:
+    if frogpilot_toggles.conditional_experimental_mode or frogpilot_toggles.slc_fallback_experimental_mode:
       self.experimental_mode_press_count += 1
     else:
       self.params.put_bool_nonblocking("ExperimentalMode", not sm["selfdriveState"].experimentalMode)
@@ -71,16 +73,18 @@ class FrogPilotCard:
 
     frogpilotCarState.distancePressed |= self.onroad_distance_button
 
-    if self.CP.brand == "hyundai" and (self.CP.openpilotLongitudinalControl or frogpilot_toggles.always_on_lateral_lkas):
+    if self.CP.brand == "hyundai":
       safety_model = self.CP.safetyConfigs[-1].safetyModel
-      if not any(panda_state.safetyModel == safety_model for panda_state in sm["pandaStates"]):
+      self.car_safety_mode_set = any(panda_state.safetyModel == safety_model for panda_state in sm["pandaStates"])
+
+    if frogpilot_toggles.always_on_lateral_lkas:
+      if not self.car_safety_mode_set:
         self.always_on_lateral_allowed = False
       else:
-        for be in carState.buttonEvents:
-          if be.type == ButtonType.lkas and be.pressed and frogpilot_toggles.always_on_lateral_lkas:
-            self.always_on_lateral_allowed = not self.always_on_lateral_allowed
-          elif be.type == ButtonType.mainCruise and be.pressed and frogpilot_toggles.always_on_lateral_main:
-            self.always_on_lateral_allowed = not self.always_on_lateral_allowed
+        if any(be.type == ButtonType.lkas and be.pressed for be in carState.buttonEvents):
+          self.always_on_lateral_allowed = not self.always_on_lateral_allowed
+
+        self.always_on_lateral_allowed |= any(panda_state.controlsAllowed for panda_state in sm["pandaStates"])
     elif frogpilot_toggles.always_on_lateral_main:
       self.always_on_lateral_allowed |= sm["carControl"].enabled or not self.cruise_available_previously
       self.always_on_lateral_allowed &= carState.cruiseState.available
@@ -88,10 +92,7 @@ class FrogPilotCard:
       if carState.canValid:
         self.cruise_available_previously = carState.cruiseState.available
 
-    if not frogpilot_toggles.always_on_lateral_lkas and not frogpilot_toggles.always_on_lateral_main:
-      self.always_on_lateral_allowed = carState.cruiseState.enabled
-
-    self.always_on_lateral_enabled = self.always_on_lateral_allowed and self.always_on_lateral_set
+    self.always_on_lateral_enabled = self.always_on_lateral_allowed and self.always_on_lateral_set and frogpilot_toggles.always_on_lateral
     self.always_on_lateral_enabled &= carState.gearShifter not in frogpilot_variables.NON_DRIVING_GEARS
     self.always_on_lateral_enabled &= sm["frogpilotPlan"].lateralCheck
     self.always_on_lateral_enabled &= sm["liveCalibration"].calPerc >= 1
@@ -136,7 +137,7 @@ class FrogPilotCard:
     frogpilotCarState.experimentalModePressCount = self.experimental_mode_press_count
     frogpilotCarState.forceCoast = self.force_coast
     frogpilotCarState.lkasButtonPressCount = self.lkas_button_press_count
-    frogpilotCarState.parked = carState.gearShifter == frogpilot_variables.GearShifter.park
+    frogpilotCarState.parked = carState.gearShifter == frogpilot_variables.GearShifter.park or (self.manual_transmission and carState.standstill)
     frogpilotCarState.pauseLateral = self.pause_lateral
     frogpilotCarState.pauseLongitudinal = self.pause_longitudinal
     frogpilotCarState.trafficModeEnabled = self.traffic_mode_enabled

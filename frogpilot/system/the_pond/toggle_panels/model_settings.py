@@ -1,9 +1,9 @@
 from openpilot.frogpilot.common import frogpilot_variables
 from openpilot.frogpilot.system.the_pond import models
 
-RANDOMIZER_DOWNLOAD_NOTICE = {"action": "DOWNLOAD ALL", "cancel": "No", "confirm": "Yes",
+RANDOMIZER_DOWNLOAD_NOTICE = {"action": "DOWNLOAD ALL", "cancel": "Not now", "confirm": "Download all",
                               "text": "The \"Model Randomizer\" only picks from models you have downloaded. Download every model now?"}
-RANDOMIZER_OFFLINE_NOTICE = {"action": None, "cancel": "", "confirm": "Ok",
+RANDOMIZER_OFFLINE_NOTICE = {"action": None, "cancel": "", "confirm": "OK",
                              "text": ("The \"Model Randomizer\" only picks from models you have downloaded. Park your car and connect to the internet " +
                                       "to download them.")}
 
@@ -45,8 +45,8 @@ ROWS = [
     "widget": "toggle"
   },
   {
-    "description": ("<b>Remove driving models you have downloaded to free up storage.</b><br><br>\"DELETE\" lets you pick which ones, \"DELETE ALL\" " +
-                    "removes the rest. The model you are currently using and the one FrogPilot ships with are always kept. Turn \"Automatically " +
+    "description": ("<b>Remove driving models you have downloaded to free up storage.</b><br><br>Delete them one at a time on the \"Driving Models\" " +
+                    "page. The model you are currently using and the one FrogPilot ships with are always kept. Turn \"Automatically " +
                     "Download New Models\" off first, or anything you delete is downloaded again within the hour whenever the device is on Wi-Fi or " +
                     "another unmetered connection."),
     "id": "DeleteModel",
@@ -59,8 +59,8 @@ ROWS = [
     "widget": "buttons"
   },
   {
-    "description": ("<b>Download driving models onto the device so you can switch to them.</b><br><br>\"DOWNLOAD\" lets you pick which ones, " +
-                    "\"DOWNLOAD ALL\" fetches everything. Your car has to be parked and online, and models are large, so this can take a while."),
+    "description": ("<b>Download driving models onto the device so you can switch to them.</b><br><br>\"Download selected\" fetches the ones you " +
+                    "tick, \"Download all\" fetches everything. Your car has to be parked and online, and models are large, so this can take a while."),
     "id": "DownloadModel",
     "key": None,
     "link": "models",

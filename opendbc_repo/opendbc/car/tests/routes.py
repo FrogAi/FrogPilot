@@ -49,6 +49,7 @@ non_tested_cars.append(GM.BUICK_BABYENCLAVE)
 non_tested_cars.append(GM.CHEVROLET_SUBURBAN)
 non_tested_cars.append(GM.CHEVROLET_TRAX)
 non_tested_cars.append(HONDA.HONDA_CLARITY)
+non_tested_cars.append(HYUNDAI.HYUNDAI_AZERA_DIESEL_6TH_GEN)
 
 
 class CarTestRoute(NamedTuple):

@@ -107,7 +107,7 @@ class CarState(CarStateBase):
 
     if self.CP.enableGasInterceptorDEPRECATED:
       gas = (pt_cp.vl["GAS_SENSOR"]["INTERCEPTOR_GAS"] + pt_cp.vl["GAS_SENSOR"]["INTERCEPTOR_GAS2"]) / 2.
-      # Panda 515 threshold = 10.88. Set lower to avoid panda blocking messages and GasInterceptor faulting.
+      # Panda 550 threshold = 16.1. Set lower to avoid panda blocking messages and GasInterceptor faulting.
       threshold = 10 if self.CP.carFingerprint in CAMERA_ACC_CAR else 4
       ret.gasPressed = gas > threshold
     else:
@@ -185,7 +185,7 @@ class CarState(CarStateBase):
     # FrogPilot variables
     if self.CP.transmissionType == TransmissionType.direct:
       self.single_pedal_mode |= ret.regenBraking and ret.gearShifter == GearShifter.manumatic
-      self.fp_ret.pedalInterceptorNoBrake = bool(self.CP.flags & GMFlags.PEDAL_LONG.value) and not self.single_pedal_mode
+      self.fp_ret.pedalInterceptorNoBrake = bool(self.CP.flags & GMFlags.PEDAL_LONG.value) and self.CP.openpilotLongitudinalControl and not self.single_pedal_mode
 
     prev_lkas_button = self.lkas_button
     self.lkas_button = pt_cp.vl["ASCMSteeringButton"]["LKAButton"]

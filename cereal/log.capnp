@@ -2630,6 +2630,7 @@ struct Event {
     # DO change the name of the field and struct
     # DON'T change the ID (e.g. @107)
     # DON'T change which struct it points to
+    frogpilotAccountState @136 :Custom.FrogPilotAccountState;
     frogpilotCarParams @108 :Custom.FrogPilotCarParams;
     frogpilotCarState @109 :Custom.FrogPilotCarState;
     frogpilotDeviceState @110 :Custom.FrogPilotDeviceState;
@@ -2642,7 +2643,6 @@ struct Event {
     frogpilotSignReading @116 :Custom.FrogPilotSignReading;
     frogpilotUIEvent @137 :Custom.FrogPilotUIEvent;
     frogpilotUIRequest @139 :Custom.FrogPilotUIRequest;
-    customReserved10 @136 :Custom.CustomReserved10;
     customReserved14 @140 :Custom.CustomReserved14;
     customReserved15 @141 :Custom.CustomReserved15;
     customReserved16 @142 :Custom.CustomReserved16;

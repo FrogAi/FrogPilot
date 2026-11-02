@@ -2,7 +2,12 @@
 .ts-guide-body { display: grid; gap: 14px; }
 .ts-links { display: grid; gap: 2px; margin: 0 0 8px; padding: 0; list-style: none; }
 .ts-links .link { overflow-wrap: anywhere; }
+.ts-name-error { color: var(--danger); }
 .ts-open { margin: 18px 0 6px; }
 .ts-qr { flex: none; width: 148px; }
 .ts-qr svg { display: block; width: 100%; height: auto; border-radius: 6px; }
 .ts-signin { display: flex; gap: 20px; align-items: center; }
+
+@media (max-width: 719px), (max-height: 499px) {
+  .ts-qr, .ts-scan { display: none; }
+}

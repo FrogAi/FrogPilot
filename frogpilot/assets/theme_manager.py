@@ -21,8 +21,6 @@ DEFAULT_THEME_COMPONENTS = {
 
 THEME_PACK_COMPONENTS = ("colors", "distance_icons", "icons", "signals", "sounds")
 
-WHEEL_EXTENSIONS = (".gif", ".png", ".svg")
-
 class ThemeManager:
   def __init__(self, params):
     self.params = params
@@ -63,7 +61,7 @@ class ThemeManager:
 
     steering_wheel_image_path = world_frog_day_theme_path / "steering_wheel/wheel.svg"
     steering_wheel_save_path = frogpilot_paths.STEERING_WHEELS_PATH / "frog.svg"
-    for extension in WHEEL_EXTENSIONS:
+    for extension in frogpilot_paths.THEME_IMAGE_EXTENSIONS:
       frogpilot_utilities.delete_path(steering_wheel_save_path.with_suffix(extension))
     steering_wheel_save_path.parent.mkdir(parents=True, exist_ok=True)
     shutil.copy2(steering_wheel_image_path, steering_wheel_save_path)
@@ -349,7 +347,7 @@ class ThemeManager:
       theme_path.replace(download_path.with_suffix(extension))
 
       active_format_changed = False
-      for other_extension in sorted(set(WHEEL_EXTENSIONS) - {extension}):
+      for other_extension in sorted(set(frogpilot_paths.THEME_IMAGE_EXTENSIONS) - {extension}):
         active_wheel = frogpilot_paths.ACTIVE_THEME_PATH / "steering_wheel" / f"wheel{other_extension}"
         active_format_changed |= active_wheel.resolve() == download_path.with_suffix(other_extension).resolve()
 

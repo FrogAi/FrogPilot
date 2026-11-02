@@ -1,12 +1,8 @@
 import asyncio
 import datetime
-import fcntl
 import hashlib
-import math
 import mimetypes
 import secrets
-import socket
-import struct
 import weakref
 
 from aiohttp import web
@@ -14,13 +10,16 @@ from aiohttp import web
 from cereal import messaging
 from openpilot.common.params import Params
 from openpilot.system import sentry
+from openpilot.system.hardware import HARDWARE
 
 from openpilot.frogpilot.common import frogpilot_utilities, frogpilot_variables
 
+ACCOUNT_CHECK_INTERVAL = 1
+
+IS_COMMA_FOUR = HARDWARE.get_device_type() == "mici"
+
 PAIRING_COOKIE = "the_pond"
 PAIRING_COOKIE_AGE = 10 * 365 * 24 * 60 * 60
-
-SIOCGIFADDR = 0x8915
 
 STREAM_CHUNK_SIZE = 256 * 1024
 
@@ -33,13 +32,15 @@ class ThePond:
     self.params = Params(return_defaults=True)
 
     self.pm = messaging.PubMaster(["thePondRequest"])
-    self.sm = messaging.SubMaster(["deviceState", "frogpilotCarState", "frogpilotDeviceState", "frogpilotProcessState",
-                                   "managerState", "mapdExtendedOut", "pandaStates", "selfdriveState"])
+    self.sm = messaging.SubMaster(["deviceState", "frogpilotAccountState", "frogpilotCarState", "frogpilotDeviceState", "frogpilotProcessState",
+                                   "managerState", "mapdExtendedOut", "navInstruction", "navRoute", "pandaStates", "selfdriveState"])
 
     self.connections = weakref.WeakSet()
     self.file_locks = {}
     self.heavy_work = asyncio.Semaphore(1)
     self.jobs = {}
+
+    self.destination_set_time = 0
 
     self.drive_active = False
     self.preparation = None
@@ -47,11 +48,15 @@ class ThePond:
 
     self.locked = True
 
+    self.mapbox_secret_at_start = self.params.get("MapboxSecretKey")
+
     self.pairing_failures = []
 
     self.reboot_required = set()
 
     self.shell_used = 0.0
+
+    self.sound_player = None
 
     self.storage_usage = None
     self.storage_usage_expiry = 0.0
@@ -88,22 +93,6 @@ class ThePond:
 
 
 THE_POND = web.AppKey("the_pond", ThePond)
-
-def convert_metric(key, value, metric):
-  conversion, decimals = frogpilot_variables.METRIC_CONVERSIONS[key]
-
-  if metric:
-    converted = value * conversion
-  else:
-    converted = value * (1 / conversion)
-
-  if decimals is not None:
-    converted = round_half_away(converted * 10 ** decimals) / 10 ** decimals
-
-  if isinstance(value, int):
-    return int(converted)
-  return converted
-
 
 async def create_file(the_pond, path, cmd):
   path.parent.mkdir(parents=True, exist_ok=True)
@@ -142,16 +131,6 @@ def get_file(directory, name):
   if name in ("", ".", "..") or path.parent != directory or not path.is_file():
     raise web.HTTPNotFound(text="not_found")
   return path
-
-
-def get_ip_address(interfaces):
-  for interface in interfaces:
-    with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
-      try:
-        return socket.inet_ntoa(fcntl.ioctl(sock.fileno(), SIOCGIFADDR, struct.pack("256s", interface.encode()))[20:24])
-      except OSError:
-        continue
-  return None
 
 
 def get_job(the_pond, name):
@@ -212,10 +191,6 @@ def reset_curve_data(params):
   params.put("CalibratedLateralAcceleration", params.get_default_value("CalibratedLateralAcceleration"))
   for key in frogpilot_variables.CURVE_DATA_KEYS:
     params.remove(key)
-
-
-def round_half_away(value):
-  return math.copysign(math.floor(abs(value) + 0.5), value)
 
 
 async def run_and_report(coroutine):
@@ -292,3 +267,9 @@ async def stop_process(process):
   if process.returncode is None:
     process.kill()
     await process.wait()
+
+
+async def unlink_account(the_pond):
+  request_time = the_pond.send_request("unlinkAccount")
+  while the_pond.sm["frogpilotAccountState"].linkRequestTime < request_time:
+    await asyncio.sleep(ACCOUNT_CHECK_INTERVAL)

@@ -55,7 +55,7 @@ function fileRows(kind, files) {
   return files.map(f => {
     const attrs = `data-kind="${kind}" data-name="${P.esc(f.name)}"`;
     return `<div class="list-row"><span class="grow"><b class="mono">${P.esc(f.name)}</b><span>${P.whenLabel(f.modified)} · ${P.size(f.size)}</span></span><span class="acts">
-      <button class="btn btn-quiet btn-small" data-act="logs-view" ${attrs}>View</button>
+      <button class="btn btn-quiet btn-small" data-act="logs-view" ${attrs} aria-label="View ${P.esc(f.name)}">View</button>
       ${kind === "tmux" ? `<button class="icon-btn" data-act="logs-rename" ${attrs} aria-label="Rename ${P.esc(f.name)}">${P.ic("pencil")}</button>` : ""}
       <button class="icon-btn" data-act="logs-download" ${attrs} aria-label="Download ${P.esc(f.name)}">${P.ic("download")}</button>
       <button class="icon-btn danger" data-act="logs-delete" ${attrs} aria-label="Delete ${P.esc(f.name)}">${P.ic("trash")}</button>
@@ -97,6 +97,16 @@ function setConsoleState(panel, dot, label) {
 function setToggle(button, pressed, icon, label) {
   button.setAttribute("aria-pressed", String(pressed));
   button.innerHTML = `${P.ic(icon)}<span>${label}</span>`;
+}
+
+function setExpanded(button, expanded) {
+  let label = "Expand";
+  if (expanded) {
+    label = "Collapse";
+  }
+
+  button.closest(".logs-console").classList.toggle("expanded", expanded);
+  setToggle(button, expanded, "full", label);
 }
 
 P.page("logs", {
@@ -169,6 +179,11 @@ P.page("logs", {
         con.addEventListener("scroll", () => {
           following = con.scrollHeight - con.scrollTop - con.clientHeight < 24;
         });
+        panel.addEventListener("keydown", e => {
+          if (e.key === "Escape" && panel.classList.contains("expanded")) {
+            setExpanded(panel.querySelector("[data-act='logs-expand']"), false);
+          }
+        });
         new ResizeObserver(() => {
           if (following) {
             con.scrollTop = con.scrollHeight;
@@ -205,32 +220,36 @@ P.page("logs", {
           }
         });
         let stopped = false;
-        P.poll(async () => {
-          if (stopped) {
-            return true;
-          }
-          if (document.hidden || pause.getAttribute("aria-pressed") === "true") {
-            return;
-          }
-          const session = consoleSession;
-          const update = await P.get(`/api/tmux?session=${session}&since=${id}`);
-          if (stopped || !update || session !== consoleSession || pause.getAttribute("aria-pressed") === "true") {
-            return;
-          }
-          id = update.id;
-          lines = lines.slice(0, update.keep).concat(update.lines);
-          con.textContent = lines.join("\n");
-          if (following) {
-            con.scrollTop = con.scrollHeight;
-          }
-        }).catch(error => {
-          if (stopped) {
-            return;
-          }
-          pause.disabled = true;
-          setConsoleState(panel, "off", "Stopped");
-          P.fail(error, "The console stopped updating");
-        });
+        const follow = () => {
+          P.poll(async () => {
+            if (stopped) {
+              return true;
+            }
+            if (document.hidden || pause.getAttribute("aria-pressed") === "true") {
+              return;
+            }
+            const session = consoleSession;
+            const update = await P.get(`/api/tmux?session=${session}&since=${id}`);
+            if (stopped || !update || session !== consoleSession || pause.getAttribute("aria-pressed") === "true") {
+              return;
+            }
+            id = update.id;
+            lines = lines.slice(0, update.keep).concat(update.lines);
+            con.textContent = lines.join("\n");
+            if (following) {
+              con.scrollTop = con.scrollHeight;
+            }
+          }).catch(error => {
+            if (stopped) {
+              return;
+            }
+            setToggle(pause, true, "play", "Resume");
+            setConsoleState(panel, "off", "Stopped");
+            P.fail(error, "The console stopped updating");
+            follow();
+          });
+        };
+        follow();
         return () => {
           stopped = true;
           if (consoleSession === "shell") {
@@ -251,11 +270,17 @@ P.act("logs-view", async b => {
     P.fail(error, `Couldn't open ${P.fileLabel(b.dataset.name)}`);
     return;
   }
-  view.innerHTML = `<div class="panel-body logs-view"><div class="logs-view-head"><b class="mono">${P.esc(b.dataset.name)}</b><button class="icon-btn" aria-label="Close log" data-act="logs-close">${P.ic("x")}</button></div><pre class="code-box">${P.esc(text)}</pre></div>`;
-});
+  const head = `<b class="mono">${P.esc(b.dataset.name)}</b><button class="icon-btn" aria-label="Close log" data-log-close>${P.ic("x")}</button>`;
+  view.innerHTML = `<div class="panel-body logs-view"><div class="logs-view-head">${head}</div><pre class="code-box">${P.esc(text)}</pre></div>`;
 
-P.act("logs-close", b => {
-  b.closest("[data-log-view]").innerHTML = "";
+  const close = view.querySelector("[data-log-close]");
+  close.addEventListener("click", () => {
+    view.innerHTML = "";
+    b.focus();
+  });
+
+  view.scrollIntoView({ block: "nearest" });
+  close.focus({ preventScroll: true });
 });
 
 P.act("logs-more", b => {
@@ -308,9 +333,7 @@ P.act("logs-key", b => {
 });
 
 P.act("logs-expand", b => {
-  const expanded = b.getAttribute("aria-pressed") !== "true";
-  b.closest(".logs-console").classList.toggle("expanded", expanded);
-  setToggle(b, expanded, "full", expanded ? "Collapse" : "Expand");
+  setExpanded(b, b.getAttribute("aria-pressed") !== "true");
 });
 
 P.act("logs-pause", b => {
@@ -321,36 +344,39 @@ P.act("logs-pause", b => {
 
 P.act("logs-rename", async b => {
   const current = b.dataset.name.replace(/\.log$/, "");
-  const dlg = await P.dialog({ icon: "pencil", title: "Rename this log", body: `<label class="field"><span>Name</span><input class="input mono" maxlength="64" autocomplete="off" spellcheck="false" value="${P.esc(current)}"></label>`, confirm: "Rename" });
-  if (!dlg) {
+  const input = `<input class="input mono" maxlength="64" autocomplete="off" spellcheck="false" value="${P.esc(current)}" aria-describedby="name-rule">`;
+  const rule = `<small class="hint" id="name-rule" aria-hidden="true">Up to 64 letters, numbers, dots, dashes, and underscores</small>`;
+
+  let name = "";
+  await P.dialog({
+    icon: "pencil", title: "Rename this log", body: `<label class="field"><span>Name</span>${input}${rule}</label>`, confirm: "Rename", errors: NAME_ERRORS,
+    onConfirm: async dialog => {
+      const typed = dialog.querySelector("input").value.trim();
+
+      if (typed !== current) {
+        await P.request("PUT", fileURL(b), { name: typed });
+        name = typed;
+      }
+    }
+  });
+
+  if (!name) {
     return;
   }
-  const name = dlg.querySelector("input").value.trim();
-  if (!name || name === current) {
-    return;
-  }
-  try {
-    await P.request("PUT", fileURL(b), { name });
-  } catch (error) {
-    P.fail(error, "Couldn't rename the log", NAME_ERRORS);
-    return;
-  }
+
   P.toast("Log renamed", `<span class="mono">${P.fileLabel(name)}.log</span>`);
   reloadFiles("tmux");
 });
 
 P.act("logs-save", async b => {
-  b.disabled = true;
   let saved;
   try {
-    saved = await P.request("POST", "/api/tmux_logs", { session: consoleSession });
+    saved = await P.busy(b, P.request("POST", "/api/tmux_logs", { session: consoleSession }));
   } catch (error) {
-    b.disabled = false;
     P.fail(error, "Couldn't save the console");
     return;
   }
   P.toast("Console saved", `<span class="mono">${P.fileLabel(saved.name)}</span>`);
-  await reloadFiles("tmux");
-  b.disabled = false;
+  reloadFiles("tmux");
 });
 })();

@@ -3,7 +3,7 @@ import time
 
 from types import SimpleNamespace
 
-from cereal import car, custom
+from cereal import custom
 from opendbc.car import gen_empty_fingerprint, PEDAL_MSG
 from opendbc.car.can_definitions import CanRecvCallable, CanSendCallable
 from opendbc.car.carlog import carlog
@@ -167,18 +167,8 @@ def get_car(can_recv: CanRecvCallable, can_send: CanSendCallable, set_obd_multip
 
   car_model = params.get("CarModel")
 
-  previous_car_model = None
-  if candidate is None and vin != VIN_UNKNOWN:
-    previous_car_params = params.get("CarParamsPersistent")
-    if previous_car_params is not None:
-      with car.CarParams.from_bytes(previous_car_params) as previous_CP:
-        if previous_CP.carVin == vin:
-          previous_car_model = previous_CP.carFingerprint
-
-  if car_model in interfaces and frogpilot_toggles.force_fingerprint:
+  if car_model in interfaces and (candidate is None or frogpilot_toggles.force_fingerprint):
     candidate = car_model
-  elif previous_car_model in interfaces:
-    candidate = previous_car_model
   elif candidate is None:
     carlog.error({"event": "car doesn't match any fingerprints", "fingerprints": repr(fingerprints)})
     candidate = "MOCK"
@@ -208,6 +198,7 @@ def get_car(can_recv: CanRecvCallable, can_send: CanSendCallable, set_obd_multip
       CP.alphaLongitudinalAvailable = True
 
     if alpha_long_allowed or not CP.alphaLongitudinalAvailable:
+      CP.minEnableSpeed = -1
       CP.openpilotLongitudinalControl = True
       CP.flags &= ~ToyotaFlags.DISABLE_RADAR.value
       CP.safetyConfigs[0].safetyParam &= ~ToyotaSafetyFlags.STOCK_LONGITUDINAL.value

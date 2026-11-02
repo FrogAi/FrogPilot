@@ -2,12 +2,14 @@ import pyray as rl
 import numpy as np
 import time
 import threading
+import json
 from collections.abc import Callable
 from enum import Enum
 from cereal import messaging, car, log
 from openpilot.common.filter_simple import FirstOrderFilter
 from openpilot.common.params import Params
 from openpilot.common.swaglog import cloudlog
+from openpilot.frogpilot.ui.mici.frogpilot_screen import FrogPilotScreen
 from openpilot.selfdrive.ui.lib.prime_state import PrimeState
 from openpilot.system.ui.lib.application import gui_app
 from openpilot.system.hardware import HARDWARE, PC
@@ -19,6 +21,9 @@ class UIStatus(Enum):
   DISENGAGED = "disengaged"
   ENGAGED = "engaged"
   OVERRIDE = "override"
+
+  # FrogPilot variables
+  ALWAYS_ON_LATERAL = "always_on_lateral"
 
 
 class UIState:
@@ -55,6 +60,13 @@ class UIState:
         "carControl",
         "liveParameters",
         "rawAudioData",
+
+        # FrogPilot variables
+        "frogpilotCarState",
+        "frogpilotPlan",
+        "frogpilotProcessState",
+        "frogpilotSelfdriveState",
+        "mapdOut",
       ]
     )
 
@@ -86,6 +98,11 @@ class UIState:
     self._engaged_transition_callbacks: list[Callable[[], None]] = []
 
     self.update_params()
+
+    # FrogPilot variables
+    self._frogpilot_toggles_text = ""
+
+    self.frogpilot_toggles = {}
 
   def add_offroad_transition_callback(self, callback: Callable[[], None]):
     self._offroad_transition_callbacks.append(callback)
@@ -142,6 +159,20 @@ class UIState:
     self.is_metric = self.params.get_bool("IsMetric")
     self.always_on_dm = self.params.get_bool("AlwaysOnDM")
 
+    # FrogPilot variables
+    if self.sm.updated["frogpilotProcessState"]:
+      frogpilot_toggles_text = self.sm["frogpilotProcessState"].frogpilotToggles
+
+      if frogpilot_toggles_text != self._frogpilot_toggles_text:
+        self._frogpilot_toggles_text = frogpilot_toggles_text
+        self.frogpilot_toggles = json.loads(frogpilot_toggles_text)
+
+    if self.frogpilot_toggles.get("force_onroad"):
+      self.started = True
+
+    if self.frogpilot_toggles.get("force_offroad"):
+      self.started = False
+
   def _update_status(self) -> None:
     if self.started and self.sm.updated["selfdriveState"]:
       ss = self.sm["selfdriveState"]
@@ -149,6 +180,9 @@ class UIState:
 
       if state in (log.SelfdriveState.OpenpilotState.preEnabled, log.SelfdriveState.OpenpilotState.overriding):
         self.status = UIStatus.OVERRIDE
+      # FrogPilot variables
+      elif not ss.enabled and self.sm["frogpilotCarState"].alwaysOnLateralEnabled:
+        self.status = UIStatus.ALWAYS_ON_LATERAL
       else:
         self.status = UIStatus.ENGAGED if ss.enabled else UIStatus.DISENGAGED
 
@@ -197,6 +231,9 @@ class Device:
     self._brightness_filter = FirstOrderFilter(BACKLIGHT_OFFROAD, 10.00, 1 / gui_app.target_fps)
     self._brightness_thread: threading.Thread | None = None
 
+    # FrogPilot variables
+    self._frogpilot_screen = FrogPilotScreen()
+
   @property
   def awake(self) -> bool:
     return self._awake
@@ -212,6 +249,12 @@ class Device:
       return self._override_interactive_timeout
 
     ignition_timeout = 10 if gui_app.big_ui() else 5
+
+    # FrogPilot variables
+    frogpilot_timeout = self._frogpilot_screen.interactive_timeout(ui_state)
+    if frogpilot_timeout is not None:
+      return frogpilot_timeout
+
     return ignition_timeout if ui_state.ignition else 30
 
   def _reset_interactive_timeout(self) -> None:
@@ -224,6 +267,9 @@ class Device:
     # do initial reset
     if self._interaction_time <= 0:
       self._reset_interactive_timeout()
+
+    # FrogPilot variables
+    self._frogpilot_screen.update(ui_state)
 
     self._update_brightness()
     self._update_wakefulness()
@@ -250,6 +296,10 @@ class Device:
     brightness = round(self._brightness_filter.update(clipped_brightness))
     if not self._awake:
       brightness = 0
+    # FrogPilot variables
+    else:
+      interacting = time.monotonic() <= self._interaction_time
+      brightness = self._frogpilot_screen.brightness(ui_state, brightness, self._offroad_brightness == BACKLIGHT_OFFROAD, interacting)
 
     if brightness != self._last_brightness:
       if self._brightness_thread is None or not self._brightness_thread.is_alive():
@@ -260,10 +310,20 @@ class Device:
   def _update_wakefulness(self):
     # Handle interactive timeout
     ignition_just_turned_off = not ui_state.ignition and self._ignition
+
+    # FrogPilot variables
+    ignition_just_turned_on = ui_state.ignition and not self._ignition
+
     self._ignition = ui_state.ignition
 
     if ignition_just_turned_off or any(ev.left_down for ev in gui_app.mouse_events):
       self._reset_interactive_timeout()
+
+    # FrogPilot variables
+    if self._frogpilot_screen.keep_awake:
+      self._reset_interactive_timeout()
+    elif ignition_just_turned_on and self._frogpilot_screen.screen_off:
+      self._interaction_time = time.monotonic()
 
     interaction_timeout = time.monotonic() > self._interaction_time
     if interaction_timeout and not self._prev_timed_out:
@@ -271,7 +331,10 @@ class Device:
         callback()
     self._prev_timed_out = interaction_timeout
 
-    self._set_awake(ui_state.ignition or not interaction_timeout or PC)
+    # FrogPilot variables
+    screen_dark = ui_state.started and self._frogpilot_screen.screen_off
+
+    self._set_awake((ui_state.ignition and not screen_dark) or not interaction_timeout or PC)
 
   def _set_awake(self, on: bool):
     if on != self._awake:

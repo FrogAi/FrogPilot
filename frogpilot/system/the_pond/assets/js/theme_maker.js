@@ -10,14 +10,28 @@ const COLOR_KEYS = ["LaneLines", "LeadMarker", "Path", "PathEdge", "Sidebar1", "
 const COLOR_LABELS = { LaneLines: "Lane lines", LeadMarker: "Lead marker", Path: "Path", PathEdge: "Path edges", Sidebar1: "Temperature bar", Sidebar2: "Vehicle bar", Sidebar3: "Connection bar" };
 const COMPONENTS = ["colors", "distance_icons", "icons", "signals", "sounds", "steering_wheels"];
 const EXPERIMENTAL = "#DA6F25";
-const IMAGE_TYPES = ".png,.svg,.gif,image/png,image/svg+xml,image/gif";
+const IMAGE_TYPES = ".png,.svg,.gif,.jpg,.jpeg,image/png,image/svg+xml,image/gif,image/jpeg";
 const IMG = { src: "/assets/img/theme_maker/road.jpg", w: 482, h: 302, vpx: 240.5, vpy: 123.5, k: 469, camH: 1.4 };
 const IMG_DIR = "/assets/img/theme_maker/";
 const LEAD_D = 18;
+const LEAD_FADE_DISTANCE = 40;
 const MB = 1024 * 1024;
 const PART_COMPONENT = { distance: "distance_icons", icons: "icons", signals: "signals", sounds: "sounds", wheel: "steering_wheels" };
 const PERSONALITIES = ["aggressive", "standard", "relaxed", "traffic"];
-const PRESETS = ["#178644", "#2E9D57", "#126B36", "#17823B", "#C21111", "#3685C0", "#862FE0", "#A138FF", "#F27503", "#E8B11C", "#30FF9C", "#FFFFFF"];
+const PRESETS = [
+  ["#178644", "engaged green"],
+  ["#2E9D57", "green"],
+  ["#126B36", "dark green"],
+  ["#17823B", "forest green"],
+  ["#C21111", "red"],
+  ["#3685C0", "blue"],
+  ["#862FE0", "purple"],
+  ["#A138FF", "light purple"],
+  ["#F27503", "orange"],
+  ["#E8B11C", "gold"],
+  ["#30FF9C", "path green"],
+  ["#FFFFFF", "white"]
+];
 const SOUND_SLOTS = [
   { id: "engage", label: "Engage", when: "openpilot engages" },
   { id: "disengage", label: "Disengage", when: "You brake, cancel, or take over" },
@@ -42,7 +56,8 @@ const MESSAGES = {
   invalid_source: "The device doesn't have that theme anymore",
   invalid_theme: "The device doesn't have that theme anymore",
   invalid_username: "Enter your Discord name",
-  random_themes: "Random Themes is on. Turn it off on the car first",
+  no_file: "Choose the theme's .zip file",
+  random_themes: "Random Themes is on. Turn it off in Toggles first",
   submission_failed: "The FrogPilot server didn't take the theme. Try again later"
 };
 
@@ -92,6 +107,7 @@ async function loadData() {
   Object.assign(MESSAGES, {
     file_too_large: `That file is over ${limits.file_size / MB}${P.NB}MB`,
     invalid_name: `Use 1 to ${limits.name_length} letters, numbers, and spaces`,
+    svg_too_large: `The SVG steering wheel is over ${limits.submission_svg_size / MB}${P.NB}MB`,
     theme_too_large: `The theme is over ${limits.submission_size / MB}${P.NB}MB`
   });
   themes = buildThemes();
@@ -119,6 +135,14 @@ function packName(component, key) {
   }
   const entry = data.components[component].installed.find(item => item.key === key);
   return entry ? entry.name : key;
+}
+
+function themeSource(theme) {
+  if (data.builtins[theme.key]) {
+    return "Built in";
+  }
+
+  return "Downloaded";
 }
 
 function buildThemes() {
@@ -172,7 +196,26 @@ function usingName() {
   }
   const selected = data.components.colors.selected;
   const match = themes.find(t => t.parts.colors === selected);
-  return match ? match.name : packName("colors", selected);
+  if (!match) {
+    return packName("colors", selected);
+  }
+
+  for (const component of COMPONENTS) {
+    if (selectedKey(component) !== effective(match, component)) {
+      return "a mix of themes";
+    }
+  }
+
+  return match.name;
+}
+
+function selectedKey(component) {
+  const key = data.components[component].selected;
+  if (key === "stock") {
+    return fallback(component);
+  }
+
+  return key;
 }
 
 async function fileList(component, key) {
@@ -365,7 +408,6 @@ async function loadPacks(component) {
 }
 
 const camImg = new Image();
-camImg.src = IMG.src;
 camImg.addEventListener("load", () => draw());
 
 function surfaceGeom() {
@@ -510,7 +552,7 @@ function draw() {
   chev.lineTo(lx, ly);
   chev.lineTo(lx - sz * 1.25, ly + sz);
   chev.closePath();
-  const fillAlpha = Math.min(255, Math.max(0, 255 * (1 - LEAD_D / 40))) / 255;
+  const fillAlpha = Math.min(255, Math.max(0, 255 * (1 - LEAD_D / LEAD_FADE_DISTANCE))) / 255;
   ctx.fillStyle = rgba(colors.LeadMarker.hex, fillAlpha);
   ctx.fill(chev);
   const leadBox = [lx - sz * 2, ly - sz * .8, sz * 4, sz * 2.4];
@@ -612,6 +654,29 @@ function paint(root) {
   root.querySelectorAll("[data-color]").forEach(ed => {
     ed.querySelector("[data-sw]").style.background = colorCss(look.colors[ed.dataset.color]);
   });
+
+  if (P.reducedMotion.matches) {
+    for (const image of root.querySelectorAll('img[src*=".gif" i]')) {
+      showFirstFrame(image);
+    }
+  }
+}
+
+function showFirstFrame(image) {
+  if (!image.complete) {
+    image.addEventListener("load", () => {
+      showFirstFrame(image);
+    }, { once: true });
+    return;
+  }
+
+  if (image.naturalWidth) {
+    const frame = document.createElement("canvas");
+    frame.width = image.naturalWidth;
+    frame.height = image.naturalHeight;
+    frame.getContext("2d").drawImage(image, 0, 0);
+    image.src = frame.toDataURL();
+  }
 }
 
 function buildStage() {
@@ -846,33 +911,49 @@ function stripHTML() {
   const preview = src => `<span class="slot-prev">${src ? `<img src="${src}" alt="">` : ""}</span>`;
   const signalLabel = s.style && s.frames.length ? `${esc(partLabel("signals", "Your frames"))}, ${s.ms}${P.NB}ms` : "None";
   return `
-    <div class="strip-group"><h3>Colors</h3><div class="strip-row">
+    <div class="strip-group"><h2>Colors</h2><div class="strip-row">
       ${btn("path", swatch("Path"), "Path", look.colors.Path.hex)}
       ${btn("lanes", swatch("LaneLines"), "Lane lines", look.colors.LaneLines.hex)}
       ${btn("edges", swatch("PathEdge"), "Path edges", look.colors.PathEdge.hex)}
       ${btn("lead", swatch("LeadMarker"), "Lead marker", look.colors.LeadMarker.hex)}
       ${btn("sidebar", `<span class="slot-prev sw-prev sw-bars">${["Sidebar1", "Sidebar2", "Sidebar3"].map(k => `<i data-swatch="${k}"></i>`).join("")}</span>`, "Sidebar bars", "3 colors")}
     </div></div>
-    <div class="strip-group"><h3>Icons and animation</h3><div class="strip-row">
+    <div class="strip-group"><h2>Icons and animation</h2><div class="strip-row">
       ${btn("wheel", preview(look.wheel ? wheelSrc() : null), "Steering wheel", esc(partLabel("steering_wheels", "Your image")))}
       ${btn("signals", preview(s.frames[2] || s.frames[0]), "Turn signals", signalLabel)}
       ${btn("icons", preview(look.icons.home), "Sidebar buttons", "Settings, flag, home")}
       ${btn("distance", preview(look.distance.standard), "Personality icons", esc(partLabel("distance_icons", "Your images")))}
     </div></div>
-    <div class="strip-group"><h3>Sounds</h3><div class="strip-row">
+    <div class="strip-group"><h2>Sounds</h2><div class="strip-row">
       ${SOUND_SLOTS.map(s2 => `<span class="snd-wrap">${btn("sounds", `<span class="slot-prev snd">${ic("sound")}</span>`, s2.label, "", `data-sound="${s2.id}"`, T.part === "sounds" && T.soundFocus === s2.id)}<button type="button" class="icon-btn" data-play-sound="${s2.id}" aria-label="Play ${s2.label} sound">${ic("play")}</button></span>`).join("")}
     </div></div>`;
 }
 
+function opacityLabel(alpha) {
+  return `${Math.round((alpha / 255) * 100)}%`;
+}
+
 function colorEditor(key, note) {
   const c = look.colors[key];
+  let alpha = "";
+  if (ALPHA_USED.includes(key)) {
+    const opacity = opacityLabel(c.a);
+    const range = `<input type="range" id="a-${key}" min="0" max="255" value="${c.a}" data-in="alpha" aria-valuetext="${opacity}">`;
+    alpha = `<div class="alpha-row"><label for="a-${key}">Opacity</label>${range}<output data-out>${opacity}</output></div>`;
+  }
+
+  let presets = "";
+  for (const [hex, name] of PRESETS) {
+    presets += `<button type="button" data-preset="${hex}" aria-label="Use ${name}"></button>`;
+  }
+
   return `<div class="color-ed full" data-color="${key}">
     <div class="color-top">
       <label class="big-sw"><i data-sw></i><input type="color" value="${c.hex.toLowerCase()}" data-in="picker" aria-label="${COLOR_LABELS[key]} color picker"></label>
       <div class="tm-color-name"><b>${COLOR_LABELS[key]}</b><div class="hex-row"><label class="sr" for="hex-${key}">${COLOR_LABELS[key]} hex</label><input class="input" id="hex-${key}" value="${c.hex}" maxlength="7" spellcheck="false" autocomplete="off" data-in="hex"></div></div>
     </div>
-    ${ALPHA_USED.includes(key) ? `<div class="alpha-row"><label for="a-${key}">Opacity</label><input type="range" id="a-${key}" min="0" max="255" value="${c.a}" data-in="alpha"><output data-out>${Math.round((c.a / 255) * 100)}%</output></div>` : ""}
-    <div class="presets" role="group" aria-label="Quick colors">${PRESETS.map(h => `<button type="button" data-preset="${h}" aria-label="Use ${h}"></button>`).join("")}</div>
+    ${alpha}
+    <div class="presets" role="group" aria-label="Quick colors">${presets}</div>
     ${note ? `<p class="how">${ic("info")}<span>${note}</span></p>` : ""}
   </div>`;
 }
@@ -896,6 +977,14 @@ function uploadButton(kind, label, accept, cls = "btn btn-quiet btn-small file-b
   return `<label class="${cls}">${ic("upload")}${label}<input type="file" ${multiple ? "multiple" : ""} accept="${accept}" data-upload="${kind}"></label>`;
 }
 
+function shortDistance(meters) {
+  if (P.state.is_metric) {
+    return `${meters}${P.NB}m`;
+  }
+
+  return `${Math.round(meters * 3.28084)}${P.NB}ft`;
+}
+
 function inspectorHTML() {
   const t = cur();
   const part = T.part;
@@ -910,9 +999,16 @@ function inspectorHTML() {
   } else if (part === "edges") {
     body = colorEditor("PathEdge", `The car always draws the edges at 40%, fading out up the screen, so only the color is used. In Experimental Mode the car uses its own orange instead${T.drive === "experimental" ? ", which is what you're seeing now" : ""}.${stockNote}`);
   } else if (part === "lead") {
-    body = colorEditor("LeadMarker", "The yellow glow always shows. The car sets how solid your color is from the distance to the car ahead: clearer as it gets farther, gone past 40 m. This truck is about 18 m ahead.");
+    const ahead = shortDistance(LEAD_D);
+    const fade = shortDistance(LEAD_FADE_DISTANCE);
+    const fades = `Your color fades as the car ahead gets farther away and is gone past ${fade}.`;
+    body = colorEditor("LeadMarker", `The yellow glow always shows. ${fades} This truck is about ${ahead} ahead.`);
   } else if (part === "sidebar") {
-    body = ["Sidebar1", "Sidebar2", "Sidebar3"].map(k => colorEditor(k, k === "Sidebar3" ? "Opacity is used. Each bar turns yellow or red on its own when something needs attention." : "")).join("");
+    for (const key of PART_COLORS.sidebar) {
+      body += colorEditor(key, "");
+    }
+
+    body += `<p class="how full">${ic("info")}<span>Opacity is used. Each bar turns yellow or red on its own when something needs attention.</span></p>`;
   } else if (part === "wheel") {
     const items = packChoices("steering_wheels", key => (key === "stock" ? `${IMG_DIR}chffr_wheel.png` : listed("steering_wheels", key)[0] ? fileUrl("steering_wheels", key, listed("steering_wheels", key)[0]) : ""));
     if (own("steering_wheels")) {
@@ -930,6 +1026,8 @@ function inspectorHTML() {
       items.unshift({ value: "own", label: "Your frames", src: s.frames[2] || s.frames[0], sq: true });
     }
     const styleOff = s.frames.length ? "" : "disabled";
+    const slider = `<input type="range" min="25" max="500" step="5" value="${s.ms}" data-ms aria-label="Milliseconds per frame" ${styleOff}>`;
+    const framesNote = "Frames play in name order. 350 by 500 pixels matches the built-in frogs. Name one with “blindspot” to use it when a car is beside you.";
     body = `<div class="full">${choiceGrid("signals", currentChoice("signals"), items)}</div>
       <div class="field"><span>Test it</span><div class="seg" role="group" aria-label="Blinker">
         <button type="button" data-act="tm-signal" data-side="left" aria-pressed="${T.signal === "left"}">${ic("back", "ic-s")} Left</button>
@@ -940,9 +1038,9 @@ function inspectorHTML() {
         <button type="button" data-style="traditional" aria-pressed="${s.style === "traditional"}" ${styleOff}>Hops across</button>
         <button type="button" data-style="static" aria-pressed="${s.style === "static"}" ${styleOff}>Stays put</button>
       </div></div>
-      <label class="field"><span>Time per frame</span><span class="alpha-row tm-ms-row"><input type="range" min="50" max="400" step="5" value="${s.ms}" data-ms aria-label="Milliseconds per frame" ${styleOff}><output data-ms-out>${s.ms}${P.NB}ms</output></span></label>
+      <label class="field"><span>Time per frame</span><span class="alpha-row tm-ms-row">${slider}<output data-ms-out>${s.ms}${P.NB}ms</output></span></label>
       ${uploadButton("signals", "Upload frames", IMAGE_TYPES, undefined, true)}
-      <p class="how full">${ic("info")}<span>Frames play in name order. 350 by 500 matches the built-in frogs. Name one with “blindspot” to use it when a car is beside you.</span></p>`;
+      <p class="how full">${ic("info")}<span>${framesNote}</span></p>`;
   } else if (part === "icons") {
     const rows = [["settings", "Settings button", "Top of the sidebar"], ["flag", "Flag button", "Bottom of the sidebar while driving. Tap it to flag a moment."], ["home", "Home button", "Bottom of the sidebar while parked"]];
     body = rows.map(([kind, label, where]) => {
@@ -953,7 +1051,7 @@ function inspectorHTML() {
         items.unshift({ value: "own", label: "Yours", src: look.icons[kind], sq: kind === "settings" });
       }
       const current = t.user ? (ownSlot ? "own" : own("icons") ? "" : "stock") : t.parts.icons;
-      return `<div class="field full"><span>${label}</span><span class="muted tm-where">${where}</span>
+      return `<div class="field full"><span>${label}</span><p class="muted tm-where">${where}</p>
         ${choiceGrid(`icon-${kind}`, current, items)}
         <span class="tm-file-row">${uploadButton(`icon-${kind}`, "Upload", IMAGE_TYPES, "btn btn-text btn-small file-btn tm-flush")}${ownSlot ? `<button type="button" class="btn btn-text btn-small" data-remove-slot="icons/${slot}">${ic("trash")}Remove</button>` : ""}</span></div>`;
     }).join("");
@@ -968,7 +1066,7 @@ function inspectorHTML() {
       <div class="field"><span>Personality</span><div class="seg tm-wrap" role="group" aria-label="Personality">${PERSONALITIES.map(p => `<button type="button" data-pers="${p}" aria-pressed="${T.personality === p}">${p[0].toUpperCase() + p.slice(1)}</button>`).join("")}</div></div>
       <label class="switch"><input type="checkbox" data-show-pers ${T.showPersonality ? "checked" : ""}><span class="track"></span><span>Show the button on the screen</span></label>
       <span class="tm-file-row full">${uploadButton("distance", `Upload ${name}`, IMAGE_TYPES, "btn btn-quiet btn-small file-btn")}${ownSlot ? `<button type="button" class="btn btn-text btn-small" data-remove-slot="distance_icons/${T.personality}">${ic("trash")}Remove ${name}</button>` : ""}</span>
-      <p class="how full">${ic("info")}<span>The car shows these only when the onroad personality button is turned on in FrogPilot's settings.</span></p>`;
+      <p class="how full">${ic("info")}<span>The car shows these only when “Driving Personality Button” is on in Toggles.</span></p>`;
   } else if (part === "sounds") {
     const options = [["", "Choose sounds to copy"], ...packKeys("sounds").map(key => [key, `${packName("sounds", key)} sounds`])];
     body = `<label class="field full"><span>Start from</span>${P.dropdown({ value: "", options, label: "Start from", attrs: "data-sound-pack" })}</label>
@@ -982,9 +1080,17 @@ function inspectorHTML() {
       }).join("")}</div>
       <p class="how full">${ic("info")}<span>The device turns what you upload into the mono, 16-bit, 48${P.NB}kHz WAV the car plays. Slots a theme leaves empty use openpilot's stock sound.</span></p>`;
   }
+
+  let notice = "";
+  if (!t.user) {
+    const source = `${esc(t.name)} is ${themeSource(t).toLowerCase()}.`;
+    const copy = "Change anything and you get your own copy to edit; the original stays as it is.";
+    notice = `<div class="tm-notice-wrap"><div class="notice">${ic("lock")}<span><b>${source}</b> ${copy}</span></div></div>`;
+  }
+
   return `
     <div class="insp-head"><span class="ic-wrap">${ic(m.icon)}</span><div><h2 id="insp-h">${m.title}</h2><p>${m.where}</p></div></div>
-    ${t.user ? "" : `<div class="tm-notice-wrap"><div class="notice">${ic("lock")}<span><b>${esc(t.name)} is built in.</b> Change anything and you get your own copy to edit; the original stays as it is.</span></div></div>`}
+    ${notice}
     <fieldset class="insp-body tm-fieldset">${body}</fieldset>
     ${t.user ? `<div class="insp-foot"><button class="btn btn-text btn-small tm-flush" data-act="tm-reset-part">${ic("refresh")}Reset to stock</button></div>` : ""}`;
 }
@@ -1004,7 +1110,7 @@ function controlsHTML() {
       <button type="button" data-drive="engaged" aria-pressed="${T.drive === "engaged"}">Engaged</button>
       <button type="button" data-drive="experimental" aria-pressed="${T.drive === "experimental"}">Experimental</button>
     </span></span>
-    <p class="muted tm-hint">Click anything on the screen to change it. Tap the road to open or close the sidebar, like on the car.</p>`;
+    <p class="muted tm-hint">Click or tap anything on the screen to change it. Click or tap the road to open or close the sidebar, like on the car.</p>`;
 }
 
 function renderControlsState() {
@@ -1095,13 +1201,18 @@ async function selectPart(part, sound, control) {
     }
   }
   await loading;
-  if (matchMedia("(max-width: 1099px)").matches) {
+  if (matchMedia("(max-width: 889px), (max-height: 499px)").matches) {
     const insp = document.getElementById("inspector");
     const replica = document.getElementById("replica");
     if (!insp || !replica) {
       return;
     }
-    const stickyHeight = matchMedia("(max-width: 719px)").matches ? replica.offsetHeight : 0;
+
+    let stickyHeight = 0;
+    if (getComputedStyle(replica).position === "sticky") {
+      stickyHeight = replica.offsetHeight;
+    }
+
     insp.style.scrollMarginTop = `${document.getElementById("topbar").offsetHeight + stickyHeight + 12}px`;
     insp.scrollIntoView({ behavior: P.reducedMotion.matches ? "auto" : "smooth", block: "start" });
   }
@@ -1208,7 +1319,10 @@ function editColor(key, patch, source) {
       if (source !== "alpha") {
         alpha.value = c.a;
       }
-      ed.querySelector("[data-out]").textContent = `${Math.round((c.a / 255) * 100)}%`;
+
+      const opacity = opacityLabel(c.a);
+      alpha.setAttribute("aria-valuetext", opacity);
+      ed.querySelector("[data-out]").textContent = opacity;
     }
   }
   document.querySelectorAll(`#stage [data-swatch="${key}"]`).forEach(bar => {
@@ -1323,10 +1437,27 @@ function openTheme(key) {
   return P.refresh();
 }
 
-function nameDialog({ icon, title, confirm, value = "", extra = "" }) {
+function nameField(label, value) {
+  const length = userThemes.limits.name_length;
+  const input = `<input class="input" data-name value="${esc(value)}" maxlength="${length}" autocomplete="off" aria-describedby="name-rule">`;
+  const hint = `<small class="hint" id="name-rule" aria-hidden="true">Up to ${length} letters, numbers, and spaces</small>`;
+  return `<label class="field"><span>${label}</span>${input}${hint}</label>`;
+}
+
+function checkName(name) {
+  if (!/^[A-Za-z0-9 ]+$/.test(name)) {
+    throw new P.PondError(400, "invalid_name");
+  }
+}
+
+function nameDialog({ icon, title, confirm, value = "", extra = "", onConfirm }) {
   return P.dialog({
     icon, title, confirm,
-    body: `${extra}<label class="field"><span>Name</span><input class="input" data-name value="${esc(value)}" maxlength="${userThemes.limits.name_length}" autocomplete="off"></label>`,
+    body: `${extra}${nameField("Name", value)}`,
+    errors: MESSAGES,
+    onConfirm: dl => {
+      return onConfirm(dl, dl.querySelector("[data-name]").value.trim());
+    },
     onOpen: dl => {
       const input = dl.querySelector("[data-name]");
       setTimeout(() => {
@@ -1355,29 +1486,37 @@ async function edit(apply) {
   if (copied) {
     latest(true);
   } else {
-    rebuild();
+    const controls = "#inspector button, #inspector input";
+    const focused = [...document.querySelectorAll(controls)].indexOf(document.activeElement);
+    await rebuild();
+
+    if (focused >= 0) {
+      document.querySelectorAll(controls)[focused].focus();
+    }
   }
 }
 
-async function copyBuiltIn(title = `Make your own copy of ${esc(cur().name)}?`, why = "Built-in themes can't be changed, so your change goes on a copy of your own.") {
+async function copyBuiltIn(
+  title = `Make your own copy of ${esc(cur().name)}?`, why = "Only your own themes can be changed, so your change goes on a copy of your own."
+) {
   const t = cur();
+  let key = "";
+  let name = "";
   const d = await nameDialog({
     icon: "copy", title, confirm: "Make a copy", value: uniqueName(t.name),
-    extra: `<p>${why} ${esc(t.name)} stays as it is.</p>`
+    extra: `<p>${why} ${esc(t.name)} stays as it is.</p>`,
+    onConfirm: async (dl, typed) => {
+      checkName(typed);
+      key = await replicaBusy(enqueue(() => {
+        return createFrom(typed, t);
+      }));
+      name = typed;
+    }
   });
   if (!d) {
     return false;
   }
-  const name = d.querySelector("[data-name]").value.trim();
-  const handle = P.job({ label: `Copying ${esc(t.name)}` });
-  let key;
-  try {
-    key = await replicaBusy(enqueue(() => createFrom(name, t)));
-  } catch (error) {
-    handle.fail(error, `Couldn't copy ${esc(t.name)}`, MESSAGES);
-    return false;
-  }
-  handle.done(`Made “${esc(name)}”`, "Edit away; the original is untouched");
+  P.toast(`Made “${esc(name)}”`, "Edit away; the original is untouched");
   await replicaBusy(openTheme(key));
   return true;
 }
@@ -1480,6 +1619,7 @@ function uploadFiles(kind, files) {
 }
 
 function mount(root) {
+  camImg.src = IMG.src;
   const replica = root.querySelector("#replica");
   const stage = root.querySelector("#stage");
   buildStage();
@@ -1551,7 +1691,7 @@ function mount(root) {
     if (e.target.closest(".sb") || !e.target.closest("[data-surface]")) {
       return;
     }
-    const h = hitTest(e, e.pointerType === "touch" || matchMedia("(max-width: 719px), (pointer: coarse)").matches);
+    const h = hitTest(e, e.pointerType === "touch" || matchMedia("(max-width: 719px), (max-height: 499px), (pointer: coarse)").matches);
     if (h) {
       selectPart(h);
       return;
@@ -1635,7 +1775,7 @@ function mount(root) {
           v = "#" + v;
         }
         const ok = /^#[0-9a-f]{6}$/i.test(v);
-        e.target.setAttribute("aria-invalid", String(!ok && v.length >= 7));
+        e.target.setAttribute("aria-invalid", String(!/^#[0-9a-f]{0,6}$/i.test(v)));
         if (ok) {
           patch = { hex: v.toUpperCase() };
         }
@@ -1651,6 +1791,10 @@ function mount(root) {
     }
   });
   insp.addEventListener("change", e => {
+    if (e.target.matches("[data-in='hex']")) {
+      e.target.setAttribute("aria-invalid", String(!/^#?[0-9a-f]{6}$/i.test(e.target.value.trim())));
+    }
+
     if (e.target.matches("[data-blind]")) {
       T.blind = e.target.checked;
       if (!T.signal) {
@@ -1769,24 +1913,39 @@ P.page("theme", {
     const t = cur();
     look = await loadLook(t);
     await loadPacks(PART_COMPONENT[T.part]);
-    const builtIn = t.user ? "" : 'aria-disabled="true"';
-    const builtInNote = t.user ? "" : "<small>Built in</small>";
+    let readOnly = "";
+    let readOnlyNote = "";
+    if (!t.user) {
+      readOnly = 'aria-disabled="true"';
+      readOnlyNote = `<small>${themeSource(t)}</small>`;
+    }
+
+    const options = [];
+    for (const theme of themes) {
+      let label = theme.name;
+      if (!theme.user) {
+        label = `${theme.name} (${themeSource(theme).toLowerCase()})`;
+      }
+
+      options.push([theme.key, label]);
+    }
+
     return {
       title: "Theme Maker",
       actions: `<button class="btn btn-quiet btn-small" data-act="tm-submit">${ic("send")}<span>Submit<span class="lbl-long"> theme</span></span></button>
         <button class="btn btn-primary btn-small" data-act="tm-apply">${ic("check")}<span>Apply<span class="lbl-long"> to car</span></span></button>`,
       body: `
         <div class="tm-head">
-          <label class="field"><span>Editing</span>${P.dropdown({ value: t.key, options: themes.map(x => [x.key, `${x.name}${x.user ? "" : " (built in)"}`]), label: "Editing", attrs: "data-theme-pick" })}</label>
+          <label class="field"><span>Editing</span>${P.dropdown({ value: t.key, options, label: "Editing", attrs: "data-theme-pick" })}</label>
           <div class="menu-wrap">
-            <button class="btn btn-quiet btn-small" data-act="menu" aria-expanded="false" aria-haspopup="true">Theme${ic("down", "ic-s")}</button>
-            <div class="menu tm-menu" hidden role="menu" aria-label="Theme">
-              <button class="menu-item" role="menuitem" data-act="tm-new">${ic("plus")}<span>New theme</span></button>
-              <button class="menu-item" role="menuitem" data-act="tm-import">${ic("upload")}<span>Import</span></button>
-              <button class="menu-item" role="menuitem" data-act="tm-rename" ${builtIn}>${ic("pencil")}<span>Rename</span>${builtInNote}</button>
-              <button class="menu-item" role="menuitem" data-act="tm-duplicate">${ic("copy")}<span>Duplicate</span></button>
-              <button class="menu-item" role="menuitem" data-act="tm-export" ${builtIn}>${ic("download")}<span>Export</span>${builtInNote}</button>
-              <button class="menu-item" role="menuitem" data-act="tm-delete" ${builtIn}>${ic("trash")}<span>Delete</span>${builtInNote}</button>
+            <button class="btn btn-quiet btn-small" data-act="menu" aria-expanded="false">Theme${ic("down", "ic-s")}</button>
+            <div class="menu tm-menu" hidden aria-label="Theme">
+              <button class="menu-item" data-act="tm-new">${ic("plus")}<span>New theme</span></button>
+              <button class="menu-item" data-act="tm-import">${ic("upload")}<span>Import</span></button>
+              <button class="menu-item" data-act="tm-rename" ${readOnly}>${ic("pencil")}<span>Rename</span>${readOnlyNote}</button>
+              <button class="menu-item" data-act="tm-duplicate">${ic("copy")}<span>Duplicate</span></button>
+              <button class="menu-item" data-act="tm-export" ${readOnly}>${ic("download")}<span>Export</span>${readOnlyNote}</button>
+              <button class="menu-item" data-act="tm-delete" ${readOnly}>${ic("trash")}<span>Delete</span>${readOnlyNote}</button>
             </div>
           </div>
           ${t.user ? "" : `<button class="btn btn-primary btn-small" data-act="tm-duplicate">${ic("copy")}Make my own copy</button>`}
@@ -1795,7 +1954,9 @@ P.page("theme", {
         </div>
         <div class="tm-grid">
           <div class="tm-stage-col">
-            <div class="replica" id="replica" aria-label="Driving screen preview. Pick a part to edit it."><div class="stage" id="stage"></div><div class="tap-layer" id="tap-layer" aria-hidden="true"></div></div>
+            <div class="replica" id="replica" role="group" aria-label="Driving screen preview. Pick a part to edit it.">
+              <div class="stage" id="stage"></div><div class="tap-layer" id="tap-layer" aria-hidden="true"></div>
+            </div>
             <div class="tm-controls" id="tm-controls">${controlsHTML()}</div>
             <section class="panel panel-pad strip" id="strip" aria-label="Everything you can theme">${stripHTML()}</section>
           </div>
@@ -1826,78 +1987,100 @@ P.act("tm-duplicate", async button => {
   }
 });
 
-P.act("tm-new", async button => {
+P.act("tm-new", async () => {
   await flushColors();
   const sources = [["active", "What the car shows now"], ...themes.filter(t => !t.user && t.key !== "stock").map(t => [t.key, t.name])];
+  const picker = P.dropdown({ value: "active", options: sources, label: "Start from", attrs: "data-new-source" });
+  let key = "";
+  let name = "";
   const d = await nameDialog({
     icon: "plus", title: "New theme", confirm: "Make theme",
-    extra: `<label class="field"><span>Start from</span>${P.dropdown({ value: "active", options: sources, label: "Start from", attrs: "data-new-source" })}</label>`
+    extra: `<label class="field"><span>Start from</span>${picker}</label>`,
+    onConfirm: async (dl, typed) => {
+      checkName(typed);
+      const sourceKey = dl.querySelector("[data-new-source]").dataset.value;
+      let source = "active";
+      if (sourceKey !== "active") {
+        source = themes.find(theme => {
+          return theme.key === sourceKey;
+        });
+      }
+
+      key = await enqueue(() => {
+        return createFrom(typed, source);
+      });
+      name = typed;
+    }
   });
   if (!d) {
     return;
   }
-  const name = d.querySelector("[data-name]").value.trim();
-  const sourceKey = d.querySelector("[data-new-source]").dataset.value;
-  const source = sourceKey === "active" ? "active" : themes.find(t => t.key === sourceKey);
-  const handle = P.job({ label: `Making ${esc(name || "the theme")}` });
-  try {
-    const key = await P.busy(near(button), enqueue(() => createFrom(name, source)));
-    handle.done(`Made “${esc(name)}”`);
-    openTheme(key);
-  } catch (error) {
-    handle.fail(error, "Couldn't make the theme", MESSAGES);
-  }
+  P.toast(`Made “${esc(name)}”`);
+  openTheme(key);
 });
 
-P.act("tm-import", async button => {
+P.act("tm-import", async () => {
   await flushColors();
+  let key = "";
+  let name = "";
   const d = await nameDialog({
     icon: "upload", title: "Import a theme", confirm: "Import theme",
-    extra: `<label class="field"><span>Theme file</span><input class="input" type="file" accept=".zip,application/zip" data-import-file></label>`
+    extra: `<label class="field"><span>Theme file</span><input class="input" type="file" accept=".zip,application/zip" data-import-file></label>`,
+    onConfirm: async (dl, typed) => {
+      const file = dl.querySelector("[data-import-file]").files[0];
+      if (!file) {
+        throw new P.PondError(400, "no_file");
+      }
+
+      name = typed;
+      if (!name) {
+        name = cleanName(file.name.replace(/\.zip$/i, "")).slice(0, userThemes.limits.name_length);
+      }
+
+      checkName(name);
+      const form = fileForm([["name", name], ["file", file, file.name]]);
+      key = (await enqueue(() => {
+        return P.request("POST", "/api/user_themes/import", form);
+      })).key;
+    }
   });
   if (!d) {
     return;
   }
-  const file = d.querySelector("[data-import-file]").files[0];
-  const name = d.querySelector("[data-name]").value.trim() || (file ? cleanName(file.name.replace(/\.zip$/i, "")).slice(0, userThemes.limits.name_length) : "");
-  if (!file) {
-    P.toast("Couldn't import the theme", "Choose the theme's .zip file", "alert");
-    return;
-  }
-  const handle = P.job({ label: `Importing ${P.fileLabel(file.name)}` });
-  try {
-    const { key } = await P.busy(near(button), enqueue(() => P.request("POST", "/api/user_themes/import", fileForm([["name", name], ["file", file, file.name]]))));
-    handle.done(`Imported “${esc(name)}”`);
-    openTheme(key);
-  } catch (error) {
-    handle.fail(error, "Couldn't import the theme", MESSAGES);
-  }
+  P.toast(`Imported “${esc(name)}”`);
+  openTheme(key);
 });
 
-P.act("tm-rename", async button => {
+P.act("tm-rename", async () => {
   const t = cur();
   if (!t.user) {
     await flushColors();
-    copyBuiltIn(undefined, "Built-in themes keep their names, so the new name goes on a copy of your own.");
+    copyBuiltIn(undefined, "Only your own themes can be renamed, so the new name goes on a copy of your own.");
     return;
   }
   await flushColors();
-  const d = await nameDialog({ icon: "pencil", title: "Rename theme", confirm: "Save name", value: t.name });
-  if (!d) {
+  let key = "";
+  let name = "";
+  const d = await nameDialog({
+    icon: "pencil", title: "Rename theme", confirm: "Save name", value: t.name,
+    onConfirm: async (dl, typed) => {
+      if (typed === t.name) {
+        return;
+      }
+
+      checkName(typed);
+      key = (await enqueue(() => {
+        return P.request("PUT", `/api/user_themes/${enc(t.key)}/name`, { name: typed });
+      })).key;
+      name = typed;
+    }
+  });
+  if (!d || !key) {
     return;
   }
-  const v = d.querySelector("[data-name]").value.trim();
-  if (!v || v === t.name) {
-    return;
-  }
-  try {
-    const { key } = await P.busy(near(button), enqueue(() => P.request("PUT", `/api/user_themes/${enc(t.key)}/name`, { name: v })));
-    T.made.delete(t.key);
-    P.toast(`Renamed to “${esc(v)}”`);
-    openTheme(key);
-  } catch (error) {
-    P.fail(error, "Couldn't rename the theme", MESSAGES);
-  }
+  T.made.delete(t.key);
+  P.toast(`Renamed to “${esc(name)}”`);
+  openTheme(key);
 });
 
 P.act("tm-export", async () => {
@@ -1913,7 +2096,7 @@ P.act("tm-export", async () => {
 P.act("tm-delete", async button => {
   const t = cur();
   if (!t.user) {
-    P.toast("Built-in themes can't be deleted", "", "info");
+    P.toast("Only your own themes can be deleted here", "", "info");
     return;
   }
   const ok = await P.dialog({
@@ -1961,16 +2144,29 @@ P.act("tm-reset-part", () => {
 
 P.act("tm-apply", async button => {
   const t = cur();
+  if (!t.user && data.random_themes) {
+    P.toast(`Couldn't apply ${esc(t.name)}`, MESSAGES.random_themes, "alert");
+    return;
+  }
+
   const notes = [];
+  let result = `replace <b>${esc(usingName())}</b> on the driving screen right away`;
+
   if (!t.user && !data.custom_themes) {
+    result = "are saved as the car's theme";
     notes.push("Custom Themes is off on the car, so it keeps the stock look until you turn it on.");
   }
+
+  if (t.user && data.random_themes) {
+    notes.push("Random Themes turns off, so the car keeps this theme instead of picking one each drive.");
+  }
+
   if (data.holiday_themes) {
     notes.push("With Holiday Themes on, a holiday's theme still takes over for its week, then yours comes back.");
   }
   const ok = await P.dialog({
     icon: "theme", title: `Use “${esc(t.name)}” on the car?`,
-    body: `<p>Its colors, steering wheel, turn signals, sidebar buttons, personality icons, and sounds replace <b>${esc(usingName())}</b> on the driving screen right away.</p>
+    body: `<p>Its colors, steering wheel, turn signals, sidebar buttons, personality icons, and sounds ${result}.</p>
       ${notes.map(note => `<div class="notice">${ic("info")}<span>${note}</span></div>`).join("")}`,
     confirm: "Apply to car"
   });
@@ -1996,40 +2192,50 @@ P.act("tm-apply", async button => {
   await reloadCurrent(t.key);
 });
 
-P.act("tm-submit", async button => {
+P.act("tm-submit", async () => {
   const t = cur();
   if (!t.user) {
     await flushColors();
     copyBuiltIn("Make your own copy to submit", `Everyone already has ${esc(t.name)}, so make your own copy, change it, then submit that.`);
     return;
   }
+  await flushColors();
+  const sent = "This sends your Discord name and the theme's colors, images, and sounds to the FrogPilot server";
+  let renamed = "";
   const d = await P.dialog({
     icon: "send", title: "Submit your theme",
-    body: `<p>Submit it so it can be offered with the downloadable themes.</p>
-      <label class="field"><span>Theme name</span><input class="input" data-name value="${esc(t.name)}" maxlength="${userThemes.limits.name_length}" autocomplete="off"></label>
+    body: `<p>${sent} so it can be offered with the downloadable themes.</p>
+      ${nameField("Theme name", t.name)}
       <label class="field"><span>Your Discord name</span><input class="input" data-sub-discord autocomplete="off" maxlength="${userThemes.limits.username_length}"></label>`,
     confirm: "Submit theme",
-    requireCheck: "I made these images and sounds, or I'm allowed to share them"
+    errors: MESSAGES,
+    requireCheck: "I made these images and sounds, or I'm allowed to share them",
+    onConfirm: async dl => {
+      const name = dl.querySelector("[data-name]").value.trim();
+      const discord = dl.querySelector("[data-sub-discord]").value.trim();
+      checkName(name);
+
+      const key = keyFromName(name);
+      const taken = themes.some(theme => {
+        return theme.key === key;
+      });
+      if (key !== t.key && taken) {
+        throw new P.PondError(409, "name_in_use");
+      }
+
+      await enqueue(async () => {
+        await P.request("POST", `/api/user_themes/${enc(t.key)}/submit`, { discord_username: discord, theme_name: name });
+
+        if (key !== t.key) {
+          renamed = (await P.request("PUT", `/api/user_themes/${enc(t.key)}/name`, { name })).key;
+        }
+      });
+    }
   });
   if (!d) {
     return;
   }
-  const name = d.querySelector("[data-name]").value.trim();
-  const discord = d.querySelector("[data-sub-discord]").value.trim();
-  await flushColors();
-  let renamed = "";
-  const handle = P.job({ label: `Submitting ${esc(name)}` });
-  try {
-    await P.busy(button, enqueue(async () => {
-      if (keyFromName(name) !== t.key) {
-        renamed = (await P.request("PUT", `/api/user_themes/${enc(t.key)}/name`, { name })).key;
-      }
-      await P.request("POST", `/api/user_themes/${enc(renamed || t.key)}/submit`, { discord_username: discord });
-    }));
-    handle.done("Theme submitted", "Thanks for sharing it");
-  } catch (error) {
-    handle.fail(error, "Couldn't submit the theme", MESSAGES);
-  }
+  P.toast("Theme submitted", "Thanks for sharing it");
   if (renamed) {
     T.made.delete(t.key);
     openTheme(renamed);

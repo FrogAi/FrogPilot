@@ -4,12 +4,17 @@
 const P = window.Pond;
 
 const POWER = {
-  off: { body: "The device shuts down and The Pond goes offline until the car starts again.", confirm: "Power off", fail: "Couldn't power off", path: "/api/device/power_off", restart: "The device is off", title: "Power off the device?" },
+  off: {
+    body: "The device shuts down and The Pond goes offline until the car starts again.", confirm: "Power off",
+    detail: "It starts again when the car does, and this page reconnects on its own.", fail: "Couldn't power off", path: "/api/device/power_off",
+    restart: "The device is off", timeout: 0, title: "Power off the device?"
+  },
   reboot: { body: "The device restarts and The Pond reconnects on its own.", confirm: "Reboot", fail: "Couldn't reboot", path: "/api/device/reboot", restart: "Rebooting", title: "Reboot the device?" },
   soft: { body: "openpilot restarts without restarting the device, and The Pond reconnects on its own.", confirm: "Soft reboot", fail: "Couldn't soft reboot", messages: { openpilot_steering: "Disengage to soft reboot" }, path: "/api/device/soft_reboot", restart: "Soft rebooting", title: "Are you sure you want to soft reboot?" }
 };
-const STORAGE_LABELS = [["dashcam", "Drives"], ["screen_recordings", "Screen recordings"], ["maps", "Speed limit maps"], ["models", "Driving models"],
-  ["frogpilot_backups", "FrogPilot backups"], ["themes", "Themes"], ["software", "FrogPilot software"], ["the_pond", "The Pond cache"]];
+const STORAGE_LABELS = [["dashcam", "Drives"], ["screen_recordings", "Screen recordings"], ["speed_limit_captures", "Speed limit sign clips"],
+  ["maps", "Speed limit maps"], ["models", "Driving models"], ["frogpilot_backups", "FrogPilot backups"], ["themes", "Themes"],
+  ["software", "FrogPilot software"], ["the_pond", "The Pond cache"]];
 const STRENGTHS = { good: "good", great: "strong", moderate: "fair", poor: "weak" };
 const THERMAL = { danger: "too hot", green: "normal", red: "hot", yellow: "warm" };
 
@@ -18,6 +23,11 @@ function network(n) {
   if (STRENGTHS[n.strength]) {
     parts.push(STRENGTHS[n.strength]);
   }
+
+  if (n.type === "none") {
+    return parts.join(", ");
+  }
+
   parts.push(n.metered ? "metered" : "not metered");
   return parts.join(", ");
 }
@@ -82,6 +92,10 @@ P.page("device", {
           try {
             root.querySelector("[data-now]").innerHTML = nowHTML(await P.get("/api/device"));
           } catch (error) {
+            if (error.code === "connection_lost") {
+              return;
+            }
+
             clearInterval(timer);
             P.fail(error, "Couldn't refresh the device status");
           }
@@ -105,6 +119,6 @@ P.act("power", async b => {
     P.fail(error, power.fail, power.messages);
     return;
   }
-  P.restart(power.restart);
+  P.restart(power.restart, power.detail, power.timeout);
 });
 })();

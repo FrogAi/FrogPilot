@@ -13,7 +13,15 @@ def get_branches(params):
   available_branches = params.get("UpdaterAvailableBranches")
   if available_branches is None:
     return []
-  return frogpilot_utilities.get_target_branches(available_branches, params.get("GitBranch"))
+
+  current_branch = params.get("GitBranch")
+  branches = frogpilot_utilities.get_target_branches(available_branches, current_branch)
+
+  for branch in (params.get("UpdaterTargetBranch"), current_branch):
+    if branch and branch not in branches:
+      branches.insert(0, branch)
+
+  return branches
 
 
 def get_failed_count(params):

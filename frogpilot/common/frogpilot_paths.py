@@ -9,10 +9,14 @@ MODELS_PATH = Path("/data/models") / MODELS_FOLDER
 MODELS_LIST_PATH = MODELS_PATH / "models.json"
 MODEL_RUNNERS_PATH = Path(BASEDIR) / "frogpilot/common/model_runners"
 RANDOM_EVENTS_PATH = Path(BASEDIR) / "frogpilot/assets/random_events"
+RESVG_PATH = Path(BASEDIR) / "frogpilot/third_party/resvg/resvg"
 STOCK_MODEL_PATH = Path(BASEDIR) / "selfdrive/modeld/models"
+STOCK_SOUNDS_PATH = Path(BASEDIR) / "selfdrive/assets/sounds"
 STOCK_THEME_PATH = Path(BASEDIR) / "frogpilot/assets/stock_theme"
 STOCK_THEME_COLORS_PATH = STOCK_THEME_PATH / "colors/colors.json"
 THEME_COLORS_PATH = ACTIVE_THEME_PATH / "colors/colors.json"
+THEME_IMAGE_EXTENSIONS = (".gif", ".png", ".svg")
+THEME_RENDERS_PATH = Path("/data/theme_renders")
 THEME_SAVE_PATH = Path("/data/themes")
 STEERING_WHEELS_PATH = THEME_SAVE_PATH / "steering_wheels"
 THEME_PACKS_PATH = THEME_SAVE_PATH / "theme_packs"
@@ -27,7 +31,9 @@ TOGGLE_BACKUPS = Path("/data/toggle_backups")
 
 BOOT_LOGO_PATH = Path("/usr/comma/bg.jpg")
 FROGPILOT_BOOT_LOGO_PATH = Path(BASEDIR) / "frogpilot/assets/other_images/frogpilot_boot_logo.jpg"
+SPEED_LIMIT_SIGNS_PATH = Path(BASEDIR) / "frogpilot/assets/speed_limit_signs"
 STOCK_BOOT_LOGO_PATH = Path(BASEDIR) / "frogpilot/assets/other_images/stock_bg.jpg"
+STOP_SIGN_PATH = Path(BASEDIR) / "frogpilot/assets/other_images/stop_sign.png"
 
 BORDERS_PATH = Path(BASEDIR) / "frogpilot/assets/borders.json"
 # City data from GeoNames (https://www.geonames.org/), CC BY 4.0
@@ -81,3 +87,5 @@ THE_POND_PATH = Path("/data/the_pond")
 THE_POND_DRIVES_PATH = THE_POND_PATH / "drives"
 THE_POND_THUMBNAILS_PATH = THE_POND_PATH / "thumbnails"
 THE_POND_VIDEOS_PATH = THE_POND_PATH / "videos"
+
+WIDGET_ICONS_PATH = Path(BASEDIR) / "frogpilot/assets/widget_icons"

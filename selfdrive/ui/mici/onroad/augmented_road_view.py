@@ -3,6 +3,11 @@ import numpy as np
 import pyray as rl
 from cereal import messaging, car, log
 from msgq.visionipc import VisionStreamType
+from openpilot.frogpilot.ui.mici.frogpilot_alerts import frogpilot_alerts
+from openpilot.frogpilot.ui.mici.frogpilot_camera_view import frogpilot_camera_view
+from openpilot.frogpilot.ui.mici.frogpilot_experimental_press import ExperimentalPress
+from openpilot.frogpilot.ui.mici.frogpilot_speed_limit import FrogPilotSpeedLimit
+from openpilot.frogpilot.ui.mici.frogpilot_theme import theme
 from openpilot.selfdrive.ui.ui_state import ui_state, UIStatus
 from openpilot.selfdrive.ui.mici.onroad import SIDE_PANEL_WIDTH
 from openpilot.selfdrive.ui.mici.onroad.alert_renderer import AlertRenderer
@@ -13,6 +18,7 @@ from openpilot.selfdrive.ui.mici.onroad.confidence_ball import ConfidenceBall
 from openpilot.selfdrive.ui.mici.onroad.cameraview import CameraView
 from openpilot.system.ui.lib.application import FontWeight, gui_app, MousePos, MouseEvent
 from openpilot.system.ui.widgets.label import UnifiedLabel
+from openpilot.system.ui.lib.scroll_panel2 import MIN_DRAG_PIXELS
 from openpilot.system.ui.widgets import Widget
 from openpilot.common.filter_simple import BounceFilter
 from openpilot.common.transformations.camera import DEVICE_CAMERAS, DeviceCameraConfig, view_frame_from_device_frame
@@ -60,6 +66,10 @@ class BookmarkIcon(Widget):
   def is_swiping_left(self) -> bool:
     """Check if currently swiping left (for scroller to disable)."""
     return self._is_swiping_left
+
+  # FrogPilot variables
+  def swiped_left(self):
+    return self._is_swiping and self._swipe_start_x - self._swipe_current_x > MIN_DRAG_PIXELS
 
   def interacting(self):
     interacting, self._interacting = self._interacting, False
@@ -126,7 +136,7 @@ class BookmarkIcon(Widget):
     if self._offset_filter.x > 0:
       icon_x = self.rect.x + self.rect.width - round(self._offset_filter.x)
       icon_y = self.rect.y + (self.rect.height - self._icon.height) / 2  # Vertically centered
-      rl.draw_texture(self._icon, int(icon_x), int(icon_y), rl.WHITE)
+      rl.draw_texture(theme.bookmark_texture(self._icon), int(icon_x), int(icon_y), rl.WHITE)
 
 
 class AugmentedRoadView(CameraView):
@@ -164,6 +174,14 @@ class AugmentedRoadView(CameraView):
     # debug
     self._pm = messaging.PubMaster(['uiDebug'])
 
+    # FrogPilot variables
+    self._pressed_speed_limit = False
+
+    self._experimental_press = ExperimentalPress()
+
+    self._frogpilot_speed_limit = FrogPilotSpeedLimit()
+    self._frogpilot_speed_limit.set_touch_valid_callback(self._touch_valid)
+
   def is_swiping_left(self) -> bool:
     """Check if currently swiping left (for scroller to disable)."""
     return self._bookmark_icon.is_swiping_left()
@@ -177,9 +195,19 @@ class AugmentedRoadView(CameraView):
     else:
       self._offroad_label.set_text("start the car to\nuse openpilot")
 
+    # FrogPilot variables
+    frogpilot_camera_view.update()
+
+    self._experimental_press.update(self.is_pressed and not self._pressed_speed_limit, self._bookmark_icon.swiped_left())
+
+  # FrogPilot variables
+  def _handle_mouse_press(self, mouse_pos: MousePos):
+    self._pressed_speed_limit = self._frogpilot_speed_limit.pending_sign_contains(mouse_pos)
+
   def _handle_mouse_release(self, mouse_pos: MousePos):
     # Don't trigger click callback if bookmark was triggered
-    if not self._bookmark_icon.interacting():
+    if (not self._bookmark_icon.interacting() and not self._pressed_speed_limit and not self._experimental_press.triggered and
+        not frogpilot_camera_view.reversing):
       super()._handle_mouse_release(mouse_pos)
 
   def _render(self, _):
@@ -206,11 +234,15 @@ class AugmentedRoadView(CameraView):
       int(self._content_rect.height)
     )
 
-    # Render the base camera view
-    super()._render(self._content_rect)
+    # FrogPilot variables
+    if frogpilot_camera_view.driver_view_active:
+      frogpilot_camera_view.render_driver_view(self._content_rect)
+    else:
+      # Render the base camera view
+      super()._render(self._content_rect)
 
-    # Draw all UI overlays
-    self._model_renderer.render(self._content_rect)
+      # Draw all UI overlays
+      self._model_renderer.render(self._content_rect)
 
     # Fade out bottom of overlays for looks
     rl.draw_texture_ex(self._fade_texture, rl.Vector2(self._content_rect.x, self._content_rect.y), 0.0, 1.0, rl.WHITE)
@@ -231,6 +263,11 @@ class AugmentedRoadView(CameraView):
     if ui_state.started:
       self._alert_renderer.render(self._content_rect)
     self._hud_renderer.render(self._content_rect)
+
+    # FrogPilot variables
+    self._frogpilot_speed_limit.set_can_draw(alert_to_render is None)
+    self._frogpilot_speed_limit.render(self._content_rect)
+    frogpilot_alerts.render(self._content_rect)
 
     # Draw fake rounded border
     rl.draw_rectangle_rounded_lines_ex(self._content_rect, 0.2 * 1.02, 10, 50, rl.BLACK)
@@ -266,6 +303,9 @@ class AugmentedRoadView(CameraView):
         target = self.stream_type
     else:
       target = ROAD_CAM
+
+    # FrogPilot variables
+    target = frogpilot_camera_view.road_stream(target, self.available_streams)
 
     if self.stream_type != target:
       self.switch_stream(target)

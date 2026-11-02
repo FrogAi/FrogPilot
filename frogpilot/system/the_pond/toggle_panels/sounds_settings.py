@@ -1,6 +1,78 @@
+import asyncio
+import re
+import signal
+import sys
+
+from cereal import messaging
+from openpilot.system.hardware import HARDWARE
+
+from openpilot.frogpilot.common import frogpilot_paths
+from openpilot.frogpilot.system.the_pond import utilities
 from openpilot.frogpilot.system.the_pond.toggle_panels import rows
 
+PLAY_SOUND_PROGRAM = """
+import numpy as np
+import sounddevice as sd
+import sys
+import wave
+
+with wave.open(sys.argv[1], 'rb') as sound_file:
+  audio = np.frombuffer(sound_file.readframes(sound_file.getnframes()), dtype=np.int16).astype(np.float32) / 32768.0
+  sample_rate = sound_file.getframerate()
+
+sd.play(audio * float(sys.argv[2]), sample_rate)
+sd.wait()
+"""
+
 VOLUME_LABELS = {0: "Muted", 101: "Auto"}
+
+
+def sound_path(name):
+  theme_sounds_path = frogpilot_paths.ACTIVE_THEME_PATH / "sounds"
+
+  stock_path = frogpilot_paths.STOCK_SOUNDS_PATH / f"{name}.wav"
+  theme_path = theme_sounds_path / f"{name}.wav"
+
+  if name in ("disengage", "engage") and HARDWARE.get_device_type() in ("tici", "tizi"):
+    stock_path = frogpilot_paths.STOCK_SOUNDS_PATH / f"{name}_tizi.wav"
+
+    theme_tizi_path = theme_sounds_path / f"{name}_tizi.wav"
+    if theme_tizi_path.exists():
+      theme_path = theme_tizi_path
+
+  if theme_path.exists():
+    return theme_path
+  return stock_path
+
+
+async def play_sound(the_pond, path, volume):
+  if the_pond.sound_player is not None:
+    await utilities.stop_process(the_pond.sound_player)
+
+  player = await asyncio.create_subprocess_exec(sys.executable, "-u", "-c", PLAY_SOUND_PROGRAM, str(path), str(volume), stderr=asyncio.subprocess.PIPE)
+  the_pond.sound_player = player
+
+  _, stderr = await player.communicate()
+  if player.returncode not in (0, -signal.SIGKILL):
+    raise RuntimeError(f"Playing {path} failed ({player.returncode}): {stderr.decode(errors='replace')[-1000:]}")
+
+
+def test_sound_action(key):
+  async def test_sound(context, body):
+    name = key.removesuffix("Volume")
+    volume = context.params.get(key)
+
+    if context.started:
+      msg = messaging.new_message("thePondRequest")
+      msg.thePondRequest.request.testAlert = name[0].lower() + name[1:]
+      msg.thePondRequest.request.testAlertVolume = volume
+      context.the_pond.pm.send("thePondRequest", msg)
+    else:
+      file_name = re.sub(r"(?<!^)([A-Z])", r"_\1", name).lower()
+      await play_sound(context.the_pond, sound_path(file_name), min(volume / 100, 1.0))
+    return True
+
+  return {"TEST": {"run": test_sound}}
 
 
 def loud_blindspot_alert_visible(context):
@@ -35,6 +107,7 @@ ROWS = [
     "widget": "manage"
   },
   {
+    "actions": test_sound_action("DisengageVolume"),
     "description": ("<b>Set the volume for the sound openpilot makes when it stops driving and hands the car back to you.</b><br><br>You hear this " +
                     "when you tap the brake, press \"Cancel\", or when your car's cruise control drops out. Most faults that force openpilot to give " +
                     "up use a warning chime instead, which comes from \"Soft Warning Volume\" or \"Urgent Warning Volume\"."),
@@ -46,6 +119,7 @@ ROWS = [
     "widget": "value_buttons"
   },
   {
+    "actions": test_sound_action("PromptDistractedVolume"),
     "description": ("<b>Set the volume for the sound openpilot makes when the driver camera thinks you've stopped watching the road.</b><br><br>You " +
                     "hear this if you look down at your phone, or if the camera cannot see your face and you go too long without touching the wheel. " +
                     "Ignore it long enough and it escalates into the \"DISENGAGE IMMEDIATELY\" warning, which plays at \"Urgent Warning Volume\" " +
@@ -59,6 +133,7 @@ ROWS = [
     "widget": "value_buttons"
   },
   {
+    "actions": test_sound_action("EngageVolume"),
     "description": ("<b>Set the volume for the sound openpilot makes when it starts driving.</b><br><br>You hear this right after you press \"SET\" " +
                     "or \"RESUME\" on your steering wheel."),
     "key": "EngageVolume",
@@ -69,6 +144,7 @@ ROWS = [
     "widget": "value_buttons"
   },
   {
+    "actions": test_sound_action("PromptVolume"),
     "description": ("<b>Set the volume for the quick chimes openpilot uses when it needs you to notice something.</b><br><br>You hear these for " +
                     "things like a car sitting in your blind spot when you signal, or a turn too sharp for openpilot to steer through on its own. " +
                     "The \"Goat Scream\" alert plays at this volume as well. This one stops at 25% so it can always reach you."),
@@ -80,6 +156,7 @@ ROWS = [
     "widget": "value_buttons"
   },
   {
+    "actions": test_sound_action("WarningSoftVolume"),
     "description": ("<b>Set the volume for openpilot's serious warnings, such as \"BRAKE! Risk of Collision\" when it thinks you're about to hit " +
                     "something.</b><br><br>The \"Louder Blind Spot Alert\" plays at this volume too. It never plays quieter than \"Auto\" would, so " +
                     "it can always reach you."),
@@ -91,6 +168,7 @@ ROWS = [
     "widget": "value_buttons"
   },
   {
+    "actions": test_sound_action("WarningImmediateVolume"),
     "description": ("<b>Set the volume for openpilot's most urgent warnings, the ones telling you to take the wheel right " +
                     "now.</b><br><br>\"DISENGAGE IMMEDIATELY\" plays at this volume, which is what you get once you've ignored the driver camera " +
                     "long enough that openpilot no longer trusts you're paying attention. It never plays quieter than \"Auto\" would, so it can " +
@@ -103,6 +181,7 @@ ROWS = [
     "widget": "value_buttons"
   },
   {
+    "actions": test_sound_action("RefuseVolume"),
     "description": ("<b>Set the volume for the sound openpilot makes when you try to turn it on and it refuses.</b><br><br>You hear this when " +
                     "something is in the way, like an open door, an unbuckled seatbelt, or the parking brake still being on."),
     "key": "RefuseVolume",
@@ -116,7 +195,7 @@ ROWS = [
     "children": ("Alerts and Sounds", "MANAGE", "Extra Alerts"),
     "description": ("<b>Turn on extra alerts stock openpilot doesn't have, for things you would otherwise have to catch yourself.</b><br><br>These " +
                     "cover the light turning green, the car ahead pulling away, and the speed limit changing. The blind spot one in here is not a " +
-                    "new alert: openpilot already chimes when you signal for a lane change and there's a car beside you, and this only swaps that " +
+                    "new alert. openpilot already chimes when you signal for a lane change and there's a car beside you, and this only swaps that " +
                     "chime for a louder one."),
     "key": "CustomAlerts",
     "order": 1,

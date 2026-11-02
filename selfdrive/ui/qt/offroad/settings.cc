@@ -26,6 +26,19 @@ TogglesPanel::TogglesPanel(SettingsWindow *parent) : ListWidget(parent) {
       "../assets/icons/chffr_wheel.png",
       true,
     },
+
+    // FrogPilot variables
+    {
+      "AlphaLongitudinalEnabled",
+      tr("openpilot Longitudinal Control (Alpha)"),
+      QString("<b>%1</b><br><br>%2")
+        .arg(tr("WARNING: openpilot longitudinal control is in alpha for this car and will disable Automatic Emergency Braking (AEB)."))
+        .arg(tr("On this car, openpilot defaults to the car's built-in ACC instead of openpilot's longitudinal control. "
+                "Enable this to switch to openpilot longitudinal control. Enabling Experimental mode is recommended when enabling openpilot longitudinal control alpha.")),
+      "../assets/icons/speed_limit.png",
+      false,
+    },
+
     {
       "ExperimentalMode",
       tr("Experimental Mode"),
@@ -121,6 +134,11 @@ TogglesPanel::TogglesPanel(SettingsWindow *parent) : ListWidget(parent) {
   toggles["ExperimentalMode"]->setConfirmation(true, true);
 
   // FrogPilot variables
+  toggles["AlphaLongitudinalEnabled"]->setConfirmation(true, false);
+
+  connect(toggles["AlphaLongitudinalEnabled"], &ToggleControl::toggleFlipped, [=]() {
+    updateToggles();
+  });
   connect(toggles["IsMetric"], &ToggleControl::toggleFlipped, [=](bool isMetric) {
     updateMetric(isMetric);
   });
@@ -216,8 +234,18 @@ void TogglesPanel::updateToggles() {
     }
 
     experimental_mode_toggle->refresh();
+
+    // FrogPilot variables
+    if (!CP.getAlphaLongitudinalAvailable()) {
+      params.remove("AlphaLongitudinalEnabled");
+    }
+
+    toggles["AlphaLongitudinalEnabled"]->setVisible(CP.getAlphaLongitudinalAvailable());
   } else {
     experimental_mode_toggle->setDescription(e2e_description);
+
+    // FrogPilot variables
+    toggles["AlphaLongitudinalEnabled"]->setVisible(false);
   }
 
   // FrogPilot variables

@@ -240,6 +240,7 @@ async def send_issue_report(request):
 
     report["Logs"] = {"files": logged_files, "type": report_type}
     report["Route"] = route
+    report["metered_confirmed"] = body.get("metered_confirmed") is True
 
   the_pond.params.put_nonblocking("DiscordUsername", discord_user)
 

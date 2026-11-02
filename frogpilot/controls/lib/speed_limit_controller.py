@@ -73,6 +73,7 @@ class SpeedLimitController:
     self.mapbox_position = None
 
   def reset(self):
+    self.experimental_mode_dismissed = False
     self.limit_missing = True
 
     self.denied_target = 0
@@ -89,7 +90,7 @@ class SpeedLimitController:
 
   @property
   def experimental_mode(self):
-    return self.limit_missing and self.frogpilot_toggles.slc_fallback_experimental_mode
+    return self.limit_missing and not self.experimental_mode_dismissed and self.frogpilot_toggles.slc_fallback_experimental_mode
 
   @property
   def offset(self):
@@ -101,6 +102,16 @@ class SpeedLimitController:
       displayed_speed_limit = round(self.target * CV.MS_TO_MPH)
 
     return next((getattr(self.frogpilot_toggles, offset) for upper_bound, offset in offset_map if 0 < displayed_speed_limit < upper_bound), 0)
+
+  def handle_experimental_mode_press(self, sm):
+    if sm["selfdriveState"].experimentalMode:
+      self.experimental_mode_dismissed = self.limit_missing
+
+      self.frogpilot_planner.params.put_bool_nonblocking("ExperimentalMode", False)
+    elif self.experimental_mode_dismissed:
+      self.experimental_mode_dismissed = False
+    else:
+      self.frogpilot_planner.params.put_bool_nonblocking("ExperimentalMode", True)
 
   def handle_limit_change(self, desired_source, desired_target, sm):
     if desired_source == frogpilot_variables.SPEED_LIMIT_SOURCES["NONE"] or self.target == 0:
@@ -191,6 +202,11 @@ class SpeedLimitController:
     mapbox_limit_available = self.mapbox_speed_limit >= 1
 
     self.limit_missing = desired_target == 0 and (not mapbox_limit_available or self.mapbox_speed_limit_held)
+
+    if self.frogpilot_planner.experimental_mode_pressed and not self.frogpilot_toggles.conditional_experimental_mode:
+      self.handle_experimental_mode_press(sm)
+
+    self.experimental_mode_dismissed &= self.limit_missing
 
     if desired_target == 0:
       previous_limit_available = self.previous_target > 0 and self.denied_target != self.previous_target

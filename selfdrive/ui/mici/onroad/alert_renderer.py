@@ -5,7 +5,9 @@ import pyray as rl
 import random
 import string
 from dataclasses import dataclass
-from cereal import messaging, log, car
+from cereal import messaging, log, car, custom
+from openpilot.frogpilot.ui.mici.frogpilot_alerts import frogpilot_alerts
+from openpilot.frogpilot.ui.mici.frogpilot_theme import theme
 from openpilot.selfdrive.ui.ui_state import ui_state
 from openpilot.common.filter_simple import BounceFilter, FirstOrderFilter
 from openpilot.system.hardware import TICI
@@ -15,6 +17,9 @@ from openpilot.system.ui.widgets.label import UnifiedLabel
 
 AlertSize = log.SelfdriveState.AlertSize
 AlertStatus = log.SelfdriveState.AlertStatus
+
+# FrogPilot variables
+FrogPilotAlertStatus = custom.FrogPilotSelfdriveState.AlertStatus
 
 ALERT_MARGIN = 18
 
@@ -61,6 +66,9 @@ class Alert:
   status: int = 0
   visual_alert: int = car.CarControl.HUDControl.VisualAlert.none
   alert_type: str = ""
+
+  # FrogPilot variables
+  frogpilot: bool = False
 
 
 # Pre-defined alert instances
@@ -121,7 +129,7 @@ class AlertRenderer(Widget):
     ss = sm['selfdriveState']
 
     # Check if selfdriveState messages have stopped arriving
-    if not sm.updated['selfdriveState']:
+    if not sm.updated['selfdriveState'] and not ui_state.frogpilot_toggles.get("force_onroad"):
       recv_frame = sm.recv_frame['selfdriveState']
       time_since_onroad = time.monotonic() - ui_state.started_time
 
@@ -137,6 +145,16 @@ class AlertRenderer(Widget):
           if ss.enabled and (ss_missing - SELFDRIVE_STATE_TIMEOUT) < SELFDRIVE_UNRESPONSIVE_TIMEOUT:
             return ALERT_CRITICAL_TIMEOUT
           return ALERT_CRITICAL_REBOOT
+
+    # FrogPilot variables
+    frogpilot_fields = frogpilot_alerts.alert_fields(ss)
+    if frogpilot_fields is not None:
+      if not frogpilot_fields:
+        return None
+
+      ret = Alert(**frogpilot_fields)
+      self._prev_alert = ret
+      return ret
 
     # No alert if size is none
     if ss.alertSize == 0:
@@ -179,7 +197,7 @@ class AlertRenderer(Widget):
       icon_margin_x = 2
       icon_margin_y = 5
 
-    elif event_name == 'laneChangeBlocked':
+    elif event_name in ('laneChangeBlocked', 'laneChangeBlockedLoud'):
       CS = ui_state.sm['carState']
       if CS.leftBlinker:
         icon_side = IconSide.left
@@ -193,6 +211,10 @@ class AlertRenderer(Widget):
 
     else:
       self._turn_signal_timer = 0.0
+
+    # FrogPilot variables
+    if txt_icon in (self._txt_turn_signal_left, self._txt_turn_signal_right):
+      txt_icon = theme.alert_signal_texture(icon_side == 'left', txt_icon)
 
     self._last_icon_side = icon_side
 
@@ -279,8 +301,11 @@ class AlertRenderer(Widget):
       bg_height = small_alert_height
     elif event_name == 'laneChange':
       bg_height = small_alert_height
-    elif event_name == 'laneChangeBlocked':
+    elif event_name in ('laneChangeBlocked', 'laneChangeBlockedLoud'):
       bg_height = medium_alert_height
+    # FrogPilot variables
+    elif alert.frogpilot and alert.size == AlertSize.small and not alert.text2:
+      bg_height = small_alert_height
     else:
       bg_height = int(self._rect.height)
 
@@ -305,6 +330,10 @@ class AlertRenderer(Widget):
       font_size = 70
     else:
       font_size = 64 - 10
+
+    # FrogPilot variables
+    if alert.alert_type.startswith("customStartupAlert"):
+      can_draw_second_line = True
 
     if icon_side is not None:
       font_size -= 10
@@ -355,3 +384,7 @@ class AlertRenderer(Widget):
       self._alert_text2_label.set_font_size(small_font_size)
       self._alert_text2_label.set_alignment(rl.GuiTextAlignment.TEXT_ALIGN_LEFT if icon_side != 'left' else rl.GuiTextAlignment.TEXT_ALIGN_RIGHT)
       self._alert_text2_label.render(text_rect2)
+
+
+# FrogPilot variables
+ALERT_COLORS[FrogPilotAlertStatus.frogpilot] = rl.Color(23, 134, 68, 255)

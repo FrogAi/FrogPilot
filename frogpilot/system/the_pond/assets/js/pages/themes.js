@@ -3,7 +3,8 @@
 
 const P = window.Pond;
 
-const DOWNLOAD_STOPPED = ["Download cancelled...", "GitHub and GitLab are offline..."];
+const DOWNLOAD_CANCELED = "Download cancelled...";
+const DOWNLOAD_STOPPED = [DOWNLOAD_CANCELED, "GitHub and GitLab are offline..."];
 const MESSAGES = {
   in_use: "The car is using it. Pick another one first",
   invalid_names: "Those aren't available to download anymore",
@@ -30,7 +31,7 @@ function isDownloading(download) {
   return download.failed + download.succeeded < download.count && !DOWNLOAD_STOPPED.includes(download.progress);
 }
 
-async function followDownload(requestTime, label) {
+async function followDownload(requestTime, what) {
   if (downloading) {
     return;
   }
@@ -39,7 +40,7 @@ async function followDownload(requestTime, label) {
     P.refresh();
   }
   const handle = P.job({
-    label: P.esc(label),
+    label: `Downloading ${P.esc(what)}`,
     detail: "Downloading...",
     progress: 0,
     cancel: async () => {
@@ -68,17 +69,19 @@ async function followDownload(requestTime, label) {
     });
   } catch (error) {
     downloading = false;
-    handle.fail(error, `${P.esc(label)} stopped`);
+    handle.fail(error, `Couldn't download ${P.esc(what)}`);
     return;
   }
   downloading = false;
   handle.finish();
-  if (DOWNLOAD_STOPPED.includes(download.progress)) {
-    P.toast(`${P.esc(label)} stopped`, P.esc(download.progress), "alert");
+  if (download.progress === DOWNLOAD_CANCELED) {
+    P.toast(`Download of ${P.esc(what)} canceled`);
+  } else if (DOWNLOAD_STOPPED.includes(download.progress)) {
+    P.toast(`Couldn't download ${P.esc(what)}`, P.esc(download.progress), "alert");
   } else if (!download.failed) {
-    P.toast("Downloaded!");
+    P.toast(`Downloaded ${P.esc(what)}`);
   } else if (download.count === 1) {
-    P.toast("Download failed...", "", "alert");
+    P.toast(`Couldn't download ${P.esc(what)}`, "", "alert");
   } else {
     P.toast(`${download.succeeded} of ${download.count} downloaded, ${download.failed} failed`, "", "alert");
   }
@@ -87,15 +90,15 @@ async function followDownload(requestTime, label) {
   }
 }
 
-async function startDownload(component, names, label) {
+async function startDownload(component, names, what) {
   let result;
   try {
     result = await P.request("POST", "/api/themes/download", { component, names });
   } catch (error) {
-    P.fail(error, `Couldn't start ${P.esc(label.toLowerCase())}`, MESSAGES);
+    P.fail(error, `Couldn't start downloading ${P.esc(what)}`, MESSAGES);
     return;
   }
-  followDownload(result.request_time, label);
+  followDownload(result.request_time, what);
 }
 
 function options(data, part) {
@@ -192,7 +195,10 @@ P.act("themes-use", async button => {
 P.act("themes-delete", async button => {
   const name = P.esc(button.dataset.name);
   const part = partFor(button.dataset.component);
-  const ok = await P.dialog({ icon: "trash", tone: "danger", confirmTone: "danger", title: `Delete the “${name}” ${part.noun}?`, body: "<p>You can download it again later.</p>", confirm: "Delete" });
+  const ok = await P.dialog({
+    icon: "trash", tone: "danger", confirmTone: "danger", title: `Delete the “${name}” ${part.noun}?`, body: "<p>You can download it again later.</p>",
+    confirm: `Delete ${part.noun}`
+  });
   if (!ok) {
     return;
   }
@@ -216,7 +222,13 @@ function updatePicked(part) {
 P.act("themes-download-picked", button => {
   const part = partFor(button.dataset.component);
   const names = [...button.closest("[data-part]").querySelectorAll("[data-pick]:checked")].map(box => box.value);
-  startDownload(part.component, names, names.length === 1 ? `Downloading ${names[0]}` : `Downloading ${P.plural(names.length, part.noun)}`);
+
+  let what = P.plural(names.length, part.noun);
+  if (names.length === 1) {
+    what = names[0];
+  }
+
+  startDownload(part.component, names, what);
 });
 
 P.act("themes-download-all", async button => {
@@ -228,7 +240,7 @@ P.act("themes-download-all", async button => {
     P.fail(error, `Couldn't download the ${part.plural}`, MESSAGES);
     return;
   }
-  startDownload(part.component, names, `Downloading ${P.plural(names.length, part.noun)}`);
+  startDownload(part.component, names, P.plural(names.length, part.noun));
 });
 
 P.page("themes", {
@@ -246,7 +258,7 @@ P.page("themes", {
       mount: root => {
         root.querySelectorAll("[data-part]").forEach(part => part.addEventListener("change", () => updatePicked(part)));
         if (isDownloading(data.download)) {
-          followDownload(data.download.request_time, "Downloading themes");
+          followDownload(data.download.request_time, "themes");
         }
       }
     };

@@ -6,7 +6,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 from openpilot.common.params import Params
 
-from openpilot.frogpilot.common import frogpilot_api, frogpilot_utilities, frogpilot_variables
+from openpilot.frogpilot.common import frogpilot_api, frogpilot_status, frogpilot_utilities, frogpilot_variables
 
 CACHE_DISTANCE = 25_000
 CACHE_MAX_AGE = 20 * 60
@@ -16,30 +16,6 @@ DEFAULT_UPDATE_INTERVAL = 15 * 60
 PERSONAL_KEY_UPDATE_INTERVAL = 60
 
 RETRY_INTERVAL = 60
-
-# Reference: https://openweathermap.org/weather-conditions
-WEATHER_CATEGORIES = {
-  "RAIN": {
-    "ranges": [(300, 321), (500, 504)],
-    "suffix": "rain",
-  },
-  "RAIN_STORM": {
-    "ranges": [(200, 232), (511, 511), (520, 531), (771, 771), (781, 781)],
-    "suffix": "rain_storm",
-  },
-  "SNOW": {
-    "ranges": [(600, 622)],
-    "suffix": "snow",
-  },
-  "LOW_VISIBILITY": {
-    "ranges": [(701, 762)],
-    "suffix": "low_visibility",
-  },
-  "CLEAR": {
-    "ranges": [(800, 800)],
-    "suffix": "clear",
-  },
-}
 
 WEATHER_OFFSETS = (
   "increase_following_distance",
@@ -51,13 +27,6 @@ WEATHER_OFFSETS = (
 
 def valid_weather(data):
   return isinstance(data, dict) and all(type(data.get(key)) is int for key in ("sunrise", "sunset", "weather_id"))
-
-
-def weather_category(weather_id):
-  return next(
-    (category["suffix"] for category in WEATHER_CATEGORIES.values() if any(start <= weather_id <= end for start, end in category["ranges"])),
-    "unknown",
-  )
 
 
 class WeatherChecker:
@@ -95,7 +64,7 @@ class WeatherChecker:
     self.executor.shutdown(wait=False)
 
   def update_offsets(self, frogpilot_toggles):
-    category = weather_category(self.weather_id)
+    category = frogpilot_status.weather_category(self.weather_id)
     for offset in WEATHER_OFFSETS:
       value = getattr(frogpilot_toggles, f"{offset}_{category}") if category not in ("clear", "unknown") else 0
       setattr(self, offset, value)

@@ -86,6 +86,7 @@ class HyundaiSafetyFlags(IntFlag):
 class HyundaiFrogPilotSafetyFlags(IntFlag):
   HAS_LDA_BUTTON = 1024
   TACO_TUNE_HACK = 2048
+  ALWAYS_ON_LATERAL_LKAS = 4096
 
 
 class HyundaiFlags(IntFlag):

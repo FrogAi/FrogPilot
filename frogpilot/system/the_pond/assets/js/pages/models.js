@@ -3,6 +3,7 @@
 
 const P = window.Pond;
 
+const DOWNLOAD_CANCELED = "Download cancelled...";
 const FINISHED = ["All models downloaded!", "Downloaded!"];
 const MESSAGES = {
   invalid_model: "That model isn't on the device",
@@ -17,13 +18,17 @@ function percent(progress) {
   return match ? Number(match[1]) / 100 : null;
 }
 
-async function followDownload(requestTime, label, queue = []) {
+function canDownload(data) {
+  return data.online && !data.download.downloading;
+}
+
+async function followDownload(requestTime, what, queue = []) {
   if (following) {
     return;
   }
   following = true;
   const handle = P.job({
-    label: P.esc(label),
+    label: `Downloading ${P.esc(what)}`,
     detail: "Starting…",
     cancel: async () => {
       try {
@@ -53,35 +58,37 @@ async function followDownload(requestTime, label, queue = []) {
     });
   } catch (error) {
     following = false;
-    handle.fail(error, `${P.esc(label)} stopped`);
+    handle.fail(error, `Couldn't download ${P.esc(what)}`);
     return;
   }
   following = false;
   handle.finish();
   if (FINISHED.includes(progress)) {
-    P.toast(P.esc(progress));
+    P.toast(`Downloaded ${P.esc(what)}`);
+  } else if (progress === DOWNLOAD_CANCELED) {
+    P.toast(`Download of ${P.esc(what)} canceled`);
   } else {
-    P.toast(`${P.esc(label)} stopped`, P.esc(progress), "alert");
+    P.toast(`Couldn't download ${P.esc(what)}`, P.esc(progress), "alert");
   }
   if (location.pathname === "/models") {
     P.refresh();
   }
 }
 
-async function startDownload(body, label) {
+async function startDownload(body, what) {
   let queue = [];
   let result;
   try {
     queue = (await P.get("/api/models")).models.filter(m => !m.downloaded && (!body.ids || body.ids.includes(m.id)));
     result = await P.request("POST", "/api/models/download", body);
   } catch (error) {
-    P.fail(error, `Couldn't start ${P.esc(label.toLowerCase())}`, MESSAGES);
+    P.fail(error, `Couldn't start downloading ${P.esc(what)}`, MESSAGES);
     return;
   }
   if (location.pathname === "/models") {
     P.refresh();
   }
-  followDownload(result.request_time, label, queue);
+  followDownload(result.request_time, what, queue);
 }
 
 function modelList(data) {
@@ -107,8 +114,17 @@ function modelRow(m, data) {
     acts.push(`<button class="btn btn-quiet btn-small" data-act="models-use" data-id="${P.esc(m.id)}" data-name="${P.esc(m.name)}">Use</button>`);
   }
   if (data.randomizer && (m.available || blacklisted)) {
-    acts.push(`<span class="menu-wrap"><button class="icon-btn" data-act="menu" aria-expanded="false" aria-haspopup="true" aria-label="More for ${P.esc(m.name)}" title="More">${P.ic("dots")}</button>
-      <div class="menu" role="menu" hidden><button class="menu-item" role="menuitem" data-act="models-blacklist" data-id="${P.esc(m.id)}" data-name="${P.esc(m.name)}">${P.ic(blacklisted ? "plus" : "x")}<span>${blacklisted ? "Put back in random picks" : "Leave out of random picks"}</span></button></div></span>`);
+    let icon = "x";
+    let label = "Leave out of random picks";
+    if (blacklisted) {
+      icon = "plus";
+      label = "Put back in random picks";
+    }
+
+    const target = `data-id="${P.esc(m.id)}" data-name="${P.esc(m.name)}"`;
+    const more = `<button class="icon-btn" data-act="menu" aria-expanded="false" aria-label="More for ${P.esc(m.name)}" title="More">${P.ic("dots")}</button>`;
+    const item = `<button class="menu-item" data-act="models-blacklist" ${target}>${P.ic(icon)}<span>${label}</span></button>`;
+    acts.push(`<span class="menu-wrap">${more}<div class="menu" hidden>${item}</div></span>`);
   }
   if (data.deletable.includes(m.id)) {
     acts.push(`<button class="icon-btn danger" data-act="models-delete" data-id="${P.esc(m.id)}" data-name="${P.esc(m.name)}" aria-label="Delete ${P.esc(m.name)}">${P.ic("trash")}</button>`);
@@ -117,7 +133,12 @@ function modelRow(m, data) {
   }
   let name = `<span class="grow"><b>${P.esc(m.name)}</b><span>${meta}</span></span>`;
   if (!m.available) {
-    name = `<label class="grow pick"><input type="checkbox" data-pick value="${P.esc(m.id)}" ${data.download.downloading ? "disabled" : ""}><b>${P.esc(m.name)}</b><span>${meta}</span></label>`;
+    let disabled = "";
+    if (!canDownload(data)) {
+      disabled = "disabled";
+    }
+
+    name = `<label class="grow pick"><input type="checkbox" data-pick value="${P.esc(m.id)}" ${disabled}><b>${P.esc(m.name)}</b><span>${meta}</span></label>`;
   }
   return `<div class="list-row model-row ${inUse ? "in-use" : ""}">
     ${name}
@@ -152,7 +173,7 @@ async function setRandomizer(box, showRows, offerDownload, online) {
   if (!online) {
     P.dialog({ icon: "download", title: "Download more models to pick from", body: `<p>Random picks only come from models on the device. Connect the device to the internet to download the rest.</p>`, confirm: "Got it", cancel: "" });
   } else if (await P.dialog({ icon: "download", title: "Download every model?", body: `<p>Random picks only come from models on the device. Download the rest now so any of them can be picked.</p>`, confirm: "Download all", cancel: "Not now" })) {
-    startDownload({}, "Downloading every model");
+    startDownload({}, "every model");
   }
 }
 
@@ -180,11 +201,16 @@ function updatePicked(root) {
 
 P.act("models-download-picked", button => {
   const picked = [...button.closest(".panel").querySelectorAll("[data-pick]:checked")];
-  const label = picked.length === 1 ? `Downloading ${picked[0].nextElementSibling.textContent}` : `Downloading ${picked.length} models`;
-  startDownload({ ids: picked.map(box => box.value) }, label);
+
+  let what = `${picked.length} models`;
+  if (picked.length === 1) {
+    what = picked[0].nextElementSibling.textContent;
+  }
+
+  startDownload({ ids: picked.map(box => box.value) }, what);
 });
 
-P.act("models-download-all", () => startDownload({}, "Downloading every model"));
+P.act("models-download-all", () => startDownload({}, "every model"));
 
 P.act("models-delete", async button => {
   const name = P.esc(button.dataset.name);
@@ -249,20 +275,33 @@ P.page("models", {
     const models = modelList(data);
     const missing = models.some(m => !m.available);
     const rated = models.some(m => m.drives > 0);
+
+    let offline = "";
+    if (missing && !data.online) {
+      const notice = `<div class="notice">${P.ic("info")}<span>The device is offline. Connect it to the internet to download more.</span></div>`;
+      offline = `<div class="models-offline">${notice}</div>`;
+    }
+
+    let downloadAll = "";
+    if (!canDownload(data)) {
+      downloadAll = "disabled";
+    }
+
     return {
       body: `
       <section class="panel">
         <div class="panel-head"><h2>Models</h2>${data.randomizer_changeable ? `<label class="switch aside"><input type="checkbox" data-random ${data.randomizer ? "checked" : ""} ${randomizerTarget === null ? "" : "disabled"}><span class="track"></span><span class="models-random">Pick a random model each drive</span></label>` : ""}</div>
+        ${offline}
         <div class="models-list">${models.map(m => modelRow(m, data)).join("")}</div>
         ${missing || rated ? `<div class="panel-foot" ${missing || data.randomizer ? "" : "hidden"}>
           ${missing ? `<button class="btn btn-quiet btn-small" data-act="models-download-picked" disabled>${P.ic("download")}<span data-pick-label>Download selected</span></button>
-          <button class="btn btn-quiet btn-small" data-act="models-download-all" ${data.download.downloading ? "disabled" : ""}>${P.ic("download")}Download all</button>` : ""}
+          <button class="btn btn-quiet btn-small" data-act="models-download-all" ${downloadAll}>${P.ic("download")}Download all</button>` : ""}
           ${rated ? `<button class="btn btn-danger-quiet btn-small models-ratings" data-act="models-ratings" ${data.randomizer ? "" : "hidden"}>Reset ratings…</button>` : ""}
         </div>` : ""}
       </section>`,
       mount: root => {
         if (data.download.downloading) {
-          followDownload(data.download.request_time, "Downloading models");
+          followDownload(data.download.request_time, "models");
         }
         const box = root.querySelector("[data-random]");
         const showRows = enabled => {

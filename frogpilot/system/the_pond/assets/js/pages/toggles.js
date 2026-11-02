@@ -3,12 +3,13 @@
 
 const P = window.Pond;
 
-const DANGER_LABELS = ["DELETE", "FLASH", "REMOVE", "RESET"];
+const DANGER_LABELS = ["DELETE", "FLASH", "REMOVE", "RESET", "UNLINK"];
 const DONE_TIME = 1500;
 const FAST_STEPS = 5;
 const HIGHLIGHT_TIME = 2000;
 const HOLD_DELAY = 500;
 const HOLD_INTERVAL = 150;
+const LINK_PATTERN = /&lt;a href=&quot;(https:\/\/[^&]+)&quot;&gt;(.*?)&lt;\/a&gt;/g;
 const MESSAGES = {
   already_confirmed: "The tuning level is already set",
   hidden: "That setting isn't available right now",
@@ -73,16 +74,24 @@ function titleCase(text) {
   return text.toLowerCase().replace(/(^|[\s/(-])([a-z])/g, (match, lead, letter) => lead + letter.toUpperCase()).replace("Frogpilot", "FrogPilot");
 }
 
+function displayCase(text) {
+  if (isCaps(text)) {
+    return titleCase(text);
+  }
+  return text;
+}
+
 function panelTitle(path) {
   const last = path[path.length - 1];
   if (last === "MANAGE") {
     return path[0];
   }
-  return isCaps(last) ? titleCase(last) : last;
+  return displayCase(last);
 }
 
 function rich(html) {
-  return P.esc(html).replace(/&lt;(\/?)(b|i)&gt;/g, "<$1$2>").replace(/&lt;br\s*\/?&gt;/g, "<br>").replace(/\n/g, "<br>");
+  const links = P.esc(html).replace(LINK_PATTERN, '<a class="link" href="$1" target="_blank" rel="noopener">$2</a>');
+  return links.replace(/&lt;(\/?)(b|i)&gt;/g, "<$1$2>").replace(/&lt;br\s*\/?&gt;/g, "<br>").replace(/\n/g, "<br>");
 }
 
 function leadOf(html) {
@@ -174,6 +183,16 @@ function opener(path) {
   return null;
 }
 
+function pageLock(path) {
+  const section = sections().find(row => row.title === path[0]);
+  for (const option of section.options) {
+    if (pathKey(option.children) === pathKey(path)) {
+      return option.locked;
+    }
+  }
+  return null;
+}
+
 function aboutOf(path) {
   const parent = opener(path);
   if (parent) {
@@ -197,6 +216,9 @@ function reasonText(reason) {
   }
   if (reason.kind === "car") {
     return "Not available on this car";
+  }
+  if (reason.kind === "device") {
+    return "Not available on this device";
   }
   if (reason.kind === "branch") {
     return "Not available on this branch";
@@ -268,15 +290,34 @@ function stepperHtml(row) {
 
 function pillsHtml(row, label) {
   const act = row.actions ? "toggles-action" : "toggles-option";
+  const id = P.esc(row.id);
   return `<div class="seg toggles-seg" role="group" aria-label="${P.esc(label)}">${row.options.map(option => {
     const pressed = option.value === row.current;
-    return `<button type="button" data-act="${act}" data-row="${P.esc(row.id)}" data-label="${P.esc(option.label)}" data-value="${P.esc(JSON.stringify(option.value))}" data-f="${P.esc(row.id)}:option${P.esc(option.value)}" aria-pressed="${pressed}"><span>${P.esc(option.label)}</span></button>`;
+    const attributes = `data-act="${act}" data-row="${id}" data-label="${P.esc(option.label)}" data-value="${P.esc(JSON.stringify(option.value))}"`;
+    const text = P.esc(displayCase(option.label));
+    return `<button type="button" ${attributes} data-f="${id}:option${P.esc(option.value)}" aria-pressed="${pressed}"><span>${text}</span></button>`;
   }).join("")}</div>`;
 }
 
 function chipsHtml(row) {
-  const off = row.widget === "button_toggle" && !row.current;
-  return row.sub_toggles.map(sub => `<button type="button" class="chip toggles-chip" data-act="toggles-chip" data-row="${P.esc(row.id)}" data-key="${P.esc(sub.key)}" data-f="${P.esc(row.id)}:${P.esc(sub.key)}" aria-pressed="${sub.current}" ${off ? "disabled" : ""}>${P.esc(sub.label)}</button>`).join("");
+  const id = P.esc(row.id);
+
+  let disabled = "";
+  if (row.widget === "button_toggle" && !row.current) {
+    disabled = "disabled";
+  }
+
+  const chips = [];
+  for (const sub of row.sub_toggles) {
+    if (sub.hidden) {
+      continue;
+    }
+
+    const key = P.esc(sub.key);
+    const attributes = `data-act="toggles-chip" data-row="${id}" data-key="${key}" data-f="${id}:${key}" aria-pressed="${sub.current}"`;
+    chips.push(`<button type="button" class="chip toggles-chip" ${attributes} ${disabled}>${P.esc(sub.label)}</button>`);
+  }
+  return chips.join("");
 }
 
 function hasReset(row) {
@@ -288,19 +329,42 @@ function displayHtml(text) {
 }
 
 function pageHtml(row) {
-  return `<a class="btn btn-quiet btn-small toggles-btn" href="${row.link === "home" ? "/" : `/${row.link}`}" data-f="${P.esc(row.id)}:link">${P.esc(PAGE_LABELS[row.link])}${P.ic("next", "ic-s")}</a>`;
+  let label = PAGE_LABELS[row.link];
+  let target = `/${row.link}`;
+  if (row.link === "home") {
+    label = "View on Home";
+    target = "/";
+  }
+
+  return `<a class="btn btn-quiet btn-small toggles-btn" href="${target}" data-f="${P.esc(row.id)}:link">${P.esc(label)}${P.ic("next", "ic-s")}</a>`;
 }
 
 function isDanger(label) {
   return DANGER_LABELS.includes(label);
 }
 
+function actionButtonsHtml(row) {
+  const id = P.esc(row.id);
+
+  const buttons = [];
+  for (const action of row.actions) {
+    let tone = "btn-quiet";
+    if (isDanger(action.label)) {
+      tone = "btn-danger-quiet";
+    }
+
+    const label = P.esc(action.label);
+    const attributes = `data-act="toggles-action" data-row="${id}" data-label="${label}" data-f="${id}:action:${label}"`;
+    buttons.push(`<button type="button" class="btn ${tone} btn-small toggles-btn" ${attributes}>${P.esc(titleCase(action.label))}</button>`);
+  }
+  return buttons.join("");
+}
+
 function actionsHtml(row) {
   if (row.checkable) {
     return { html: pillsHtml(row, row.title), wide: row.options.length > 2 ? "wide" : "" };
   }
-  const buttons = row.actions.map(action => `<button type="button" class="btn ${isDanger(action.label) ? "btn-danger-quiet" : "btn-quiet"} btn-small toggles-btn" data-act="toggles-action" data-row="${P.esc(row.id)}" data-label="${P.esc(action.label)}" data-f="${P.esc(row.id)}:action:${P.esc(action.label)}">${P.esc(titleCase(action.label))}</button>`);
-  return { html: displayHtml(row.display) + buttons.join("") };
+  return { html: displayHtml(row.display) + actionButtonsHtml(row) };
 }
 
 function offered(options) {
@@ -323,17 +387,9 @@ function pickerHtml(row) {
   return `${displayHtml(pickerText(row))}<button type="button" class="btn btn-quiet btn-small toggles-btn" data-act="toggles-pick" data-row="${P.esc(row.id)}" data-f="${P.esc(row.id)}:pick" aria-label="Select ${P.esc(row.title)}">Select</button>`;
 }
 
-function lockedPickerHtml(row) {
-  const reason = disabledText(row.disabled);
-  return `${displayHtml(pickerText(row))}<span class="toggles-locked" title="${P.esc(reason)}"><button type="button" class="btn btn-quiet btn-small toggles-btn" aria-label="Select ${P.esc(row.title)}" aria-describedby="toggles-why-${P.esc(row.id)}" disabled>Select</button></span><span class="sr" id="toggles-why-${P.esc(row.id)}">${P.esc(reason)}</span>`;
-}
-
 function controlHtml(row) {
   if (row.link) {
     return { html: displayHtml(row.display) + pageHtml(row) };
-  }
-  if (row.locked && row.disabled && row.picker) {
-    return { html: lockedPickerHtml(row), wide: "pick" };
   }
   if (row.locked) {
     return { html: row.disabled ? `${displayHtml(row.display)}<span class="toggles-hint">${P.esc(disabledText(row.disabled))}</span>` : "" };
@@ -345,7 +401,12 @@ function controlHtml(row) {
     return { html: pickerHtml(row), wide: "pick" };
   }
   if (!row.writable) {
-    return { html: displayHtml(row.display) };
+    let opts = "";
+    if (row.sub_toggles) {
+      opts = chipsHtml(row);
+    }
+
+    return { html: displayHtml(row.display), opts };
   }
   const note = row.note ? `<span class="toggles-hint">${P.esc(row.note)}</span>` : "";
   if (row.widget === "toggle") {
@@ -358,7 +419,18 @@ function controlHtml(row) {
   }
   if (NUMBER_WIDGETS.includes(row.widget)) {
     const reset = hasReset(row) ? `<button type="button" class="btn btn-quiet btn-small toggles-btn" data-act="toggles-reset" data-row="${P.esc(row.id)}" data-f="${P.esc(row.id)}:default">Reset</button>` : "";
-    return { html: stepperHtml(row) + reset, opts: row.sub_toggles ? chipsHtml(row) : "", wide: "step" };
+
+    let actions = "";
+    if (row.actions) {
+      actions = actionButtonsHtml(row);
+    }
+
+    let opts = "";
+    if (row.sub_toggles) {
+      opts = chipsHtml(row);
+    }
+
+    return { html: stepperHtml(row) + reset + actions, opts, wide: "step" };
   }
   if (row.widget === "button_toggle") {
     return { html: note + switchHtml(row), opts: chipsHtml(row) };
@@ -400,9 +472,13 @@ function partHtml(row, base) {
   const inside = row.widget === "manage" ? changedCount(row.children[0]) : 0;
   const cut = row.title.lastIndexOf(" ") + 1;
   const dot = row.changed ? '<span class="toggles-dot" aria-hidden="true"></span>' : "";
-  const title = row.description
-    ? `<button type="button" class="toggles-title" data-act="toggles-desc" data-row="${P.esc(row.id)}" data-f="${P.esc(row.id)}:title" aria-expanded="${open}" aria-controls="toggles-desc-${P.esc(row.id)}">${dot}<span>${P.esc(row.title.slice(0, cut))}<span class="toggles-nowrap">${P.esc(row.title.slice(cut))}${P.NB}${P.ic("down", "toggles-caret")}</span></span></button>`
-    : `<span class="toggles-title is-static">${dot}${P.esc(row.title)}</span>`;
+  let title = `<span class="toggles-title is-static">${dot}${P.esc(row.title)}</span>`;
+  if (row.description) {
+    const id = P.esc(row.id);
+    const attributes = `data-act="toggles-desc" data-row="${id}" data-f="${id}:title" aria-label="${P.esc(row.title)} description" aria-expanded="${open}"`;
+    const words = `${P.esc(row.title.slice(0, cut))}<span class="toggles-nowrap">${P.esc(row.title.slice(cut))}${P.NB}${P.ic("down", "toggles-caret")}</span>`;
+    title = `<button type="button" class="toggles-title" ${attributes} aria-controls="toggles-desc-${id}">${dot}<span>${words}</span></button>`;
+  }
   const classes = [base, control.wide ? `w-${control.wide}` : "", control.opts ? "has-opts" : "", row.widget === "manage" ? "is-manage" : ""];
   return `<div class="${classes.join(" ")}" id="toggles-row-${P.esc(row.id)}" data-row="${P.esc(row.id)}" ${base === "toggles-row" ? 'role="listitem"' : ""}>
     <div class="toggles-head">${title}${row.changed ? '<span class="sr">Changed from default.</span>' : ""}${inside ? `<span class="toggles-count">${inside} changed</span>` : ""}${markHtml(row)}</div>
@@ -424,7 +500,7 @@ function rowHtml(row) {
 }
 
 function hiddenHtml(path) {
-  const rows = panelRows(path).filter(row => row.hidden && row.hidden.kind !== "state");
+  const rows = panelRows(path).filter(row => row.hidden && !["device", "state"].includes(row.hidden.kind));
   if (!rows.length) {
     return "";
   }
@@ -444,16 +520,25 @@ function hiddenHtml(path) {
   for (const row of other) {
     lines.push(`<li class="toggles-hl" data-hidden="${P.esc(row.id)}">${P.ic("info", "ic-s")}<span><b>${P.esc(row.title)}</b> <span class="muted">${P.esc(reasonText(row.hidden))}</span></span></li>`);
   }
-  return `<div class="toggles-hidden"><h3>Not shown here</h3><ul>${lines.join("")}</ul></div>`;
+  return `<div class="toggles-hidden"><h2>Not shown here</h2><ul>${lines.join("")}</ul></div>`;
 }
 
 function changedHtml(path) {
   const here = pathRows(path).filter(row => row.changed && !row.locked).sort((a, b) => a.order - b.order);
   const deeper = rowsUnder(path).filter(row => row.changed && !row.locked && row.widget !== "manage" && pathKey(row.path) !== pathKey(path)).length;
   if (!here.length && !deeper) {
-    return `<h3>Changed on this page</h3><p class="muted">Everything here is on its default.</p>`;
+    return `<h2>Changed on this page</h2><p class="muted">Everything here is on its default.</p>`;
   }
-  return `<h3>Changed on this page</h3><ul class="toggles-clist">${here.map(row => `<li><a href="#toggles-row-${P.esc(row.id)}" data-act="toggles-jump" data-row="${P.esc(row.id)}">${P.esc(row.title)}</a><span class="num">${P.esc(currentText(row))}</span></li>`).join("")}${deeper ? `<li class="muted">${deeper} more in deeper pages</li>` : ""}</ul>`;
+  const items = [];
+  for (const row of here) {
+    const link = `<a href="#toggles-row-${P.esc(row.id)}" data-act="toggles-jump" data-row="${P.esc(row.id)}">${P.esc(row.title)}</a>`;
+    items.push(`<li>${link}<span class="num">${P.esc(currentText(row))}</span></li>`);
+  }
+  if (deeper) {
+    items.push(`<li class="muted">${deeper} more in deeper pages</li>`);
+  }
+
+  return `<h2>Changed on this page</h2><ul class="toggles-clist">${items.join("")}</ul>`;
 }
 
 function defaultText(row) {
@@ -508,12 +593,27 @@ function levelHtml() {
   </section>`;
 }
 
+function sectionHint(option) {
+  const label = titleCase(option.label);
+  if (option.locked.kind === "level") {
+    return `${label} appears at ${levelName(option.locked.level)}`;
+  }
+
+  const reason = reasonText(option.locked);
+  return `${label} is ${reason[0].toLowerCase()}${reason.slice(1)}`;
+}
+
 function sectionHtml(section) {
   const shown = section.options.filter(option => !option.locked);
   const hidden = section.options.filter(option => option.locked);
   const total = changedCount([section.title]);
   const parts = section.description.split("<br><br>");
-  const hints = hidden.map(option => `${P.esc(titleCase(option.label))} ${option.locked.kind === "level" ? `appears at ${P.esc(levelName(option.locked.level))}` : "isn't available on this car"}`);
+
+  const hints = [];
+  for (const option of hidden) {
+    hints.push(P.esc(sectionHint(option)));
+  }
+
   return `<section class="toggles-sec" id="toggles-sec-${slug(section.title)}" aria-labelledby="toggles-sh-${slug(section.title)}">
     <div class="toggles-sec-head">${P.ic(SECTION_ICONS[section.title])}<h2 id="toggles-sh-${slug(section.title)}">${P.esc(section.title)}</h2>${total ? `<span class="toggles-count">${total} changed</span>` : ""}</div>
     <p class="toggles-sec-desc">${rich(parts[0])}</p>
@@ -554,24 +654,34 @@ function panelHtml(path) {
   } else if (blocked) {
     off = `<p class="notice toggles-off">${P.ic("info", "ic-s")}<span>${P.esc(reasonText(blocked))}</span></p>`;
   }
+  const lock = pageLock(path);
   let list;
   if (!rows.length) {
-    list = `<div class="empty toggles-empty"><h3>Not in The Pond yet</h3><p>Change these settings on the device for now.</p></div>`;
+    list = `<div class="empty toggles-empty"><h2>Not in The Pond yet</h2><p>Change these settings on the device for now.</p></div>`;
+  } else if (!shown.length && lock && lock.kind !== "level") {
+    list = `<div class="empty toggles-empty"><h2>Nothing to show here</h2><p>${P.esc(reasonText(lock))}.</p></div>`;
   } else if (!shown.length) {
-    list = `<div class="empty toggles-empty"><h3>Nothing here at ${P.esc(levelName(data.level))}</h3><p>Every setting on this page is above your tuning level or doesn't apply to this car.</p></div>`;
+    const reason = "Every setting on this page is above your tuning level or doesn't apply to this car.";
+    list = `<div class="empty toggles-empty"><h2>Nothing here at ${P.esc(levelName(data.level))}</h2><p>${reason}</p></div>`;
   } else {
     list = `<div class="toggles-list" role="list">${shown.map(rowHtml).join("")}</div>`;
   }
+
+  let intro = "";
+  if (opener(path)) {
+    intro = `<p class="toggles-intro">${P.esc(leadOf(about.description))}</p>`;
+  }
+
   return `${crumbsHtml(path)}
   <div class="toggles-page">
     <div class="toggles-main">
-      <p class="toggles-intro">${P.esc(leadOf(about.description))}</p>
+      ${intro}
       ${off}
       ${list}
       ${hiddenHtml(path)}
     </div>
     <aside class="toggles-aside" aria-label="About this page">
-      <div class="toggles-ablock"><h3>${P.esc(about.title)}</h3><p>${rich(about.description)}</p></div>
+      <div class="toggles-ablock"><h2>${P.esc(about.title)}</h2><p>${rich(about.description)}</p></div>
       <div class="toggles-ablock">${changedHtml(path)}</div>
     </aside>
   </div>`;
@@ -710,7 +820,7 @@ async function softReboot() {
 }
 
 async function promptReboot() {
-  if (await P.dialog({ title: "Reboot", body: `<p>${P.esc(REBOOT_TEXT)}</p>`, confirm: "Reboot Now", cancel: "Reboot Later" })) {
+  if (await P.dialog({ title: "Reboot", body: `<p>${P.esc(REBOOT_TEXT)}</p>`, confirm: "Reboot now", cancel: "Reboot later" })) {
     softReboot();
   }
 }
@@ -768,7 +878,16 @@ function feedbackSelector(row, value) {
 
 function confirmDialog(row, confirm, danger = false) {
   const tone = danger ? { confirmTone: "danger", icon: "alert", tone: "danger" } : {};
-  return P.dialog({ ...tone, title: P.esc(row.title), body: `<p>${rich(confirm.text || row.description)}</p>`, confirm: P.esc(confirm.confirm), cancel: P.esc(confirm.cancel), wide: !confirm.text });
+
+  let body = `<p>${rich(confirm.text || row.description)}</p>`;
+  if (confirm.consequences) {
+    body += `${P.lossList(confirm.consequences.lost, confirm.consequences.kept)}<p>${rich(confirm.consequences.note)}</p>`;
+  }
+
+  return P.dialog({
+    ...tone, title: P.esc(confirm.title || row.title), body,
+    confirm: P.esc(confirm.confirm), cancel: P.esc(confirm.cancel), wide: !confirm.text
+  });
 }
 
 async function showNotice(row, notice) {
@@ -781,7 +900,8 @@ async function showNotice(row, notice) {
 async function runAction(row, label, button) {
   const action = row.actions.find(candidate => candidate.label === label);
   if (action.blocked) {
-    await P.dialog({ title: P.esc(row.title), body: `<p>${P.esc(action.messages[action.blocked] || new P.PondError(409, action.blocked).message)}</p>`, confirm: "Ok", cancel: "" });
+    const message = action.messages[action.blocked] || new P.PondError(409, action.blocked).message;
+    await P.dialog({ title: P.esc(row.title), body: `<p>${P.esc(message)}</p>`, confirm: "OK", cancel: "" });
     return;
   }
   if (action.confirm && !(await confirmDialog(row, action.confirm, isDanger(label)))) {
@@ -793,12 +913,21 @@ async function runAction(row, label, button) {
   try {
     result = await (button ? P.busy(button, request) : request);
   } catch (error) {
-    P.fail(error, P.esc(row.title), { ...MESSAGES, ...action.messages });
+    let title = `${row.title} didn't work`;
+    if (row.checkable) {
+      title = `Couldn't change ${row.title}`;
+    }
+
+    P.fail(error, P.esc(title), { ...MESSAGES, ...action.messages });
     reload();
     return;
   }
   if (action.restart && result.succeeded) {
     P.restart(action.restart);
+    return;
+  }
+  if (action.opens && result.succeeded) {
+    location.assign(result.open);
     return;
   }
   apply(result, [focus]);
@@ -815,12 +944,45 @@ async function pickOne(title, options, current) {
   const body = `<div class="toggles-picks" role="radiogroup" aria-label="${P.esc(title)}">${options.map((option, index) => `<button type="button" class="menu-item" role="radio" data-index="${index}" aria-checked="${index === picked}">${P.ic("check")}<span>${P.esc(option.label)}</span></button>`).join("")}</div>`;
   const onOpen = dialog => {
     const confirm = dialog.querySelector("[data-confirm]");
-    confirm.disabled = true;
-    dialog.querySelectorAll(".toggles-picks [role='radio']").forEach(button => button.addEventListener("click", () => {
-      dialog.querySelectorAll(".toggles-picks [role='radio']").forEach(other => other.setAttribute("aria-checked", String(other === button)));
+    const radios = [...dialog.querySelectorAll(".toggles-picks [role='radio']")];
+    const choose = button => {
+      for (const radio of radios) {
+        radio.setAttribute("aria-checked", String(radio === button));
+        radio.tabIndex = -1;
+      }
+      button.tabIndex = 0;
       picked = Number(button.dataset.index);
       confirm.disabled = options[picked].value === current;
-    }));
+    };
+
+    confirm.disabled = true;
+    for (const radio of radios) {
+      radio.tabIndex = -1;
+      radio.addEventListener("click", () => {
+        choose(radio);
+      });
+    }
+    if (radios.length) {
+      radios[Math.max(picked, 0)].tabIndex = 0;
+    }
+
+    dialog.querySelector(".toggles-picks").addEventListener("keydown", event => {
+      const moves = { ArrowDown: 1, ArrowLeft: -1, ArrowRight: 1, ArrowUp: -1 };
+      let index = null;
+      if (event.key in moves) {
+        index = (radios.indexOf(event.target) + moves[event.key] + radios.length) % radios.length;
+      } else if (event.key === "Home") {
+        index = 0;
+      } else if (event.key === "End") {
+        index = radios.length - 1;
+      }
+
+      if (index !== null) {
+        event.preventDefault();
+        choose(radios[index]);
+        radios[index].focus();
+      }
+    });
     dialog.querySelector(".toggles-picks [aria-checked='true']")?.scrollIntoView({ block: "center" });
   };
   const dialog = await P.dialog({ icon: "settings", title: P.esc(title), body, confirm: "Select", wide: true, onOpen });
@@ -857,12 +1019,18 @@ async function pick(row, button) {
   }
 }
 
-function warnFirst(row) {
+async function showWarning(row, apply) {
+  if (await P.dialog({ icon: "alert", title: P.esc(row.title), body: `<p>${rich(row.warning)}</p>`, confirm: "OK", cancel: "" })) {
+    apply();
+  }
+}
+
+function warnFirst(row, apply) {
   if (!row.warning || warned.has(row.id)) {
     return false;
   }
   warned.add(row.id);
-  P.dialog({ icon: "alert", title: P.esc(row.title), body: `<p>${rich(row.warning)}</p>`, confirm: "Ok", cancel: "" });
+  showWarning(row, apply);
   return true;
 }
 
@@ -887,6 +1055,17 @@ function saveNumber(id, value) {
   clearTimeout(saveTimers.get(id));
   localValues.set(id, value);
   saveTimers.set(id, setTimeout(() => commitNumber(id), SAVE_DELAY));
+}
+
+function setNumber(row, value) {
+  paintStepper(row, value);
+  saveNumber(row.id, value);
+}
+
+function stepAndSave(row, direction) {
+  const state = { accelerated: false, direction, row, start: shownValue(row), value: shownValue(row) };
+  stepOnce(state);
+  saveNumber(row.id, state.value);
 }
 
 function paintStepper(row, value) {
@@ -979,10 +1158,13 @@ function editValue(label) {
       const parsed = labelMatch ? labelMatch[0] : parseFloat(raw.replace(",", "."));
       if (Number.isFinite(parsed)) {
         const value = snap(number, parsed);
+        const apply = () => {
+          setNumber(row, value);
+        };
+
         redraw();
-        if (value !== shownValue(row) && !warnFirst(row)) {
-          paintStepper(row, value);
-          saveNumber(row.id, value);
+        if (value !== shownValue(row) && !warnFirst(row, apply)) {
+          apply();
         }
         restoreFocus(`${row.id}:value`);
         flushPending();
@@ -1062,7 +1244,9 @@ async function showFirstOpen() {
       dialog.removeEventListener("keydown", keepOpenOnEscape);
     }, { once: true });
   };
-  const ok = await P.dialog({ icon: "settings", title: P.esc(tuningRow().title), body: `<p>${rich(data.first_open.message)}</p>`, confirm: "Ok", cancel: "", onOpen });
+  const ok = await P.dialog({
+    icon: "settings", title: P.esc(tuningRow().title), body: `<p>${rich(data.first_open.message)}</p>`, confirm: "OK", cancel: "", onOpen
+  });
   if (!ok) {
     return;
   }
@@ -1123,7 +1307,9 @@ P.act("toggles-action", button => runAction(rowById(button.dataset.row), button.
 
 P.act("toggles-pick", button => pick(rowById(button.dataset.row), button));
 
-P.act("toggles-reboot", async () => promptReboot());
+P.act("toggles-reboot", () => {
+  softReboot();
+});
 
 P.act("toggles-units", async button => {
   const metric = button.dataset.value === "1";
@@ -1234,7 +1420,13 @@ P.page("toggles", {
             return;
           }
           pressed.focus({ preventScroll: true });
-          if (warnFirst(rowById(pressed.closest("[data-step]").dataset.step))) {
+          const row = rowById(pressed.closest("[data-step]").dataset.step);
+          const direction = Number(pressed.dataset.dir);
+          const step = () => {
+            stepAndSave(row, direction);
+          };
+
+          if (warnFirst(row, step)) {
             return;
           }
           pressed.setPointerCapture?.(event.pointerId);
@@ -1247,6 +1439,7 @@ P.page("toggles", {
             event.stopPropagation();
             const row = root.querySelector(`#toggles-row-${CSS.escape(jump.dataset.row)}`);
             if (row) {
+              focusElement(row);
               flash(row);
             }
             return;
@@ -1254,10 +1447,13 @@ P.page("toggles", {
           const button = event.target.closest(".toggles-step-btn");
           if (button && event.detail === 0 && !button.disabled) {
             const row = rowById(button.closest("[data-step]").dataset.step);
-            if (!warnFirst(row)) {
-              const state = { accelerated: false, direction: Number(button.dataset.dir), row, start: shownValue(row), value: shownValue(row) };
-              stepOnce(state);
-              saveNumber(row.id, state.value);
+            const direction = Number(button.dataset.dir);
+            const step = () => {
+              stepAndSave(row, direction);
+            };
+
+            if (!warnFirst(row, step)) {
+              step();
             }
           }
           const label = event.target.closest("span.toggles-value");
@@ -1287,11 +1483,13 @@ P.page("toggles", {
           }
           if (value !== null) {
             event.preventDefault();
-            if (warnFirst(row)) {
-              return;
+            const apply = () => {
+              setNumber(row, value);
+            };
+
+            if (!warnFirst(row, apply)) {
+              apply();
             }
-            paintStepper(row, value);
-            saveNumber(row.id, value);
           }
         };
         root.addEventListener("change", onChange);

@@ -189,7 +189,7 @@ ROWS = [
     "widget": "toggle"
   },
   {
-    "confirm_enable": {"cancel": "No", "confirm": "Yes", "text": "Are you sure you want to completely disable openpilot longitudinal control?"},
+    "confirm_enable": {"cancel": "Cancel", "confirm": "Disable", "text": "Are you sure you want to completely disable openpilot longitudinal control?"},
     "description": "<b>Let your car's own cruise control handle the gas and brake instead of openpilot.</b>",
     "key": "DisableOpenpilotLongitudinal",
     "on_change": reboot_when_started,
@@ -351,7 +351,7 @@ ROWS = [
     "buttons": ("Reset",),
     "description": ("<b>Line up the speed openpilot shows on screen with the number on your dashboard, which most cars deliberately read a little " +
                     "high.</b><br><br>With \"Use Wheel Speed\" off, raise it until openpilot's number matches your dashboard. This does not change " +
-                    "how fast openpilot actually drives, with one exception: while it is following posted speed limits, a higher number here makes " +
+                    "how fast openpilot actually drives, except that while it is following posted speed limits, a higher number here makes " +
                     "it drive slightly slower."),
     "key": "ClusterOffset",
     "order": 1,
@@ -375,7 +375,7 @@ ROWS = [
   },
   {
     "description": ("<b>Swap in FrogsGoMoo's own settings for how openpilot comes to a stop.</b><br><br>These are personal preferences rather than a " +
-                    "fix for anything, and they are already on. They take over your stopping and starting values from \"Driving Controls\" and hide " +
+                    "fix for anything. They take over your stopping and starting values from \"Driving Controls\" and hide " +
                     "those rows while this is on, though on a Toyota the starting value has no effect. They also make openpilot's gas and brake " +
                     "control predict the car's acceleration further ahead at every speed, so they change how it drives while cruising as well."),
     "key": "FrogsGoMoosTweak",
@@ -413,7 +413,7 @@ ROWS = [
   },
   {
     "description": ("<b>Extra hardware openpilot has found fitted to your car, such as a comma pedal, an SDSU, or a ZSS.</b><br><br>openpilot works " +
-                    "these out from your car's wiring on its own. \"None\" is not proof nothing is fitted: a comma pedal is only reported on cars " +
+                    "these out from your car's wiring on its own. \"None\" is not proof nothing is fitted. A comma pedal is only reported on cars " +
                     "that support one."),
     "display": hardware_detected,
     "id": "HardwareDetected",

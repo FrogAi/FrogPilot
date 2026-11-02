@@ -1,9 +1,11 @@
 import json
+import re
 import secrets
+import time
 
 from aiohttp import web
 
-from openpilot.frogpilot.system.the_pond import utilities
+from openpilot.frogpilot.system.the_pond import keys, utilities
 
 FAVORITE_TYPES = {"home": "is_home", "work": "is_work"}
 
@@ -11,8 +13,21 @@ MAX_FAVORITES = 100
 MAX_NAME_LENGTH = 256
 
 UNNAMED_PLACE = "Unnamed place"
+UNSAFE_NAME_PATTERN = re.compile(r"[\x00-\x1f\x7f-\x9f  \ud800-\udfff]")
 
 routes = web.RouteTableDef()
+
+def load_destination(params):
+  destination = params.get("NavDestination")
+
+  if not isinstance(destination, dict):
+    return None
+
+  if type(destination.get("latitude")) not in (int, float) or type(destination.get("longitude")) not in (int, float):
+    return None
+
+  return destination
+
 
 def load_favorites(params):
   favorites = params.get("FavoriteDestinations")
@@ -40,7 +55,7 @@ def read_coordinate(value, limit):
 
 
 def read_name(name):
-  if not isinstance(name, str) or not 0 < len(name.strip()) <= MAX_NAME_LENGTH or not name.strip().isprintable():
+  if not isinstance(name, str) or not 0 < len(name.strip()) <= MAX_NAME_LENGTH or UNSAFE_NAME_PATTERN.search(name.strip()):
     raise web.HTTPBadRequest(text="invalid_name")
   return name.strip()
 
@@ -58,6 +73,21 @@ def read_type(body):
     raise web.HTTPBadRequest(text="invalid_type")
 
   return favorite_type
+
+
+def route_state(the_pond):
+  sm = the_pond.sm
+
+  if sm.logMonoTime["navRoute"] < the_pond.destination_set_time:
+    return "finding"
+
+  if sm.seen["navInstruction"] and sm.valid["navInstruction"]:
+    return "routed"
+
+  if sm.seen["navRoute"] and len(sm["navRoute"].coordinates) == 0:
+    return "failed"
+
+  return "finding"
 
 
 def set_type(favorites, favorite, favorite_type):
@@ -109,20 +139,37 @@ async def delete_favorite(request):
 
 @routes.get("/api/navigation")
 async def get_navigation(request):
-  params = request.app[utilities.THE_POND].params
+  the_pond = request.app[utilities.THE_POND]
+  params = the_pond.params
+
+  destination = load_destination(params)
   last_position = params.get("LastGPSPosition")
+
+  route = None
+  if destination is not None and the_pond.sm["deviceState"].started:
+    route = route_state(the_pond)
+
   return web.json_response({
-    "destination": params.get("NavDestination"),
+    **keys.navigation_keys(the_pond),
+    "destination": destination,
     "favorites": load_favorites(params),
     "is_metric": params.get_bool("IsMetric"),
     "last_position": json.loads(last_position) if last_position else None,
+    "route": route,
   })
 
 
 @routes.put("/api/navigation/destination")
 async def set_destination(request):
+  the_pond = request.app[utilities.THE_POND]
+  params = the_pond.params
   place = read_place(await utilities.read_json(request))
-  request.app[utilities.THE_POND].params.put("NavDestination", {"latitude": place["latitude"], "longitude": place["longitude"], "place_name": place["name"]})
+
+  destination = load_destination(params)
+  if destination is None or destination["latitude"] != place["latitude"] or destination["longitude"] != place["longitude"]:
+    the_pond.destination_set_time = time.monotonic_ns()
+
+  params.put("NavDestination", {"latitude": place["latitude"], "longitude": place["longitude"], "place_name": place["name"]})
   return web.Response(status=204)
 
 

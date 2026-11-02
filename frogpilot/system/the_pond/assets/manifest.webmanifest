@@ -1,5 +1,5 @@
 {
-  "background_color": "#031e1b",
+  "background_color": "#0d0e10",
   "display": "standalone",
   "icons": [
     {
@@ -16,5 +16,5 @@
   "name": "The Pond",
   "short_name": "The Pond",
   "start_url": "/",
-  "theme_color": "#031e1b"
+  "theme_color": "#0d0e10"
 }

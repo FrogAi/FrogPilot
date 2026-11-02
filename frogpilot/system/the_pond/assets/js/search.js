@@ -20,7 +20,7 @@ const WORDS_PHRASE_BONUS = 1;
 const POND = [
   { page: "backups", words: "backup restore save copy export import snapshot undo" },
   { page: "backups", title: "Back up FrogPilot", target: '[data-act="frogbackups-new"]', words: "save copy install version" },
-  { page: "backups", title: "Back up settings now", target: '[data-act="backups-now"]', words: "save copy create backup" },
+  { page: "backups", title: "Back up settings now", target: '[data-act="backups-new"]', words: "save copy create backup" },
   { page: "backups", title: "FrogPilot backups", target: "section:has(#fb-h)", words: "install version rollback downgrade previous older go back" },
   { page: "backups", title: "Import a backup", target: "label:has([data-import])", words: "import upload backup file zip" },
   { page: "backups", title: "Reset settings to defaults", target: "section:has(#reset-h)", words: "reset defaults factory start over stock openpilot erase" },
@@ -219,6 +219,7 @@ function indexed(doc, fields) {
 function pondDocument(entry) {
   const page = pages[entry.page];
   return indexed({
+    hidden: page.hidden,
     href: page.id === "home" ? "/" : `/${page.id}`,
     icon: page.icon,
     kind: "pond",
@@ -274,8 +275,15 @@ function termScore(term, word) {
   if (word.includes(term)) {
     return 0.55;
   }
+  if (term.length < 5 && word[0] !== term[0]) {
+    return 0;
+  }
   const allowed = term.length >= 8 ? 2 : 1;
-  const distance = Math.min(editDistance(term, word), editDistance(term, word.slice(0, term.length)));
+  let distance = editDistance(term, word);
+  if (term.length >= 5) {
+    distance = Math.min(distance, editDistance(term, word.slice(0, term.length)));
+  }
+
   if (distance > allowed) {
     return 0;
   }
@@ -299,6 +307,10 @@ function search(query) {
 
   const results = [];
   for (const doc of documents) {
+    if (doc.hidden?.()) {
+      continue;
+    }
+
     let matched = 0;
     let total = 0;
     for (let index = 0; index < queryTerms.length; index++) {
@@ -480,9 +492,21 @@ function choose(index) {
 }
 
 function searchBox(place) {
+  let shortcut = "";
+  if (place === "rail") {
+    let keys = "Ctrl K";
+    if (/Mac|iPhone|iPad/.test(navigator.platform)) {
+      keys = "⌘K";
+    }
+
+    shortcut = `<kbd class="search-key" aria-hidden="true">${keys}</kbd>`;
+  }
+
   return `<div class="search-box" data-search-box="${place}">
     ${place === "rail" ? `<button type="button" class="icon-btn search-open" data-act="rail-toggle" aria-label="Search">${P.ic("search")}</button>` : ""}
-    <label class="search"><span class="sr">Search The Pond and the device's settings</span>${P.ic("search")}<input class="input" type="search" data-search role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="search-results-${place}" placeholder="Search" autocomplete="off" spellcheck="false">${place === "rail" ? '<kbd class="search-key" aria-hidden="true">/</kbd>' : ""}</label>
+    <label class="search"><span class="sr">Search The Pond and the device's settings</span>${P.ic("search")}<input class="input" type="search" data-search
+      role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="search-results-${place}" placeholder="Search" autocomplete="off"
+      spellcheck="false">${shortcut}</label>
     <div class="search-results" id="search-results-${place}" role="listbox" aria-label="Search results" hidden></div>
   </div>`;
 }
@@ -553,7 +577,8 @@ document.addEventListener("click", e => {
 });
 
 document.addEventListener("keydown", e => {
-  if (e.key !== "/" || e.ctrlKey || e.metaKey || e.altKey || e.target.closest("input, textarea, select, [contenteditable]") || document.querySelector("dialog[open]")) {
+  const shortcut = (e.ctrlKey || e.metaKey) && !e.altKey && !e.shiftKey && e.key.toLowerCase() === "k";
+  if (!shortcut || e.target.closest("input, textarea, select, [contenteditable]") || document.querySelector("dialog[open]")) {
     return;
   }
   const rail = document.getElementById("rail");

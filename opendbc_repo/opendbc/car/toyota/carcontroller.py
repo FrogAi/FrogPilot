@@ -47,12 +47,8 @@ UNLOCK_CMD = b"\x40\x05\x30\x11\x00\x40\x00\x00"
 
 
 def get_long_tune(CP, params):
-  if CP.carFingerprint in TSS2_CAR or CP.enableGasInterceptorDEPRECATED:
-    kiBP = [2., 5.]
-    kiV = [0.5, 0.25]
-  else:
-    kiBP = [0., 5., 35.]
-    kiV = [3.6, 2.4, 1.5]
+  kiBP = [2., 5.]
+  kiV = [0.5, 0.25]
 
   return PIDController(0.0, (kiBP, kiV), k_f=1.0,
                        pos_limit=params.ACCEL_MAX, neg_limit=params.ACCEL_MIN,

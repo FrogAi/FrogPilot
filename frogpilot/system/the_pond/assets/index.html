@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#031e1b">
+<meta name="theme-color" content="#0d0e10">
 <title>The Pond · FrogPilot</title>
 <link rel="icon" href="/assets/img/frogpilot-icon.svg">
 <link rel="manifest" href="/assets/manifest.webmanifest">
@@ -32,8 +32,8 @@
 <script src="/assets/js/core.js"></script>
 </head>
 <body>
-<a class="skip" href="#content">Skip to content</a>
 <div class="app" id="app">
+  <a class="skip" href="#content">Skip to content</a>
   <aside class="rail" id="rail" aria-label="The Pond"></aside>
   <div class="main">
     <header class="topbar" id="topbar"></header>
@@ -45,7 +45,7 @@
 <div class="toasts" id="toasts" aria-live="polite"></div>
 <div id="overlays"></div>
 <dialog class="sheet-dlg" id="more-sheet" aria-labelledby="more-title"></dialog>
-<dialog class="dlg" id="dlg"></dialog>
+<dialog class="dlg" id="dlg" tabindex="-1"></dialog>
 <script src="/assets/js/pages/backups.js"></script>
 <script src="/assets/js/pages/device.js"></script>
 <script src="/assets/js/pages/drives.js"></script>

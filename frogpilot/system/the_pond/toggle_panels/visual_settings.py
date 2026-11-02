@@ -1,8 +1,28 @@
+from openpilot.frogpilot.common import frogpilot_variables
 from openpilot.frogpilot.system.the_pond.toggle_panels import rows
+
+DEVELOPER_SIDEBAR_METRIC_OPTIONS = tuple({"label": label, "value": value} for value, label in frogpilot_variables.DEVELOPER_SIDEBAR_METRIC_LABELS.items())
 
 
 def openpilot_longitudinal_visible(context, key):
   return context.level_reason(key) or context.car_reason(context.has_openpilot_longitudinal)
+
+
+def lead_marker_reason(context):
+  params = context.params
+  hide_lead_marker = params.get_bool("AdvancedCustomUI") and params.get_bool("HideLeadMarker") and not params.get_bool("DebugMode")
+  return context.setting_reason(not (context.car_detected and context.has_openpilot_longitudinal and hide_lead_marker), "HideLeadMarker", wanted=False)
+
+
+def adjacent_leads_visible(context):
+  reason = context.level_reason("AdjacentLeadsUI") or context.car_reason(context.has_radar) or lead_marker_reason(context)
+  return reason or context.setting_reason(context.has_openpilot_longitudinal or context.params.get_bool("LeadInfo"), "LeadInfo")
+
+
+def clear_sidebar_metrics(context, keys):
+  for key in keys:
+    context.params.put_bool(key, False)
+  return False
 
 
 def speed_limit_controller_active(context):
@@ -96,11 +116,239 @@ ROWS = [
     "widget": "toggle"
   },
   {
+    "children": ("Theme and Appearance", "DRIVING VIEW", "Developer UI"),
+    "description": ("<b>Put openpilot's internal numbers on screen, so you can see what it is thinking while it drives.</b><br><br>None of it " +
+                    "changes how the car behaves. It is for working out why openpilot did something, and it is worth turning back off once you " +
+                    "are done."),
+    "key": "DeveloperUI",
+    "order": 1,
+    "path": ("Theme and Appearance", "DRIVING VIEW"),
+    "title": "Developer UI",
+    "widget": "manage"
+  },
+  {
+    "children": ("Theme and Appearance", "DRIVING VIEW", "Developer UI", "Developer Metrics"),
+    "description": "<b>Show readouts of what openpilot's sensors and hardware are doing while you drive.</b>",
+    "key": "DeveloperMetrics",
+    "order": 0,
+    "path": ("Theme and Appearance", "DRIVING VIEW", "Developer UI"),
+    "title": "Developer Metrics",
+    "widget": "manage"
+  },
+  {
+    "description": ("<b>Print how wide the lanes either side of you are, right on their paths.</b><br><br>It draws the adjacent lane paths itself, " +
+                    "so there is something to print onto, even with \"Adjacent Lanes\" switched off."),
+    "key": "AdjacentPathMetrics",
+    "order": 0,
+    "path": ("Theme and Appearance", "DRIVING VIEW", "Developer UI", "Developer Metrics"),
+    "title": "Adjacent Lane Metrics",
+    "widget": "toggle"
+  },
+  {
+    "description": ("<b>Color the edge of the driving screen to show what openpilot is reacting to.</b><br><br>You can switch on the blind spot, " +
+                    "steering effort, and turn signal borders separately. The blind spot one only appears on cars with factory blind spot " +
+                    "monitoring, and the steering effort one only appears on cars where openpilot sends a steering effort rather than a steering " +
+                    "angle."),
+    "key": "BorderMetrics",
+    "order": 1,
+    "path": ("Theme and Appearance", "DRIVING VIEW", "Developer UI", "Developer Metrics"),
+    "sub_toggles": ({"key": "BlindSpotMetrics", "label": "Blind Spot", "visible": lambda context: context.car_reason(context.has_bsm)},
+                    {"key": "ShowSteering", "label": "Steering Torque", "visible": lambda context: context.car_reason(not context.is_angle_car)},
+                    {"key": "SignalMetrics", "label": "Turn Signal"}),
+    "title": "Border Metrics",
+    "widget": "button_toggle"
+  },
+  {
+    "description": ("<b>Show how many frames a second the driving screen is drawing, along the bottom.</b><br><br>It also tracks the lowest and " +
+                    "highest it has seen."),
+    "key": "FPSCounter",
+    "order": 2,
+    "path": ("Theme and Appearance", "DRIVING VIEW", "Developer UI", "Developer Metrics"),
+    "title": "FPS Display",
+    "widget": "toggle"
+  },
+  {
+    "description": ("<b>Print how far away the car ahead is and how fast it is going, underneath its marker.</b><br><br>On cars where openpilot " +
+                    "handles the gas and brake, it also shows the gap openpilot is aiming for, so you can see it closing in on the distance you " +
+                    "asked for."),
+    "key": "LeadInfo",
+    "order": 3,
+    "path": ("Theme and Appearance", "DRIVING VIEW", "Developer UI", "Developer Metrics"),
+    "title": "Lead Info",
+    "visible": lambda context: context.level_reason("LeadInfo") or lead_marker_reason(context),
+    "widget": "toggle"
+  },
+  {
+    "description": ("<b>Show the device temperature as a number in the sidebar instead of a word like \"GOOD\".</b><br><br>Useful for spotting the " +
+                    "device getting hot before it slows itself down."),
+    "key": "NumericalTemp",
+    "order": 4,
+    "path": ("Theme and Appearance", "DRIVING VIEW", "Developer UI", "Developer Metrics"),
+    "sub_toggles": ({"key": "Fahrenheit", "label": "Fahrenheit"},),
+    "title": "Numerical Temperature Gauge",
+    "widget": "button_toggle"
+  },
+  {
+    "description": ("<b>Fill the sidebar with how hard the device is working, how much storage is left, and its IP address.</b><br><br>They take " +
+                    "the place of the vehicle, connection, and signal indicators normally shown there.<br><br>CPU and GPU cannot both be on, and " +
+                    "RAM, SSD Left, and SSD Used are one at a time, so picking one clears the other."),
+    "id": "SidebarMetrics",
+    "key": None,
+    "order": 5,
+    "path": ("Theme and Appearance", "DRIVING VIEW", "Developer UI", "Developer Metrics"),
+    "sub_toggles": (
+      {"key": "ShowCPU", "label": "CPU", "on_change": lambda context, old_value, new_value: clear_sidebar_metrics(context, ("ShowGPU",))},
+      {"key": "ShowGPU", "label": "GPU", "on_change": lambda context, old_value, new_value: clear_sidebar_metrics(context, ("ShowCPU",))},
+      {"key": "ShowIP", "label": "IP"},
+      {"key": "ShowMemoryUsage", "label": "RAM",
+       "on_change": lambda context, old_value, new_value: clear_sidebar_metrics(context, ("ShowStorageLeft", "ShowStorageUsed"))},
+      {"key": "ShowStorageLeft", "label": "SSD Left",
+       "on_change": lambda context, old_value, new_value: clear_sidebar_metrics(context, ("ShowMemoryUsage", "ShowStorageUsed"))},
+      {"key": "ShowStorageUsed", "label": "SSD Used",
+       "on_change": lambda context, old_value, new_value: clear_sidebar_metrics(context, ("ShowMemoryUsage", "ShowStorageLeft"))}
+    ),
+    "title": "Sidebar Metrics",
+    "widget": "buttons"
+  },
+  {
+    "description": ("<b>Show the developer readouts in plain scientific units instead of the friendlier ones.</b><br><br>This only affects the " +
+                    "developer numbers, not the speed or distances you drive by."),
+    "key": "UseSI",
+    "order": 6,
+    "path": ("Theme and Appearance", "DRIVING VIEW", "Developer UI", "Developer Metrics"),
+    "title": "Use International System of Units",
+    "widget": "toggle"
+  },
+  {
+    "children": ("Theme and Appearance", "DRIVING VIEW", "Developer UI", "Developer Sidebar"),
+    "description": ("<b>Add a second sidebar down the right-hand side, holding up to seven readouts you pick yourself.</b><br><br>It makes the " +
+                    "camera view narrower, so it is worth turning off when you are not using it. Setting all seven to \"None\" leaves the bar " +
+                    "there but empty."),
+    "key": "DeveloperSidebar",
+    "order": 1,
+    "path": ("Theme and Appearance", "DRIVING VIEW", "Developer UI"),
+    "title": "Developer Sidebar",
+    "widget": "manage"
+  },
+  {
+    "description": ("<b>Choose what the first slot in the developer sidebar shows.</b><br><br>The list covers steering, acceleration, engagement, " +
+                    "and auto-tune readouts. Every slot starts already filled in, and picking \"None\" closes the gap rather than leaving a hole."),
+    "key": "DeveloperSidebarMetric1",
+    "options": DEVELOPER_SIDEBAR_METRIC_OPTIONS,
+    "order": 0,
+    "path": ("Theme and Appearance", "DRIVING VIEW", "Developer UI", "Developer Sidebar"),
+    "picker": {"title": "Select a metric for the first slot"},
+    "title": "Metric #1",
+    "widget": "select"
+  },
+  {
+    "description": "<b>Choose what the second slot in the developer sidebar shows.</b>",
+    "key": "DeveloperSidebarMetric2",
+    "options": DEVELOPER_SIDEBAR_METRIC_OPTIONS,
+    "order": 1,
+    "path": ("Theme and Appearance", "DRIVING VIEW", "Developer UI", "Developer Sidebar"),
+    "picker": {"title": "Select a metric for the second slot"},
+    "title": "Metric #2",
+    "widget": "select"
+  },
+  {
+    "description": "<b>Choose what the third slot in the developer sidebar shows.</b>",
+    "key": "DeveloperSidebarMetric3",
+    "options": DEVELOPER_SIDEBAR_METRIC_OPTIONS,
+    "order": 2,
+    "path": ("Theme and Appearance", "DRIVING VIEW", "Developer UI", "Developer Sidebar"),
+    "picker": {"title": "Select a metric for the third slot"},
+    "title": "Metric #3",
+    "widget": "select"
+  },
+  {
+    "description": "<b>Choose what the fourth slot in the developer sidebar shows.</b>",
+    "key": "DeveloperSidebarMetric4",
+    "options": DEVELOPER_SIDEBAR_METRIC_OPTIONS,
+    "order": 3,
+    "path": ("Theme and Appearance", "DRIVING VIEW", "Developer UI", "Developer Sidebar"),
+    "picker": {"title": "Select a metric for the fourth slot"},
+    "title": "Metric #4",
+    "widget": "select"
+  },
+  {
+    "description": "<b>Choose what the fifth slot in the developer sidebar shows.</b>",
+    "key": "DeveloperSidebarMetric5",
+    "options": DEVELOPER_SIDEBAR_METRIC_OPTIONS,
+    "order": 4,
+    "path": ("Theme and Appearance", "DRIVING VIEW", "Developer UI", "Developer Sidebar"),
+    "picker": {"title": "Select a metric for the fifth slot"},
+    "title": "Metric #5",
+    "widget": "select"
+  },
+  {
+    "description": "<b>Choose what the sixth slot in the developer sidebar shows.</b>",
+    "key": "DeveloperSidebarMetric6",
+    "options": DEVELOPER_SIDEBAR_METRIC_OPTIONS,
+    "order": 5,
+    "path": ("Theme and Appearance", "DRIVING VIEW", "Developer UI", "Developer Sidebar"),
+    "picker": {"title": "Select a metric for the sixth slot"},
+    "title": "Metric #6",
+    "widget": "select"
+  },
+  {
+    "description": "<b>Choose what the seventh slot in the developer sidebar shows.</b>",
+    "key": "DeveloperSidebarMetric7",
+    "options": DEVELOPER_SIDEBAR_METRIC_OPTIONS,
+    "order": 6,
+    "path": ("Theme and Appearance", "DRIVING VIEW", "Developer UI", "Developer Sidebar"),
+    "picker": {"title": "Select a metric for the seventh slot"},
+    "title": "Metric #7",
+    "widget": "select"
+  },
+  {
+    "children": ("Theme and Appearance", "DRIVING VIEW", "Developer UI", "Developer Widgets"),
+    "description": ("<b>Draw what openpilot's model and radar are seeing straight onto the driving screen.</b><br><br>Your car needs radar for two " +
+                    "of these, and openpilot handling the gas and brake for the third, so this menu can come up almost empty."),
+    "key": "DeveloperWidgets",
+    "order": 2,
+    "path": ("Theme and Appearance", "DRIVING VIEW", "Developer UI"),
+    "title": "Developer Widgets",
+    "widget": "manage"
+  },
+  {
+    "description": ("<b>Mark the cars your radar sees in the lanes either side of you.</b><br><br>Your car needs radar for these to appear, and " +
+                    "they hang off the same marker \"Hide Lead Marker\" removes."),
+    "key": "AdjacentLeadsUI",
+    "order": 0,
+    "path": ("Theme and Appearance", "DRIVING VIEW", "Developer UI", "Developer Widgets"),
+    "title": "Adjacent Leads Tracking",
+    "visible": adjacent_leads_visible,
+    "widget": "toggle"
+  },
+  {
+    "description": ("<b>Drop a stop sign on the road where openpilot is planning to come to a stop.</b><br><br>It only marks stops openpilot works " +
+                    "out for itself, so it stays away when openpilot is slowing for a car ahead, and \"Traffic Mode\" switches it off entirely. " +
+                    "\"Show Distance\" also prints how far away that stop is."),
+    "key": "ShowStoppingPoint",
+    "order": 1,
+    "path": ("Theme and Appearance", "DRIVING VIEW", "Developer UI", "Developer Widgets"),
+    "sub_toggles": ({"key": "ShowStoppingPointMetrics", "label": "Show Distance"},),
+    "title": "Model Stopping Point",
+    "visible": lambda context: openpilot_longitudinal_visible(context, "ShowStoppingPoint"),
+    "widget": "button_toggle"
+  },
+  {
+    "description": ("<b>Show every object your car's radar is returning, not just the car you are following.</b><br><br>Expect a lot of dots, " +
+                    "including signs, barriers, and parked cars."),
+    "key": "RadarTracksUI",
+    "order": 2,
+    "path": ("Theme and Appearance", "DRIVING VIEW", "Developer UI", "Developer Widgets"),
+    "title": "Radar Tracks",
+    "visible": lambda context: context.level_reason("RadarTracksUI") or context.car_reason(context.has_radar),
+    "widget": "toggle"
+  },
+  {
     "children": ("Theme and Appearance", "DRIVING VIEW", "Driving Screen Widgets"),
     "description": ("<b>Add extra things to the driving screen that stock openpilot does not show.</b><br><br>One of these does change how the car " +
-                    "drives: the \"Driving Personality Button\" switches your following distance."),
+                    "drives. The \"Driving Personality Button\" switches your following distance."),
     "key": "CustomUI",
-    "order": 1,
+    "order": 2,
     "path": ("Theme and Appearance", "DRIVING VIEW"),
     "title": "Driving Screen Widgets",
     "widget": "manage"
@@ -148,7 +396,7 @@ ROWS = [
   {
     "description": ("<b>Add a button to the driving screen that switches your following distance between Aggressive, Standard, and Relaxed without " +
                     "going into the menus.</b><br><br>It works as a second \"Distance\" button, so holding it, or changing what that button does " +
-                    "under \"WHEEL BUTTONS\", gives you those actions instead. This changes how the car actually drives, not just what you see. It " +
+                    "under \"Wheel Buttons\", gives you those actions instead. This changes how the car actually drives, not just what you see. It " +
                     "also shows which one is active."),
     "key": "OnroadDistanceButton",
     "order": 4,
@@ -183,7 +431,7 @@ ROWS = [
     "description": ("<b>Change how openpilot draws the road ahead, including the driving path, the lane lines, and the road edges.</b><br><br>Turning " +
                     "this off falls back to stock openpilot's sizes, though the colored path edges go away with it."),
     "key": "ModelUI",
-    "order": 2,
+    "order": 3,
     "path": ("Theme and Appearance", "DRIVING VIEW"),
     "title": "Model UI",
     "widget": "manage"
@@ -251,7 +499,7 @@ ROWS = [
     "description": ("<b>Change what navigation shows on the driving screen, from the road name to speed limit signs.</b><br><br>Some of these need " +
                     "map data downloaded under \"Maps and Navigation\" before they show anything."),
     "key": "NavigationUI",
-    "order": 3,
+    "order": 4,
     "path": ("Theme and Appearance", "DRIVING VIEW"),
     "title": "Navigation Widgets",
     "widget": "manage"
@@ -303,7 +551,7 @@ ROWS = [
     "children": ("Theme and Appearance", "DRIVING VIEW", "Quality of Life"),
     "description": "<b>Pick which camera you watch, and a couple of smaller driving screen touches that did not fit anywhere else.</b>",
     "key": "QOLVisuals",
-    "order": 4,
+    "order": 5,
     "path": ("Theme and Appearance", "DRIVING VIEW"),
     "title": "Quality of Life",
     "widget": "manage"

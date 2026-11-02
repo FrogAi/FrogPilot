@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-import flatbuffers
 import json
 import math
 import numpy as np
@@ -241,12 +240,28 @@ def calculate_taco_turn_speeds(orientation_rates, speeds, v_ego):
 
 def can_disable_openpilot_long(CP):
   if CP.brand == "gm":
-    return CP.carFingerprint in CC_ONLY_CAR and not CP.enableGasInterceptorDEPRECATED
+    return CP.carFingerprint in CC_ONLY_CAR
   return CP.brand in frogpilot_variables.DISABLE_OPENPILOT_LONG_BRANDS
 
 
 def contains_event_type(events, frogpilot_events, *event_types):
   return any(events.contains(event_type) or frogpilot_events.contains(event_type) for event_type in event_types)
+
+
+def convert_metric(key, value, metric):
+  conversion, decimals = frogpilot_variables.METRIC_CONVERSIONS[key]
+
+  if metric:
+    converted = value * conversion
+  else:
+    converted = value * (1 / conversion)
+
+  if decimals is not None:
+    converted = round_half_away(converted * 10 ** decimals) / 10 ** decimals
+
+  if isinstance(value, int):
+    return int(converted)
+  return converted
 
 
 def delete_path(path, report=True):
@@ -326,17 +341,6 @@ def get_nnff_substitutes():
     return tomllib.load(f)
 
 
-@cache
-def get_speed_limit_reader_inputs():
-  model_file = frogpilot_paths.SPEED_LIMIT_READER_MODEL_PATH / frogpilot_variables.SPEED_LIMIT_READER_MODEL_FILES[0]
-  if not model_file.is_file():
-    model_file = frogpilot_paths.SPEED_LIMIT_READER_BUNDLED_PATH / frogpilot_variables.SPEED_LIMIT_READER_MODEL_FILES[0]
-
-  model = model_file.read_bytes()
-  net = flatbuffers.table.Table(model, flatbuffers.encode.Get(flatbuffers.packer.uoffset, model, 0))
-  return json.loads(net.String(net.Pos + net.Offset(4)))
-
-
 def get_target_branches(available_branches, current_branch):
   branches = available_branches.split(",")
   if not is_FrogsGoMoo():
@@ -409,8 +413,18 @@ def is_route_preserved(path):
     return False
 
 
+def is_tuning_value_set(params, key):
+  if key in frogpilot_variables.ZERO_ALLOWED_TUNING_KEYS:
+    return params.get(key) != 0 or params.get(f"{key}Stock") != 0
+  return params.get(key) != 0
+
+
 def is_unmetered_network(device_state):
   return not device_state.networkMetered and device_state.networkType in (log.DeviceState.NetworkType.ethernet, log.DeviceState.NetworkType.wifi)
+
+
+def is_unset_secret(key, value):
+  return key in frogpilot_variables.SECRET_KEYS and value in (b"", b"[]")
 
 
 def is_url_pingable(url, session=requests):
@@ -510,6 +524,10 @@ def run_cmd_on_writable_mount(mount_point, cmd, fail_message):
   run_cmd(["sudo", "mount", "-o", "remount,rw", mount_point], f"Failed to remount {mount_point}")
   run_cmd(cmd, fail_message)
   run_cmd(["sudo", "mount", "-o", f"remount,{mount_options}", mount_point], f"Failed to restore {mount_point} mount options")
+
+
+def round_half_away(value):
+  return math.copysign(math.floor(abs(value) + 0.5), value)
 
 
 def run_git_with_progress(cmd, cwd, update_progress):

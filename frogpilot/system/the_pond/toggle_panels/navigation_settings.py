@@ -1,4 +1,4 @@
-from openpilot.frogpilot.common import frogpilot_variables
+from openpilot.frogpilot.common import frogpilot_network, frogpilot_variables
 from openpilot.frogpilot.system.the_pond import utilities
 
 WIFI_INTERFACES = ("wlan0",)
@@ -16,7 +16,7 @@ def pairing_changed(context, old_value, new_value):
 
 
 def settings_address(context):
-  ip_address = utilities.get_ip_address(WIFI_INTERFACES)
+  ip_address = frogpilot_network.get_ip_address(WIFI_INTERFACES)
   if ip_address is None:
     return "Offline..."
 
@@ -64,8 +64,8 @@ ROWS = [
   },
   {
     "description": ("<b>Draws the map itself on your driving screen, alongside what the \"Public Mapbox Key\" does for searching.</b><br><br>Keep " +
-                    "this one to yourself, since it can be used to run up charges on your Mapbox account. After you add it you are asked whether to " +
-                    "reboot now or later, and it does not take effect until the device has actually rebooted."),
+                    "this one to yourself, since it can be used to run up charges on your Mapbox account. It does not take effect until the device " +
+                    "has rebooted."),
     "key": "MapboxSecretKey",
     "link": "keys",
     "options": ({"label": "ADD | REMOVE", "value": 0}, {"label": "TEST", "value": 1}),
@@ -77,7 +77,7 @@ ROWS = [
   {
     "children": ("Maps and Navigation", "NAVIGATION", "Mapbox Setup Instructions"),
     "description": ("<b>Walks you through getting your own free Mapbox keys.</b><br><br>The guide only shows the steps for where you are in setup, " +
-                    "so it changes as you add each key. Tap the instructions to come back here."),
+                    "so it changes as you add each key."),
     "id": "MapboxSetupInstructions",
     "key": None,
     "link": "keys",

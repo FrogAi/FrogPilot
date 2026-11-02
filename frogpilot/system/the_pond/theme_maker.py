@@ -15,7 +15,7 @@ import xml.etree.ElementTree as ElementTree
 from aiohttp import web
 from PIL import Image
 
-from openpilot.frogpilot.assets.theme_manager import THEME_PACK_COMPONENTS, WHEEL_EXTENSIONS, ThemeManager
+from openpilot.frogpilot.assets.theme_manager import THEME_PACK_COMPONENTS, ThemeManager
 from openpilot.frogpilot.common import frogpilot_paths, frogpilot_utilities, frogpilot_variables
 from openpilot.frogpilot.common.frogpilot_api import FrogPilotAPI, FrogPilotAPIError
 from openpilot.frogpilot.system.the_pond import utilities
@@ -32,11 +32,12 @@ MAX_FILE_SIZE = 10 * 1024 * 1024
 MAX_SIGNAL_FRAMES = 30
 MAX_SIGNAL_INTERVAL = 10000
 MAX_SUBMISSION_SIZE = 32 * 1024 * 1024
+MAX_SUBMISSION_SVG_SIZE = 1024 * 1024
 MAX_THEME_NAME_LENGTH = 32
 MAX_USERNAME_LENGTH = 128
 
 SIGNAL_BLINDSPOT_NAME = "turn_signal_blindspot"
-SIGNAL_FRAME_PATTERN = re.compile(r"^turn_signal_\d+$")
+SIGNAL_FRAME_PATTERN = re.compile(r"^turn_signal(_\d+)?$")
 SIGNAL_STYLE_PATTERN = re.compile(r"^([a-z]+)_(\d+)$")
 
 SOUND_CHANNELS = 1
@@ -88,7 +89,7 @@ def mark_no_wheel(key):
 
 
 def get_wheel(key):
-  return next((path for path in frogpilot_paths.STEERING_WHEELS_PATH.glob(f"{key}.*") if path.suffix in WHEEL_EXTENSIONS), None)
+  return next((path for path in frogpilot_paths.STEERING_WHEELS_PATH.glob(f"{key}.*") if path.suffix in frogpilot_paths.THEME_IMAGE_EXTENSIONS), None)
 
 
 def get_wheel_param(key):
@@ -112,7 +113,7 @@ def is_theme_file(component, name):
     return name == "colors.json"
   if component == "signals":
     stem, _, extension = name.rpartition(".")
-    if stem and f".{extension}" in WHEEL_EXTENSIONS:
+    if stem and f".{extension}" in frogpilot_paths.THEME_IMAGE_EXTENSIONS:
       return stem == SIGNAL_BLINDSPOT_NAME or SIGNAL_FRAME_PATTERN.match(stem) is not None
     match = SIGNAL_STYLE_PATTERN.match(name)
     return match is not None and match[1] in frogpilot_variables.THEME_SIGNAL_STYLES
@@ -120,7 +121,7 @@ def is_theme_file(component, name):
     return name.endswith(SOUND_EXTENSION) and name.removesuffix(SOUND_EXTENSION) in frogpilot_variables.THEME_SLOTS[component]
 
   stem, _, extension = name.rpartition(".")
-  return stem in frogpilot_variables.THEME_SLOTS[component] and f".{extension}" in WHEEL_EXTENSIONS
+  return stem in frogpilot_variables.THEME_SLOTS[component] and f".{extension}" in frogpilot_paths.THEME_IMAGE_EXTENSIONS
 
 
 def read_colors(colors):
@@ -258,7 +259,7 @@ def read_theme_archive(file):
             raise web.HTTPBadRequest(text="invalid_colors") from None
         elif component == "sounds":
           data = read_sound(data)
-        elif name.endswith(WHEEL_EXTENSIONS):
+        elif name.endswith(frogpilot_paths.THEME_IMAGE_EXTENSIONS):
           extension, data = read_image(data)
           if extension != f".{name.rpartition('.')[2]}":
             raise web.HTTPBadRequest(text="invalid_image")
@@ -561,6 +562,7 @@ async def get_user_themes(request):
       "file_size": MAX_FILE_SIZE,
       "name_length": MAX_THEME_NAME_LENGTH,
       "submission_size": MAX_SUBMISSION_SIZE,
+      "submission_svg_size": MAX_SUBMISSION_SVG_SIZE,
       "username_length": MAX_USERNAME_LENGTH,
     },
     "no_wheel": sorted(no_wheel),
@@ -743,17 +745,24 @@ async def submit_theme_route(request):
   the_pond = request.app[utilities.THE_POND]
   key = get_user_theme(request)
 
-  discord_username = (await utilities.read_json(request)).get("discord_username")
+  body = await utilities.read_json(request)
+  discord_username = body.get("discord_username")
   if not isinstance(discord_username, str) or not 0 < len(discord_username.strip().encode()) <= MAX_USERNAME_LENGTH:
     raise web.HTTPBadRequest(text="invalid_username")
+
+  name = body.get("theme_name")
+  if not isinstance(name, str) or not THEME_NAME_PATTERN.match(name.strip()):
+    raise web.HTTPBadRequest(text="invalid_name")
 
   assets = await asyncio.to_thread(build_submission, key)
   if not assets:
     raise web.HTTPConflict(text="empty_theme")
   if sum(len(data) for _, data in assets.values()) > MAX_SUBMISSION_SIZE:
     raise web.HTTPConflict(text="theme_too_large")
+  if WHEEL_FOLDER in assets and assets[WHEEL_FOLDER][0] == SUBMISSION_IMAGE_TYPES[".svg"] and len(assets[WHEEL_FOLDER][1]) > MAX_SUBMISSION_SVG_SIZE:
+    raise web.HTTPConflict(text="svg_too_large")
 
-  theme_name = utilities.format_theme_name(key.removesuffix(frogpilot_variables.USER_CREATED_THEME_SUFFIX), False)
+  theme_name = utilities.format_theme_name("_".join(name.lower().split()), False)
   try:
     submission_id = await asyncio.to_thread(submit_theme, the_pond.params, theme_name, discord_username.strip(), assets)
   except FrogPilotAPIError:

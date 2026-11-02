@@ -3,7 +3,26 @@
 
 const P = window.Pond;
 
+const MAX_FILE_NAME_LENGTH = 255;
 const RECORDER_NAME = /^\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}(_(replay_)?\d+)?(_|$)/;
+
+function recorderName(id) {
+  const match = id.replace(/\.mp4$/i, "").match(RECORDER_NAME);
+  if (!match) {
+    return "";
+  }
+
+  return match[0].replace(/_$/, "");
+}
+
+function maxNameLength(item) {
+  const prefix = recorderName(item.id);
+  if (!prefix) {
+    return MAX_FILE_NAME_LENGTH - ".mp4".length;
+  }
+
+  return MAX_FILE_NAME_LENGTH - prefix.length - "_.mp4".length;
+}
 
 function recordingItem(recording) {
   return {
@@ -20,14 +39,25 @@ function video(id) {
   return `/api/screen_recordings/${encodeURIComponent(id)}`;
 }
 
-async function deleteRecordings(items) {
+async function deleteRecordings(items, others) {
   const one = items.length === 1;
   const bytes = items.reduce((sum, item) => sum + item.size, 0);
+
+  let otherData = "Your drives";
+  if (others) {
+    otherData = "Your drives and every other recording";
+  }
+
+  let lost = `${P.plural(items.length, "video")} and their thumbnails`;
+  if (one) {
+    lost = "The video and its thumbnail";
+  }
+
   const ok = await P.dialog({
     icon: "trash", tone: "danger", confirmTone: "danger",
     title: one ? `Delete “${P.esc(P.clips.itemTitle(items[0]))}”?` : `Delete ${items.length} recordings?`,
     body: `<p>This removes ${one ? "the recording" : "them"} from the device for good and frees <b>${P.size(bytes)}</b>. It can't be undone.</p>
-      ${P.lossList([one ? "The video and its thumbnail" : `${P.plural(items.length, "video")} and their thumbnails`], ["Your drives and every other recording"])}`,
+      ${P.lossList([lost], [otherData])}`,
     confirm: `Delete ${one ? "recording" : P.plural(items.length, "recording")} (${P.size(bytes)})`
   });
   if (!ok) {
@@ -48,18 +78,18 @@ async function deleteRecordings(items) {
 }
 
 async function renameRecording(item, name) {
-  if (!name) {
-    P.toast("Couldn't rename the recording", "Enter a name", "alert");
-    return;
+  if (!name && !recorderName(item.id)) {
+    throw new P.PondError(400, "empty_name");
   }
-  let result;
-  try {
-    result = await P.request("PUT", `${video(item.id)}/name`, { name });
-  } catch (error) {
-    P.fail(error, "Couldn't rename the recording", { invalid_name: "Use letters, numbers, spaces, dots, dashes, and underscores" });
-    return;
+
+  const result = await P.request("PUT", `${video(item.id)}/name`, { name });
+
+  let message = "Name cleared";
+  if (name) {
+    message = `Renamed to “${P.fileLabel(name)}”`;
   }
-  P.toast(`Renamed to “${P.fileLabel(name)}”`);
+
+  P.toast(message);
   P.go(RECORDINGS.href(result.name), { replace: true });
 }
 
@@ -72,8 +102,10 @@ const RECORDINGS = {
   item: recordingItem,
   label: "Screen Recordings",
   length: item => P.clips.lengths.get(item.key),
-  maxName: 251,
+  maxName: maxNameLength,
   meta: item => (item.replay ? "Capture" : ""),
+  nameErrors: { empty_name: "Enter a name", invalid_name: "That name has characters that can't be used" },
+  nameRule: "Use letters, numbers, spaces, dots, dashes, and underscores",
   none: `<h3>No screen recordings</h3><p>Tap Record on the car's screen to save a clip of it.</p>`,
   noun: "recording",
   only: [["replay", "Captures", item => item.replay], ["named", "Named", item => Boolean(item.name)]],
@@ -83,19 +115,33 @@ const RECORDINGS = {
   rename: renameRecording,
   search: item => `${item.name}${item.replay ? " Capture" : ""}`,
   searchHint: "Name or day",
-  sorts: [["newest", "Newest first"], ["oldest", "Oldest first"], ["largest", "Largest size"], ["name", "Name"]],
+  sorts: [["newest", "Newest first"], ["oldest", "Oldest first"], ["largest", "Largest first"], ["name", "By name"]],
   thumbnail: id => `${video(id)}/thumbnail`,
   video
 };
 
 async function recordingPage(params) {
   const items = (await P.get(RECORDINGS.api)).map(recordingItem);
-  const item = items.find(recording => recording.id === params.get("name"));
+  const name = params.get("name") || "";
+  let item = items.find(recording => recording.id === name);
+  if (!item && recorderName(name)) {
+    item = items.find(recording => recorderName(recording.id) === recorderName(name));
+    if (item) {
+      P.setParam("name", item.id);
+    }
+  }
+
   if (!item) {
     return P.clips.notFound(RECORDINGS);
   }
   const length = RECORDINGS.length(item);
   const title = P.clips.itemTitle(item);
+
+  let type = "";
+  if (item.replay) {
+    type = "<dt>Type</dt><dd>Capture of recent footage</dd>";
+  }
+
   return {
     title: P.esc(title),
     docTitle: title,
@@ -108,7 +154,7 @@ async function recordingPage(params) {
       <div class="drive-side">
         <dl class="kv">
           <dt>Recorded</dt><dd>${P.fmt(item.date, { weekday: "short", month: "short", day: "numeric" })}, ${P.timeLabel(item.date)}</dd>
-          ${item.replay ? "<dt>Type</dt><dd>Capture</dd>" : ""}
+          ${type}
           <dt>Length</dt><dd data-length-value>${length === undefined ? "…" : P.clock(length)}</dd>
         </dl>
         <div class="danger-zone side-row"><span class="muted">Frees ${P.size(item.size)}</span><button class="btn btn-danger-quiet btn-small" data-act="clips-delete-item">${P.ic("trash")}Delete recording</button></div>
@@ -122,6 +168,7 @@ async function recordingPage(params) {
         P.clips.lengths.set(item.key, seconds);
         root.querySelector("[data-length-value]").textContent = P.clock(seconds);
       },
+      others: items.length > 1,
       parts: 1,
       partLength: 0,
       src: () => video(item.id)

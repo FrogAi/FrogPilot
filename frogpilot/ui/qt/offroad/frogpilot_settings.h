@@ -22,6 +22,7 @@ public:
   bool hasAutoTune = true;
   bool hasBSM = true;
   bool hasDashSpeedLimits = true;
+  bool hasDistanceButton = true;
   bool hasLKASButton = true;
   bool hasNNFFLog = true;
   bool hasOpenpilotLongitudinal = true;

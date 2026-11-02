@@ -1,6 +1,8 @@
 import math
 
-ENABLE_CONFIRMATION = {"cancel": "Cancel", "confirm": "Enable", "text": None}
+from openpilot.frogpilot.common import frogpilot_utilities
+
+ENABLE_CONFIRMATION = {"cancel": "Cancel", "confirm": "Turn on", "text": None}
 
 
 def car_title(context, title, car_value):
@@ -14,6 +16,12 @@ def number(minimum, maximum, step=1, unit="", labels=None, fast=False, decimals=
     decimals = math.ceil(-math.log10(step))
 
   return {"decimals": decimals, "fast": fast, "labels": labels or {}, "max": maximum, "metric": metric, "min": minimum, "step": step, "unit": unit}
+
+
+def tuning_value(context, key, car_value):
+  if frogpilot_utilities.is_tuning_value_set(context.params, key):
+    return context.params.get(key)
+  return car_value
 
 
 def unit_labels(minimum, maximum, step, singular, plural, zero=None):

@@ -22,6 +22,7 @@ def get_storage_usage():
     "models": frogpilot_utilities.get_directory_size(frogpilot_paths.MODELS_PATH.parent),
     "screen_recordings": frogpilot_utilities.get_directory_size(frogpilot_paths.SCREEN_RECORDINGS_PATH),
     "software": frogpilot_utilities.get_directory_size(BASEDIR),
+    "speed_limit_captures": frogpilot_utilities.get_directory_size(frogpilot_paths.SPEED_LIMIT_CAPTURES_PATH),
     "the_pond": frogpilot_utilities.get_directory_size(frogpilot_paths.THE_POND_PATH),
     "themes": frogpilot_utilities.get_directory_size(frogpilot_paths.THEME_SAVE_PATH),
   }
@@ -44,6 +45,7 @@ async def get_device(request):
   return web.json_response({
     "alerts": sorted(alerts, key=lambda alert: (-alert["severity"], alert["key"])),
     "branch": params.get("GitBranch"),
+    "comma_four": utilities.IS_COMMA_FOUR,
     "commit": params.get("GitCommit"),
     "cpu_usage": list(device_state.cpuUsagePercent),
     "gpu_usage": device_state.gpuUsagePercent,

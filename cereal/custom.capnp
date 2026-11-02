@@ -10,6 +10,13 @@ $Cxx.namespace("cereal");
 # DO rename the structs
 # DON'T change the identifier (e.g. @0x81c2f05a394cf4af)
 
+struct FrogPilotAccountState @0xcb9fd56c7057593a {
+  link @0 :Text;
+  linkRequestTime @1 :UInt64;
+  url @2 :Text;
+  urlRequestTime @3 :UInt64;
+}
+
 struct FrogPilotCarParams @0xaedffd8f31e7b55d {
   canUsePedal @0 :Bool;
   canUseSDSU @1 :Bool;
@@ -288,34 +295,34 @@ struct FrogPilotUIEvent @0xc2243c65e0340384 {
 
 struct FrogPilotUIRequest @0xcd96dafb67a082d0 {
   union {
-    cancelMapsDownload @0 :Void;
-    cancelModelDownload @1 :Void;
-    cancelThemeDownload @2 :Void;
-    createSettingsBackup @3 :Text;
-    downloadAllModels @4 :Void;
-    downloadMaps @5 :Void;
-    downloadModels @6 :List(Text);
-    downloadTheme @7 :List(ThemeDownload);
-    flashPanda @8 :Void;
-    issueReport @9 :Text;
-    lockDoors @10 :Bool;
-    refreshTheme @11 :Void;
-    restoreSettingsBackup @12 :Text;
-    retryIssueReport @13 :Void;
-    testAlert @14 :Text;
-    updateChecks @15 :Void;
-    updateToggles @16 :Void;
+    accountLink @0 :Void;
+    accountUrl @1 :Text;
+    cancelMapsDownload @2 :Void;
+    cancelModelDownload @3 :Void;
+    cancelThemeDownload @4 :Void;
+    createSettingsBackup @5 :Text;
+    downloadAllModels @6 :Void;
+    downloadMaps @7 :Void;
+    downloadModels @8 :List(Text);
+    downloadTheme @9 :List(ThemeDownload);
+    flashPanda @10 :Void;
+    issueReport @11 :Text;
+    lockDoors @12 :Bool;
+    refreshTheme @13 :Void;
+    restoreSettingsBackup @14 :Text;
+    retryIssueReport @15 :Void;
+    testAlert @16 :Text;
+    unlinkAccount @17 :Void;
+    updateChecks @18 :Void;
+    updateToggles @19 :Void;
   }
 
-  testAlertVolume @17 :Float32;
+  testAlertVolume @20 :Float32;
 
   struct ThemeDownload {
     component @0 :Text;
     theme @1 :Text;
   }
-}
-
-struct CustomReserved10 @0xcb9fd56c7057593a {
 }
 
 struct CustomReserved14 @0xb057204d7deadf3f {

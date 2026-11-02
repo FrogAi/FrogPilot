@@ -10,10 +10,15 @@ def button_option(value, label):
 
 
 def lkas_button_visible(context):
-  lkas_used_for_lateral = context.params.get_bool("AlwaysOnLateral") and context.params.get_bool("AlwaysOnLateralLKAS")
+  lkas_required_for_lateral = context.is_hkg_can_fd and not context.has_openpilot_longitudinal
+  lkas_used_for_lateral = context.params.get_bool("AlwaysOnLateral") and (lkas_required_for_lateral or context.params.get_bool("AlwaysOnLateralLKASButton"))
+
+  setting = "AlwaysOnLateralLKASButton"
+  if lkas_required_for_lateral:
+    setting = "AlwaysOnLateral"
 
   reason = context.level_reason("LKASButtonControl") or context.car_reason(context.has_lkas_button)
-  return reason or context.setting_reason(not context.lkas_allowed_for_aol or not lkas_used_for_lateral, "AlwaysOnLateralLKAS", wanted=False)
+  return reason or context.setting_reason(not context.lkas_allowed_for_aol or not lkas_used_for_lateral, setting, wanted=False)
 
 
 def longitudinal_reason(context):
@@ -30,8 +35,9 @@ ROWS = [
     "options": BUTTON_OPTIONS,
     "order": 0,
     "path": ("Vehicle Settings", "WHEEL BUTTONS"),
-    "picker": {"title": "Select a function to assign to this button"},
+    "picker": {"title": "Select a function for the \"Distance\" button"},
     "title": "Distance Button",
+    "visible": lambda context: context.level_reason("DistanceButtonControl") or context.car_reason(context.has_distance_button),
     "widget": "select"
   },
   {
@@ -41,8 +47,9 @@ ROWS = [
     "options": BUTTON_OPTIONS,
     "order": 1,
     "path": ("Vehicle Settings", "WHEEL BUTTONS"),
-    "picker": {"title": "Select a function to assign to this button"},
+    "picker": {"title": "Select a function for a long press of \"Distance\""},
     "title": "Distance Button (Long Press)",
+    "visible": lambda context: context.level_reason("LongDistanceButtonControl") or context.car_reason(context.has_distance_button),
     "widget": "select"
   },
   {
@@ -51,8 +58,9 @@ ROWS = [
     "options": BUTTON_OPTIONS,
     "order": 2,
     "path": ("Vehicle Settings", "WHEEL BUTTONS"),
-    "picker": {"title": "Select a function to assign to this button"},
+    "picker": {"title": "Select a function for a very long press of \"Distance\""},
     "title": "Distance Button (Very Long Press)",
+    "visible": lambda context: context.level_reason("VeryLongDistanceButtonControl") or context.car_reason(context.has_distance_button),
     "widget": "select"
   },
   {
@@ -61,7 +69,7 @@ ROWS = [
     "options": BUTTON_OPTIONS,
     "order": 3,
     "path": ("Vehicle Settings", "WHEEL BUTTONS"),
-    "picker": {"title": "Select a function to assign to this button"},
+    "picker": {"title": "Select a function for the \"LKAS\" button"},
     "title": "LKAS Button",
     "visible": lkas_button_visible,
     "widget": "select"

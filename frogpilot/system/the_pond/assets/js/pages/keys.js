@@ -18,10 +18,22 @@ const LOST_EFFECTS = {
 const MAPBOX_SCOPES = ["DATASETS:WRITE", "MAP:WRITE", "STYLES:LIST", "STYLES:WRITE", "TOKENS:READ", "TOKENS:WRITE", "UPLOADS:WRITE", "USER:READ"];
 
 const SAVE_MESSAGES = {
-  mapbox_public: { invalid_key: "That doesn't look like a Mapbox key. Copy the whole key and try again", wrong_key_type: "That's your secret key. Enter your public key here" },
-  mapbox_secret: { invalid_key: "That doesn't look like a Mapbox key. Copy the whole key and try again", wrong_key_type: "That's your public key. Enter your secret key here" },
-  weather: { invalid_key: "That doesn't look like a weather key. It's up to 32 letters and numbers" }
+  mapbox_public: {
+    empty_key: "Enter your public key first",
+    invalid_key: "That doesn't look like a Mapbox key. Copy the whole key and try again",
+    wrong_key_type: "That's your secret key. Enter your public key here"
+  },
+  mapbox_secret: {
+    empty_key: "Enter your secret key first",
+    invalid_key: "That doesn't look like a Mapbox key. Copy the whole key and try again",
+    wrong_key_type: "That's your public key. Enter your secret key here"
+  },
+  weather: { empty_key: "Enter your weather key first", invalid_key: "That doesn't look like a weather key. It's up to 32 letters and numbers" }
 };
+
+const MAP_REBOOT_DETAIL = `The driving screen reads your secret key when the device starts. Reboot from the <a class="link" href="/device">Device</a> page.`;
+
+P.mapRebootNotice = `<div class="notice">${P.ic("refresh")}<span><b>Reboot for the map to appear.</b> ${MAP_REBOOT_DETAIL}</span></div>`;
 
 function link(href, text) {
   return `<a class="link" href="${href}" target="_blank" rel="noopener">${text}</a>`;
@@ -130,16 +142,32 @@ function testMessage(kind, result) {
 }
 
 async function saveKey(kind, key) {
-  let result;
-  try {
-    result = await P.request("PUT", `/api/keys/${kind}`, { key });
-  } catch (error) {
-    P.fail(error, `Couldn't save your ${KEYS[kind].label}`, SAVE_MESSAGES[kind]);
-    return false;
+  if (!key) {
+    throw new P.PondError(400, "empty_key");
   }
+
+  const result = await P.request("PUT", `/api/keys/${kind}`, { key });
   P.refresh();
   P.toast(`${KEYS[kind].name} saved`, result.reboot_required ? "It takes effect after the device reboots" : "");
-  return true;
+}
+
+async function saveWeather(form) {
+  const input = form.key;
+  const message = form.querySelector("[data-weather-error]");
+  try {
+    await saveKey("weather", input.value.trim());
+  } catch (error) {
+    if (!(error instanceof P.PondError)) {
+      throw error;
+    }
+
+    if (!error.handled) {
+      input.setAttribute("aria-invalid", "true");
+      message.textContent = SAVE_MESSAGES.weather[error.code] || error.message;
+      message.hidden = false;
+      input.focus();
+    }
+  }
 }
 
 function keyRow(kind, label, value, mono = false) {
@@ -172,21 +200,18 @@ P.act("keys-help", button => {
   });
 });
 
-P.act("keys-edit", async button => {
+P.act("keys-edit", button => {
   const kind = button.dataset.kind;
   const key = KEYS[kind];
-  const dialog = await P.dialog({
+  P.dialog({
     icon: "keys", title: `${button.dataset.mode} your ${key.title}`,
     body: `<label class="field"><span>${key.name}</span><input class="input mono" data-key autocomplete="off" spellcheck="false" placeholder="${key.placeholder}"></label>`,
-    confirm: "Save key"
+    confirm: "Save key",
+    errors: SAVE_MESSAGES[kind],
+    onConfirm: dialog => {
+      return saveKey(kind, dialog.querySelector("[data-key]").value.trim());
+    }
   });
-  if (!dialog) {
-    return;
-  }
-  const value = dialog.querySelector("[data-key]").value.trim();
-  if (value) {
-    saveKey(kind, value);
-  }
 });
 
 function showTestResult(button, works, title, detail) {
@@ -242,6 +267,23 @@ P.page("keys", {
   async render() {
     const k = await P.get("/api/keys");
     const share = Math.min(100, k.mapbox_requests / k.mapbox_request_limit * 100);
+
+    let publicKeyLabel = "Public key, for speed limits";
+    let rebootNotice = "";
+    let weatherSaved = "";
+
+    if (k.weather) {
+      weatherSaved = `<small class="hint" id="keys-weather-saved">Saved, hidden. Enter a new key to replace it.</small>`;
+    }
+
+    if (P.navigationShown()) {
+      publicKeyLabel = "Public key, for searching places, route previews, and speed limits";
+
+      if (k.map_reboot_required) {
+        rebootNotice = P.mapRebootNotice;
+      }
+    }
+
     return {
       body: `
       <div class="two-col">
@@ -250,14 +292,19 @@ P.page("keys", {
             <div><div class="keys-usage"><b>Requests this month</b><span class="num"><b>${k.mapbox_requests.toLocaleString("en-US")}</b> <span class="muted">of ${k.mapbox_request_limit.toLocaleString("en-US")}</span></span></div>
               <div class="progress keys-progress" role="img" aria-label="${Math.round(share)}% of this month's requests used"><i data-w="${share}"></i></div></div>
             <div class="keys-rows">
-              ${keyRow("mapbox_public", "Public key, for speed limits", k.mapbox_public ? `${P.esc(k.mapbox_public.slice(0, 8))}…${P.esc(k.mapbox_public.slice(-4))}` : "Not set", Boolean(k.mapbox_public))}
+              ${keyRow("mapbox_public", publicKeyLabel, k.mapbox_public ? `${P.esc(k.mapbox_public.slice(0, 8))}…${P.esc(k.mapbox_public.slice(-4))}` : "Not set", Boolean(k.mapbox_public))}
               ${keyRow("mapbox_secret", "Secret key, for the map on the driving screen", k.mapbox_secret ? "Saved, hidden" : "Not set")}
             </div>
+            ${rebootNotice}
           </div></section>
         <section class="panel"><div class="panel-head"><h2>Weather</h2></div>
           <div class="panel-body"><form class="form-grid" data-weather>
             <p class="muted">Weather updates every 15 minutes. Add your own OpenWeatherMap key to update it every minute.</p>
-            <label class="field"><span>Weather key</span><input class="input mono" name="key" autocomplete="off" spellcheck="false" placeholder="${k.weather ? "Saved, hidden. Enter a new key to replace it" : KEYS.weather.placeholder}"></label>
+            <label class="field"><span>Weather key</span>
+              <input class="input mono" name="key" autocomplete="off" spellcheck="false" placeholder="${KEYS.weather.placeholder}"
+                aria-describedby="keys-weather-saved keys-weather-error">
+              ${weatherSaved}
+              <small class="hint keys-error" id="keys-weather-error" role="alert" data-weather-error hidden></small></label>
             <div class="keys-buttons">
               <button class="btn btn-primary btn-small" type="submit">Save key</button>
               ${k.weather ? `<button class="btn btn-quiet btn-small" type="button" data-act="keys-test" data-kind="weather">Test</button>
@@ -268,15 +315,7 @@ P.page("keys", {
       </div>`,
       mount: root => root.querySelector("[data-weather]").addEventListener("submit", e => {
         e.preventDefault();
-        const input = e.currentTarget.key;
-        const value = input.value.trim();
-        if (!value) {
-          input.setAttribute("aria-invalid", "true");
-          P.toast("Enter your weather key first", "", "alert");
-          return;
-        }
-        input.removeAttribute("aria-invalid");
-        saveKey("weather", value);
+        saveWeather(e.currentTarget);
       })
     };
   }

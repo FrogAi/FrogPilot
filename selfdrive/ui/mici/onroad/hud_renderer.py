@@ -1,6 +1,8 @@
 import pyray as rl
 from dataclasses import dataclass
 from openpilot.common.constants import CV
+from openpilot.frogpilot.ui.mici.frogpilot_theme import theme
+from openpilot.frogpilot.ui.mici.frogpilot_widgets import FrogPilotWidgets
 from openpilot.selfdrive.ui.mici.onroad.torque_bar import TorqueBar
 from openpilot.selfdrive.ui.ui_state import ui_state, UIStatus
 from openpilot.system.ui.lib.application import gui_app, FontWeight
@@ -127,6 +129,9 @@ class HudRenderer(Widget):
 
     self._set_speed_alpha_filter = FirstOrderFilter(0.0, 0.1, 1 / gui_app.target_fps)
 
+    # FrogPilot variables
+    self._frogpilot_widgets = FrogPilotWidgets()
+
   def set_wheel_critical_icon(self, critical: bool):
     """Set the wheel icon to critical or normal state."""
     self._show_wheel_critical = critical
@@ -137,7 +142,7 @@ class HudRenderer(Widget):
 
   def drawing_top_icons(self) -> bool:
     # whether we're drawing any top icons currently
-    return bool(self._set_speed_alpha_filter.x > 1e-2)
+    return bool(self._set_speed_alpha_filter.x > 1e-2 or self._frogpilot_widgets.drawing_top_slot())
 
   def _update_state(self) -> None:
     """Update HUD state based on car state and controls state."""
@@ -172,6 +177,9 @@ class HudRenderer(Widget):
   def _render(self, rect: rl.Rectangle) -> None:
     """Render HUD elements to the screen."""
 
+    # FrogPilot variables
+    theme.draw_turn_signal(rect)
+
     if ui_state.sm['controlsState'].lateralControlState.which() != 'angleState':
       self._torque_bar.render(rect)
 
@@ -180,14 +188,22 @@ class HudRenderer(Widget):
 
     self._draw_steering_wheel(rect)
 
+    # FrogPilot variables
+    self._frogpilot_widgets.set_can_draw(self._can_draw_top_icons, self.is_cruise_set and self._set_speed_alpha_filter.x > 1e-2)
+    self._frogpilot_widgets.render(rect)
+
   def _draw_steering_wheel(self, rect: rl.Rectangle) -> None:
     wheel_txt = self._txt_wheel_critical if self._show_wheel_critical else self._txt_wheel
+
+    # FrogPilot variables
+    if not self._show_wheel_critical:
+      wheel_txt = theme.wheel_texture(wheel_txt)
 
     if self._show_wheel_critical:
       self._wheel_alpha_filter.update(255)
       self._wheel_y_filter.update(0)
     else:
-      if ui_state.status == UIStatus.DISENGAGED:
+      if ui_state.status == UIStatus.DISENGAGED or theme.wheel_gives_way():
         self._wheel_alpha_filter.update(0)
         self._wheel_y_filter.update(wheel_txt.height / 2)
       else:
@@ -225,7 +241,7 @@ class HudRenderer(Widget):
   def _draw_set_speed(self, rect: rl.Rectangle) -> None:
     """Draw the MAX speed indicator box."""
     alpha = self._set_speed_alpha_filter.update(0 < rl.get_time() - self._set_speed_changed_time < SET_SPEED_PERSISTENCE and
-                                                self._can_draw_top_icons and self._engaged)
+                                                self._can_draw_top_icons and self._engaged and not ui_state.frogpilot_toggles.get("hide_max_speed"))
     if alpha < 1e-2:
       return
 
@@ -239,6 +255,10 @@ class HudRenderer(Widget):
 
     set_speed_color = rl.Color(255, 255, 255, int(255 * 0.9 * alpha))
     max_color = rl.Color(255, 255, 255, int(255 * 0.9 * alpha))
+
+    # FrogPilot variables
+    if ui_state.sm["frogpilotCarState"].trafficModeEnabled:
+      max_color = rl.Color(255, 59, 48, int(255 * alpha))
 
     set_speed = self.set_speed
     if self.is_cruise_set and not ui_state.is_metric:

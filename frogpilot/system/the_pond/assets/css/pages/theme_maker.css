@@ -3,7 +3,7 @@
 .sb .slot-1 { top: 338px; }
 .sb .slot-2 { top: 496px; }
 .sb .slot-3 { top: 654px; }
-.slot-prev.sw-bars { display: flex; }
+.slot-prev.sw-bars { align-items: stretch; display: flex; }
 .slot-prev.sw-bars i { position: static; flex: 1; }
 .surface { left: 30px; width: 2100px; }
 .surface .cur-speed { left: 1050px; }

@@ -10,13 +10,13 @@ SCHEDULES = (0, 1, 2)
 
 routes = web.RouteTableDef()
 
-def get_region_codes():
-  codes = set()
+def get_region_names():
+  names = {}
   for regions in frogpilot_variables.MAP_COUNTRIES.values():
-    codes.update(f"{frogpilot_variables.MAP_COUNTRY_PREFIX}{code}" for code in regions)
+    names.update({f"{frogpilot_variables.MAP_COUNTRY_PREFIX}{code}": name for code, name in regions.items()})
   for regions in frogpilot_variables.MAP_STATES.values():
-    codes.update(f"{frogpilot_variables.MAP_STATE_PREFIX}{code}" for code in regions)
-  return codes
+    names.update({f"{frogpilot_variables.MAP_STATE_PREFIX}{code}": name for code, name in regions.items()})
+  return names
 
 
 def get_download(the_pond):
@@ -95,8 +95,8 @@ async def set_selection(request):
   params = request.app[utilities.THE_POND].params
 
   regions = (await utilities.read_json(request)).get("regions")
-  region_codes = get_region_codes()
-  if not isinstance(regions, list) or any(not isinstance(region, str) or region not in region_codes for region in regions):
+  region_names = get_region_names()
+  if not isinstance(regions, list) or any(not isinstance(region, str) or region not in region_names for region in regions):
     raise web.HTTPBadRequest(text="invalid_regions")
 
   if regions:

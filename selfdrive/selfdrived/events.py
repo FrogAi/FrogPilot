@@ -1443,6 +1443,192 @@ if HARDWARE.get_device_type() == 'mici':
   })
 
 
+# FrogPilot variables
+def forcing_stop_alert_mici(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int, personality, frogpilot_toggles: SimpleNamespace) -> Alert:
+  if CS.standstill:
+    stop_message = "Holding"
+  else:
+    stop_distance = sm["frogpilotPlan"].forcingStopLength
+    stop_distance_text = f"{stop_distance:.0f} m" if metric else f"{stop_distance * CV.METER_TO_FOOT:.0f} ft"
+    stop_message = f"Stop in {stop_distance_text}"
+
+  return Alert(
+    stop_message,
+    "Press gas to release",
+    FrogPilotAlertStatus.frogpilot, AlertSize.mid,
+    Priority.LOW, VisualAlert.none, AudibleAlert.prompt, 1.)
+
+
+def nnff_loaded_alert_mici(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int, personality, frogpilot_toggles: SimpleNamespace) -> Alert:
+  return Alert(
+    "NNFF Loaded",
+    Params().get("NNFFModelName"),
+    FrogPilotAlertStatus.frogpilot, AlertSize.mid,
+    Priority.LOW, VisualAlert.none, AudibleAlert.engage, 5.0)
+
+
+def no_lane_available_alert_mici(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int, personality, frogpilot_toggles: SimpleNamespace) -> Alert:
+  lane_width = sm["frogpilotPlan"].laneWidthLeft if sm["modelV2"].meta.laneChangeDirection == log.LaneChangeDirection.left else sm["frogpilotPlan"].laneWidthRight
+  lane_width_msg = f"{lane_width:.1f} Meters" if metric else f"{lane_width * CV.METER_TO_FOOT:.1f} Feet"
+
+  return Alert(
+    "No Lane",
+    f"Only {lane_width_msg} Wide",
+    AlertStatus.normal, AlertSize.mid,
+    Priority.LOWEST, VisualAlert.none, AudibleAlert.none, .2)
+
+
+def pedal_interceptor_no_brake_alert_mici(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int, personality, frogpilot_toggles: SimpleNamespace) -> Alert:
+  alert = pedal_interceptor_no_brake_alert(CP, CS, sm, metric, soft_disable_time, personality, frogpilot_toggles)
+
+  if isinstance(alert, UserSoftDisableAlert):
+    alert.alert_text_1 = "Shift to L"
+    alert.alert_text_2 = "Braking Unavailable"
+
+  return alert
+
+
+if HARDWARE.get_device_type() == 'mici':
+  FROGPILOT_EVENTS.update({
+    FrogPilotEventName.accel30: {
+      ET.WARNING: Alert(
+        "UwU",
+        "u went a bit fast there!",
+        FrogPilotAlertStatus.frogpilot, AlertSize.mid,
+        Priority.LOW, VisualAlert.none, FrogPilotAudibleAlert.uwu, 4.),
+    },
+    FrogPilotEventName.accel35: {
+      ET.WARNING: Alert(
+        "Tree Fiddy",
+        "You damn Loch Ness Monsta!",
+        FrogPilotAlertStatus.frogpilot, AlertSize.mid,
+        Priority.LOW, VisualAlert.none, FrogPilotAudibleAlert.nessie, 4.),
+    },
+    FrogPilotEventName.blockUser: {
+      ET.PERMANENT: Alert(
+        "Dashcam",
+        "Don't use MAKE-PRS-HERE",
+        AlertStatus.userPrompt, AlertSize.mid,
+        Priority.HIGHEST, VisualAlert.none, AudibleAlert.none, 1.),
+    },
+    FrogPilotEventName.dejaVuCurve: {
+      ET.PERMANENT: Alert(
+        "Deja Vu!",
+        "🏎️",
+        FrogPilotAlertStatus.frogpilot, AlertSize.mid,
+        Priority.LOW, VisualAlert.none, FrogPilotAudibleAlert.dejaVu, 4.),
+    },
+    FrogPilotEventName.firefoxSteerSaturated: {
+      ET.WARNING: Alert(
+        "IE Crashed",
+        "Turn Exceeds Limit",
+        AlertStatus.userPrompt, AlertSize.mid,
+        Priority.LOW, VisualAlert.steerRequired, FrogPilotAudibleAlert.firefox, 4.),
+    },
+    FrogPilotEventName.forcingStop: {
+      ET.WARNING: forcing_stop_alert_mici,
+    },
+    FrogPilotEventName.goatSteerSaturated: {
+      ET.WARNING: Alert(
+        "Jesus Take Wheel",
+        "Turn Exceeds Limit",
+        AlertStatus.userPrompt, AlertSize.mid,
+        Priority.LOW, VisualAlert.steerRequired, FrogPilotAudibleAlert.goat, 2.),
+    },
+    FrogPilotEventName.greenLight: {
+      ET.PERMANENT: Alert(
+        "Light is Green",
+        "",
+        FrogPilotAlertStatus.frogpilot, AlertSize.small,
+        Priority.MID, VisualAlert.none, AudibleAlert.prompt, 3.),
+    },
+    FrogPilotEventName.laneChangeBlockedLoud: {
+      ET.WARNING: Alert(
+        "Car in Blindspot",
+        "",
+        AlertStatus.userPrompt, AlertSize.small,
+        Priority.LOW, VisualAlert.none, AudibleAlert.warningSoft, .1),
+    },
+    FrogPilotEventName.nnffLoaded: {
+      ET.PERMANENT: nnff_loaded_alert_mici,
+    },
+    FrogPilotEventName.noLaneAvailable: {
+      ET.WARNING: no_lane_available_alert_mici,
+    },
+    FrogPilotEventName.openpilotCrashed: {
+      ET.IMMEDIATE_DISABLE: ImmediateDisableAlert("openpilot crashed"),
+
+      ET.NO_ENTRY: Alert(
+        "Crashed",
+        "Post the Error Log in Discord",
+        AlertStatus.critical, AlertSize.mid,
+        Priority.HIGHEST, VisualAlert.none, AudibleAlert.prompt, .1),
+    },
+    FrogPilotEventName.openpilotCrashedRandomEvent: {
+      ET.IMMEDIATE_DISABLE: ImmediateDisableAlert("openpilot crashed 💩"),
+
+      ET.NO_ENTRY: Alert(
+        "Crashed 💩",
+        "Post the Error Log in Discord",
+        AlertStatus.normal, AlertSize.mid,
+        Priority.HIGHEST, VisualAlert.none, FrogPilotAudibleAlert.fart, 10.),
+    },
+    FrogPilotEventName.pedalInterceptorNoBrake: {
+      ET.SOFT_DISABLE: pedal_interceptor_no_brake_alert_mici,
+      ET.NO_ENTRY: NoEntryAlert("Shift to L", alert_text_1="Braking Unavailable"),
+    },
+    FrogPilotEventName.speedLimitChanged: {
+      ET.PERMANENT: Alert(
+        "Limit Changed",
+        "",
+        FrogPilotAlertStatus.frogpilot, AlertSize.small,
+        Priority.LOW, VisualAlert.none, AudibleAlert.prompt, 3.),
+    },
+    FrogPilotEventName.thisIsFineSteerSaturated: {
+      ET.WARNING: Alert(
+        "This is fine ☕",
+        "Turn Exceeds Limit",
+        AlertStatus.userPrompt, AlertSize.mid,
+        Priority.LOW, VisualAlert.steerRequired, FrogPilotAudibleAlert.thisIsFine, 2.),
+    },
+    FrogPilotEventName.toBeContinued: {
+      ET.PERMANENT: Alert(
+        "To Be Continued",
+        "⬅️",
+        FrogPilotAlertStatus.frogpilot, AlertSize.mid,
+        Priority.MID, VisualAlert.none, FrogPilotAudibleAlert.continued, 7.),
+    },
+    FrogPilotEventName.trafficModeActive: {
+      ET.WARNING: Alert(
+        "Traffic Mode On",
+        "",
+        FrogPilotAlertStatus.frogpilot, AlertSize.small,
+        Priority.LOW, VisualAlert.none, AudibleAlert.prompt, 3.),
+    },
+    FrogPilotEventName.trafficModeInactive: {
+      ET.WARNING: Alert(
+        "Traffic Mode Off",
+        "",
+        FrogPilotAlertStatus.frogpilot, AlertSize.small,
+        Priority.LOW, VisualAlert.none, AudibleAlert.prompt, 3.),
+    },
+    FrogPilotEventName.yourFrogTriedToKillMe: {
+      ET.PERMANENT: Alert(
+        "Your Frog",
+        "Tried to kill me... 👺",
+        FrogPilotAlertStatus.frogpilot, AlertSize.mid,
+        Priority.MID, VisualAlert.none, FrogPilotAudibleAlert.angry, 5.),
+    },
+    FrogPilotEventName.youveGotMail: {
+      ET.WARNING: Alert(
+        "Got Mail! 📧",
+        "",
+        FrogPilotAlertStatus.frogpilot, AlertSize.small,
+        Priority.LOW, VisualAlert.none, FrogPilotAudibleAlert.mail, 3.),
+    },
+  })
+
+
 if __name__ == '__main__':
   # print all alerts by type and priority
   from cereal.services import SERVICE_LIST

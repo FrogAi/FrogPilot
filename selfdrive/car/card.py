@@ -325,6 +325,7 @@ class Car:
 
     # FrogPilot variables
     self.CI.CS.CC = self.sm['carControl']
+    self.CI.CS.car_safety_mode_set = self.frogpilot_card.car_safety_mode_set
 
     self.frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles(self.sm)
 

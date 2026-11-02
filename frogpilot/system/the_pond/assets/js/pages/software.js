@@ -85,11 +85,17 @@ P.act("install-update", async button => {
     P.refresh();
     return;
   }
+
+  let notes = "";
+  if (sw.new_release_notes) {
+    notes = `<h3 class="field-label">What's new</h3>${releaseNotes(sw.new_release_notes)}`;
+  }
+
   const ok = await P.dialog({
     icon: "software", title: "Install the update?",
     body: `<p>FrogPilot installs <b>${P.esc(sw.new_description)}</b> and the device reboots into it.</p>
       ${P.lossList([], ["Your settings, drives, themes, and keys"])}
-      ${sw.new_release_notes ? releaseNotes(sw.new_release_notes) : ""}`,
+      ${notes}`,
     confirm: "Install and reboot"
   });
   if (!ok) {
@@ -128,6 +134,10 @@ P.page("software", {
       heading = "An update is ready";
     } else if (sw.update_available || sw.fetch_available) {
       heading = "An update is available";
+    } else if (busy) {
+      heading = "The updater is busy";
+    } else if (sw.failed_count > 0) {
+      heading = "Couldn't check for updates";
     }
 
     let disabled = "";
@@ -153,7 +163,7 @@ P.page("software", {
             <dl class="kv"><dt>Installed</dt><dd class="mono">${P.esc(sw.current_description)}</dd>${sw.update_available ? `<dt>New</dt><dd class="mono">${P.esc(sw.new_description)}</dd>` : ""}<dt>Last checked</dt><dd>${sw.last_update_time ? P.whenLabel(sw.last_update_time) : "Never"}</dd></dl>
             ${sw.update_available && sw.new_release_notes ? `<h3 class="field-label">What's new</h3>${releaseNotes(sw.new_release_notes)}` : ""}
           </div>
-          <div class="panel-foot"><button class="btn btn-quiet btn-small" data-act="check-update" ${disabled}>Check for Updates</button>${updateButton}</div>
+          <div class="panel-foot"><button class="btn btn-quiet btn-small" data-act="check-update" ${disabled}>Check for updates</button>${updateButton}</div>
         </section>
         <div class="stack">
           ${sw.automatic_updates_changeable ? `<section class="panel"><div class="panel-head"><h2>Automatic updates</h2></div>

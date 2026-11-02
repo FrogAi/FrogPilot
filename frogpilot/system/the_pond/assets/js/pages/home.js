@@ -58,6 +58,19 @@ function storageHTML(storage) {
     ${used >= deleting ? `<p class="meta">Oldest drives are deleted automatically to make room</p>` : ""}`;
 }
 
+function lastDriveMeta(last, distance) {
+  let html = "";
+  if (last.name) {
+    html += `<span>${P.whenLabel(last.date)}</span>`;
+  }
+
+  if (distance) {
+    html += `<span>${distance}</span>`;
+  }
+
+  return `${html}<span>${P.duration(last.segments * 60)}</span>`;
+}
+
 function softwareFigure(sw) {
   if (sw.update_available) {
     return "Update ready";
@@ -65,6 +78,15 @@ function softwareFigure(sw) {
   if (sw.fetch_available) {
     return "Update available";
   }
+
+  if (sw.state !== "idle" || sw.download_progress) {
+    return "Updater busy";
+  }
+
+  if (sw.failed_count > 0) {
+    return "Check failed";
+  }
+
   return "Up to date";
 }
 
@@ -95,6 +117,12 @@ P.act("home-reset-stats", async () => {
 
 P.page("home", {
   title: "Home",
+  skeleton() {
+    return `<div class="home">
+      <div class="home-stats">${P.skeletonPanel(3)}</div><div class="home-last">${P.skeletonPanel(2)}</div><div class="home-storage">${P.skeletonPanel(2)}</div>
+      <div class="home-software">${P.skeletonPanel(2)}</div><div class="home-fpstats">${P.skeletonPanel(3)}</div>
+    </div>`;
+  },
   async render() {
     const [home, doors, shell] = await Promise.all([P.get("/api/home"), P.get("/api/doors"), P.shell()]);
     const ds = home.drive_stats;
@@ -103,7 +131,16 @@ P.page("home", {
     const last = home.last_drive;
     const repo = home.software.repository;
     const statRow = (label, s, cls = "") => `<tr class="${cls}"><th scope="row">${label}</th><td>${s.drives.toLocaleString("en-US")}</td><td>${Math.round(s.distance).toLocaleString("en-US")}</td><td>${Math.round(s.hours).toLocaleString("en-US")}</td></tr>`;
-    const doorText = doors.available && doors.lock_status !== "unavailable" ? ` · Doors ${doors.lock_status}` : "";
+
+    let doorText = "";
+    if (doors.available && doors.lock_status !== "unavailable") {
+      doorText = `<span>Doors ${doors.lock_status}</span>`;
+    }
+
+    let distanceUnit = "Miles";
+    if (home.is_metric) {
+      distanceUnit = "Kilometers";
+    }
 
     return {
       actions: updateAction(sw),
@@ -112,7 +149,9 @@ P.page("home", {
         <section class="block home-stats" aria-labelledby="stats-h">
           <h2 id="stats-h">Driving</h2>
           <table class="stats">
-            <thead><tr><th scope="col"><span class="sr">Period</span></th><th scope="col">Drives</th><th scope="col">${home.is_metric ? "Kilometers" : "Miles"}</th><th scope="col">Hours</th></tr></thead>
+            <thead>
+              <tr><td></td><th scope="col">Drives</th><th scope="col">${distanceUnit}</th><th scope="col">Hours</th></tr>
+            </thead>
             <tbody>${statRow("All time", ds.all)}${statRow("Past week", ds.week)}${statRow("FrogPilot", ds.frogpilot, "frogpilot")}</tbody>
           </table>
         </section>
@@ -120,7 +159,7 @@ P.page("home", {
           <h2 id="last-h">Last drive</h2>
           <a class="last" href="/drive?route=${encodeURIComponent(last.route)}" ${last.video ? `data-preview="/api/routes/${encodeURIComponent(last.route)}/preview"` : ""}>
             <span class="thumb" data-route="${P.esc(last.route)}">${P.clips.thumbHTML(last.video ? `/api/routes/${encodeURIComponent(last.route)}/thumbnail` : "")}</span>
-            <span><b>${P.esc(P.clips.itemTitle(last))}</b><span class="meta" data-last-meta>${last.name ? `${P.whenLabel(last.date)} · ` : ""}${P.duration(last.segments * 60)}</span></span>
+            <span><b>${P.esc(P.clips.itemTitle(last))}</b><span class="meta dots" data-last-meta>${lastDriveMeta(last)}</span></span>
           </a>
         </section>` : ""}
         <section class="block home-storage" aria-labelledby="store-h">
@@ -129,7 +168,7 @@ P.page("home", {
         </section>
         ${doors.available ? `<section class="block" aria-labelledby="car-h">
           <h2 id="car-h">Car</h2>
-          <p class="meta">${P.esc(v.model)}${doorText}</p>
+          <p class="meta dots"><span>${P.esc(v.model)}</span>${doorText}</p>
           ${P.doorButtons(doors)}
         </section>` : ""}
         <section class="block home-software" aria-labelledby="sw-h">
@@ -160,13 +199,13 @@ P.page("home", {
           if (!active) {
             return;
           }
-          root.querySelector("[data-last-meta]").textContent = `${last.name ? `${P.whenLabel(last.date)} · ` : ""}${P.distance(drive.distance)} · ${P.duration(last.segments * 60)}`;
+          root.querySelector("[data-last-meta]").innerHTML = lastDriveMeta(last, P.distance(drive.distance));
           if (!last.video) {
             P.clips.drawRoute(thumb, drive.path);
           }
         }).catch(error => {
           if (!(error instanceof P.PondError) || error.status !== 404) {
-            P.fail(error, "Couldn't load the last drive's distance");
+            P.fail(error, "Couldn't load the last drive's distance", P.clips.summaryErrors);
           }
           if (active && !last.video) {
             P.clips.drawRoute(thumb, []);

@@ -52,7 +52,7 @@ static void update_state(FrogPilotUIState *fs) {
 FrogPilotUIState::FrogPilotUIState(QObject *parent) : QObject(parent) {
   pm = std::make_unique<PubMaster>(std::vector<const char*>{"frogpilotUIEvent", "frogpilotUIRequest"});
   sm = std::make_unique<SubMaster>(std::vector<const char*>{
-    "carControl", "frogpilotCarState", "frogpilotDeviceState",
+    "carControl", "frogpilotAccountState", "frogpilotCarState", "frogpilotDeviceState",
     "frogpilotPlan", "frogpilotProcessState", "frogpilotRadarState", "frogpilotSelfdriveState", "frogpilotSignReading", "liveDelay",
     "liveParameters", "liveTorqueParameters", "liveTracks", "mapdExtendedOut", "mapdOut"
   });
@@ -175,6 +175,22 @@ void FrogPilotUIState::reportIssue(const QString &report) {
   pm->send("frogpilotUIRequest", msg);
 }
 
+void FrogPilotUIState::requestAccountLink() {
+  MessageBuilder msg;
+  cereal::Event::Builder event = msg.initEvent();
+  event.initFrogpilotUIRequest().setAccountLink();
+  account_link_request_time = event.getLogMonoTime();
+  pm->send("frogpilotUIRequest", msg);
+}
+
+void FrogPilotUIState::requestAccountUrl(const QString &purpose) {
+  MessageBuilder msg;
+  cereal::Event::Builder event = msg.initEvent();
+  event.initFrogpilotUIRequest().setAccountUrl(purpose.toStdString());
+  account_url_request_time = event.getLogMonoTime();
+  pm->send("frogpilotUIRequest", msg);
+}
+
 void FrogPilotUIState::restoreSettingsBackup(const QString &name) {
   MessageBuilder msg;
   cereal::Event::Builder event = msg.initEvent();
@@ -232,6 +248,14 @@ void FrogPilotUIState::testAlert(const QString &alert, float volume) {
   pm->send("frogpilotUIRequest", msg);
 }
 
+void FrogPilotUIState::unlinkAccount() {
+  MessageBuilder msg;
+  cereal::Event::Builder event = msg.initEvent();
+  event.initFrogpilotUIRequest().setUnlinkAccount();
+  account_link_request_time = event.getLogMonoTime();
+  pm->send("frogpilotUIRequest", msg);
+}
+
 void FrogPilotUIState::update() {
   update_state(this);
 
@@ -245,7 +269,11 @@ void FrogPilotUIState::update() {
   frogpilot_scene.conditional_status = enabled ? (*sm)["frogpilotPlan"].getFrogpilotPlan().getCeStatus() : 0;
   driver_camera_timer = frogpilot_scene.reverse && frogpilot_scene.frogpilot_toggles.value(QLatin1String("driver_camera_in_reverse")).toBool() ? driver_camera_timer + 1 : 0;
   frogpilot_scene.driver_camera_active = driver_camera_timer >= UI_FREQ / 2;
-  frogpilot_scene.parked = !uiState()->scene.started || (*uiState()->sm)["carState"].getCarState().getGearShifter() == cereal::CarState::GearShifter::PARK || isFrogsGoMoo();
+
+  const cereal::CarState::Reader &carState = (*uiState()->sm)["carState"].getCarState();
+  bool manual_transmission = (*uiState()->sm)["carParams"].getCarParams().getTransmissionType() == cereal::CarParams::TransmissionType::MANUAL;
+
+  frogpilot_scene.parked = !uiState()->scene.started || carState.getGearShifter() == cereal::CarState::GearShifter::PARK || (manual_transmission && carState.getStandstill()) || isFrogsGoMoo();
 }
 
 void FrogPilotUIState::updateToggles() {

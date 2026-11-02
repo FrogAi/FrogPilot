@@ -130,6 +130,10 @@ function whenLabel(t) {
 
 function duration(seconds) {
   const total = Math.round(seconds / 60);
+  if (total === 0 && seconds > 0) {
+    return `Under 1${NB}min`;
+  }
+
   const h = Math.floor(total / 60);
   const m = total % 60;
   if (h === 0) {
@@ -147,13 +151,18 @@ function clock(seconds) {
 }
 
 function size(bytes) {
-  if (bytes >= 1e9) {
-    return `${(bytes / 1e9).toFixed(1)}${NB}GB`;
+  if (bytes >= 2 ** 30) {
+    return `${(bytes / 2 ** 30).toFixed(1)}${NB}GB`;
   }
-  if (bytes >= 1e6) {
-    return `${Math.round(bytes / 1e6)}${NB}MB`;
+  if (bytes >= 2 ** 20) {
+    return `${Math.round(bytes / 2 ** 20)}${NB}MB`;
   }
-  return `${Math.max(1, Math.round(bytes / 1e3))}${NB}KB`;
+
+  if (bytes === 0) {
+    return `0${NB}KB`;
+  }
+
+  return `${Math.max(1, Math.round(bytes / 2 ** 10))}${NB}KB`;
 }
 
 function distance(meters) {
@@ -175,8 +184,9 @@ function plural(n, word, many = word + "s") {
 }
 
 const PIN_WARNINGS_KEY = "thePondPinWarnings";
-const state = { is_metric: false, language: "", locked: false, model: "", paired: false, pairing: false, tuning_level: 0 };
+const state = { comma_four: false, is_metric: false, language: "", locked: false, model: "", paired: false, pairing: false, tuning_level: 0 };
 const shell = { device: null, software: null, vehicle: null };
+let shellError = null;
 let shellPromise = null;
 
 const ERRORS = {
@@ -190,15 +200,16 @@ const ERRORS = {
   no_update: "There's no update ready to install",
   not_found: "It isn't on the device anymore",
   offline: "The device isn't connected to the internet",
-  openpilot_steering: "openpilot is steering. Park the car first",
+  openpilot_steering: "openpilot is steering. Disengage first",
   pending: "The last request is still in progress",
   recording: "It's still recording",
+  unknown: "Something went wrong on the device. Try again",
   updater_busy: "The updater is busy. Try again in a moment"
 };
 
 class PondError extends Error {
   constructor(status, code) {
-    super(ERRORS[code] || code || `Error ${status}`);
+    super(ERRORS[code] || ERRORS.unknown);
     this.code = code;
     this.handled = status === 401 || status === 423;
     this.status = status;
@@ -379,7 +390,7 @@ const NAV = [
   { group: null, items: [{ id: "home", label: "Home", icon: "home" }] },
   { group: "Drives", items: [
     { id: "drives", label: "Drives", icon: "drives" },
-    { id: "recordings", label: "Screen Recordings", icon: "recordings" }
+    { id: "recordings", label: "Screen Recordings", icon: "recordings", hidden: () => shell.device?.comma_four }
   ] },
   { group: "Car", items: [
     { id: "device", label: "Device and Power", icon: "device" },
@@ -404,14 +415,27 @@ const NAV = [
 ];
 const TABS = [
   { id: "home", label: "Home", icon: "home" },
-  { id: "device", label: "Car", icon: "vehicle", also: ["vehicle"] },
+  { id: "vehicle", label: "Car", icon: "vehicle" },
   { id: "drives", label: "Drives", icon: "drives", also: ["drive"] },
   { id: "software", label: "Updates", icon: "software" }
 ];
 const NETWORK_TYPES = { cell2G: "2G", cell3G: "3G", cell4G: "LTE", cell5G: "5G", ethernet: "Ethernet", none: "Offline", wifi: "Wi-Fi" };
 
-const PAGES = {};
-const REDIRECTS = { frogbackups: "backups" };
+const PAGES = {
+  not_found: {
+    title: "Page not found",
+    render() {
+      const home = `<a class="btn btn-quiet btn-small" href="/">Go to Home</a>`;
+      return { body: `<div class="empty"><h3>There's no page at this address</h3><p>The link may be old or mistyped.</p>${home}</div>` };
+    }
+  }
+};
+const REDIRECTS = { frogbackups: "backups", manage_navigation_keys: "keys" };
+
+if (navigationShown()) {
+  REDIRECTS.set_navigation_destination = "navigation";
+}
+
 let currentView = "home";
 
 function hasUpdate() {
@@ -429,8 +453,8 @@ function navActive(id) {
 function navLinks(sheet = false) {
   return NAV.map(group => `
     <div class="nav-group">
-      ${group.group ? `<h2>${group.group}</h2>` : ""}
-      ${group.items.map(item => {
+      ${group.group ? `<p class="nav-group-label">${group.group}</p>` : ""}
+      ${group.items.filter(item => !item.hidden?.()).map(item => {
         const pip = item.pip ? item.pip() : false;
         return `<a class="nav-link ${pip ? "has-pip" : ""}" href="${href(item.id)}" ${navActive(item.id) ? 'aria-current="page"' : ""}>
           ${ic(item.icon)}<span class="lbl">${item.label}</span>${!sheet ? `<span class="tip" aria-hidden="true">${item.label}</span>` : ""}
@@ -440,9 +464,23 @@ function navLinks(sheet = false) {
     </div>`).join("");
 }
 
+function placeTip(link) {
+  const box = link.getBoundingClientRect();
+  link.querySelector(".tip").style.top = `${box.top + box.height / 2}px`;
+}
+
+function placeTargetTip(event) {
+  const link = event.target.closest(".nav-link");
+  if (link) {
+    placeTip(link);
+  }
+}
+
 function renderRail() {
   const rail = document.getElementById("rail");
   if (!rail.firstElementChild) {
+    rail.addEventListener("focusin", placeTargetTip);
+    rail.addEventListener("pointerover", placeTargetTip);
     rail.innerHTML = `
       <div class="rail-head">
         <a class="brand" href="/" aria-label="The Pond home">
@@ -454,13 +492,40 @@ function renderRail() {
       ${window.Pond.searchBox("rail")}
       <nav class="rail-nav" aria-label="Pages"></nav>
       <div class="rail-foot"></div>`;
+
+    rail.querySelector(".rail-nav").addEventListener("scroll", () => {
+      for (const link of rail.querySelectorAll(".nav-link:is(:hover, :focus-visible)")) {
+        placeTip(link);
+      }
+    });
   }
   const network = shell.device ? NETWORK_TYPES[shell.device.network.type] || shell.device.network.type : "";
+  let dot = "dot";
+  if (shell.device && shell.device.network.type === "none") {
+    dot = "dot off";
+  }
+
   rail.querySelector(".rail-expand").setAttribute("aria-expanded", String(document.getElementById("app").classList.contains("rail-open")));
   rail.querySelector(".rail-nav").innerHTML = navLinks();
   rail.querySelector(".rail-foot").outerHTML = `<div class="rail-foot" aria-live="polite">
-      <span class="chain"><span class="dot" title="Connected"></span><span class="txt">${esc(network)}</span></span>
+      <span class="chain"><span class="${dot}" title="${esc(network)}"></span><span class="txt">${esc(network)}</span></span>
     </div>`;
+}
+
+function revealCurrentLink() {
+  const nav = document.querySelector(".rail-nav");
+  const current = nav.querySelector('[aria-current="page"]');
+  if (!current) {
+    return;
+  }
+
+  const navBox = nav.getBoundingClientRect();
+  const linkBox = current.getBoundingClientRect();
+  if (linkBox.bottom > navBox.bottom) {
+    nav.scrollTop += linkBox.bottom - navBox.bottom;
+  } else if (linkBox.top < navBox.top) {
+    nav.scrollTop -= navBox.top - linkBox.top;
+  }
 }
 
 function renderTabbar() {
@@ -474,7 +539,15 @@ function renderTabbar() {
 
 function renderFooter() {
   const d = shell.device;
-  document.getElementById("site-footer").innerHTML = `<p>FrogPilot ${esc(d.version)} · ${esc(d.branch)} · <span class="mono">${esc((d.commit || "").slice(0, 7))}</span></p><p>${esc(shell.vehicle.model)}</p>`;
+  const commit = `<span class="mono">${esc((d.commit || "").slice(0, 7))}</span>`;
+  const versionLine = `<p class="dots"><span>FrogPilot ${esc(d.version)}</span><span>${esc(d.branch)}</span><span>${commit}</span></p>`;
+  document.getElementById("site-footer").innerHTML = `${versionLine}<p>${esc(shell.vehicle.model)}</p>`;
+}
+
+function showModal(dialog) {
+  const page = document.documentElement;
+  page.classList.toggle("page-scrolls", page.scrollHeight > page.clientHeight);
+  dialog.showModal();
 }
 
 function openMore() {
@@ -483,10 +556,23 @@ function openMore() {
     <div class="sheet-head"><h2 id="more-title">Everything in The Pond</h2><button class="icon-btn" data-act="close-more" aria-label="Close">${ic("x")}</button></div>
     ${window.Pond.searchBox("sheet")}
     <nav class="sheet-nav" aria-label="All pages">${navLinks(true)}</nav>`;
-  sheet.showModal();
+  showModal(sheet);
+}
+
+function navigationShown() {
+  for (const section of NAV) {
+    for (const item of section.items) {
+      if (item.id === "navigation") {
+        return true;
+      }
+    }
+  }
+
+  return false;
 }
 
 function loadShell() {
+  shellError = null;
   shellPromise = Promise.all([get("/api/device"), get("/api/vehicle"), get("/api/software")]).then(([device, vehicle, software]) => {
     Object.assign(shell, { device, software, vehicle });
     renderFooter();
@@ -494,7 +580,18 @@ function loadShell() {
     renderTabbar();
     return shell;
   });
-  shellPromise.catch(error => fail(error, "Couldn't load the device details"));
+  shellPromise.catch(error => {
+    shellError = error;
+    fail(error, "Couldn't load the device details");
+  });
+  return shellPromise;
+}
+
+function currentShell() {
+  if (shellError) {
+    return loadShell();
+  }
+
   return shellPromise;
 }
 
@@ -513,13 +610,24 @@ function widths(root) {
 let dlg = null;
 let dlgResolve = null;
 
-function openDialog({ icon = "info", tone = "", title, body = "", confirm = "OK", confirmTone = "primary", cancel = "Cancel", wide = false, requireCheck = "", onOpen }) {
+function openDialog({
+  icon = "info", tone = "", title, body = "", confirm = "OK", confirmTone = "primary", cancel = "Cancel", wide = false, requireCheck = "", onOpen,
+  onConfirm, errors = {}
+}) {
+  let validation = "";
+  let errorMessage = "";
+  if (onConfirm) {
+    validation = "novalidate";
+    errorMessage = `<p class="dlg-error" role="alert" data-dialog-error hidden></p>`;
+  }
+
   dlg.className = `dlg ${wide ? "wide" : ""}`;
-  dlg.innerHTML = `<form method="dialog">
+  dlg.innerHTML = `<form method="dialog" ${validation}>
     <div class="dlg-body">
       <h2 id="dlg-title"><span class="ic-wrap ${tone}">${ic(icon)}</span>${title}</h2>
       ${body}
       ${requireCheck ? `<label class="check"><input type="checkbox" data-require> <span>${requireCheck}</span></label>` : ""}
+      ${errorMessage}
     </div>
     <div class="dlg-foot">
       ${cancel ? `<button class="btn btn-quiet" value="cancel" type="button" data-dialog-cancel>${cancel}</button>` : ""}
@@ -538,15 +646,51 @@ function openDialog({ icon = "info", tone = "", title, body = "", confirm = "OK"
       dlg.querySelector("[data-confirm]").disabled = !check.checked;
     });
   }
+
+  if (onConfirm) {
+    const form = dlg.querySelector("form");
+    form.addEventListener("submit", async event => {
+      event.preventDefault();
+      const message = form.querySelector("[data-dialog-error]");
+      message.hidden = true;
+
+      try {
+        await busy(form.querySelector("[data-confirm]"), onConfirm(dlg));
+      } catch (error) {
+        if (!(error instanceof PondError)) {
+          throw error;
+        }
+
+        if (!error.handled) {
+          message.textContent = errors[error.code] || error.message;
+          message.hidden = false;
+
+          const field = form.querySelector("input, textarea");
+          if (field) {
+            field.focus();
+          }
+        }
+
+        return;
+      }
+
+      if (form.isConnected) {
+        dlg.close("ok");
+      }
+    });
+  }
+
   return new Promise(resolve => {
     dlgResolve = resolve;
     dlg.returnValue = "";
-    dlg.showModal();
+    showModal(dlg);
     if (onOpen) {
       onOpen(dlg);
     }
-    const focusTarget = cancel ? dlg.querySelector('[value="cancel"]') : dlg.querySelector("[data-confirm]");
-    focusTarget.focus({ preventScroll: true });
+    dlg.focus({ preventScroll: true });
+    setTimeout(() => {
+      dlg.scrollTop = 0;
+    });
   });
 }
 
@@ -617,7 +761,7 @@ function toast(text, detail = "", icon = "check") {
   return el;
 }
 
-function showResult(button, mark, disabled, icon, time) {
+function showResult(button, mark, disabled, focused, icon, time) {
   mark.innerHTML = ic(icon);
   button.removeAttribute("aria-busy");
   setTimeout(() => {
@@ -625,11 +769,16 @@ function showResult(button, mark, disabled, icon, time) {
     button.classList.remove("is-busy");
     button.style.removeProperty("--busy-color");
     button.disabled = disabled;
+
+    if (focused && document.activeElement === document.body) {
+      button.focus();
+    }
   }, time);
 }
 
 async function busy(button, promise) {
   const disabled = button.disabled;
+  const focused = document.activeElement === button;
   const mark = document.createElement("span");
   mark.className = "busy-mark";
   mark.setAttribute("aria-hidden", "true");
@@ -643,10 +792,10 @@ async function busy(button, promise) {
   try {
     result = await promise;
   } catch (error) {
-    showResult(button, mark, disabled, "alert", BUSY_FAILED_TIME);
+    showResult(button, mark, disabled, focused, "alert", BUSY_FAILED_TIME);
     throw error;
   }
-  showResult(button, mark, disabled, "check", BUSY_DONE_TIME);
+  showResult(button, mark, disabled, focused, "check", BUSY_DONE_TIME);
   return result;
 }
 
@@ -781,6 +930,8 @@ const ACTIONS = {
       scrim.className = "rail-scrim";
       scrim.onclick = () => ACTIONS["rail-toggle"]();
       app.append(scrim);
+    } else if (document.activeElement.matches("#rail [data-search]")) {
+      document.querySelector("#rail .search-open").focus();
     }
   },
   more: () => openMore(),
@@ -795,6 +946,10 @@ const ACTIONS = {
     if (changed) {
       wrap.dispatchEvent(new Event("change", { bubbles: true }));
     }
+  },
+  "open-navigation": () => {
+    history.pushState(null, "", href("navigation"));
+    checkState();
   },
   retry: btn => busy(btn, render(false)),
   reconnect: async btn => {
@@ -847,6 +1002,7 @@ function renderTop(out) {
   updateTabTitle();
 }
 
+const scrollPositions = new Map();
 const viewCache = new Map();
 let viewCleanup = null;
 let renderToken = 0;
@@ -861,8 +1017,7 @@ function viewFromPath() {
   if (PAGES[view]) {
     return view;
   }
-  history.replaceState(null, "", "/");
-  return "home";
+  return "not_found";
 }
 
 async function render(resetScroll = true) {
@@ -878,6 +1033,8 @@ async function render(resetScroll = true) {
   document.querySelector(".rail-scrim")?.remove();
   renderRail();
   renderTabbar();
+  revealCurrentLink();
+
   const content = document.getElementById("content");
   const cacheKey = location.pathname + location.search;
   const cached = viewCache.get(cacheKey);
@@ -892,8 +1049,14 @@ async function render(resetScroll = true) {
   } else if (!sameView) {
     renderTop({ title: page.title });
     content.innerHTML = "";
+
+    let shape = `${skeletonPanel(4)}${skeletonPanel(3)}`;
+    if (page.skeleton) {
+      shape = page.skeleton();
+    }
+
     skeletonTimer = setTimeout(() => {
-      content.innerHTML = `<div class="page-skeleton" role="status"><span class="sr">Loading</span>${skeletonPanel(4)}${skeletonPanel(3)}</div>`;
+      content.innerHTML = `<div class="page-skeleton" role="status"><span class="sr">Loading</span>${shape}</div>`;
     }, SKELETON_DELAY);
     fadeIn = true;
   }
@@ -948,13 +1111,22 @@ function stateBrand() {
 }
 
 function showLocked(holder) {
-  holder.innerHTML = `<div class="overlay full state-page" role="alertdialog" aria-modal="true" aria-labelledby="lk-h" aria-describedby="lk-p">
+  let exception = "";
+  let openNavigation = "";
+
+  if (navigationShown()) {
+    exception = ", except for Navigation";
+    openNavigation = `<button class="btn btn-primary" data-act="open-navigation">Open Navigation</button>`;
+  }
+
+  holder.innerHTML = `<div class="overlay full state-page" role="alertdialog" aria-modal="true" aria-labelledby="lk-h" aria-describedby="lk-p" tabindex="-1">
     ${stateBrand()}
     <div class="state-body">
       <img class="mascot" src="/assets/img/frogpilot-mascot.svg" alt="" width="168" height="168">
       <div class="state-words">
         <h1 id="lk-h">The car is driving</h1>
-        <p class="standfirst" id="lk-p">The Pond is resting while you're on the road. It comes back on its own when you park.</p>
+        <p class="standfirst" id="lk-p">The Pond is resting while you're on the road${exception}. It comes back on its own when you park.</p>
+        ${openNavigation}
         <p class="state-status"><span class="state-line"><span class="dot"></span>Still connected to the ${esc(state.model || "device")}</span></p>
       </div>
     </div>
@@ -962,10 +1134,25 @@ function showLocked(holder) {
 }
 
 const PAIR_ERRORS = {
-  pairing_off: "Pairing is turned off on the car. Turn on “Pairing Code” in the car's Navigation settings to pair this browser.",
   too_many_attempts: "Too many wrong codes. Wait 10 minutes, then try again.",
-  wrong_code: "That code doesn't match the one in the car's Navigation settings."
+  wrong_code: "That code doesn't match the one on the device."
 };
+
+function pairingOffMessage() {
+  if (state.comma_four) {
+    return "Pairing is turned off on the car. Turn on “Pairing Code” in The Pond's Toggles, under Maps and Navigation, to pair this browser.";
+  }
+
+  return "Pairing is turned off on the car. Turn on “Pairing Code” in FrogPilot's Navigation settings to pair this browser.";
+}
+
+function pairingCodePlace() {
+  if (state.comma_four) {
+    return "on the device's “frogpilot settings” screen";
+  }
+
+  return "next to “Manage Your Settings At” in FrogPilot's Navigation settings";
+}
 
 function showPairing(holder) {
   holder.innerHTML = `<div class="overlay full state-page" role="dialog" aria-modal="true" aria-labelledby="pr-h">
@@ -973,7 +1160,7 @@ function showPairing(holder) {
     <div class="state-body">
       <form class="state-words state-form" data-pair>
         <h1 id="pr-h">Pair this browser</h1>
-        <p class="standfirst">Enter the 6-digit code shown next to “Manage Your Settings At” in the car's Navigation settings.</p>
+        <p class="standfirst">Enter the 6-digit code shown ${pairingCodePlace()}.</p>
         <div class="code-boxes" role="group" aria-label="Pairing code">${[0, 1, 2, 3, 4, 5].map(i => `${i === 3 ? '<span class="gap"></span>' : ""}<input inputmode="numeric" maxlength="1" pattern="[0-9]" aria-label="Digit ${i + 1}" autocomplete="one-time-code">`).join("")}</div>
         <p class="muted pair-msg" data-pair-msg aria-live="polite">Turning pairing off and back on makes a new one.</p>
         <button class="btn btn-primary" type="submit">Pair</button>
@@ -1022,7 +1209,13 @@ function showPairing(holder) {
       if (!(error instanceof PondError)) {
         throw error;
       }
-      msg.textContent = PAIR_ERRORS[error.code] || error.message;
+
+      if (error.code === "pairing_off") {
+        msg.textContent = pairingOffMessage();
+      } else {
+        msg.textContent = PAIR_ERRORS[error.code] || error.message;
+      }
+
       return;
     }
     msg.textContent = "Paired. Welcome to The Pond.";
@@ -1035,7 +1228,7 @@ function offlineCount() {
 }
 
 function showOffline(holder, label, detail) {
-  holder.innerHTML = `<div class="overlay dim" role="alertdialog" aria-modal="true" aria-labelledby="off-h">
+  holder.innerHTML = `<div class="overlay dim" role="alertdialog" aria-modal="true" aria-labelledby="off-h" tabindex="-1">
     <div class="state-card panel">
       <span class="spinner offline-spinner" aria-hidden="true"></span>
       <h1 id="off-h" class="offline-title">${label || "Connection lost"}</h1>
@@ -1055,6 +1248,7 @@ function setOverlay(kind, label = "", detail = "") {
   if (!kind) {
     holder.innerHTML = "";
     app.inert = false;
+    updateTabTitle();
     if (blocked) {
       started = true;
       loadShell();
@@ -1067,12 +1261,25 @@ function setOverlay(kind, label = "", detail = "") {
     return;
   }
   app.inert = true;
+  dlg.close();
+  document.getElementById("more-sheet").close();
+
+  for (const video of app.querySelectorAll("video")) {
+    video.pause();
+  }
+
   if (kind === "locked") {
     showLocked(holder);
   } else if (kind === "pairing") {
     showPairing(holder);
   } else {
     showOffline(holder, label, detail);
+  }
+
+  document.title = `${holder.querySelector("h1").textContent} · The Pond`;
+
+  if (!holder.contains(document.activeElement)) {
+    holder.querySelector(".overlay").focus();
   }
 }
 
@@ -1082,7 +1289,13 @@ async function checkState() {
     const response = await fetch("/api/state");
     if (response.ok) {
       Object.assign(state, await response.json());
-      next = state.locked ? "locked" : state.pairing && !state.paired ? "pairing" : "";
+      next = "";
+
+      if (state.locked && !(navigationShown() && viewFromPath() === "navigation")) {
+        next = "locked";
+      } else if (state.pairing && !state.paired) {
+        next = "pairing";
+      }
     }
   } catch {
     next = "offline";
@@ -1097,21 +1310,27 @@ async function checkState() {
     restarting = false;
   }
   setOverlay(next);
+
+  if (shellError && shellError.status === 423 && next === "" && !state.locked) {
+    loadShell();
+  }
 }
 
-function restart(label, detail = "") {
+function restart(label, detail = "", timeout = RESTART_TIMEOUT) {
   restarting = true;
   sawFailure = false;
   clearTimeout(restartTimer);
   if (detail) {
     setOverlay("restart", label, detail);
-    restartTimer = setTimeout(() => {
-      if (!restarting) {
-        return;
-      }
-      restarting = false;
-      checkState();
-    }, RESTART_TIMEOUT);
+    if (timeout) {
+      restartTimer = setTimeout(() => {
+        if (!restarting) {
+          return;
+        }
+        restarting = false;
+        checkState();
+      }, timeout);
+    }
   } else {
     setOverlay("offline", label);
   }
@@ -1137,9 +1356,20 @@ setInterval(() => {
   }
 }, 1000);
 
-window.addEventListener("popstate", () => render());
+history.scrollRestoration = "manual";
+window.addEventListener("popstate", () => {
+  if (overlay === "locked") {
+    checkState();
+    return;
+  }
+
+  const saved = scrollPositions.get(location.pathname + location.search) || 0;
+  render(false);
+  window.scrollTo(0, saved);
+});
 window.addEventListener("scroll", () => {
   document.getElementById("topbar").classList.toggle("scrolled", window.scrollY > 4);
+  scrollPositions.set(location.pathname + location.search, window.scrollY);
 }, { passive: true });
 document.addEventListener("visibilitychange", () => {
   if (!document.hidden) {
@@ -1149,6 +1379,12 @@ document.addEventListener("visibilitychange", () => {
 
 document.addEventListener("click", e => {
   const link = e.target.closest("a[href]");
+  if (link && link.getAttribute("href").startsWith("#")) {
+    e.preventDefault();
+    document.querySelector(link.getAttribute("href")).focus();
+    return;
+  }
+
   if (link && !link.hasAttribute("download") && !link.target && !e.metaKey && !e.ctrlKey && !e.shiftKey && e.button === 0) {
     const url = new URL(link.href);
     if (url.origin === location.origin && !url.pathname.startsWith("/api/") && !url.pathname.startsWith("/assets/")) {
@@ -1159,11 +1395,16 @@ document.addEventListener("click", e => {
       return;
     }
   }
+
+  if (e.target.closest("button.menu-item")) {
+    closeMenus(true);
+  }
+
   const act = e.target.closest("[data-act]");
   if (act && ACTIONS[act.dataset.act]) {
     ACTIONS[act.dataset.act](act, e);
   }
-  if (!e.target.closest(".menu-wrap") || e.target.closest("button.menu-item")) {
+  if (!e.target.closest(".menu-wrap")) {
     closeMenus();
   }
 });
@@ -1205,6 +1446,14 @@ document.addEventListener("keydown", e => {
   }
 });
 
+document.addEventListener("focusout", e => {
+  const wrap = e.target.closest(".menu-wrap");
+  const next = e.relatedTarget;
+  if (wrap && next && !wrap.contains(next) && !next.contains(wrap)) {
+    closeMenus();
+  }
+});
+
 window.Pond = {
   MAP_STYLE,
   NAV,
@@ -1237,6 +1486,7 @@ window.Pond = {
   page: (id, page) => {
     PAGES[id] = page;
   },
+  pairingCodePlace,
   params: () => new URLSearchParams(location.search),
   pinWarning,
   plural,
@@ -1246,12 +1496,14 @@ window.Pond = {
   request,
   restart,
   saveLink,
+  navigationShown,
   setDropdown,
   setParam,
   setSoftware,
-  shell: () => shellPromise,
+  shell: currentShell,
   showPercent,
   size,
+  skeletonPanel,
   speed,
   state,
   timeLabel,

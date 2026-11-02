@@ -8,6 +8,7 @@ const MESSAGES = {
   invalid_schedule: "That schedule isn't available",
   no_maps_selected: "Choose at least one region first"
 };
+const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 const SCHEDULES = [["0", "Manually, when I press Download"], ["1", "Weekly, on Sundays"], ["2", "Monthly, on the 1st"]];
 
 let following = false;
@@ -101,6 +102,12 @@ function showRegions(show) {
   P.setParam("show", show === "states" ? "" : show);
 }
 
+function updatedLabel(text) {
+  const [, month, day, year] = /^(\w+) (\d+)\w*, (\d+)$/.exec(text);
+  const date = new Date(Number(year), MONTHS.indexOf(month), Number(day));
+  return P.dayLabel(date.getTime() / 1000);
+}
+
 function regionGroups(groups, prefix, selected, label) {
   return `${Object.entries(groups).map(([group, regions]) => `<div data-group>
     <h3 class="field-label maps-group">${P.esc(group)}</h3>
@@ -151,6 +158,17 @@ P.page("maps", {
     const selected = new Set(maps.selected);
     const show = params.get("show") === "countries" ? "countries" : "states";
     const busy = isBusy(maps.download) || following;
+
+    let storageUsed = "None";
+    if (maps.storage_used) {
+      storageUsed = P.size(maps.storage_used);
+    }
+
+    let lastUpdated = "Never";
+    if (maps.last_updated) {
+      lastUpdated = updatedLabel(maps.last_updated);
+    }
+
     return {
       body: `
       <div class="two-col wide-left">
@@ -168,7 +186,7 @@ P.page("maps", {
           </div></section>
         <section class="panel maps-device"><div class="panel-head"><h2>On the device</h2></div>
           <div class="panel-body grid-12">
-            <dl class="kv"><dt>Storage used</dt><dd>${maps.storage_used ? P.size(maps.storage_used) : "None"}</dd><dt>Last updated</dt><dd>${maps.last_updated ? P.esc(maps.last_updated) : "Never"}</dd></dl>
+            <dl class="kv"><dt>Storage used</dt><dd>${storageUsed}</dd><dt>Last updated</dt><dd>${lastUpdated}</dd></dl>
             <label class="field"><span>Update schedule</span>${P.dropdown({ value: String(maps.schedule), options: SCHEDULES, label: "Update schedule", attrs: "data-schedule" })}</label>
           </div>
           <div class="panel-foot">

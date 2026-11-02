@@ -1,28 +1,5 @@
 #include "frogpilot/ui/qt/offroad/utilities.h"
 
-const std::set<std::string> backedUpKeys = {"DiscordUsername", "FavoriteDestinations", "MapboxPublicKey", "MapboxSecretKey", "MapdSettings", "SecOCKeys", "Timezone", "WeatherToken"};
-
-const std::set<std::string> excludedKeys = {
-  "ApiCache_DriveStats", "ApiCache_DriveStatsKonik", "CalibratedLateralAcceleration",
-  "CalibrationProgress", "CurvatureData", "DiscordUsername",
-  "DoSoftReboot", "DownloadableColors", "DownloadableDistanceIcons",
-  "DownloadableIcons", "DownloadableSignals", "DownloadableSounds",
-  "DownloadableWheels", "FavoriteDestinations", "ForceOffroad",
-  "ForceOnroad", "FrogPilotApiToken", "FrogPilotCarParams",
-  "FrogPilotCarParamsPersistent", "FrogPilotDongleId", "FrogPilotRegistration",
-  "FrogPilotStats", "FrogPilotTelemetry", "FrogPilotTelemetryConfirmed",
-  "KonikDongleId", "KonikMinutes", "LastMapsUpdate",
-  "LastUpdateRouteCount", "LastUpdateUptimeOnroad", "MapboxPublicKey",
-  "MapBoxRequests", "MapboxSecretKey", "MapdSettings",
-  "MaxLateralAcceleration", "MinimumBackupSize", "ModelDrivesAndScores",
-  "NNFFModelName", "openpilotMinutes", "PreviousSpeedLimit",
-  "RandomizedModel", "RouteCount", "SecOCKeys",
-  "StockDongleId", "ThemesDownloaded", "ThePondPairedBrowsers",
-  "ThePondPairing", "ThePondPairingCode", "Timezone",
-  "Updated", "UptimeOffroad", "UptimeOnroad",
-  "WeatherToken",
-};
-
 FrogPilotUtilitiesPanel::FrogPilotUtilitiesPanel(FrogPilotSettingsWindow *parent, bool forceOpen) : FrogPilotListWidget(parent) {
   ParamControl *debugModeToggle = new ParamControl("DebugMode", tr("Debug Mode"), tr("<b>Show FrogPilot's developer readouts on the driving screen for your next drive, so a bug report can say what openpilot was actually doing.</b><br><br>It switches itself back off once you finish the drive. While it is on, the temperature reads in Celsius and the developer numbers read in scientific units, whatever you picked elsewhere. It also brings back anything you hid from the driving screen and uses the default \"Model UI\" sizes and \"Camera View\", with \"Rainbow Path\" off, until the drive ends. Your speedometer keeps its own units."), "");
   addItem(debugModeToggle);
@@ -54,6 +31,12 @@ FrogPilotUtilitiesPanel::FrogPilotUtilitiesPanel(FrogPilotSettingsWindow *parent
       params.putBool("ForceOffroad", true);
       params.putBool("ForceOnroad", false);
     } else if (id == 1) {
+      if (params.get("CarParamsPersistent").empty()) {
+        ConfirmationDialog::alert(tr("openpilot hasn't learned your car yet, so it can't be forced onroad. Complete a drive first."), this);
+        updateForceStartedButton();
+        return;
+      }
+
       params.put("CarParams", params.get("CarParamsPersistent"));
       params.put("FrogPilotCarParams", params.get("FrogPilotCarParamsPersistent"));
 
@@ -250,11 +233,10 @@ FrogPilotUtilitiesPanel::FrogPilotUtilitiesPanel(FrogPilotSettingsWindow *parent
     if (ConfirmationDialog::confirm(confirmText, tr("Reset"), this)) {
       actionRunning = true;
 
-      const QJsonObject &frogpilot_toggles = frogpilotUIState()->frogpilot_scene.frogpilot_toggles;
-      QJsonArray resetRemovedKeys = frogpilot_toggles.value("reset_removed_keys").toArray();
-      bool tailscaleInstalled = frogpilot_toggles.value("tailscale_installed").toBool();
+      frogpilotUIState()->unlinkAccount();
+      uint64_t unlinkRequestTime = frogpilotUIState()->account_link_request_time;
 
-      std::thread([parent, button, stock, resetRemovedKeys, tailscaleInstalled, this]() {
+      std::thread([parent, button, stock, unlinkRequestTime, this]() {
         runOnUIThread(button, [parent, button]() {
           parent->activeOperations++;
 
@@ -262,74 +244,41 @@ FrogPilotUtilitiesPanel::FrogPilotUtilitiesPanel(FrogPilotSettingsWindow *parent
           button->setValue(tr("Resetting..."));
         });
 
-        Params paramsCache("/cache/params");
+        SubMaster sm({"frogpilotAccountState"});
+        for (int i = 0; i < 10; i++) {
+          sm.update(1000);
 
-        std::vector<std::string> allKeys = params.allKeys();
-        for (const std::string &key : allKeys) {
-          if (excludedKeys.count(key) && !backedUpKeys.count(key)) {
-            continue;
-          }
-          std::optional<std::string> resetValue = stock ? params.getStockValue(key) : params.getKeyDefaultValue(key);
-          if (resetValue.has_value()) {
-            if (resetValue->empty()) {
-              params.remove(key);
-              paramsCache.remove(key);
-            } else if (params.get(key) != resetValue.value()) {
-              params.put(key, resetValue.value());
-            }
+          if (sm["frogpilotAccountState"].getFrogpilotAccountState().getLinkRequestTime() >= unlinkRequestTime) {
+            break;
           }
         }
-
-        for (const QJsonValue &key : resetRemovedKeys) {
-          params.remove(key.toString().toStdString());
-          paramsCache.remove(key.toString().toStdString());
-        }
-
-        QFile::remove("/data/speed_limit_filler.json");
-        QDir("/data/speed_limit_filler_images").removeRecursively();
-
-        if (params.getBool("ThePondPairing")) {
-          params.put("ThePondPairingCode", newPairingCode().toStdString());
-        }
-
-        bool signedOut = !tailscaleInstalled || QProcess::execute("/data/tailscale/tailscale", {"--socket=/data/tailscale/tailscaled.sock", "logout"}) == 0;
 
         if (stock) {
-          params.putInt("TuningLevel", 3);
-          params.putBool("TuningLevelConfirmed", true);
+          params.putBool("DoToggleResetStock", true);
+        } else {
+          params.putBool("DoToggleReset", true);
         }
 
-        runOnUIThread(button, [parent, button, signedOut, this]() {
-          parent->updateMetric(false, true);
-          parent->updateMetric(params.getBool("IsMetric"));
-          frogpilotUIState()->updateToggles();
-          parent->updateTuningLevel();
-
-          button->setValue(signedOut ? tr("Reset!") : tr("Tailscale sign-out failed..."));
+        runOnUIThread(button, [button]() {
+          button->setValue(tr("Rebooting to reset..."));
         });
 
         util::sleep_for(2500);
 
-        runOnUIThread(button, [parent, button, this]() {
-          button->setEnabled(true);
-          button->setValue("");
-
-          parent->activeOperations--;
-          actionRunning = false;
-        });
+        Hardware::reboot();
       }).detach();
     }
   };
 
-  ButtonControl *resetTogglesButton = new ButtonControl(tr("Reset Settings to Default"), tr("RESET"), tr("<b>Put every FrogPilot setting back to the value it shipped with, along with some of openpilot's own settings.</b><br><br>Those openpilot settings are \"Enable openpilot\", \"Disengage on Accelerator Pedal\", \"Driving Personality\", and \"Cellular Metered\". This also clears your accepted terms, your completed training, and your language, so you go through first-time setup again in English the next time the device starts. It also erases your saved keys (Mapbox, weather, and Toyota security keys), favorite places, Discord name, timezone, map settings, FrogPilot driving stats, Speed Limit Filler data, saved car details, SSH keys, and the browsers paired with \"The Pond\" (making a new pairing code if pairing is on), turns SSH off, signs out of Tailscale, and asks again whether to share FrogPilot data, so the device is clean to sell or hand on. Your drives, backups, and downloaded themes are left alone, and settings backups still hold your keys and favorite places until you delete them."));
+  ButtonControl *resetTogglesButton = new ButtonControl(tr("Reset Settings to Default"), tr("RESET"), tr("<b>Put every FrogPilot setting back to the value it shipped with, along with some of openpilot's own settings.</b><br><br>Those openpilot settings are \"Enable openpilot\", \"Disengage on Accelerator Pedal\", \"Driving Personality\", and \"Cellular Metered\". This also clears your accepted terms, your completed training, and your language, so you go through first-time setup again in English. It also erases your saved keys (Mapbox and weather), favorite places, Discord name, timezone, chosen car make and model, SSH keys, and map settings, turns SSH and tethering off, asks again whether to share FrogPilot data, and unlinks this device from your FrogPilot.com account. The reset happens while the device reboots. Your drives, backups, downloaded themes, learned driving data, Speed Limit Filler data, FrogPilot Stats, Toyota security keys, \"The Pond\" pairing, Tailscale sign-in, \"Experimental Mode\", and \"openpilot Longitudinal Control (Alpha)\" are left alone, and settings backups still hold your keys and favorite places until you delete them."));
   QObject::connect(resetTogglesButton, &ButtonControl::clicked, [resetSettings, resetTogglesButton]() {
-    resetSettings(resetTogglesButton, false, tr("Reset all FrogPilot and some openpilot settings? This also erases your saved keys, favorite places, Discord name, timezone, map settings, driving stats, Speed Limit Filler data, saved car details, SSH keys, and paired browsers, turns SSH off, signs out of Tailscale, and asks again whether to share FrogPilot data. You will have to accept the terms, redo the training, and set your language again."));
+    resetSettings(resetTogglesButton, false, tr("Reset all FrogPilot and some openpilot settings? This erases your saved keys, favorite places, Discord name, timezone, chosen car make and model, SSH keys, and map settings, turns SSH and tethering off, asks again whether to share FrogPilot data, and unlinks this device from your FrogPilot.com account. The device reboots into first-time setup. Learned driving data, Speed Limit Filler data, FrogPilot Stats, Toyota security keys, \"The Pond\" pairing, and Tailscale sign-in stay."));
   });
   addItem(resetTogglesButton);
 
-  ButtonControl *resetTogglesButtonStock = new ButtonControl(tr("Reset Settings to Stock openpilot"), tr("RESET"), tr("<b>Put every setting back to what plain openpilot uses, turning FrogPilot's own features off rather than back to FrogPilot's defaults.</b><br><br>This also clears your accepted terms, your completed training, and your language, so you go through first-time setup again in English the next time the device starts. It also erases your saved keys (Mapbox, weather, and Toyota security keys), favorite places, Discord name, timezone, map settings, FrogPilot driving stats, Speed Limit Filler data, saved car details, SSH keys, and the browsers paired with \"The Pond\" (making a new pairing code if pairing is on), turns SSH off, signs out of Tailscale, and asks again whether to share FrogPilot data, so the device is clean to sell or hand on. Your drives, backups, and downloaded themes are left alone, and settings backups still hold your keys and favorite places until you delete them."));
+  ButtonControl *resetTogglesButtonStock = new ButtonControl(tr("Reset Settings to Stock openpilot"), tr("RESET"), tr("<b>Put every setting back to what plain openpilot uses, turning FrogPilot's own features off rather than back to FrogPilot's defaults.</b><br><br>This also clears your accepted terms, your completed training, and your language, so you go through first-time setup again in English. It also erases your saved keys (Mapbox and weather), favorite places, Discord name, timezone, chosen car make and model, SSH keys, and map settings, turns SSH and tethering off, asks again whether to share FrogPilot data, and unlinks this device from your FrogPilot.com account. The reset happens while the device reboots. Your drives, backups, downloaded themes, learned driving data, Speed Limit Filler data, FrogPilot Stats, Toyota security keys, \"The Pond\" pairing, Tailscale sign-in, \"Experimental Mode\", and \"openpilot Longitudinal Control (Alpha)\" are left alone, and settings backups still hold your keys and favorite places until you delete them."));
   QObject::connect(resetTogglesButtonStock, &ButtonControl::clicked, [resetSettings, resetTogglesButtonStock]() {
-    resetSettings(resetTogglesButtonStock, true, tr("Reset every setting to match stock openpilot? This also erases your saved keys, favorite places, Discord name, timezone, map settings, driving stats, Speed Limit Filler data, saved car details, SSH keys, and paired browsers, turns SSH off, signs out of Tailscale, and asks again whether to share FrogPilot data. You will have to accept the terms, redo the training, and set your language again."));
+    resetSettings(resetTogglesButtonStock, true, tr("Reset every setting to match stock openpilot? This erases your saved keys, favorite places, Discord name, timezone, chosen car make and model, SSH keys, and map settings, turns SSH and tethering off, asks again whether to share FrogPilot data, and unlinks this device from your FrogPilot.com account. The device reboots into first-time setup. Learned driving data, Speed Limit Filler data, FrogPilot Stats, Toyota security keys, \"The Pond\" pairing, and Tailscale sign-in stay."));
   });
   addItem(resetTogglesButtonStock);
 
