@@ -1127,6 +1127,9 @@ if HARDWARE.get_device_type() == 'mici':
 
 
 # FrogPilot variables
+if HARDWARE.get_device_type() == 'mici':
+  FROGPILOT_EVENTS.update({
+  })
 
 
 if __name__ == '__main__':
