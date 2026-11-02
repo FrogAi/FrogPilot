@@ -12,6 +12,8 @@ signals:
   void openSubPanel();
 
 private:
+  void showEvent(QShowEvent *event) override;
+  void updateState(const UIState &s, const FrogPilotUIState &fs);
   void updateStatsLabels(FrogPilotListWidget *labelsList);
 
   Params params;
