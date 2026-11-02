@@ -5,7 +5,8 @@ import pyray as rl
 import random
 import string
 from dataclasses import dataclass
-from cereal import messaging, log, car
+from cereal import messaging, log, car, custom
+from openpilot.frogpilot.ui.mici.frogpilot_alerts import frogpilot_alerts
 from openpilot.selfdrive.ui.ui_state import ui_state
 from openpilot.common.filter_simple import BounceFilter, FirstOrderFilter
 from openpilot.system.hardware import TICI
@@ -17,6 +18,7 @@ AlertSize = log.SelfdriveState.AlertSize
 AlertStatus = log.SelfdriveState.AlertStatus
 
 # FrogPilot variables
+FrogPilotAlertStatus = custom.FrogPilotSelfdriveState.AlertStatus
 
 ALERT_MARGIN = 18
 
@@ -65,6 +67,7 @@ class Alert:
   alert_type: str = ""
 
   # FrogPilot variables
+  frogpilot: bool = False
 
 
 # Pre-defined alert instances
@@ -143,6 +146,11 @@ class AlertRenderer(Widget):
           return ALERT_CRITICAL_REBOOT
 
     # FrogPilot variables
+    frogpilot_fields = frogpilot_alerts.alert_fields(ss)
+    if frogpilot_fields is not None:
+      ret = Alert(**frogpilot_fields)
+      self._prev_alert = ret
+      return ret
 
     # No alert if size is none
     if ss.alertSize == 0:
@@ -290,6 +298,8 @@ class AlertRenderer(Widget):
     elif event_name == 'laneChangeBlocked':
       bg_height = medium_alert_height
     # FrogPilot variables
+    elif alert.frogpilot and alert.size == AlertSize.small and not alert.text2:
+      bg_height = small_alert_height
     else:
       bg_height = int(self._rect.height)
 
@@ -371,3 +381,4 @@ class AlertRenderer(Widget):
 
 
 # FrogPilot variables
+ALERT_COLORS[FrogPilotAlertStatus.frogpilot] = rl.Color(23, 134, 68, 255)
