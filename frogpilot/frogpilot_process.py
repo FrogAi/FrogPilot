@@ -27,10 +27,15 @@ class FrogPilotRequests:
     self.downloading_themes = False
     self.flashed_panda = False
 
+    self.account_link_request_time = 0
+
+    self.account_url = ""
     self.settings_backup = ""
 
     self.pending = {}
     self.request_times = {}
+
+    self.account_link = "{}"
 
   def take(self, kind):
     pending = self.pending.pop(kind, None)
@@ -51,7 +56,16 @@ class FrogPilotRequests:
       self.settings_backup = "failed"
       raise
 
-  def update(self, params):
+  def update_account_link(self, api, unlink, request_time):
+    if unlink:
+      api.unlink_account()
+
+    account_link = api.account_link()
+    if account_link:
+      self.account_link = json.dumps(account_link)
+    self.account_link_request_time = request_time
+
+  def update(self, params, api):
     for msg in messaging.drain_sock(self.ui_request_sock):
       self.pending[msg.frogpilotUIRequest.which()] = (msg.logMonoTime, msg.frogpilotUIRequest)
 
@@ -84,6 +98,17 @@ class FrogPilotRequests:
       self.flashed_panda = False
       self.thread_manager.run_in_thread(self.flash_panda)
 
+    if not self.thread_manager.is_thread_alive("update_account_link"):
+      refresh = self.take("accountLink") is not None
+      unlink = self.take("unlinkAccount") is not None
+      if refresh or unlink:
+        request_time = max(self.request_times.get("accountLink", 0), self.request_times.get("unlinkAccount", 0))
+        self.thread_manager.run_in_thread(self.update_account_link, (api, unlink, request_time))
+
+    request = self.take("accountUrl")
+    if request is not None:
+      self.account_url = api.account_url(request.accountUrl)
+
     if not self.thread_manager.is_thread_alive("run_settings_backup"):
       request = self.take("createSettingsBackup")
       if request is not None:
@@ -100,6 +125,16 @@ class FrogPilotRequests:
 
   def publish(self, pm, stats_saved_count, toggles_json):
     flashing_panda = self.thread_manager.is_thread_alive("flash_panda")
+
+    frogpilot_account_state_send = messaging.new_message("frogpilotAccountState")
+    frogpilotAccountState = frogpilot_account_state_send.frogpilotAccountState
+
+    frogpilotAccountState.link = self.account_link
+    frogpilotAccountState.linkRequestTime = self.account_link_request_time
+    frogpilotAccountState.url = self.account_url
+    frogpilotAccountState.urlRequestTime = self.request_times.get("accountUrl", 0)
+
+    pm.send("frogpilotAccountState", frogpilot_account_state_send)
 
     frogpilot_process_state_send = messaging.new_message("frogpilotProcessState")
     frogpilotProcessState = frogpilot_process_state_send.frogpilotProcessState
@@ -267,7 +302,7 @@ def frogpilot_thread():
 
     started_previously = started
 
-    toggles_updated, update_checks_requested = frogpilot_requests.update(params)
+    toggles_updated, update_checks_requested = frogpilot_requests.update(params, api)
     frogpilot_requests.publish(pm, stats_saved_count, variables.toggles_json)
 
     toggles_updated |= sm["frogpilotDeviceState"].forceOnroadClearedCount > force_onroad_cleared_count

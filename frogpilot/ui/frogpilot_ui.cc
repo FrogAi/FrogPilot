@@ -104,6 +104,22 @@ void FrogPilotUIState::flashPanda() {
   pm->send("frogpilotUIRequest", msg);
 }
 
+void FrogPilotUIState::requestAccountLink() {
+  MessageBuilder msg;
+  cereal::Event::Builder event = msg.initEvent();
+  event.initFrogpilotUIRequest().setAccountLink();
+  account_link_request_time = event.getLogMonoTime();
+  pm->send("frogpilotUIRequest", msg);
+}
+
+void FrogPilotUIState::requestAccountUrl(const QString &purpose) {
+  MessageBuilder msg;
+  cereal::Event::Builder event = msg.initEvent();
+  event.initFrogpilotUIRequest().setAccountUrl(purpose.toStdString());
+  account_url_request_time = event.getLogMonoTime();
+  pm->send("frogpilotUIRequest", msg);
+}
+
 void FrogPilotUIState::restoreSettingsBackup(const QString &name) {
   MessageBuilder msg;
   cereal::Event::Builder event = msg.initEvent();
@@ -133,6 +149,14 @@ void FrogPilotUIState::testAlert(const QString &alert, float volume) {
   cereal::FrogPilotUIRequest::Builder request = msg.initEvent().initFrogpilotUIRequest();
   request.setTestAlert(alert.toStdString());
   request.setTestAlertVolume(volume);
+  pm->send("frogpilotUIRequest", msg);
+}
+
+void FrogPilotUIState::unlinkAccount() {
+  MessageBuilder msg;
+  cereal::Event::Builder event = msg.initEvent();
+  event.initFrogpilotUIRequest().setUnlinkAccount();
+  account_link_request_time = event.getLogMonoTime();
   pm->send("frogpilotUIRequest", msg);
 }
 
