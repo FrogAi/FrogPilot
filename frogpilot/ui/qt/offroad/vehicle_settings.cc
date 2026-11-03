@@ -107,7 +107,7 @@ FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(FrogPilotSettingsWindow *parent, 
     "Rivian", "SEAT", "Škoda", "Subaru", "Tesla", "Toyota", "Volkswagen"
   };
 
-  selectMakeButton = new ButtonControl(tr("Car Make"), tr("SELECT"), tr("<b>The make of the car openpilot is using.</b> To pick one yourself, turn on \"Disable Automatic Fingerprint Detection\" first (\"Advanced\" tuning level)."));
+  selectMakeButton = new ButtonControl(tr("Car Make"), tr("SELECT"), tr("<b>The make of the car openpilot is using.</b> If openpilot doesn't recognize your car, pick it here and openpilot uses it instead. To always use the car you pick, turn on \"Disable Automatic Fingerprint Detection\" (\"Advanced\" tuning level)."));
   QObject::connect(selectMakeButton, &ButtonControl::clicked, [makes, this]() {
     QString currentMake = QString::fromStdString(params.get("CarMake"));
     QString makeSelection = MultiOptionDialog::getSelection(tr("Choose your car make"), makes, currentMake, this);
@@ -121,7 +121,7 @@ FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(FrogPilotSettingsWindow *parent, 
   });
   settingsList->addItem(selectMakeButton);
 
-  selectModelButton = new ButtonControl(tr("Car Model"), tr("SELECT"), tr("<b>The model of the car openpilot is using.</b> To pick one yourself, turn on \"Disable Automatic Fingerprint Detection\" first (\"Advanced\" tuning level)."));
+  selectModelButton = new ButtonControl(tr("Car Model"), tr("SELECT"), tr("<b>The model of the car openpilot is using.</b> If openpilot doesn't recognize your car, pick it here and openpilot uses it instead. To always use the car you pick, turn on \"Disable Automatic Fingerprint Detection\" (\"Advanced\" tuning level)."));
   QObject::connect(selectModelButton, &ButtonControl::clicked, [parent, this]() {
     QMap<QString, QString> carModels;
     QString modelSelection = MultiOptionDialog::getSelection(tr("Choose your car model"),
@@ -483,12 +483,7 @@ void FrogPilotVehiclesPanel::updateToggles() {
 
   disableOpenpilotLong->setVisible((parent->hasOpenpilotLongitudinal || params.getBool("DisableOpenpilotLongitudinal")) && parent->canDisableOpenpilotLong &&
                                  parent->tuningLevel >= parent->frogpilotToggleLevels.value("DisableOpenpilotLongitudinal").toDouble());
-  bool canForceFingerprint = parent->tuningLevel >= parent->frogpilotToggleLevels.value("ForceFingerprint").toDouble();
-  forceFingerprint->setVisible(canForceFingerprint);
-
-  bool canSelectCar = canForceFingerprint && params.getBool("ForceFingerprint");
-  selectMakeButton->setEnabled(canSelectCar);
-  selectModelButton->setEnabled(canSelectCar);
+  forceFingerprint->setVisible(parent->tuningLevel >= parent->frogpilotToggleLevels.value("ForceFingerprint").toDouble());
 
   openDescriptions(forceOpenDescriptions, toggles);
 

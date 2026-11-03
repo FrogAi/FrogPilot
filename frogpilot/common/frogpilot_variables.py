@@ -60,7 +60,7 @@ UPDATE_PROGRESS_INTERVAL = 0.1            # Seconds between update progress chec
 
 DISABLE_OPENPILOT_LONG_BRANDS = {"ford", "toyota"}
 DISTANCE_BUTTON_BRANDS = {"chrysler", "ford", "gm", "honda", "hyundai", "mazda", "nissan", "volkswagen"}
-LKAS_BUTTON_BRANDS = {"chrysler", "ford", "gm", "honda", "mazda", "nissan"}
+LKAS_BUTTON_BRANDS = {"chrysler", "ford", "gm", "honda", "mazda", "nissan", "subaru"}
 MAP_GEARS_BRANDS = {"gm", "toyota"}
 NO_STATS_BRANDS = {"body", "mock"}
 

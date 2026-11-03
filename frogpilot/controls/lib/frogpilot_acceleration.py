@@ -43,8 +43,8 @@ class FrogPilotAcceleration:
     acceleration_profile = frogpilot_toggles.acceleration_profile
     if eco_gear and frogpilot_toggles.map_acceleration:
       acceleration_profile = frogpilot_variables.ACCELERATION_PROFILES["ECO"]
-    elif sport_gear and acceleration_profile != frogpilot_variables.ACCELERATION_PROFILES["SPORT"] and frogpilot_toggles.map_acceleration:
-      acceleration_profile = frogpilot_variables.ACCELERATION_PROFILES["SPORT_PLUS"]
+    elif sport_gear and acceleration_profile in (frogpilot_variables.ACCELERATION_PROFILES["ECO"], frogpilot_variables.ACCELERATION_PROFILES["STANDARD"]) and frogpilot_toggles.map_acceleration:
+      acceleration_profile = frogpilot_variables.ACCELERATION_PROFILES["SPORT"]
 
     if acceleration_profile == frogpilot_variables.ACCELERATION_PROFILES["ECO"]:
       self.max_accel = get_max_accel_eco(v_ego)

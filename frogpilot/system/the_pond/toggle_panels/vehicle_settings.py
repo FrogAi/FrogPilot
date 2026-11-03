@@ -62,10 +62,6 @@ def car_row_reason(context, key, available):
   return context.level_reason(key) or context.car_reason(context.car_detected and available)
 
 
-def car_selection_reason(context):
-  return context.level_reason("ForceFingerprint") or context.setting_reason(context.params.get_bool("ForceFingerprint"), "ForceFingerprint")
-
-
 def disable_openpilot_longitudinal_visible(context):
   available = context.has_openpilot_longitudinal or context.params.get_bool("DisableOpenpilotLongitudinal")
   return context.level_reason("DisableOpenpilotLongitudinal") or context.car_reason(available and context.can_disable_openpilot_long)
@@ -149,10 +145,9 @@ ROWS = [
     "widget": "action"
   },
   {
-    "description": ("<b>The make of the car openpilot is using.</b> To pick one yourself, turn on \"Disable Automatic Fingerprint Detection\" first " +
-                    "(\"Advanced\" tuning level)."),
+    "description": ("<b>The make of the car openpilot is using.</b> If openpilot doesn't recognize your car, pick it here and openpilot uses it instead. " +
+                    "To always use the car you pick, turn on \"Disable Automatic Fingerprint Detection\" (\"Advanced\" tuning level)."),
     "display": lambda context: context.params.get("CarMake"),
-    "enabled": car_selection_reason,
     "key": "CarMake",
     "on_change": car_make_changed,
     "options": tuple({"label": make, "value": make} for make in frogpilot_variables.CAR_MAKES),
@@ -164,10 +159,9 @@ ROWS = [
   },
   {
     "current": lambda context: context.params.get("CarModelName"),
-    "description": ("<b>The model of the car openpilot is using.</b> To pick one yourself, turn on \"Disable Automatic Fingerprint Detection\" first " +
-                    "(\"Advanced\" tuning level)."),
+    "description": ("<b>The model of the car openpilot is using.</b> If openpilot doesn't recognize your car, pick it here and openpilot uses it instead. " +
+                    "To always use the car you pick, turn on \"Disable Automatic Fingerprint Detection\" (\"Advanced\" tuning level)."),
     "display": lambda context: context.params.get("CarModelName") or context.params.get("CarModel"),
-    "enabled": car_selection_reason,
     "key": "CarModel",
     "keys": ("CarModel", "CarModelName"),
     "on_change": car_model_changed,

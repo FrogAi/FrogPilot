@@ -70,8 +70,11 @@ def add_event(events, last_seen, kind, time, reason=None):
 
 
 def read_events(qlog):
-  with open(qlog, "rb") as file:
-    data = zstandard.ZstdDecompressor().stream_reader(file).read()
+  try:
+    with open(qlog, "rb") as file:
+      data = zstandard.ZstdDecompressor().stream_reader(file).read()
+  except FileNotFoundError:
+    return
 
   try:
     yield from log.Event.read_multiple_bytes(data)
