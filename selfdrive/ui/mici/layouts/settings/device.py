@@ -8,6 +8,7 @@ from collections.abc import Callable
 from openpilot.common.basedir import BASEDIR
 from openpilot.common.params import Params
 from openpilot.common.time_helpers import system_time_valid
+from openpilot.frogpilot.ui.mici.frogpilot_telemetry import ShareDataToggle
 from openpilot.system.ui.widgets.scroller import Scroller
 from openpilot.system.ui.lib.scroll_panel2 import GuiScrollPanel2
 from openpilot.selfdrive.ui.mici.widgets.button import BigButton, BigCircleButton
@@ -333,6 +334,10 @@ class DeviceLayoutMici(NavWidget):
     self._scroller = Scroller([
       DeviceInfoLayoutMici(),
       UpdateOpenpilotBigButton(),
+
+      # FrogPilot variables
+      ShareDataToggle(),
+
       PairBigButton(),
       review_training_guide_btn,
       driver_cam_btn,

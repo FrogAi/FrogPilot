@@ -171,7 +171,33 @@ def read_settings_archive(params, file):
   try:
     backup_zip = zipfile.ZipFile(file)
   except zipfile.BadZipFile:
-    raise web.HTTPBadRequest(text="invalid_file") from None
+    file.seek(0)
+
+    try:
+      backup = json.load(file)
+    except (json.JSONDecodeError, UnicodeDecodeError):
+      raise web.HTTPBadRequest(text="invalid_file") from None
+
+    if not isinstance(backup, dict) or not isinstance(backup.get("data"), dict):
+      raise web.HTTPBadRequest(text="invalid_file") from None
+
+    settings = {}
+
+    for key, value in backup["data"].items():
+      if key not in frogpilot_variables.SETTINGS_BACKUP_KEYS:
+        continue
+
+      if not isinstance(value, str):
+        raise web.HTTPBadRequest(text="invalid_file") from None
+
+      value = value.encode("utf-8")
+
+      if len(value) > MAX_SETTING_SIZE:
+        raise web.HTTPBadRequest(text="invalid_file") from None
+
+      if not value or params.cpp2python(key, value) is not None:
+        settings[key] = value
+    return settings
 
   settings = {}
   with backup_zip:

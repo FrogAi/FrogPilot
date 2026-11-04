@@ -5,6 +5,7 @@ import math
 import numpy as np
 import pyray as rl
 from openpilot.common.filter_simple import FirstOrderFilter
+from openpilot.frogpilot.ui.mici.frogpilot_telemetry import TelemetryPage
 from openpilot.system.hardware import HARDWARE
 from openpilot.system.ui.lib.application import FontWeight, gui_app
 from openpilot.system.ui.widgets import Widget
@@ -24,6 +25,9 @@ class OnboardingState(IntEnum):
   TERMS = 0
   ONBOARDING = 1
   DECLINE = 2
+
+  # FrogPilot variables
+  TELEMETRY = 3
 
 
 class DriverCameraSetupDialog(DriverCameraDialog):
@@ -450,6 +454,14 @@ class OnboardingWindow(Widget):
     self._training_guide = TrainingGuide(completed_callback=self._on_completed_training)
     self._decline_page = DeclinePage(back_callback=self._on_decline_back)
 
+    # FrogPilot variables
+    self._telemetry_confirmed = ui_state.params.get_bool("FrogPilotTelemetryConfirmed")
+
+    self._telemetry_page = TelemetryPage(self._on_telemetry_answered)
+
+    if self._accepted_terms and self._training_done and not self._telemetry_confirmed:
+      self._show_telemetry_page()
+
   def show_event(self):
     super().show_event()
     device.set_override_interactive_timeout(300)
@@ -460,7 +472,7 @@ class OnboardingWindow(Widget):
 
   @property
   def completed(self) -> bool:
-    return self._accepted_terms and self._training_done
+    return self._accepted_terms and self._training_done and self._telemetry_confirmed
 
   def _on_terms_declined(self):
     self._state = OnboardingState.DECLINE
@@ -478,6 +490,12 @@ class OnboardingWindow(Widget):
 
   def _on_completed_training(self):
     ui_state.params.put("CompletedTrainingVersion", training_version)
+
+    # FrogPilot variables
+    if not self._telemetry_confirmed:
+      self._show_telemetry_page()
+      return
+
     self.close()
 
   def _render(self, _):
@@ -487,4 +505,16 @@ class OnboardingWindow(Widget):
       self._training_guide.render(self._rect)
     elif self._state == OnboardingState.DECLINE:
       self._decline_page.render(self._rect)
+    # FrogPilot variables
+    elif self._state == OnboardingState.TELEMETRY:
+      self._telemetry_page.render(rl.Rectangle(0, 0, gui_app.width, gui_app.height))
     return -1
+
+  # FrogPilot variables
+  def _show_telemetry_page(self):
+    self._state = OnboardingState.TELEMETRY
+    self._telemetry_page.show_event()
+
+  def _on_telemetry_answered(self):
+    self._telemetry_confirmed = True
+    self.close()

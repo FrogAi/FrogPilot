@@ -223,7 +223,7 @@ async function importBackup(input) {
   if (!file) {
     return;
   }
-  const name = file.name.replace(/\.zip$/i, "").replace(/_auto$/, "").replace(/[^A-Za-z0-9._-]+/g, "_");
+  const name = file.name.replace(/\.(json|zip)$/i, "").replace(/_auto$/, "").replace(/[^A-Za-z0-9._-]+/g, "_");
   const form = new FormData();
   form.append("name", name);
   form.append("file", file);
@@ -381,7 +381,9 @@ P.page("backups", {
         <section class="panel backups-panel" aria-labelledby="bk-h">
           <div class="panel-head"><h2 id="bk-h">Settings backups</h2><span class="aside backups-acts">
             ${backups.length ? `<button class="btn btn-danger-quiet btn-small" data-act="backups-delete-all">Delete all…</button>` : ""}
-            <label class="btn btn-quiet btn-small file-btn">${P.ic("upload")}<span>Import</span><input type="file" data-import accept=".zip,application/zip"></label>
+            <label class="btn btn-quiet btn-small file-btn">${P.ic("upload")}<span>Import</span>
+              <input type="file" data-import accept=".json,.zip,application/json,application/zip">
+            </label>
             <button class="btn btn-primary btn-small" data-act="backups-new">${P.ic("plus")}<span>Back up<span class="lbl-long"> now</span></span></button>
           </span></div>
           <p class="hint backups-lede">Just your settings, so you can undo changes or move them to another device.</p>

@@ -60,7 +60,7 @@
 
 // FrogPilot variables
 #define TOYOTA_PCM_CRUISE_2_RX_CHECK                                                                                                       \
-  {.msg = {{0x1D3, 0, 8, 33U, .ignore_checksum = true, .ignore_counter = true, .ignore_quality_flag = true}, { 0 }, { 0 }}},  \
+  {.msg = {{0x1D3, 0, 8, 33U, .ignore_counter = true, .ignore_quality_flag = true}, { 0 }, { 0 }}},                           \
 
 #define TOYOTA_DSU_CRUISE_RX_CHECK                                                                                                         \
   {.msg = {{0x365, 0, 7, 5U, .ignore_checksum = true, .ignore_counter = true, .ignore_quality_flag = true}, { 0 }, { 0 }}},   \

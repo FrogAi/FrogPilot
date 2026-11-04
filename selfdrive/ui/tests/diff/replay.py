@@ -45,6 +45,10 @@ def setup_state():
   params.put("CompletedTrainingVersion", training_version)
   params.put("DongleId", "test123456789")
   params.put("UpdaterCurrentDescription", "0.10.1 / test-branch / abc1234 / Nov 30")
+
+  # FrogPilot variables
+  params.put_bool("FrogPilotTelemetryConfirmed", True)
+
   return None
 
 

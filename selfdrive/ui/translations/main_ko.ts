@@ -120,7 +120,7 @@
     </message>
     <message>
         <source>Share your device's internet connection with other devices all the time, only while driving, or until the device reboots. Internet sharing only works on a paired device with comma prime lite or no comma prime.</source>
-        <translation type="unfinished"></translation>
+        <translation>장치의 인터넷 연결을 다른 장치와 공유합니다. 항상 공유하거나, 주행 중에만 공유하거나, 장치를 재부팅할 때까지 공유할 수 있습니다. 인터넷 공유는 페어링된 장치에서 comma prime lite를 사용 중이거나 comma prime을 사용하지 않을 때만 작동합니다.</translation>
     </message>
 </context>
 <context>
@@ -169,15 +169,15 @@
     </message>
     <message>
         <source>openpilot Longitudinal Control (Alpha)</source>
-        <translation>openpilot 가감속 제어 (알파)</translation>
+        <translation type="vanished">openpilot 가감속 제어 (알파)</translation>
     </message>
     <message>
         <source>WARNING: openpilot longitudinal control is in alpha for this car and will disable Automatic Emergency Braking (AEB).</source>
-        <translation>경고: 이 차량의 openpilot 가감속 제어는 알파 단계이며 자동 긴급 제동(AEB)을 비활성화합니다.</translation>
+        <translation type="vanished">경고: 이 차량의 openpilot 가감속 제어는 알파 단계이며 자동 긴급 제동(AEB)을 비활성화합니다.</translation>
     </message>
     <message>
         <source>On this car, openpilot defaults to the car's built-in ACC instead of openpilot's longitudinal control. Enable this to switch to openpilot longitudinal control. Enabling Experimental mode is recommended when enabling openpilot longitudinal control alpha.</source>
-        <translation>이 차량은 openpilot 가감속 제어 대신 기본적으로 차량의 ACC로 가감속을 제어합니다. openpilot의 가감속 제어로 전환하려면 이 기능을 활성화하세요. openpilot 가감속 제어 알파를 활성화하는 경우 실험 모드 활성화를 권장합니다.</translation>
+        <translation type="vanished">이 차량은 openpilot 가감속 제어 대신 기본적으로 차량의 ACC로 가감속을 제어합니다. openpilot의 가감속 제어로 전환하려면 이 기능을 활성화하세요. openpilot 가감속 제어 알파를 활성화하는 경우 실험 모드 활성화를 권장합니다.</translation>
     </message>
     <message>
         <source>Developer UI</source>
@@ -449,19 +449,19 @@
     </message>
     <message>
         <source>&lt;b&gt;Color the edge of the driving screen to show what openpilot is reacting to.&lt;/b&gt;&lt;br&gt;&lt;br&gt;You can switch on the blind spot, steering effort, and turn signal borders separately. The blind spot one only appears on cars with factory blind spot monitoring, and the steering effort one only appears on cars where openpilot sends a steering effort rather than a steering angle.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;openpilot이 반응하는 상황을 주행 화면 테두리 색상으로 표시합니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;사각지대, 조향 힘, 방향지시등 테두리를 각각 켤 수 있습니다. 사각지대 테두리는 출고 시 사각지대 감지 장치가 장착된 차량에서만 나타나며, 조향 힘 테두리는 openpilot이 조향각 대신 조향 힘을 보내는 차량에서만 나타납니다.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Print how far away the car ahead is and how fast it is going, underneath its marker.&lt;/b&gt;&lt;br&gt;&lt;br&gt;On cars where openpilot handles the gas and brake, it also shows the gap openpilot is aiming for, so you can see it closing in on the distance you asked for.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;선행 차량 표시 아래에 해당 차량까지의 거리와 속도를 표시합니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;openpilot이 가속과 제동을 제어하는 차량에서는 openpilot이 목표로 하는 간격도 표시하므로 요청한 차간 거리에 가까워지는 과정을 확인할 수 있습니다.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Add a second sidebar down the right-hand side, holding up to seven readouts you pick yourself.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It makes the camera view narrower, so it is worth turning off when you are not using it. Setting all seven to "None" leaves the bar there but empty.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;오른쪽에 직접 선택한 지표를 최대 일곱 개까지 표시하는 두 번째 사이드바를 추가합니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;카메라 화면이 좁아지므로 사용하지 않을 때는 끄는 것이 좋습니다. 일곱 항목을 모두 "없음"으로 설정하면 사이드바는 남아 있지만 비어 있게 됩니다.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Drop a stop sign on the road where openpilot is planning to come to a stop.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It only marks stops openpilot works out for itself, so it stays away when openpilot is slowing for a car ahead, and "Traffic Mode" switches it off entirely. "Show Distance" also prints how far away that stop is.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;openpilot이 정지하려는 도로 지점에 정지 표지판을 표시합니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;openpilot이 스스로 판단한 정지 지점만 표시하므로 선행 차량 때문에 감속할 때는 나타나지 않으며, "교통 모드"에서는 완전히 꺼집니다. "거리 표시"는 해당 정지 지점까지의 거리도 표시합니다.</translation>
     </message>
 </context>
 <context>
@@ -715,15 +715,15 @@ Steering lag calibration is complete.</source>
     </message>
     <message>
         <source>Soft Reboot</source>
-        <translation type="unfinished"></translation>
+        <translation>소프트 재부팅</translation>
     </message>
     <message>
         <source>Are you sure you want to soft reboot?</source>
-        <translation type="unfinished"></translation>
+        <translation>소프트 재부팅하시겠습니까?</translation>
     </message>
     <message>
         <source>Disengage to Soft Reboot</source>
-        <translation type="unfinished"></translation>
+        <translation>소프트 재부팅하려면 openpilot 제어를 해제하세요</translation>
     </message>
 </context>
 <context>
@@ -821,6 +821,41 @@ Firehose Mode allows you to maximize your training data uploads to improve openp
     </message>
 </context>
 <context>
+    <name>FrogPilotAccountPopup</name>
+    <message>
+        <source>Delete your FrogPilot data</source>
+        <translation>FrogPilot 데이터를 삭제하세요</translation>
+    </message>
+    <message>
+        <source>Check what will be deleted on FrogPilot.com</source>
+        <translation>FrogPilot.com에서 삭제될 내용을 확인하세요</translation>
+    </message>
+    <message>
+        <source>Confirm to delete it</source>
+        <translation>삭제를 확정하세요</translation>
+    </message>
+    <message>
+        <source>Link this device to your FrogPilot.com account</source>
+        <translation>이 장치를 FrogPilot.com 계정과 연동하세요</translation>
+    </message>
+    <message>
+        <source>Sign in to FrogPilot.com if asked</source>
+        <translation>요청 시 FrogPilot.com에 로그인하세요</translation>
+    </message>
+    <message>
+        <source>Confirm to link this device</source>
+        <translation>이 장치 연동을 확정하세요</translation>
+    </message>
+    <message>
+        <source>Scan the QR code on the right with your phone</source>
+        <translation>휴대전화로 오른쪽 QR 코드를 스캔하세요</translation>
+    </message>
+    <message>
+        <source>Connect to the internet to set the clock first</source>
+        <translation>시간을 맞추려면 먼저 인터넷에 연결하세요</translation>
+    </message>
+</context>
+<context>
     <name>FrogPilotAnnotatedCameraWidget</name>
     <message>
         <source> meters</source>
@@ -888,68 +923,68 @@ Firehose Mode allows you to maximize your training data uploads to improve openp
     </message>
     <message>
         <source>N</source>
-        <translation type="unfinished"></translation>
+        <translation>북</translation>
     </message>
     <message>
         <source>NE</source>
-        <translation type="unfinished"></translation>
+        <translation>북동</translation>
     </message>
     <message>
         <source>E</source>
-        <translation type="unfinished"></translation>
+        <translation>동</translation>
     </message>
     <message>
         <source>SE</source>
-        <translation type="unfinished"></translation>
+        <translation>남동</translation>
     </message>
     <message>
         <source>S</source>
-        <translation type="unfinished"></translation>
+        <translation>남</translation>
     </message>
     <message>
         <source>SW</source>
-        <translation type="unfinished"></translation>
+        <translation>남서</translation>
     </message>
     <message>
         <source>W</source>
-        <translation type="unfinished"></translation>
+        <translation>서</translation>
     </message>
     <message>
         <source>NW</source>
-        <translation type="unfinished"></translation>
+        <translation>북서</translation>
     </message>
     <message>
         <source>Training...</source>
-        <translation type="unfinished"></translation>
+        <translation>학습 중...</translation>
     </message>
     <message>
         <source>N/A</source>
-        <translation type="unfinished">N/A</translation>
+        <translation>N/A</translation>
     </message>
     <message>
         <source>Camera</source>
-        <translation type="unfinished"></translation>
+        <translation>카메라</translation>
     </message>
     <message>
         <source>Dashboard</source>
-        <translation type="unfinished">계기판</translation>
+        <translation>계기판</translation>
     </message>
     <message>
         <source>Map Data</source>
-        <translation type="unfinished">지도 데이터</translation>
+        <translation>지도 데이터</translation>
     </message>
     <message>
         <source>Mapbox</source>
-        <translation type="unfinished"></translation>
+        <translation>Mapbox</translation>
     </message>
     <message>
         <source>Upcoming</source>
-        <translation type="unfinished"></translation>
+        <translation>다음 구간</translation>
     </message>
     <message>
         <source>LIMIT</source>
         <comment>speed limit sign, line under SPEED</comment>
-        <translation type="unfinished">제한</translation>
+        <translation>LIMIT</translation>
     </message>
 </context>
 <context>
@@ -976,7 +1011,7 @@ Firehose Mode allows you to maximize your training data uploads to improve openp
     </message>
     <message>
         <source>The device can't reboot while openpilot is steering. Disengage, then reboot from the Device panel.</source>
-        <translation type="unfinished"></translation>
+        <translation>openpilot이 조향 중일 때는 장치를 재부팅할 수 없습니다. openpilot 제어를 해제한 후 장치 패널에서 재부팅하세요.</translation>
     </message>
 </context>
 <context>
@@ -1412,142 +1447,182 @@ Firehose Mode allows you to maximize your training data uploads to improve openp
     <message>
         <source>th</source>
         <comment>ordinal suffix</comment>
-        <translation type="unfinished"></translation>
+        <translation>일</translation>
     </message>
     <message>
         <source>st</source>
         <comment>ordinal suffix</comment>
-        <translation type="unfinished"></translation>
+        <translation>일</translation>
     </message>
     <message>
         <source>nd</source>
         <comment>ordinal suffix</comment>
-        <translation type="unfinished"></translation>
+        <translation>일</translation>
     </message>
     <message>
         <source>rd</source>
         <comment>ordinal suffix</comment>
-        <translation type="unfinished"></translation>
+        <translation>일</translation>
     </message>
     <message>
         <source>%1 %2%3, %4 (%5)</source>
-        <translation type="unfinished"></translation>
+        <translation>%4년 %1 %2%3 (%5)</translation>
     </message>
     <message>
         <source> (Replay)</source>
-        <translation type="unfinished"></translation>
+        <translation> (리플레이)</translation>
     </message>
     <message>
         <source>Choose screen recordings to delete</source>
-        <translation type="unfinished"></translation>
+        <translation>삭제할 화면 녹화 파일을 선택하세요</translation>
     </message>
     <message>
         <source>Delete the %1 selected screen recordings?</source>
-        <translation type="unfinished"></translation>
+        <translation>선택한 화면 녹화 파일 %1개를 삭제하시겠습니까?</translation>
     </message>
     <message>
         <source>Choose backups to delete</source>
-        <translation type="unfinished"></translation>
+        <translation>삭제할 백업을 선택하세요</translation>
     </message>
     <message>
         <source>Delete the %1 selected backups?</source>
-        <translation type="unfinished"></translation>
+        <translation>선택한 백업 %1개를 삭제하시겠습니까?</translation>
     </message>
     <message>
         <source>&lt;b&gt;Save a copy of your current settings, restore a saved copy, or delete ones you no longer need.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Restoring applies most settings right away, but a few, such as "High-Quality Recording" and "Use Konik Server", need a reboot. FrogPilot also saves a copy automatically whenever you change a setting, but it only keeps the newest few and deletes the older ones. Those show up in the list by date and time.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;현재 설정의 사본을 저장하거나, 저장된 사본을 복원하거나, 더 이상 필요 없는 사본을 삭제합니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;복원하면 대부분의 설정이 바로 적용되지만 "고화질 녹화", "Konik 서버 사용" 등 일부 설정은 재부팅해야 합니다. FrogPilot은 설정을 변경할 때마다 사본을 자동으로도 저장하지만 최신 사본 몇 개만 유지하고 오래된 사본은 삭제합니다. 자동 저장된 사본은 목록에 날짜와 시간으로 표시됩니다.</translation>
     </message>
     <message>
         <source>Goat Screams</source>
-        <translation type="unfinished"></translation>
+        <translation>염소 비명 횟수</translation>
     </message>
     <message>
         <source>Collision Alerts</source>
-        <translation type="unfinished"></translation>
+        <translation>충돌 경고 횟수</translation>
     </message>
     <message>
         <source>Disengagements</source>
-        <translation type="unfinished"></translation>
+        <translation>제어 해제 횟수</translation>
     </message>
     <message>
         <source>Engagements</source>
-        <translation type="unfinished"></translation>
+        <translation>제어 시작 횟수</translation>
     </message>
     <message>
         <source>Frog Chirps</source>
-        <translation type="unfinished"></translation>
+        <translation>개구리 울음 횟수</translation>
     </message>
     <message>
         <source>Frog Hops</source>
-        <translation type="unfinished"></translation>
+        <translation>개구리 점프 횟수</translation>
     </message>
     <message>
         <source>Drives</source>
-        <translation type="unfinished">주행 횟수</translation>
+        <translation>주행 횟수</translation>
     </message>
     <message>
         <source>Frog Squeaks</source>
-        <translation type="unfinished"></translation>
+        <translation>개구리 찍찍 소리 횟수</translation>
     </message>
     <message>
         <source>Overrides</source>
-        <translation type="unfinished"></translation>
+        <translation>운전자 개입 횟수</translation>
     </message>
     <message>
         <source>Aggressive</source>
-        <translation type="unfinished">공격적</translation>
+        <translation>공격적</translation>
     </message>
     <message>
         <source>Relaxed</source>
-        <translation type="unfinished">편안한</translation>
+        <translation>편안한</translation>
     </message>
     <message>
         <source>Standard</source>
-        <translation type="unfinished">표준</translation>
+        <translation>표준</translation>
     </message>
     <message>
         <source>Clear</source>
-        <translation type="unfinished"></translation>
+        <translation>맑음</translation>
     </message>
     <message>
         <source>Low Visibility</source>
-        <translation type="unfinished">시야 불량</translation>
+        <translation>시야 불량</translation>
     </message>
     <message>
         <source>Rain</source>
-        <translation type="unfinished">비</translation>
+        <translation>비</translation>
     </message>
     <message>
         <source>Rain Storm</source>
-        <translation type="unfinished"></translation>
+        <translation>폭우</translation>
     </message>
     <message>
         <source>Snow</source>
-        <translation type="unfinished">눈</translation>
+        <translation>눈</translation>
     </message>
     <message>
         <source>% of %1</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 비율 (%)</translation>
     </message>
     <message>
         <source>&lt;b&gt;Delete every recorded drive to free up space and clear personal footage off the device.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Only the one-minute chunk of footage containing the moment you flagged is kept, not the rest of that drive. Drives preserved in "The Pond" are kept whole.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;녹화된 모든 주행을 삭제하여 저장 공간을 확보하고 장치에서 개인 영상을 지웁니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;표시한 순간이 포함된 1분 길이의 영상 구간만 유지되며, 해당 주행의 나머지 부분은 유지되지 않습니다. "The Pond"에서 보존한 주행은 전체가 유지됩니다.</translation>
     </message>
     <message>
         <source>Delete all driving footage and data? Only the flagged one-minute chunks and the drives preserved in "The Pond" will be kept.</source>
-        <translation type="unfinished"></translation>
+        <translation>모든 주행 영상과 데이터를 삭제하시겠습니까? 표시한 1분 길이의 구간과 "The Pond"에서 보존한 주행만 유지됩니다.</translation>
     </message>
     <message>
         <source>An update check is running. Wait for it to finish and try again.</source>
-        <translation type="unfinished"></translation>
+        <translation>업데이트 확인이 진행 중입니다. 완료될 때까지 기다린 후 다시 시도하세요.</translation>
     </message>
     <message>
         <source>Reboots when the car is off</source>
-        <translation type="unfinished"></translation>
+        <translation>시동이 꺼지면 재부팅</translation>
     </message>
     <message>
         <source>Total Time Tracked</source>
-        <translation type="unfinished"></translation>
+        <translation>총 기록 시간</translation>
+    </message>
+    <message>
+        <source>FrogPilot.com Account</source>
+        <translation>FrogPilot.com 계정</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Link this device to your FrogPilot.com account, or delete the data FrogPilot keeps about it.&lt;/b&gt;&lt;br&gt;&lt;br&gt;A linked device's stats and reports show in your account. Both show a code to scan with your phone.</source>
+        <translation>&lt;b&gt;이 장치를 FrogPilot.com 계정과 연동하거나, FrogPilot이 이 장치에 대해 보관하는 데이터를 삭제합니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;연동된 장치의 통계와 보고서는 계정에 표시됩니다. 두 기능 모두 휴대전화로 스캔할 코드를 표시합니다.</translation>
+    </message>
+    <message>
+        <source>LINK</source>
+        <translation>연동</translation>
+    </message>
+    <message>
+        <source>UNLINK</source>
+        <translation>연동 해제</translation>
+    </message>
+    <message>
+        <source>This shows a code to scan with your phone. On FrogPilot.com you'll see exactly what will be deleted before anything is.</source>
+        <translation>휴대전화로 스캔할 코드가 표시됩니다. FrogPilot.com에서는 무언가가 삭제되기 전에 삭제될 내용을 정확히 확인할 수 있습니다.</translation>
+    </message>
+    <message>
+        <source>Continue</source>
+        <translation>계속</translation>
+    </message>
+    <message>
+        <source>Unlink this device from your FrogPilot.com account?</source>
+        <translation>이 장치와 FrogPilot.com 계정의 연동을 해제하시겠습니까?</translation>
+    </message>
+    <message>
+        <source>Unlink</source>
+        <translation>연동 해제</translation>
+    </message>
+    <message>
+        <source>Unlinking...</source>
+        <translation>연동 해제하는 중...</translation>
+    </message>
+    <message>
+        <source>Linked as @%1</source>
+        <translation>@%1 계정으로 연동됨</translation>
     </message>
 </context>
 <context>
@@ -1689,56 +1764,56 @@ Firehose Mode allows you to maximize your training data uploads to improve openp
         <translation>&lt;b&gt;주행 중 화면을 끄고, 경고가 발생하거나 openpilot 제어가 시작 또는 해제될 때 자동으로 화면을 켭니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;화면을 눌러도 켜집니다.</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Let the device run about 6 degrees Celsius hotter than normal before openpilot disengages because of the heat.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Normally openpilot disengages and will not re-engage once the device gets hot, and drops back to the offroad screen if it keeps climbing. This only makes the first happen later: the device still drops back to the offroad screen at the normal temperature. Running the device that hot can shorten its life or damage it, so only use this if you understand the risk.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Capture Recent Footage</source>
-        <translation type="unfinished"></translation>
+        <translation>최근 영상 캡처</translation>
     </message>
     <message>
         <source>&lt;b&gt;Save what just happened on your driving screen.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Choose how far back to keep, then tap "CAPTURE" to save a moment you want to review or share. There's no need to remember to start recording beforehand.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;주행 화면에서 방금 일어난 일을 저장합니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;얼마나 이전까지 보관할지 선택한 다음 "캡처"를 눌러 다시 보거나 공유하고 싶은 순간을 저장하세요. 미리 녹화를 시작해 둘 필요가 없습니다.</translation>
     </message>
     <message>
         <source>Off</source>
-        <translation type="unfinished">끄기</translation>
+        <translation>끄기</translation>
     </message>
     <message>
         <source>30 seconds</source>
-        <translation type="unfinished"></translation>
+        <translation>30초</translation>
     </message>
     <message>
         <source>1 minute</source>
-        <translation type="unfinished"></translation>
+        <translation>1분</translation>
     </message>
     <message>
         <source> minutes</source>
-        <translation type="unfinished">분</translation>
+        <translation>분</translation>
     </message>
     <message>
         <source>Start Recording</source>
-        <translation type="unfinished"></translation>
+        <translation>녹화 시작</translation>
     </message>
     <message>
         <source>Stop Recording</source>
-        <translation type="unfinished"></translation>
+        <translation>녹화 중지</translation>
     </message>
     <message>
         <source>&lt;b&gt;Stop the device from recording your drives.&lt;/b&gt;&lt;br&gt;&lt;br&gt;No driving logs or camera footage are saved, so you won't be able to review your drives later or send a useful bug report, and FrogPilot driving logs are no longer shared. Screen recordings, speed limit sign photos, and the device's own system logs are still saved.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;장치가 주행을 녹화하지 않도록 합니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;주행 로그와 카메라 영상이 저장되지 않으므로 나중에 주행을 다시 확인하거나 유용한 버그 보고서를 보낼 수 없으며, FrogPilot 주행 로그도 더 이상 공유되지 않습니다. 화면 녹화, 제한 속도 표지판 사진, 장치 자체의 시스템 로그는 계속 저장됩니다.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Stop the device from uploading your drives to "comma connect" or Konik and from sharing FrogPilot driving logs, speed limit sign clips, and learned speed limits.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Your drives are still saved on the device. comma uses uploads for debugging and official support, so turning this on limits the help they can give. Files that comma connect or Konik asks the device to upload, usage stats, device registration, crash reports, and weather and Mapbox lookups are not affected. "Disable Onroad Only" pauses uploads while you drive and lets them finish once you park, but only while the device is on Wi-Fi or Ethernet.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;장치가 주행 기록을 "comma connect" 또는 Konik에 업로드하지 않고, FrogPilot 주행 로그, 제한 속도 표지판 클립, 학습된 제한 속도도 공유하지 않도록 합니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;주행 기록은 장치에 계속 저장됩니다. comma는 업로드된 데이터를 디버깅과 공식 지원에 사용하므로 이 기능을 켜면 comma가 제공할 수 있는 지원이 제한됩니다. comma connect 또는 Konik이 장치에 업로드를 요청한 파일, 사용 통계, 장치 등록, 비정상 종료 보고서, 날씨 및 Mapbox 조회에는 영향을 주지 않습니다. "주행 중에만 비활성화"는 주행 중에는 업로드를 일시 중지하고 주차한 후 마치게 하지만, 장치가 Wi-Fi 또는 Ethernet에 연결되어 있을 때만 가능합니다.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Upload your drives to "stable.konik.ai" instead of "connect.comma.ai".&lt;/b&gt;&lt;br&gt;&lt;br&gt;Device registration and remote access go through Konik too. Registering with Konik sends the device's IMEI and serial number. The device needs to reboot for this to take effect.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;주행 기록을 "connect.comma.ai" 대신 "stable.konik.ai"에 업로드합니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;장치 등록과 원격 접속도 Konik을 통해 이루어집니다. Konik에 등록하면 장치의 IMEI와 일련번호가 전송됩니다. 적용하려면 장치를 재부팅해야 합니다.</translation>
     </message>
     <message>
         <source>&lt;b&gt;How bright the screen is while you're driving.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"Auto" matches the light around you, and "Screen Off" keeps the display dark until you tap it, an alert shows, or openpilot engages or disengages. A tap or wake-up brightens anything below 5% to 5% until the screen times out.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;주행 중 화면 밝기입니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"자동"은 주변 밝기에 맞추고, "화면 끄기"는 화면을 누르거나, 알림이 표시되거나, openpilot이 작동 또는 해제될 때까지 디스플레이를 어둡게 유지합니다. 밝기가 5% 미만이면 화면을 누르거나 화면이 깨어날 때 화면 꺼짐 시간이 지날 때까지 5%로 밝아집니다.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Let the device run about 6 degrees Celsius hotter than normal before openpilot disengages because of the heat.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Normally openpilot disengages and will not re-engage once the device gets hot, and drops back to the offroad screen if it keeps climbing. This only makes the first happen later. The device still drops back to the offroad screen at the normal temperature. Running the device that hot can shorten its life or damage it, so only use this if you understand the risk.</source>
+        <translation>&lt;b&gt;열 때문에 openpilot 제어가 해제되기 전까지 장치가 평소보다 섭씨 약 6도 더 높은 온도로 작동할 수 있게 합니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;일반적으로 장치가 뜨거워지면 openpilot 제어가 해제되고 다시 시작되지 않으며, 온도가 계속 오르면 비주행 화면으로 돌아갑니다. 이 설정은 제어 해제만 늦출 뿐이며, 장치는 여전히 평소와 같은 온도에서 비주행 화면으로 돌아갑니다. 장치를 그렇게 뜨거운 상태로 작동하면 수명이 줄거나 손상될 수 있으므로 위험을 이해하는 경우에만 사용하세요.</translation>
     </message>
 </context>
 <context>
@@ -2027,36 +2102,36 @@ Firehose Mode allows you to maximize your training data uploads to improve openp
         <translation>모든 속도</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Use the LKAS button to arm steering, so openpilot keeps steering even when it is not engaged.&lt;/b&gt;&lt;br&gt;&lt;br&gt;openpilot does not read your car's LKAS status for this. It starts every drive disarmed and each press of the LKAS button flips it, so expect one press after starting the car. With this off, the LKAS button is free to reassign under "LKAS Button", and steering stops as soon as openpilot is no longer engaged, unless openpilot handles the gas and brake, in which case the cruise control button arms it instead.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Reset</source>
-        <translation type="unfinished">초기화</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;openpilot keeps steering for you even when it isn't controlling the gas and brake, so it holds your lane when you press a pedal, cancel, or haven't engaged openpilot at all.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It steers from the moment your car's cruise control is switched on until you switch that back off or shift out of drive, and it pauses while you brake below the speed set in "Pause on Brake Press Below", except at a full stop. On the newer Hyundai, Kia, and Genesis cars, the LKAS button takes the place of cruise control while "Enable With LKAS" is on.</source>
-        <translation type="unfinished"></translation>
+        <translation>초기화</translation>
     </message>
     <message>
         <source>&lt;b&gt;Pause "Always On Lateral" below the set speed while the brake pedal is pressed, except at a full stop.&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;설정한 속도 미만에서 브레이크 페달을 밟고 있는 동안 "상시 조향"을 일시 중지합니다. 단, 완전히 정지한 상태에서는 제외합니다.&lt;/b&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Switch openpilot's steering over to a neural network for a smoother wheel on cars that support it, and have it steer into turns when you signal below your minimum lane change speed.&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;지원되는 차량에서 openpilot의 조향을 신경망 방식으로 전환하여 핸들 움직임을 더 부드럽게 하고, 최소 차로 변경 속도 미만에서 방향지시등을 켜면 회전 방향으로 조향하도록 합니다.&lt;/b&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Use the friction, lateral acceleration, and steer ratio you set instead of the values openpilot works out on its own.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Only offered on cars that normally tune themselves.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;openpilot이 스스로 계산한 값 대신 사용자가 설정한 마찰, 횡가속도, 조향비를 사용합니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;일반적으로 자동 튜닝되는 차량에서만 제공됩니다.</translation>
     </message>
     <message>
         <source>&lt;b&gt;openpilot steers using a model trained on real driving data from cars like yours, which usually holds the lane more steadily and tracks curves more closely.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It only appears when a trained model matches your car. While it's on, the "Friction" and "Lateral Acceleration" rows disappear, but some car models still use the friction value. Built by Twilsonco.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;사용자의 차량과 비슷한 차량의 실제 주행 데이터로 학습한 모델을 사용해 openpilot이 조향하며, 일반적으로 차로를 더 안정적으로 유지하고 커브를 더 정확하게 따라갑니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;차량과 일치하는 학습 모델이 있을 때만 표시됩니다. 이 기능이 켜져 있으면 "마찰"과 "횡가속도" 항목이 사라지지만 일부 차종은 여전히 마찰 값을 사용합니다. Twilsonco가 제작했습니다.</translation>
     </message>
     <message>
         <source>&lt;b&gt;openpilot looks ahead at how sharply the road is about to bend and starts adjusting its steering early, which smooths how it enters and leaves curves.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Use this when the full "Neural Network Feedforward (NNFF)" setting isn't offered for your car. It borrows the look-ahead without the trained model, so the improvement is smaller. On cars that normally use openpilot's PID steering, this also switches them to the torque controller.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;openpilot이 앞으로 도로가 얼마나 급하게 굽을지 미리 파악하여 조향을 일찍 조정하므로 커브 진입과 탈출이 부드러워집니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;차량에서 완전한 "신경망 피드포워드 (NNFF)" 설정을 제공하지 않을 때 사용하세요. 학습된 모델 없이 전방 예측만 가져오므로 개선 효과는 더 작습니다. 일반적으로 openpilot의 PID 조향을 사용하는 차량은 토크 제어기로 함께 전환됩니다.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;openpilot keeps steering for you even when it isn't controlling the gas and brake, so it holds your lane when you press a pedal, cancel, or haven't engaged openpilot at all.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It steers from the moment your car's cruise control is switched on until you switch that back off or shift out of drive, and it pauses while you brake below the speed set in "Pause on Brake Press Below", except at a full stop. If cruise control is already on when you start the car, it waits until you engage openpilot, switch cruise control off and on, or press your car's LKAS button if it has one (not on Mazda, Nissan, or Subaru). That press only starts steering and doesn't run anything assigned to the button. On Hyundai, Kia, and Genesis cars with CAN FD where your car handles the gas and brake, or with "Enable With LKAS" on, engaging openpilot or pressing the LKAS button takes the place of cruise control.</source>
+        <translation>&lt;b&gt;openpilot이 가속과 제동을 제어하지 않을 때도 조향을 계속하여, 페달을 밟거나 취소했거나 openpilot 제어를 시작하지 않은 상태에서도 차로를 유지합니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;차량의 크루즈 컨트롤을 켠 순간부터 다시 끄거나 주행 기어에서 벗어날 때까지 조향하며, "브레이크 조작 시 일시 중지 속도"에 설정한 속도 미만에서 브레이크를 밟는 동안에는 일시 중지합니다. 단, 완전히 정지한 상태에서는 일시 중지하지 않습니다. 시동을 걸 때 크루즈 컨트롤이 이미 켜져 있으면 openpilot 제어를 시작하거나, 크루즈 컨트롤을 껐다가 다시 켜거나, 차량에 LKAS 버튼이 있으면 그 버튼을 누를 때까지(Mazda, Nissan, Subaru 제외) 기다립니다. 이때 버튼을 누르면 조향만 시작되며 버튼에 지정된 기능은 실행되지 않습니다. CAN FD를 사용하는 Hyundai, Kia, Genesis 차량 중 차량이 가속과 제동을 제어하는 경우나 "LKAS로 활성화"가 켜져 있는 경우에는 openpilot 제어를 시작하거나 LKAS 버튼을 누르는 동작이 크루즈 컨트롤을 대신합니다.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Use the LKAS button instead of cruise control to arm steering, so openpilot keeps steering even when it is not engaged.&lt;/b&gt;&lt;br&gt;&lt;br&gt;openpilot does not read your car's LKAS status for this. It starts every drive disarmed, engaging openpilot arms it, and each press of the LKAS button while openpilot isn't engaged flips it. Switching cruise control off doesn't stop it. With this off, cruise control arms steering and the LKAS button is free to reassign under "LKAS Button".</source>
+        <translation>&lt;b&gt;크루즈 컨트롤 대신 LKAS 버튼으로 조향을 준비 상태로 전환하여 openpilot 제어가 시작되지 않은 상태에서도 조향을 계속합니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;이 기능은 차량의 실제 LKAS 상태를 읽지 않습니다. 주행을 시작할 때마다 조향 준비가 해제된 상태이며, openpilot 제어를 시작하면 준비 상태로 전환되고, openpilot 제어가 시작되지 않은 상태에서 LKAS 버튼을 누를 때마다 상태가 전환됩니다. 크루즈 컨트롤을 꺼도 조향은 중지되지 않습니다. 이 기능을 끄면 크루즈 컨트롤이 조향을 준비 상태로 전환하며, "LKAS 버튼"에서 LKAS 버튼에 다른 기능을 지정할 수 있습니다.</translation>
     </message>
 </context>
 <context>
@@ -2643,11 +2718,11 @@ Firehose Mode allows you to maximize your training data uploads to improve openp
     </message>
     <message>
         <source>&lt;b&gt;How hard openpilot pulls away in the first moment after a stop.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for quicker takeoffs. Lower it for gentler ones. Only some cars use a fixed launch push like this, so on most cars this row does nothing.</source>
-        <translation>&lt;b&gt;정지 후 출발하는 첫 순간에 openpilot이 적용하는 가속도입니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;더 빠르게 출발하려면 값을 높이고, 부드럽게 출발하려면 낮추세요. 일부 차량만 고정된 출발 가속도를 사용하므로 대부분의 차량에서는 이 설정이 작동하지 않습니다.</translation>
+        <translation type="vanished">&lt;b&gt;정지 후 출발하는 첫 순간에 openpilot이 적용하는 가속도입니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;더 빠르게 출발하려면 값을 높이고, 부드럽게 출발하려면 낮추세요. 일부 차량만 고정된 출발 가속도를 사용하므로 대부분의 차량에서는 이 설정이 작동하지 않습니다.</translation>
     </message>
     <message>
         <source>&lt;b&gt;The speed that marks the end of pulling away from a stop, which sets how long openpilot holds its takeoff acceleration.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it to keep that takeoff push going up to a higher speed. Lower it to hand back to normal gas and brake control almost as soon as the wheels turn, which makes the start softer. Only some cars have a separate takeoff stage at all, so on most cars this row does nothing.</source>
-        <translation>&lt;b&gt;정지 후 출발 단계가 끝나는 속도로, openpilot이 출발 가속도를 유지하는 기간을 정합니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;더 높은 속도까지 출발 가속도를 유지하려면 값을 높이세요. 바퀴가 움직이기 시작하자마자 일반 가감속 제어로 전환하여 더 부드럽게 출발하려면 낮추세요. 별도의 출발 단계가 있는 차량은 일부뿐이므로 대부분의 차량에서는 이 설정이 작동하지 않습니다.</translation>
+        <translation type="vanished">&lt;b&gt;정지 후 출발 단계가 끝나는 속도로, openpilot이 출발 가속도를 유지하는 기간을 정합니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;더 높은 속도까지 출발 가속도를 유지하려면 값을 높이세요. 바퀴가 움직이기 시작하자마자 일반 가감속 제어로 전환하여 더 부드럽게 출발하려면 낮추세요. 별도의 출발 단계가 있는 차량은 일부뿐이므로 대부분의 차량에서는 이 설정이 작동하지 않습니다.</translation>
     </message>
     <message>
         <source>&lt;b&gt;How hard openpilot holds the brakes as your car finishes stopping and while it sits still.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The number is negative because it is braking, so -2.00 holds harder than -0.50. Go more negative if your car creeps or rolls back on a hill, and closer to zero if the last moment of the stop feels too abrupt.</source>
@@ -2915,211 +2990,219 @@ Firehose Mode allows you to maximize your training data uploads to improve openp
     </message>
     <message>
         <source>Acceleration and Braking</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;openpilot follows the car ahead more naturally, reading where that car is headed so it eases off and starts braking earlier and softer instead of reacting late.&lt;/b&gt;&lt;br&gt;&lt;br&gt;On the default driving model this only works while openpilot can clearly see the car ahead.</source>
-        <translation type="unfinished"></translation>
+        <translation>가속 및 제동</translation>
     </message>
     <message>
         <source>&lt;b&gt;Switch to "Experimental Mode" when you need to brake for the car ahead.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"Slower Lead" covers a car that is slowing down or much slower than you, and "Stopped Lead" covers a car that is stopped or about to stop. Gently catching up to a slightly slower car stays in normal driving. Both start off, so pick at least one with the buttons on this row or nothing happens.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;선행 차량 때문에 제동해야 할 때 "실험 모드"로 전환합니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"더 느린 선행 차량"은 감속 중이거나 훨씬 느린 차량에, "정지한 선행 차량"은 정지했거나 곧 정지할 차량에 적용됩니다. 약간 느린 차량에 부드럽게 따라붙는 경우에는 일반 주행을 유지합니다. 두 항목 모두 기본적으로 꺼져 있으므로 이 항목의 버튼에서 하나 이상 선택해야 작동합니다.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Switch to "Experimental Mode" when you signal below the set speed. Turn on "Not For Detected Lanes" to suppress this when an adjacent lane is detected as you start signaling.&lt;/b&gt;&lt;br&gt;&lt;br&gt;With the button off, any signal below the set speed can trigger it. With it on, the space beside you must be narrower than the "Minimum Lane Width" under "Lane Changes" in the "STEERING" panel when you start signaling, or you must be below the "Minimum Lane Change Speed". That width starts at zero, so raise it to use lane detection. Lane estimates can miss an adjacent lane.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;설정한 속도 미만에서 방향지시등을 켜면 "실험 모드"로 전환합니다. 방향지시등을 켤 때 인접 차로가 감지되면 전환하지 않도록 하려면 "감지된 차로에서는 제외"를 켜세요.&lt;/b&gt;&lt;br&gt;&lt;br&gt;버튼이 꺼져 있으면 설정한 속도 미만에서 방향지시등을 켤 때마다 전환될 수 있습니다. 버튼이 켜져 있으면 방향지시등을 켤 때 옆 공간의 폭이 "조향" 패널의 "차로 변경"에 있는 "최소 차로 폭"보다 좁거나, 속도가 "최소 차로 변경 속도" 미만이어야 합니다. 이 폭의 기본값은 0이므로 차로 감지를 사용하려면 값을 높이세요. 차로 추정이 인접 차로를 놓칠 수 있습니다.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Use your own "OpenWeatherMap" key for weather requests every minute.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Requires a One Call API 4.0 subscription. Without a working personal key, FrogPilot tries shared weather with a 15-minute request interval. Your saved key is kept.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;개인 "OpenWeatherMap" 키를 사용해 매분 날씨를 요청합니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;One Call API 4.0 구독이 필요합니다. 작동하는 개인 키가 없으면 FrogPilot은 요청 간격이 15분인 공유 날씨를 시도합니다. 저장된 키는 유지됩니다.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Hold openpilot's max speed to the posted speed limit.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The limit comes from your downloaded maps, Mapbox, speed limit signs read by the road camera, or, on supported Ford, Genesis, Hyundai, Kia, Lexus, and Toyota models, your dashboard.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;openpilot의 최대 속도를 도로의 제한 속도로 유지합니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;제한 속도는 다운로드한 지도, Mapbox, 도로 카메라가 읽은 제한 속도 표지판 또는 지원되는 Ford, Genesis, Hyundai, Kia, Lexus, Toyota 모델의 계기판에서 가져옵니다.</translation>
     </message>
     <message>
         <source>Speed Limit Changes</source>
-        <translation type="unfinished"></translation>
+        <translation>제한 속도 제어 세부 조정</translation>
     </message>
     <message>
         <source>&lt;b&gt;Choose which sources openpilot checks for the speed limit and in what order, or have it always use the highest or lowest limit being reported.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Pick up to three sources and openpilot uses the first one that currently has a limit. "Camera" is openpilot reading speed limit signs with the road camera. "Highest" and "Lowest" ignore the order and take the fastest or slowest limit any source reports, so one wrong map entry can hold you well below the posted limit.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;openpilot이 제한 속도를 확인할 소스와 순서를 선택하거나, 보고된 제한 속도 중 항상 가장 높거나 가장 낮은 값을 사용하도록 합니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;소스를 최대 세 개까지 선택할 수 있으며 openpilot은 현재 제한 속도가 있는 첫 번째 소스를 사용합니다. "카메라"는 openpilot이 도로 카메라로 제한 속도 표지판을 읽는 방식입니다. "가장 높음"과 "가장 낮음"은 순서를 무시하고 어떤 소스든 보고한 값 중 가장 빠르거나 가장 느린 제한 속도를 사용하므로, 지도의 잘못된 항목 하나 때문에 실제 제한 속도보다 훨씬 낮은 속도로 주행할 수 있습니다.</translation>
     </message>
     <message>
         <source>&lt;b&gt;How far above or below the posted limit openpilot drives on roads posted between 0 and 24 mph.&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;제한 속도가 0–24 mph인 도로에서 openpilot이 제한 속도보다 얼마나 높거나 낮게 주행할지 설정합니다.&lt;/b&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;How far above or below the posted limit openpilot drives on roads posted between 25 and 34 mph.&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;제한 속도가 25–34 mph인 도로에서 openpilot이 제한 속도보다 얼마나 높거나 낮게 주행할지 설정합니다.&lt;/b&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;How far above or below the posted limit openpilot drives on roads posted between 35 and 44 mph.&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;제한 속도가 35–44 mph인 도로에서 openpilot이 제한 속도보다 얼마나 높거나 낮게 주행할지 설정합니다.&lt;/b&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;How far above or below the posted limit openpilot drives on roads posted between 45 and 54 mph.&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;제한 속도가 45–54 mph인 도로에서 openpilot이 제한 속도보다 얼마나 높거나 낮게 주행할지 설정합니다.&lt;/b&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;How far above or below the posted limit openpilot drives on roads posted between 55 and 64 mph.&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;제한 속도가 55–64 mph인 도로에서 openpilot이 제한 속도보다 얼마나 높거나 낮게 주행할지 설정합니다.&lt;/b&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;How far above or below the posted limit openpilot drives on roads posted between 65 and 74 mph.&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;제한 속도가 65–74 mph인 도로에서 openpilot이 제한 속도보다 얼마나 높거나 낮게 주행할지 설정합니다.&lt;/b&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;How far above or below the posted limit openpilot drives on roads posted between 75 and 99 mph.&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;제한 속도가 75–99 mph인 도로에서 openpilot이 제한 속도보다 얼마나 높거나 낮게 주행할지 설정합니다.&lt;/b&gt;</translation>
     </message>
     <message>
         <source>Camera</source>
-        <translation type="unfinished"></translation>
+        <translation>카메라</translation>
     </message>
     <message>
         <source>Select your tertiary priority</source>
-        <translation type="unfinished"></translation>
+        <translation>세 번째 우선순위를 선택하세요</translation>
     </message>
     <message>
         <source>Key is valid for OpenWeatherMap One Call API 4.0!</source>
-        <translation type="unfinished"></translation>
+        <translation>OpenWeatherMap One Call API 4.0에 유효한 키입니다!</translation>
     </message>
     <message>
         <source>OpenWeatherMap returned incomplete weather data. Try again later.</source>
-        <translation type="unfinished"></translation>
+        <translation>OpenWeatherMap이 불완전한 날씨 데이터를 반환했습니다. 나중에 다시 시도하세요.</translation>
     </message>
     <message>
         <source>OpenWeatherMap did not accept this key for One Call API 4.0. Check the key and make sure it has a One Call API 4.0 subscription. Until then, FrogPilot uses shared weather, updated every 15 minutes.</source>
-        <translation type="unfinished"></translation>
+        <translation>OpenWeatherMap에서 이 키를 One Call API 4.0용으로 승인하지 않았습니다. 키를 확인하고 해당 키에 One Call API 4.0 구독이 있는지 확인하세요. 그때까지 FrogPilot은 15분마다 업데이트되는 공유 날씨를 사용합니다.</translation>
     </message>
     <message>
         <source>OpenWeatherMap's request limit was reached. Try again later.</source>
-        <translation type="unfinished"></translation>
+        <translation>OpenWeatherMap 요청 한도에 도달했습니다. 나중에 다시 시도하세요.</translation>
     </message>
     <message>
         <source>OpenWeatherMap request failed (HTTP %1).</source>
-        <translation type="unfinished"></translation>
+        <translation>OpenWeatherMap 요청에 실패했습니다(HTTP %1).</translation>
     </message>
     <message>
         <source>Could not reach OpenWeatherMap. Check your connection and try again.</source>
-        <translation type="unfinished"></translation>
+        <translation>OpenWeatherMap에 연결할 수 없습니다. 연결 상태를 확인하고 다시 시도하세요.</translation>
     </message>
     <message>
         <source>&lt;b&gt;How far above or below the posted limit openpilot drives on roads posted between 0 and 29 km/h.&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;제한 속도가 0–29 km/h인 도로에서 openpilot이 제한 속도보다 얼마나 높거나 낮게 주행할지 설정합니다.&lt;/b&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;How far above or below the posted limit openpilot drives on roads posted between 30 and 49 km/h.&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;제한 속도가 30–49 km/h인 도로에서 openpilot이 제한 속도보다 얼마나 높거나 낮게 주행할지 설정합니다.&lt;/b&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;How far above or below the posted limit openpilot drives on roads posted between 50 and 59 km/h.&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;제한 속도가 50–59 km/h인 도로에서 openpilot이 제한 속도보다 얼마나 높거나 낮게 주행할지 설정합니다.&lt;/b&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;How far above or below the posted limit openpilot drives on roads posted between 60 and 79 km/h.&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;제한 속도가 60–79 km/h인 도로에서 openpilot이 제한 속도보다 얼마나 높거나 낮게 주행할지 설정합니다.&lt;/b&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;How far above or below the posted limit openpilot drives on roads posted between 80 and 99 km/h.&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;제한 속도가 80–99 km/h인 도로에서 openpilot이 제한 속도보다 얼마나 높거나 낮게 주행할지 설정합니다.&lt;/b&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;How far above or below the posted limit openpilot drives on roads posted between 100 and 119 km/h.&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;제한 속도가 100–119 km/h인 도로에서 openpilot이 제한 속도보다 얼마나 높거나 낮게 주행할지 설정합니다.&lt;/b&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;How far above or below the posted limit openpilot drives on roads posted between 120 and 140 km/h.&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;제한 속도가 120–140 km/h인 도로에서 openpilot이 제한 속도보다 얼마나 높거나 낮게 주행할지 설정합니다.&lt;/b&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;openpilot watches the cars in the lane it is moving into and adjusts its speed for them during a lane change.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Without this it only reacts to the car directly ahead until the move is finished. It only takes over while openpilot is already tracking a car ahead, so with a clear lane in front of you nothing changes.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;openpilot이 차로 변경 중 이동하려는 차로의 차량을 확인하고 그에 맞춰 속도를 조절합니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;이 기능을 끄면 차로 변경이 끝날 때까지 바로 앞의 차량에만 반응합니다. openpilot이 이미 전방 차량을 추적 중일 때만 개입하므로, 앞 차로가 비어 있으면 달라지는 것이 없습니다.</translation>
     </message>
     <message>
         <source>&lt;b&gt;When the speed openpilot plans to be doing over the next second drops below this, it treats your car as stopped and switches to holding the brakes.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it to settle into the stop earlier and more smoothly. Lower it to keep normal braking going longer, at the risk of rolling past your mark.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;openpilot이 다음 1초 동안 계획한 속도가 이 값 아래로 떨어지면 차량이 정지한 것으로 간주하고 브레이크 유지로 전환합니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;더 일찍 더 부드럽게 정지하려면 값을 높이세요. 일반 제동을 더 오래 유지하려면 값을 낮추세요. 다만 목표 지점을 지나칠 위험이 있습니다.</translation>
     </message>
     <message>
         <source>&lt;b&gt;How much your set speed moves with each tap of the + or - cruise button.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Set it to 1 to land on any speed exactly, or higher to get where you are going in fewer taps. When this is 5 or another multiple of 5, a tap from a set speed in between only goes as far as the next multiple of it, so with 5 a set speed of 63 becomes 65 or 60.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;크루즈 + 또는 - 버튼을 한 번 누를 때마다 설정 속도가 변하는 양입니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;원하는 속도를 정확히 설정하려면 1로, 더 적은 버튼 조작으로 속도를 크게 바꾸려면 더 높게 설정하세요. 이 값이 5 또는 5의 배수이면, 그 사이에 있는 설정 속도에서 한 번 누를 때 이 값의 다음 배수까지만 이동합니다. 예를 들어 5로 설정하면 설정 속도 63은 65 또는 60이 됩니다.</translation>
     </message>
     <message>
         <source>&lt;b&gt;How much your set speed moves while you hold the + or - cruise button down.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The default is 5, against 1 for a single tap. When this is 5 or another multiple of 5, the first step from a set speed in between only goes as far as the next multiple of it, so with 5 a set speed of 63 becomes 65 or 60.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;크루즈 + 또는 - 버튼을 길게 누를 때 설정 속도가 변하는 양입니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;기본값은 5이며 한 번 눌렀을 때의 기본값은 1입니다. 이 값이 5 또는 5의 배수이면, 그 사이에 있는 설정 속도에서 첫 단계는 이 값의 다음 배수까지만 이동합니다. 예를 들어 5로 설정하면 설정 속도 63은 65 또는 60이 됩니다.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Adds an extra amount on top of the "Cruise Interval (Hold)" step, but only when you press and hold the + cruise button.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The - button does not mirror it. Holding - takes the normal hold step down and then moves down by one more "Cruise Interval (Hold)" amount minus this offset, so with a hold interval of 5 and 5 chosen here you just get the normal hold step down, as you also do with any offset above the hold interval. A quick tap is never affected, and 0 turns this off.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;크루즈 + 버튼을 길게 누를 때만 "크루즈 속도 조절 간격 (길게 누름)" 단계에 추가 값을 더합니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;반면 - 버튼에는 반대로 적용되지 않습니다. -를 길게 누르면 일반 길게 누름 단계만큼 내려간 뒤 "크루즈 속도 조절 간격 (길게 누름)" 값에서 이 오프셋을 뺀 만큼 한 번 더 내려갑니다. 따라서 길게 누름 간격이 5이고 여기서 5를 선택하면 일반 길게 누름 단계만큼만 내려가며, 오프셋이 길게 누름 간격보다 클 때도 마찬가지입니다. 짧게 누를 때는 영향이 없으며 0으로 설정하면 이 기능이 꺼집니다.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Adds extra room between you and the car ahead in low visibility, at every speed and not just when stopped.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This stacks on top of the same setting under "Quality of Life". "Traffic Mode" ignores both.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;시야가 불량할 때 정지 상태뿐 아니라 모든 속도에서 선행 차량과의 거리를 추가로 늘립니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;이 값은 "편의 기능"에 있는 동일한 설정에 더해집니다. "교통 모드"는 두 설정을 모두 무시합니다.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Holds openpilot back from accelerating as hard in low visibility.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This does not apply while "Experimental Mode" is running.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;시야가 나쁠 때 openpilot의 강한 가속을 제한합니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"실험 모드"가 작동 중일 때는 적용되지 않습니다.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Adds extra room between you and the car ahead in rain, at every speed and not just when stopped.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This stacks on top of the same setting under "Quality of Life". "Traffic Mode" ignores both.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;비가 올 때 정지 상태뿐 아니라 모든 속도에서 선행 차량과의 거리를 추가로 늘립니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;이 값은 "편의 기능"에 있는 동일한 설정에 더해집니다. "교통 모드"는 두 설정을 모두 무시합니다.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Holds openpilot back from accelerating as hard in rain.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for softer, more controlled pickup on a slippery road. This does not apply while "Experimental Mode" is running.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;비가 올 때 openpilot의 강한 가속을 제한합니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;미끄러운 도로에서 더 부드럽고 안정적으로 가속하려면 값을 높이세요. "실험 모드"가 작동 중일 때는 적용되지 않습니다.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Adds extra room between you and the car ahead in a rainstorm, at every speed and not just when stopped.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This stacks on top of the same setting under "Quality of Life". "Traffic Mode" ignores both.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;폭우가 내릴 때 정지 상태뿐 아니라 모든 속도에서 선행 차량과의 거리를 추가로 늘립니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;이 값은 "편의 기능"에 있는 동일한 설정에 더해집니다. "교통 모드"는 두 설정을 모두 무시합니다.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Holds openpilot back from accelerating as hard in a rainstorm.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for softer, more controlled pickup on a slippery road. This does not apply while "Experimental Mode" is running.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;폭우가 올 때 openpilot의 강한 가속을 제한합니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;미끄러운 도로에서 더 부드럽고 안정적으로 가속하려면 값을 높이세요. "실험 모드"가 작동 중일 때는 적용되지 않습니다.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Adds extra room between you and the car ahead in snow, at every speed and not just when stopped.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This stacks on top of the same setting under "Quality of Life". "Traffic Mode" ignores both.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;눈이 올 때 정지 상태뿐 아니라 모든 속도에서 선행 차량과의 거리를 추가로 늘립니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;이 값은 "편의 기능"에 있는 동일한 설정에 더해집니다. "교통 모드"는 두 설정을 모두 무시합니다.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Holds openpilot back from accelerating as hard in snow.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for softer, more controlled pickup on a slippery road. This does not apply while "Experimental Mode" is running.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;눈이 올 때 openpilot의 강한 가속을 제한합니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;미끄러운 도로에서 더 부드럽고 안정적으로 가속하려면 값을 높이세요. "실험 모드"가 작동 중일 때는 적용되지 않습니다.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Switch to "Experimental Mode" below this speed when openpilot is tracking a car ahead of you.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This replaces the "Below" value whenever there is a car ahead. It switches on once you are moving at walking pace or faster, and can then stay on as you crawl or stop behind that car.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;openpilot이 선행 차량을 추적 중일 때 이 속도 미만에서 "실험 모드"로 전환합니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;선행 차량이 있으면 항상 "다음 속도 미만" 값 대신 이 값을 사용합니다. 걷는 속도 이상으로 움직이면 켜지고, 이후 선행 차량 뒤에서 서행하거나 정지하는 동안에도 계속 켜져 있을 수 있습니다.</translation>
     </message>
     <message>
         <source>"Taco Bell Run" Turn Speed Hack</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;openpilot slows down more for left and right turns, using the trick comma built for their 2022 "Taco Bell Run" drive.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It does nothing while "Curve Speed Controller" is on. Otherwise it never switches off, so it is still working on fast highway curves. What stops at about 45 mph is the ramp: openpilot allows more cornering force the faster you go, up to that speed, then holds it flat. That makes the slowdown most noticeable in slow, tight turns.</source>
-        <translation type="unfinished"></translation>
+        <translation>"Taco Bell Run" 회전 속도 조정</translation>
     </message>
     <message>
         <source>&lt;b&gt;How fast openpilot takes curves.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"Gentle" and "Standard" hold to a fixed, relaxed pace, "Sport" uses your car's maximum configured or learned cornering limit, and "Adaptive" learns how you prefer to take curves.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;openpilot이 커브를 주행하는 속도입니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"부드럽게"와 "표준"은 고정된 여유로운 속도를 유지하고, "스포츠"는 차량에 설정되었거나 학습된 최대 커브 주행 한계를 사용하며, "적응형"은 사용자가 선호하는 커브 주행 방식을 학습합니다.</translation>
     </message>
     <message>
         <source>&lt;b&gt;How gently openpilot slows down when the road ahead is clear.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"Standard" is openpilot's normal braking, "Eco" brakes about half as hard so you coast more, and "Eco+" just lets off the gas and coasts, so it slows quicker uphill and barely slows on a steep downhill until the road levels out. Whenever there is a car ahead, or while "Experimental Mode" is running, openpilot goes back to full-strength braking so it can still stop in time.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;전방 도로에 차량이 없을 때 openpilot이 얼마나 부드럽게 감속할지 설정합니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"표준"은 openpilot의 일반 제동이고, "에코"는 제동 강도를 약 절반으로 줄여 타력 주행을 늘리며, "에코+"는 가속만 멈추고 타력으로 주행하므로 오르막에서는 더 빨리 감속하고 가파른 내리막에서는 도로가 평탄해질 때까지 거의 감속하지 않습니다. 선행 차량이 있거나 "실험 모드"가 작동 중일 때는 제때 정지할 수 있도록 openpilot이 전체 강도의 제동으로 돌아갑니다.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Switch to "Experimental Mode" when openpilot plans to slow down a lot or stop soon, except while following a detected lead.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It keeps checking for a possible stop behind that lead and can trigger once the lead is no longer tracked. "Traffic Mode" turns this condition off.&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Disclaimer&lt;/b&gt;: openpilot does not explicitly detect traffic lights or stop signs. In "Experimental Mode", openpilot makes end-to-end driving decisions from camera input, which means it may stop even when there's no clear reason!&lt;/i&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;openpilot이 크게 감속하거나 곧 정지할 계획일 때 "실험 모드"로 전환합니다. 단, 감지된 선행 차량을 추종하는 동안에는 전환하지 않습니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;선행 차량 뒤에서 정지할 가능성을 계속 확인하며, 선행 차량을 더 이상 추적하지 않게 되면 작동할 수 있습니다. "교통 모드"는 이 조건을 끕니다.&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;주의&lt;/b&gt;: openpilot은 신호등이나 정지 표지판을 명시적으로 감지하지 않습니다. "실험 모드"에서 openpilot은 카메라 입력을 바탕으로 엔드투엔드 주행 판단을 내리므로 뚜렷한 이유가 없을 때도 정지할 수 있습니다!&lt;/i&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;openpilot comes to a full stop whenever it thinks it sees a red light or stop sign, whether or not "Experimental Mode" is running.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It only kicks in when openpilot is not already tracking a car ahead, so behind a queue at a light your normal following does the stopping instead. Touching the gas or pressing RES/+ cancels a forced stop. "Traffic Mode" turns this off.&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Heads up&lt;/b&gt;: openpilot never actually reads traffic lights or stop signs. It decides from what the camera sees, so it can stop when there is no reason to.&lt;/i&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Lets your car's "Eco" and "Sport" gear modes take over how openpilot speeds up, how it slows down, or both.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Pick "Acceleration", "Deceleration" or both with the buttons on this row, since neither starts on and nothing changes until you do.&lt;br&gt;&lt;br&gt;"Eco" gear makes openpilot accelerate gently and "Sport" gear makes it accelerate firmly. For braking, "Eco" gear halves how hard openpilot can brake and "Sport" gear uses openpilot's normal braking. The braking change only applies when there is no car ahead.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;"실험 모드" 작동 여부와 관계없이 openpilot이 빨간 신호등이나 정지 표지판을 봤다고 판단하면 완전히 정지합니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;openpilot이 선행 차량을 이미 추적하고 있지 않을 때만 작동하므로, 신호 대기 차량 행렬 뒤에서는 일반 추종으로 대신 정지합니다. 가속 페달을 건드리거나 RES/+를 누르면 강제 정지가 취소됩니다. "교통 모드"는 이 기능을 끕니다.&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;참고&lt;/b&gt;: openpilot은 실제로 신호등이나 정지 표지판을 판독하지 않습니다. 카메라에 보이는 장면으로 판단하므로 이유가 없어도 정지할 수 있습니다.&lt;/i&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Fall back to Mapbox for the speed limit when none of your chosen sources have one.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Needs your Public Mapbox Key and a working internet connection. It sends your location to Mapbox to look up the limit.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;선택한 소스 중 어느 것에도 제한 속도가 없으면 Mapbox의 제한 속도를 대신 사용합니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Mapbox 공개 키와 정상적인 인터넷 연결이 필요합니다. 제한 속도를 조회하기 위해 사용자의 위치를 Mapbox로 전송합니다.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;openpilot follows the car ahead more naturally.&lt;/b&gt;&lt;br&gt;&lt;br&gt;With newer driving models like the default one, it reads where that car is headed so it eases off and starts braking earlier and softer instead of reacting late, as long as it can clearly see that car. On older driving models it needs radar, closing gaps behind faster cars for quicker takeoffs and braking more gently behind slower ones.</source>
+        <translation>&lt;b&gt;openpilot이 선행 차량을 더 자연스럽게 추종합니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;기본 모델과 같은 최신 주행 모델에서는 선행 차량이 명확하게 보이는 한 그 차량이 어디로 향하는지 읽어, 늦게 반응하는 대신 더 일찍 더 부드럽게 가속을 줄이고 제동을 시작합니다. 구형 주행 모델에서는 레이더가 필요하며, 더 빠른 차량 뒤에서는 차간 거리를 좁혀 더 빠르게 출발하고 더 느린 차량 뒤에서는 더 부드럽게 제동합니다.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;openpilot slows down more for left and right turns, using the trick comma built for their 2022 "Taco Bell Run" drive.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It does nothing while "Curve Speed Controller" is on. Otherwise it never switches off, so it is still working on fast highway curves. What stops at about 45 mph is the ramp. openpilot allows more cornering force the faster you go, up to that speed, then holds it flat. That makes the slowdown most noticeable in slow, tight turns.</source>
+        <translation>&lt;b&gt;comma가 2022년 "Taco Bell Run" 주행을 위해 만든 방법을 사용해 openpilot이 좌회전과 우회전에서 더 많이 감속합니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"커브 속도 제어"가 켜져 있는 동안에는 작동하지 않습니다. 그 외에는 꺼지지 않으므로 빠른 고속도로 커브에서도 계속 작동합니다. 약 45 mph에서 멈추는 것은 선회력 증가입니다. openpilot은 그 속도까지는 빠를수록 더 큰 선회력을 허용하고 이후에는 일정하게 유지합니다. 따라서 저속의 급한 회전에서 감속이 가장 두드러집니다.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;How hard openpilot pulls away in the first moment after a stop.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for quicker takeoffs. Lower it for gentler ones.</source>
+        <translation>&lt;b&gt;정지 후 출발하는 첫 순간에 openpilot이 적용하는 가속도입니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;더 빠르게 출발하려면 값을 높이고, 부드럽게 출발하려면 낮추세요.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;The speed that marks the end of pulling away from a stop, which sets how long openpilot holds its takeoff acceleration.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it to keep that takeoff push going up to a higher speed. Lower it to hand back to normal gas and brake control almost as soon as the wheels turn, which makes the start softer.</source>
+        <translation>&lt;b&gt;정지 후 출발 단계가 끝나는 속도로, openpilot이 출발 가속도를 유지하는 기간을 정합니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;더 높은 속도까지 출발 가속도를 유지하려면 값을 높이세요. 바퀴가 움직이기 시작하자마자 일반 가감속 제어로 전환하여 더 부드럽게 출발하려면 낮추세요.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Lets your car's "Eco" and "Sport" gear modes take over how openpilot speeds up, how it slows down, or both.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Pick "Acceleration", "Deceleration", or both with the buttons on this row, since neither starts on and nothing changes until you do.&lt;br&gt;&lt;br&gt;"Eco" gear makes openpilot accelerate gently and "Sport" gear makes it accelerate firmly. For braking, "Eco" gear halves how hard openpilot can brake and "Sport" gear uses openpilot's normal braking. The braking change only applies when there is no car ahead.</source>
+        <translation>&lt;b&gt;차량의 "에코" 및 "스포츠" 기어 모드가 openpilot의 가속 방식, 감속 방식 또는 둘 다를 결정하도록 합니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;두 항목 모두 기본적으로 꺼져 있어 선택하기 전까지는 아무것도 바뀌지 않으므로 이 항목의 버튼으로 "가속", "감속" 또는 둘 다 선택하세요.&lt;br&gt;&lt;br&gt;"에코" 기어에서는 openpilot이 부드럽게 가속하고 "스포츠" 기어에서는 힘차게 가속합니다. 제동의 경우 "에코" 기어에서는 openpilot이 제동할 수 있는 강도가 절반으로 줄고 "스포츠" 기어에서는 openpilot의 일반 제동을 사용합니다. 제동 변경은 선행 차량이 없을 때만 적용됩니다.</translation>
     </message>
 </context>
 <context>
@@ -3281,23 +3364,23 @@ Firehose Mode allows you to maximize your training data uploads to improve openp
     </message>
     <message>
         <source>&lt;b&gt;Pick the countries or U.S. states you drive in, so openpilot knows their speed limits.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Map data within about 60 miles (100 km) of where you park downloads on its own, so pick only what covers the rest of your driving.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;openpilot이 제한 속도를 알 수 있도록 주행하는 국가 또는 미국의 주를 선택합니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;주차 위치에서 약 60마일(100 km) 이내의 지도 데이터는 자동으로 다운로드되므로 나머지 주행 지역을 포함하는 범위만 선택하세요.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Delete your downloaded map data and clear the places you picked under "Map Sources", to free up storage.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Only the map data around where you park comes back on its own, the next time the device is on Wi-Fi. Everywhere else, "Speed Limit Controller" has no map speed limits until you pick your places again and start a new download.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;다운로드한 지도 데이터를 삭제하고 "지도 소스"에서 선택한 지역을 지워 저장 공간을 확보합니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;주차 위치 주변의 지도 데이터만 다음에 장치가 Wi-Fi에 연결될 때 자동으로 복구됩니다. 그 외 지역에서는 지역을 다시 선택하고 새 다운로드를 시작할 때까지 "제한 속도 제어"에서 지도 기반 제한 속도를 사용할 수 없습니다.</translation>
     </message>
     <message>
         <source>Removing...</source>
-        <translation type="unfinished"></translation>
+        <translation>삭제 중...</translation>
     </message>
     <message>
         <source>Some map data could not be removed. Try again.</source>
-        <translation type="unfinished"></translation>
+        <translation>일부 지도 데이터를 삭제하지 못했습니다. 다시 시도하세요.</translation>
     </message>
     <message>
         <source>&lt;b&gt;How often openpilot re-downloads the speed limit map data for the places you picked under "Map Sources". "Weekly" runs every Sunday, "Monthly" runs on the 1st, and "Manually" waits until you press "DOWNLOAD" yourself.&lt;/b&gt;&lt;br&gt;&lt;br&gt;There is one exception. Whenever the map data is missing from the device, openpilot starts the download on its own, usually within the hour. Automatic downloads only start on an unmetered connection, such as Wi-Fi, and unlike "DOWNLOAD" they do not wait until you park.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;"지도 소스"에서 선택한 지역의 제한 속도 지도 데이터를 openpilot이 다시 다운로드하는 주기입니다. "매주"는 매주 일요일, "매월"은 매월 1일에 실행되며, "수동"은 사용자가 직접 "다운로드"를 누를 때까지 기다립니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;한 가지 예외가 있습니다. 장치에 지도 데이터가 없으면 openpilot이 일반적으로 한 시간 이내에 자동으로 다운로드를 시작합니다. 자동 다운로드는 Wi-Fi처럼 데이터 요금제가 적용되지 않는 연결에서만 시작되며, "다운로드"와 달리 주차할 때까지 기다리지 않습니다.</translation>
     </message>
 </context>
 <context>
@@ -3504,105 +3587,105 @@ Firehose Mode allows you to maximize your training data uploads to improve openp
     </message>
     <message>
         <source>Not parked</source>
-        <translation type="unfinished">주차 상태 아님</translation>
+        <translation>주차 상태 아님</translation>
     </message>
     <message>
         <source>&lt;b&gt;Download driving models onto the device so you can switch to them.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"DOWNLOAD" lets you pick which ones, "DOWNLOAD ALL" fetches everything. Your car has to be parked and online, and models are large, so this can take a while.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;다른 모델로 전환할 수 있도록 주행 모델을 장치에 다운로드합니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"다운로드"는 다운로드할 모델을 선택하고 "모두 다운로드"는 전부 가져옵니다. 차량이 주차되어 있고 인터넷에 연결되어 있어야 하며 모델의 용량이 커서 시간이 걸릴 수 있습니다.</translation>
     </message>
     <message>
         <source>Choose driving models to delete</source>
-        <translation type="unfinished"></translation>
+        <translation>삭제할 주행 모델을 선택하세요</translation>
     </message>
     <message>
         <source>Are you sure you want to delete these %1 models?</source>
-        <translation type="unfinished"></translation>
+        <translation>이 모델 %1개를 삭제하시겠습니까?</translation>
     </message>
     <message>
         <source>Choose driving models to download</source>
-        <translation type="unfinished"></translation>
+        <translation>다운로드할 주행 모델을 선택하세요</translation>
     </message>
     <message>
         <source>Download</source>
-        <translation type="unfinished">다운로드</translation>
+        <translation>다운로드</translation>
     </message>
     <message>
         <source>&lt;b&gt;Download new driving models on their own as they are released, so they are ready when you want to try one.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This runs whenever the device is on Wi-Fi or another unmetered connection, including while you are driving. It also grabs every model that is not already on the device, not just newly released ones, so anything you removed with "Delete Driving Models" comes back.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;새 주행 모델이 출시되면 자동으로 다운로드하여 필요할 때 바로 사용해 볼 수 있게 합니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;주행 중을 포함해 장치가 Wi-Fi 또는 기타 데이터 요금제가 적용되지 않는 연결에 있을 때마다 실행됩니다. 새로 출시된 모델뿐 아니라 장치에 없는 모든 모델을 가져오므로 "주행 모델 삭제"로 제거한 모델도 다시 다운로드됩니다.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Remove driving models you have downloaded to free up storage.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"DELETE" lets you pick which ones, "DELETE ALL" removes the rest. The model you are currently using and the one FrogPilot ships with are always kept. Turn "Automatically Download New Models" off first, or anything you delete is downloaded again within the hour whenever the device is on Wi-Fi or another unmetered connection.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;다운로드한 주행 모델을 삭제하여 저장 공간을 확보합니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"삭제"는 삭제할 모델을 선택하고 "모두 삭제"는 나머지를 모두 삭제합니다. 현재 사용 중인 모델과 FrogPilot에 기본으로 포함된 모델은 항상 유지됩니다. 먼저 "새 모델 자동 다운로드"를 끄지 않으면 장치가 Wi-Fi 또는 기타 데이터 요금제가 적용되지 않는 연결에 있을 때 삭제한 모델이 한 시간 이내에 다시 다운로드됩니다.</translation>
     </message>
 </context>
 <context>
     <name>FrogPilotModelReview</name>
     <message>
         <source>How would you rate that drive?</source>
-        <translation type="unfinished"></translation>
+        <translation>이번 주행을 어떻게 평가하시겠습니까?</translation>
     </message>
     <message>
         <source>Blacklist this model to remove it from rotation</source>
-        <translation type="unfinished"></translation>
+        <translation>이 모델을 차단하여 임의 선택 대상에서 제외</translation>
     </message>
     <message>
         <source>Blacklist Model</source>
-        <translation type="unfinished"></translation>
+        <translation>모델 차단</translation>
     </message>
     <message>
         <source>Model successfully blacklisted!</source>
-        <translation type="unfinished"></translation>
+        <translation>모델을 차단 목록에 추가했습니다!</translation>
     </message>
     <message>
         <source>Model used during that drive:</source>
-        <translation type="unfinished"></translation>
+        <translation>해당 주행에 사용된 모델:</translation>
     </message>
     <message>
         <source>Model Rank</source>
-        <translation type="unfinished"></translation>
+        <translation>모델 순위</translation>
     </message>
     <message>
         <source>Model Rating</source>
-        <translation type="unfinished"></translation>
+        <translation>모델 평가</translation>
     </message>
     <message>
         <source>Model Drives</source>
-        <translation type="unfinished"></translation>
+        <translation>모델별 주행 횟수</translation>
     </message>
     <message>
         <source>Total Drives</source>
-        <translation type="unfinished">총 주행 횟수</translation>
+        <translation>총 주행 횟수</translation>
     </message>
     <message>
         <source>#%1</source>
-        <translation type="unfinished"></translation>
+        <translation>#%1</translation>
     </message>
     <message>
         <source>%1%</source>
-        <translation type="unfinished"></translation>
+        <translation>%1%</translation>
     </message>
     <message>
         <source>%1 Drive</source>
-        <translation type="unfinished">주행 %1회</translation>
+        <translation>주행 %1회</translation>
     </message>
     <message>
         <source>%1 Drives</source>
-        <translation type="unfinished">주행 %1회</translation>
+        <translation>주행 %1회</translation>
     </message>
     <message>
         <source>%1 Total Drive</source>
-        <translation type="unfinished"></translation>
+        <translation>총 주행 %1회</translation>
     </message>
     <message>
         <source>%1 Total Drives</source>
-        <translation type="unfinished"></translation>
+        <translation>총 주행 %1회</translation>
     </message>
 </context>
 <context>
     <name>FrogPilotMultiOptionDialog</name>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">취소</translation>
+        <translation>취소</translation>
     </message>
 </context>
 <context>
@@ -3697,38 +3780,38 @@ Firehose Mode allows you to maximize your training data uploads to improve openp
     </message>
     <message>
         <source>&lt;b&gt;Lets openpilot get speed limits from Mapbox.&lt;/b&gt;&lt;br&gt;&lt;br&gt;You make this key yourself on Mapbox's website. "Mapbox Setup Instructions" walks you through it.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;openpilot이 Mapbox에서 제한 속도를 가져올 수 있게 합니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;이 키는 Mapbox 웹사이트에서 직접 만듭니다. "Mapbox 설정 안내"에서 과정을 안내합니다.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Walks you through getting your own free Mapbox keys.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The guide only shows the steps for where you are in setup, so it changes as you add each key. Tap the instructions to come back here.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;무료 Mapbox 키를 직접 발급받는 과정을 안내합니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;안내는 현재 설정 단계에 필요한 절차만 표시하므로 키를 추가할 때마다 내용이 바뀝니다. 안내를 누르면 이 화면으로 돌아옵니다.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Open this address in a browser on the same Wi-Fi to reach "The Pond", where you manage your drives, recordings, themes, and more from a phone or computer.&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;같은 Wi-Fi에 연결된 브라우저에서 이 주소를 열면 휴대폰이나 컴퓨터로 주행 기록, 녹화 영상, 테마 등을 관리하는 "The Pond"에 접속할 수 있습니다.&lt;/b&gt;</translation>
     </message>
     <message>
         <source>Pairing Code</source>
-        <translation type="unfinished"></translation>
+        <translation>페어링 코드</translation>
     </message>
     <message>
         <source>&lt;b&gt;Ask for a code before a browser can use "The Pond".&lt;/b&gt;&lt;br&gt;&lt;br&gt;Without a code, any device on the same Wi-Fi or Tailscale network can open your drives, camera footage, logs, location, and saved places, and can change your settings, unlock your doors, reboot the device, switch branches, run any command on the device from its shell, restore a backup that replaces its software, or sign the device into a Tailscale account. The code shows next to the address above. Turning this off signs every browser out, and turning it back on makes a new code.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;브라우저가 "The Pond"를 사용하기 전에 코드를 요구합니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;코드가 없으면 같은 Wi-Fi 또는 Tailscale 네트워크에 있는 모든 장치가 주행 기록, 카메라 영상, 로그, 위치, 저장된 장소를 열 수 있으며 설정을 변경하고, 문 잠금을 해제하고, 장치를 재부팅하고, 브랜치를 전환하고, 장치의 셸에서 어떤 명령이든 실행하고, 장치의 소프트웨어를 교체하는 백업을 복원하거나, 장치를 Tailscale 계정에 로그인시킬 수 있습니다. 코드는 위 주소 옆에 표시됩니다. 이 기능을 끄면 모든 브라우저가 로그아웃되고, 다시 켜면 새 코드가 생성됩니다.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Learns speed limits from the signs the camera reads on roads where your downloaded maps have no limit or the wrong one.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Each learned limit is saved for that road and direction and used in place of the map's limit the next time you drive there, and it is forgotten once the map matches the signs. It also keeps a cropped photo of the sign each learned limit came from. Roads with conditional limits, such as ones that change with the time of day or the weather, are skipped. Needs downloaded maps. With "Share FrogPilot Data" on, the learned limits, their sign photos, and the roads where the signs matched your map are sent to FrogPilot while parked on unmetered Wi-Fi or Ethernet and used to improve speed limits for everyone using FrogPilot.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;다운로드한 지도에 제한 속도가 없거나 잘못되어 있는 도로에서 카메라가 읽은 표지판으로 제한 속도를 학습합니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;학습된 제한 속도는 해당 도로와 방향별로 저장되어 다음에 그 도로를 주행할 때 지도의 제한 속도 대신 사용되며, 지도가 표지판과 일치하게 되면 삭제됩니다. 학습된 각 제한 속도의 출처인 표지판을 잘라낸 사진도 보관합니다. 시간대나 날씨에 따라 바뀌는 제한 속도처럼 조건부 제한 속도가 있는 도로는 건너뜁니다. 다운로드한 지도가 필요합니다. "FrogPilot 데이터 공유"가 켜져 있으면 학습된 제한 속도, 해당 표지판 사진, 표지판이 지도와 일치한 도로가 주차 중 데이터 요금제가 적용되지 않는 Wi-Fi 또는 Ethernet을 통해 FrogPilot으로 전송되며, FrogPilot을 사용하는 모든 사용자의 제한 속도를 개선하는 데 사용됩니다.</translation>
     </message>
     <message>
         <source> (Code %1)</source>
-        <translation type="unfinished"></translation>
+        <translation> (코드 %1)</translation>
     </message>
 </context>
 <context>
     <name>FrogPilotOnroadWindow</name>
     <message>
         <source>FPS: %1 | Min: %2 | Max: %3 | Avg: %4</source>
-        <translation type="unfinished"></translation>
+        <translation>FPS: %1 | 최저: %2 | 최고: %3 | 평균: %4</translation>
     </message>
 </context>
 <context>
@@ -3831,7 +3914,7 @@ Firehose Mode allows you to maximize your training data uploads to improve openp
     </message>
     <message>
         <source>&lt;b&gt;Tell openpilot what car you drive, turn on features made for your brand, and change what your steering wheel buttons do.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Brand features include things like smoother stop-and-go and automatic door locks. "WHEEL BUTTONS" only appears once your "Tuning Level" is "Advanced" or higher.</source>
-        <translation>&lt;b&gt;openpilot에 운전하는 차량을 지정하고 해당 브랜드 전용 기능을 켜며 핸들 버튼의 동작을 변경합니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;브랜드 기능에는 더 부드러운 정체 구간 주행과 자동 도어 잠금 등이 포함됩니다. "핸들 버튼"은 "튜닝 수준"이 "고급" 이상일 때만 표시됩니다.</translation>
+        <translation type="vanished">&lt;b&gt;openpilot에 운전하는 차량을 지정하고 해당 브랜드 전용 기능을 켜며 핸들 버튼의 동작을 변경합니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;브랜드 기능에는 더 부드러운 정체 구간 주행과 자동 도어 잠금 등이 포함됩니다. "핸들 버튼"은 "튜닝 수준"이 "고급" 이상일 때만 표시됩니다.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Choose how much control you want over FrogPilot's settings.&lt;/b&gt; Anything above your level is hidden and uses FrogPilot's recommended setting instead. Nothing you've set is lost, and it comes back when you move up.&lt;br&gt;&lt;br&gt;Minimal - FrogPilot decides nearly everything for you&lt;br&gt;Standard - Recommended for most drivers&lt;br&gt;Advanced - Extra fine-tuning once you know how your car drives&lt;br&gt;Developer - Everything, including settings that can drastically change how openpilot drives</source>
@@ -3859,19 +3942,23 @@ Only continue if you know what they do.</source>
     </message>
     <message>
         <source>SPEED LIMIT MAPS</source>
-        <translation type="unfinished"></translation>
+        <translation>제한 속도 지도</translation>
     </message>
     <message>
         <source>DRIVING VIEW</source>
-        <translation type="unfinished"></translation>
+        <translation>주행 화면</translation>
     </message>
     <message>
         <source>&lt;b&gt;Adjust how openpilot accelerates, brakes, steers, and changes lanes.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"GAS / BRAKE" only appears on cars where openpilot handles the gas and brake.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;openpilot의 가속, 제동, 조향, 차로 변경 방식을 조정합니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"가속 / 제동"은 openpilot이 가속과 제동을 제어하는 차량에서만 표시됩니다.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Download the speed limit data openpilot uses, and set up Mapbox as a fallback speed limit source.&lt;/b&gt; Speed limits come from offline map data for the states or countries you pick, so they work without cell signal.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;openpilot이 사용하는 제한 속도 데이터를 다운로드하고 Mapbox를 대체 제한 속도 소스로 설정합니다.&lt;/b&gt; 제한 속도는 선택한 주 또는 국가의 오프라인 지도 데이터에서 가져오므로 이동통신 신호가 없어도 작동합니다.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Tell openpilot what car you drive, turn on features made for your brand, and change what your steering wheel buttons do.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Brand features include things like smoother stop-and-go and automatic door locks. "WHEEL BUTTONS" only appears on cars with a button it can use, once your "Tuning Level" is "Advanced" or higher.</source>
+        <translation>&lt;b&gt;openpilot에 운전하는 차량을 지정하고 해당 브랜드 전용 기능을 켜며 핸들 버튼의 동작을 변경합니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;브랜드 기능에는 더 부드러운 정체 구간 주행과 자동 도어 잠금 등이 포함됩니다. "핸들 버튼"은 사용할 수 있는 버튼이 있는 차량에서 "튜닝 수준"이 "고급" 이상일 때만 표시됩니다.</translation>
     </message>
 </context>
 <context>
@@ -3966,62 +4053,70 @@ Only continue if you know what they do.</source>
     </message>
     <message>
         <source>&lt;b&gt;Turn on extra alerts stock openpilot doesn't have, for things you would otherwise have to catch yourself.&lt;/b&gt;&lt;br&gt;&lt;br&gt;These cover the light turning green, the car ahead pulling away, and the speed limit changing. The blind spot one in here is not a new alert: openpilot already chimes when you signal for a lane change and there's a car beside you, and this only swaps that chime for a louder one.</source>
-        <translation>&lt;b&gt;openpilot 표준에는 없는 추가 경고를 켜세요. 그렇지 않으면 스스로 알아차려야 할 상황에 대비하세요.&lt;/b&gt;&lt;br&gt;&lt;br&gt;이 경고는 신호등이 녹색으로 바뀌고, 앞차가 움직이기 시작하고, 속도 제한이 변경되는 상황을 다룹니다. 여기 사각지대 중 ​​하나는 새로운 경고가 아닙니다. 차선 변경 신호를 보낼 때 openpilot이 이미 차임벨을 울리고 옆에 자동차가 있는데, 이는 차임벨을 더 큰 차임벨로 바꿉니다.</translation>
+        <translation type="vanished">&lt;b&gt;openpilot 표준에는 없는 추가 경고를 켜세요. 그렇지 않으면 스스로 알아차려야 할 상황에 대비하세요.&lt;/b&gt;&lt;br&gt;&lt;br&gt;이 경고는 신호등이 녹색으로 바뀌고, 앞차가 움직이기 시작하고, 속도 제한이 변경되는 상황을 다룹니다. 여기 사각지대 중 ​​하나는 새로운 경고가 아닙니다. 차선 변경 신호를 보낼 때 openpilot이 이미 차임벨을 울리고 옆에 자동차가 있는데, 이는 차임벨을 더 큰 차임벨로 바꿉니다.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Set the volume for the quick chimes openpilot uses when it needs you to notice something.&lt;/b&gt;&lt;br&gt;&lt;br&gt;You hear these for things like a car sitting in your blind spot when you signal, or a turn too sharp for openpilot to steer through on its own. The "Goat Scream" alert plays at this volume as well. This one stops at 25% so it can always reach you.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;openpilot이 운전자의 주의가 필요할 때 내는 짧은 알림음의 음량입니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;방향지시등을 켰을 때 사각지대에 차량이 있거나 openpilot이 스스로 조향할 수 없을 만큼 급한 회전 구간에서 들립니다. "염소 비명" 알림도 이 음량으로 재생됩니다. 알림이 항상 들리도록 최저값은 25%입니다.</translation>
     </message>
     <message>
         <source>Extra Alerts</source>
-        <translation type="unfinished"></translation>
+        <translation>추가 알림</translation>
     </message>
     <message>
         <source>&lt;b&gt;Play a chime whenever the speed limit openpilot is reading changes.&lt;/b&gt;&lt;br&gt;&lt;br&gt;That limit comes from your car's dashboard, your downloaded map data, signs read by the camera, or Mapbox, depending on which of those you have set up. You hear it right as the limit changes, such as entering a school zone or coming off the highway.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;openpilot이 읽고 있는 제한 속도가 바뀔 때마다 알림음을 재생합니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;제한 속도는 설정한 항목에 따라 차량 계기판, 다운로드한 지도 데이터, 카메라가 읽은 표지판 또는 Mapbox에서 가져옵니다. 어린이 보호구역에 진입하거나 고속도로에서 나올 때처럼 제한 속도가 바뀌는 순간 바로 들립니다.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Play a chime when you're stopped at a light and openpilot sees the road ahead open up.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This only fires when nobody is stopped in front of you, and it stays quiet in "Traffic Mode". For a line of cars at a light you need "Lead Departing Alert" switched on as well, and that one starts off.&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Disclaimer&lt;/b&gt;: openpilot does not actually read traffic lights. It is going off what the camera sees, so it can chime when the light has not changed.&lt;/i&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;신호 대기 중 openpilot이 전방 도로가 열렸다고 판단하면 알림음을 재생합니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;전방에 정지한 차량이 없을 때만 작동하며, "교통 모드"에서는 울리지 않습니다. 신호 대기 차량 행렬에 있을 때는 기본적으로 꺼져 있는 "앞차 출발 알림"도 켜야 합니다.&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;주의&lt;/b&gt;: openpilot은 실제로 신호등을 판독하지 않습니다. 카메라에 보이는 장면으로 판단하므로 신호가 바뀌지 않아도 알림음이 울릴 수 있습니다.&lt;/i&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Upgrade "Car Detected in Blindspot" from openpilot's quiet prompt chime to its warning chime.&lt;/b&gt;&lt;br&gt;&lt;br&gt;You get this alert when you signal for a lane change while openpilot is steering and there is a car beside you where you cannot see it. It needs "Lane Changes" switched on and at least your "Minimum Lane Change Speed" (20 mph or 32 km/h by default), so signaling slower than that gets you nothing. Because it becomes a warning, its volume comes from "Soft Warning Volume" instead of "Prompt Volume".</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;"Car Detected in Blindspot"(사각지대에 차량 감지)를 openpilot의 작은 안내음에서 경고음으로 바꿉니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;openpilot이 조향 중일 때 사각지대에 차량이 있는 상태로 차로 변경 방향지시등을 켜면 이 경고가 발생합니다. "차로 변경"이 켜져 있고 속도가 "최소 차로 변경 속도"(기본값 20 mph 또는 32 km/h) 이상이어야 하므로 그보다 느린 속도에서는 방향지시등을 켜도 경고하지 않습니다. 경고음으로 바뀌므로 음량은 "안내음 음량"이 아니라 "일반 경고음 음량" 설정을 따릅니다.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Set the volume for the sound openpilot makes when the driver camera thinks you've stopped watching the road.&lt;/b&gt;&lt;br&gt;&lt;br&gt;You hear this if you look down at your phone, or if the camera cannot see your face and you go too long without touching the wheel. Ignore it long enough and it escalates into the "DISENGAGE IMMEDIATELY" warning, which plays at "Urgent Warning Volume" instead. openpilot will not hand the car back on its own, so taking over is on you. It never plays quieter than "Auto" would, so it can always reach you.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;운전자 카메라가 운전자가 도로를 주시하지 않는다고 판단할 때 openpilot이 내는 소리의 음량입니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;휴대전화를 내려다보거나 카메라에 얼굴이 보이지 않는 상태에서 오랫동안 핸들을 잡지 않으면 들립니다. 계속 무시하면 "DISENGAGE IMMEDIATELY" 경고로 강화되며, 이때는 "긴급 경고음 음량"으로 재생됩니다. openpilot이 스스로 차량 제어를 운전자에게 넘기지는 않으므로 운전자가 직접 즉시 제어해야 합니다. 알림이 항상 들리도록 "자동"보다 작게 재생되지 않습니다.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Set the volume for openpilot's serious warnings, such as "BRAKE! Risk of Collision" when it thinks you're about to hit something.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The "Louder Blind Spot Alert" plays at this volume too. It never plays quieter than "Auto" would, so it can always reach you.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;openpilot이 충돌이 임박했다고 판단할 때의 "BRAKE! Risk of Collision"과 같은 중요한 경고의 음량입니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"더 큰 사각지대 경고음"도 이 음량으로 재생됩니다. 경고가 항상 들리도록 "자동"보다 작게 재생되지 않습니다.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Set the volume for openpilot's most urgent warnings, the ones telling you to take the wheel right now.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"DISENGAGE IMMEDIATELY" plays at this volume, which is what you get once you've ignored the driver camera long enough that openpilot no longer trusts you're paying attention. It never plays quieter than "Auto" would, so it can always reach you.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;즉시 핸들을 잡으라고 알리는 openpilot의 가장 긴급한 경고 음량입니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;운전자 카메라 경고를 오래 무시해 openpilot이 운전자의 주의를 신뢰할 수 없게 되면 "DISENGAGE IMMEDIATELY"가 이 음량으로 재생됩니다. 경고가 항상 들리도록 "자동"보다 작게 재생되지 않습니다.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Turn on extra alerts stock openpilot doesn't have, for things you would otherwise have to catch yourself.&lt;/b&gt;&lt;br&gt;&lt;br&gt;These cover the light turning green, the car ahead pulling away, and the speed limit changing. The blind spot one in here is not a new alert. openpilot already chimes when you signal for a lane change and there's a car beside you, and this only swaps that chime for a louder one.</source>
+        <translation>&lt;b&gt;기본 openpilot에는 없는 추가 알림을 켜서, 원래는 직접 알아차려야 하는 상황을 알립니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;신호등이 녹색으로 바뀔 때, 선행 차량이 출발할 때, 제한 속도가 바뀔 때 알립니다. 이 중 사각지대 알림은 새로운 알림이 아닙니다. 차로 변경을 위해 방향지시등을 켰을 때 옆에 차량이 있으면 openpilot이 이미 알림음을 울리며, 이 설정은 그 알림음을 더 큰 알림음으로 바꿀 뿐입니다.</translation>
     </message>
 </context>
 <context>
     <name>FrogPilotTelemetryPage</name>
     <message>
         <source>Help Improve FrogPilot?</source>
-        <translation type="unfinished"></translation>
+        <translation>FrogPilot 개선에 도움을 주시겠습니까?</translation>
     </message>
     <message>
         <source>No Thanks</source>
-        <translation type="unfinished"></translation>
+        <translation>괜찮습니다</translation>
     </message>
     <message>
         <source>Yes, Share Data</source>
-        <translation type="unfinished"></translation>
+        <translation>예, 데이터 공유</translation>
     </message>
     <message>
         <source>Your FrogPilot device ID is &lt;b&gt;%1&lt;/b&gt;.</source>
-        <translation type="unfinished"></translation>
+        <translation>FrogPilot 기기 ID는 &lt;b&gt;%1&lt;/b&gt;입니다.</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Help make FrogPilot better by sharing filtered driving logs, short speed limit sign clips, learned speed limits, and usage stats.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Your everyday drives help us improve steering, acceleration, and braking, fine-tune support for more cars, train the speed limit sign reader, and find and fix problems. Keeping sharing enabled gives us more real-world examples across cars, roads, and driving conditions.&lt;br&gt;&lt;br&gt;&lt;b&gt;Privacy protection starts on your device.&lt;/b&gt; Driving logs are filtered, and the location included in usage stats is generalized, before they are sent.&lt;br&gt;&lt;br&gt;&lt;b&gt;Driving logs&lt;/b&gt; record vehicle behavior and FrogPilot's driving decisions. Before upload, we remove camera footage, audio, driver face data, account details, SSH keys, navigation routes, and map road names and IDs. Exact GPS coordinates and recording date/time fields are cleared, and &lt;b&gt;the VIN field is removed entirely&lt;/b&gt;. Driver-monitoring data is limited to awareness level and whether your car is right-hand drive. We also discard CAN messages captured during startup vehicle identification. Each drive gets an ID that hides when it was recorded, and uploaded logs are linked to your FrogPilot device ID.&lt;br&gt;&lt;br&gt;Raw CAN data recorded during driving is kept to help improve car support. On some cars, these vehicle messages can still contain GPS, VIN, date/time, odometer, or seat occupancy information.&lt;br&gt;&lt;br&gt;&lt;b&gt;Usage stats&lt;/b&gt; cover your device, software, car and calibration details, FrogPilot settings, model usage and scores, and lifetime driving totals, including drives from before you turned sharing on. &lt;b&gt;Your location is generalized on your device.&lt;/b&gt; It reports the nearest city in your country or US state from a list filtered to populations of &lt;b&gt;50,000 or more&lt;/b&gt;. If that region has no qualifying city, it uses its capital instead. This helps protect location privacy in small communities. For location, these stats include only the resulting city, state, and country, never your exact GPS coordinates. The VIN is excluded from car details, and stats are linked to your FrogPilot device ID.&lt;br&gt;&lt;br&gt;&lt;b&gt;Speed limit sign clips&lt;/b&gt; are about 10 seconds of road camera video, recorded when a supported car's dashboard shows a new speed limit, when the speed limit sign reader sees a sign it isn't sure of, and for some of the limits it reads. No GPS coordinates or recording date/time are attached, and clip IDs hide the original recording time. Each clip includes the speed limit or the reader's reading, camera calibration, and basic device, camera, and software details, and is linked to your FrogPilot device ID. Video is uploaded as recorded and can show license plates, people, and identifiable places. Clips picked to train or test the reader may be kept for up to 2 years. Clips may be matched to driving logs.&lt;br&gt;&lt;br&gt;&lt;b&gt;Learned speed limits&lt;/b&gt; are the limits "Speed Limit Filler" learns from the signs the camera reads, when that setting is on. They are used to improve speed limits for everyone using FrogPilot. Each one includes the speed limit, the map ID of the road it was learned on, the direction of travel, the GPS location and heading where the sign was seen, the date, and how far the car drove with that limit, and they are linked to your FrogPilot device ID. Each one also includes a cropped photo of the sign it was read from, with the GPS location, heading, and time it was taken, and the photo can show part of the road around the sign. Roads where the sign matched your map's limit are sent too, with the limit and the date, to measure how accurate the sign reader is. Limits learned before you turned sharing on are included. The road IDs and locations show where the car has been driven.&lt;br&gt;&lt;br&gt;&lt;b&gt;Uploads&lt;/b&gt; of driving logs, clips, and learned speed limits happen only while your car is off, on unmetered Wi-Fi or Ethernet. Usage stats are sent at startup and after drives and may use other available internet connections.&lt;br&gt;&lt;br&gt;&lt;b&gt;Your choice.&lt;/b&gt; You can turn off "Share FrogPilot Data" anytime to stop sharing these logs, clips, learned speed limits, and usage stats. Basic device registration still sends device type, operating system and software build details, and a public authentication key. Startup and after-drive check-ins continue without your usage stats, settings, or location. Crash reports also continue, tagged with your comma device ID (or your Konik device ID when you use the Konik server) and software details. Python crash reports do not automatically collect local variable values.&lt;br&gt;&lt;br&gt;Read FrogPilot's full privacy policy at &lt;b&gt;frogpilot.com/privacy&lt;/b&gt;.</source>
-        <translation type="unfinished"></translation>
+        <source>Your drives make FrogPilot better for everyone, with better steering and braking, support for more cars, and smarter speed limits.&lt;br&gt;&lt;br&gt;Sharing sends filtered driving logs, short road camera clips, learned speed limits, and usage stats. Turn it off anytime in Settings. Learn more at &lt;b&gt;FrogPilot.com/privacy&lt;/b&gt;.</source>
+        <translation>여러분의 주행은 조향과 제동 개선, 더 많은 차량 지원, 더 똑똑한 제한 속도로 이어져 모든 사용자를 위해 FrogPilot을 더 좋게 만듭니다.&lt;br&gt;&lt;br&gt;공유하면 필터링된 주행 로그, 짧은 도로 카메라 클립, 학습된 제한 속도, 사용 통계가 전송됩니다. 설정에서 언제든 끌 수 있습니다. 자세한 내용은 &lt;b&gt;FrogPilot.com/privacy&lt;/b&gt;에서 확인하세요.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Help make FrogPilot better by sharing filtered driving logs, short speed limit sign clips, learned speed limits, and usage stats.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Your everyday drives help us improve steering, acceleration, and braking, fine-tune support for more cars, train the speed limit sign reader, and find and fix problems. Keeping sharing enabled gives us more real-world examples across cars, roads, and driving conditions.&lt;br&gt;&lt;br&gt;&lt;b&gt;Privacy protection starts on your device.&lt;/b&gt; Driving logs are filtered, and the location included in usage stats is generalized, before they are sent.&lt;br&gt;&lt;br&gt;&lt;b&gt;Driving logs&lt;/b&gt; record vehicle behavior and FrogPilot's driving decisions. Before upload, we remove camera footage, audio, driver face data, account details, SSH keys, navigation routes, and map road names and IDs. Exact GPS coordinates and recording date/time fields are cleared, and &lt;b&gt;the VIN field is removed entirely&lt;/b&gt;. Driver-monitoring data is removed. We also discard CAN messages captured during startup vehicle identification. Each drive gets an ID that hides when it was recorded, and uploaded logs are linked to your FrogPilot device ID.&lt;br&gt;&lt;br&gt;Raw CAN data recorded during driving is kept to help improve car support. Known GPS position and VIN messages are dropped on GM, Toyota, Ford, and Tesla. Other data, including clocks and odometers, can remain, and other cars may still carry GPS position or VIN messages. On some cars, these vehicle messages can still contain seat occupancy information.&lt;br&gt;&lt;br&gt;&lt;b&gt;Usage stats&lt;/b&gt; cover your device, software, car and calibration details, FrogPilot settings, model usage and scores, and lifetime driving totals, including drives from before you turned sharing on. &lt;b&gt;Your location is generalized on your device.&lt;/b&gt; It reports the nearest city in your country or US state from a list filtered to populations of &lt;b&gt;50,000 or more&lt;/b&gt;. If that region has no qualifying city, it uses its capital instead. This helps protect location privacy in small communities. For location, these stats include only the resulting city, state, and country, never your exact GPS coordinates. The VIN is excluded from car details, and stats are linked to your FrogPilot device ID.&lt;br&gt;&lt;br&gt;&lt;b&gt;Speed limit sign clips&lt;/b&gt; are about 10 seconds of road camera video, recorded when a supported car's dashboard shows a new speed limit, when the speed limit sign reader sees a sign it isn't sure of, and for some of the limits it reads. No GPS coordinates or recording date/time are attached, and clip IDs hide the original recording time. Each clip includes the speed limit or the reader's reading, camera calibration, and basic device, camera, and software details, and is linked to your FrogPilot device ID. Video is uploaded as recorded and can show license plates, people, and identifiable places. Clips picked to train or test the reader may be kept for up to 2 years. Clips may be matched to driving logs. Small crops showing only a speed-limit sign may be shown to signed-in FrogPilot.com users who help label them.&lt;br&gt;&lt;br&gt;&lt;b&gt;Learned speed limits&lt;/b&gt; are the limits "Speed Limit Filler" learns from the signs the camera reads, when that setting is on. They are used to improve speed limits for everyone using FrogPilot. Each one includes the speed limit, the map ID of the road it was learned on, the direction of travel, the GPS location and heading where the sign was seen, the date, and how far the car drove with that limit, and they are linked to your FrogPilot device ID. Each one also includes a cropped photo of the sign it was read from, with the GPS location, heading, and time it was taken, and the photo can show part of the road around the sign. Roads where the sign matched your map's limit are sent too, with the limit and the date, to measure how accurate the sign reader is. Limits learned before you turned sharing on are included. The road IDs and locations show where the car has been driven.&lt;br&gt;&lt;br&gt;&lt;b&gt;Uploads&lt;/b&gt; of driving logs, clips, and learned speed limits happen only while your car is off, on unmetered Wi-Fi or Ethernet. Usage stats are sent at startup and after drives and may use other available internet connections.&lt;br&gt;&lt;br&gt;&lt;b&gt;Your choice.&lt;/b&gt; You can turn off "Share FrogPilot Data" anytime to stop sharing these logs, clips, learned speed limits, and usage stats. Basic device registration still sends device type, operating system and software build details, and a public authentication key. Startup and after-drive check-ins continue without your usage stats, settings, or location. Crash reports also continue, tagged with your comma device ID (or your Konik device ID when you use the Konik server) and software details. Python crash reports do not automatically collect local variable values.&lt;br&gt;&lt;br&gt;Read FrogPilot's full privacy policy at &lt;b&gt;FrogPilot.com/privacy&lt;/b&gt;.</source>
+        <translation>&lt;b&gt;필터링된 주행 로그, 짧은 제한 속도 표지판 클립, 학습된 제한 속도, 사용 통계를 공유하여 FrogPilot 개선에 도움을 주세요.&lt;/b&gt;&lt;br&gt;&lt;br&gt;일상적인 주행은 저희가 조향, 가속, 제동을 개선하고, 더 많은 차량에 대한 지원을 세밀하게 조정하고, 제한 속도 표지판 판독기를 학습시키고, 문제를 찾아 해결하는 데 도움이 됩니다. 공유를 계속 켜 두면 다양한 차량, 도로, 주행 조건에 걸친 실제 사례를 더 많이 확보할 수 있습니다.&lt;br&gt;&lt;br&gt;&lt;b&gt;개인정보 보호는 사용자의 장치에서 시작됩니다.&lt;/b&gt; 주행 로그는 전송 전에 필터링되고, 사용 통계에 포함된 위치는 전송 전에 대략적인 위치로 변환됩니다.&lt;br&gt;&lt;br&gt;&lt;b&gt;주행 로그&lt;/b&gt;에는 차량 동작과 FrogPilot의 주행 판단이 기록됩니다. 업로드 전에 카메라 영상, 오디오, 운전자 얼굴 데이터, 계정 정보, SSH 키, 내비게이션 경로, 지도의 도로 이름과 ID를 제거합니다. 정확한 GPS 좌표와 녹화 날짜/시간 필드를 지우고, &lt;b&gt;VIN 필드는 완전히 제거합니다&lt;/b&gt;. 운전자 모니터링 데이터도 제거합니다. 시작 시 차량 식별 과정에서 수집된 CAN 메시지도 폐기합니다. 각 주행에는 녹화 시점을 숨기는 ID가 부여되며, 업로드된 로그는 사용자의 FrogPilot 장치 ID에 연결됩니다.&lt;br&gt;&lt;br&gt;주행 중 기록된 원시 CAN 데이터는 차량 지원 개선을 위해 유지됩니다. GM, Toyota, Ford, Tesla에서는 알려진 GPS 위치 및 VIN 메시지를 제거합니다. 시계와 주행거리계를 포함한 다른 데이터는 남아 있을 수 있으며, 다른 차량에는 GPS 위치 또는 VIN 메시지가 여전히 포함될 수 있습니다. 일부 차량에서는 이러한 차량 메시지에 좌석 탑승 정보가 여전히 포함될 수 있습니다.&lt;br&gt;&lt;br&gt;&lt;b&gt;사용 통계&lt;/b&gt;에는 장치, 소프트웨어, 차량 및 캘리브레이션 세부 정보, FrogPilot 설정, 모델 사용 현황 및 점수, 공유를 켜기 전의 주행을 포함한 누적 주행 합계가 포함됩니다. &lt;b&gt;위치는 장치에서 대략적인 위치로 변환됩니다.&lt;/b&gt; 인구 &lt;b&gt;50,000명 이상&lt;/b&gt;으로 필터링된 목록에서 사용자의 국가 또는 미국 주 내 가장 가까운 도시를 보고합니다. 해당 지역에 조건을 충족하는 도시가 없으면 그 지역의 수도 또는 주도를 대신 사용합니다. 이는 소규모 지역 사회의 위치 개인정보를 보호하는 데 도움이 됩니다. 위치와 관련하여 이 통계에는 그 결과로 정해진 도시, 주, 국가만 포함되며 정확한 GPS 좌표는 절대 포함되지 않습니다. VIN은 차량 세부 정보에서 제외되며, 통계는 사용자의 FrogPilot 장치 ID에 연결됩니다.&lt;br&gt;&lt;br&gt;&lt;b&gt;제한 속도 표지판 클립&lt;/b&gt;은 약 10초 길이의 도로 카메라 영상으로, 지원 차량의 계기판에 새로운 제한 속도가 표시될 때, 제한 속도 표지판 판독기가 확신하지 못하는 표지판을 볼 때, 그리고 판독기가 읽은 제한 속도 중 일부에 대해 녹화됩니다. GPS 좌표나 녹화 날짜/시간은 첨부되지 않으며, 클립 ID는 원래 녹화 시간을 숨깁니다. 각 클립에는 제한 속도 또는 판독기의 판독값, 카메라 캘리브레이션, 기본적인 장치, 카메라, 소프트웨어 세부 정보가 포함되며 사용자의 FrogPilot 장치 ID에 연결됩니다. 영상은 녹화된 그대로 업로드되며 번호판, 사람, 식별 가능한 장소가 보일 수 있습니다. 판독기 학습 또는 테스트용으로 선정된 클립은 최대 2년간 보관될 수 있습니다. 클립은 주행 로그와 대조될 수 있습니다. 제한 속도 표지판만 보이도록 잘라낸 작은 이미지는 라벨 작업을 돕는 로그인한 FrogPilot.com 사용자에게 표시될 수 있습니다.&lt;br&gt;&lt;br&gt;&lt;b&gt;학습된 제한 속도&lt;/b&gt;는 "제한 속도 수집기"가 켜져 있을 때 이 기능이 카메라가 읽은 표지판에서 학습한 제한 속도입니다. FrogPilot을 사용하는 모든 사용자의 제한 속도를 개선하는 데 사용됩니다. 각 항목에는 제한 속도, 학습된 도로의 지도 ID, 주행 방향, 표지판이 보인 GPS 위치와 진행 방향, 날짜, 해당 제한 속도가 적용된 주행 거리가 포함되며 사용자의 FrogPilot 장치 ID에 연결됩니다. 각 항목에는 판독에 사용된 표지판을 잘라낸 사진과 촬영 당시의 GPS 위치, 진행 방향, 시간도 포함되며, 사진에는 표지판 주변 도로의 일부가 보일 수 있습니다. 표지판이 지도의 제한 속도와 일치한 도로도 표지판 판독기의 정확도를 측정하기 위해 제한 속도 및 날짜와 함께 전송됩니다. 공유를 켜기 전에 학습된 제한 속도도 포함됩니다. 도로 ID와 위치를 통해 차량이 주행한 장소를 알 수 있습니다.&lt;br&gt;&lt;br&gt;주행 로그, 클립, 학습된 제한 속도의 &lt;b&gt;업로드&lt;/b&gt;는 차량 시동이 꺼져 있고 데이터 요금제가 적용되지 않는 Wi-Fi 또는 Ethernet에 연결되어 있을 때만 이루어집니다. 사용 통계는 시작 시와 주행 후에 전송되며 사용 가능한 다른 인터넷 연결을 사용할 수 있습니다.&lt;br&gt;&lt;br&gt;&lt;b&gt;선택은 사용자의 몫입니다.&lt;/b&gt; 언제든 "FrogPilot 데이터 공유"를 끄면 이러한 로그, 클립, 학습된 제한 속도, 사용 통계의 공유를 중단할 수 있습니다. 기본 장치 등록 시에는 장치 유형, 운영 체제 및 소프트웨어 빌드 세부 정보, 공개 인증 키가 계속 전송됩니다. 시작 시와 주행 후 체크인은 사용 통계, 설정, 위치 없이 계속됩니다. 비정상 종료 보고서도 comma 장치 ID(Konik 서버를 사용하는 경우 Konik 장치 ID)와 소프트웨어 세부 정보를 태그로 달아 계속 전송됩니다. Python 비정상 종료 보고서는 지역 변수 값을 자동으로 수집하지 않습니다.&lt;br&gt;&lt;br&gt;FrogPilot의 전체 개인정보 처리방침은 &lt;b&gt;FrogPilot.com/privacy&lt;/b&gt;에서 확인하세요.</translation>
     </message>
 </context>
 <context>
@@ -4196,7 +4291,7 @@ Only continue if you know what they do.</source>
     </message>
     <message>
         <source>&lt;b&gt;Change the icons on the driving personality button, the one you tap on the driving screen to switch between Aggressive, Standard, and Relaxed.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Each pack draws four icons: one each for Aggressive, Standard, and Relaxed, plus one that takes over while Traffic Mode is on. This row only appears while that button is switched on under "Driving Personality Button".</source>
-        <translation>&lt;b&gt;주행 화면에서 공격적, 표준, 편안한 주행 성향을 전환할 때 누르는 주행 성향 버튼의 아이콘을 변경합니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;각 팩에는 공격적, 표준, 편안한 성향용 아이콘과 교통 모드 작동 중 사용할 아이콘까지 모두 네 개가 포함됩니다. 이 항목은 "주행 성향 버튼" 설정에서 해당 버튼을 켠 경우에만 표시됩니다.</translation>
+        <translation type="vanished">&lt;b&gt;주행 화면에서 공격적, 표준, 편안한 주행 성향을 전환할 때 누르는 주행 성향 버튼의 아이콘을 변경합니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;각 팩에는 공격적, 표준, 편안한 성향용 아이콘과 교통 모드 작동 중 사용할 아이콘까지 모두 네 개가 포함됩니다. 이 항목은 "주행 성향 버튼" 설정에서 해당 버튼을 켠 경우에만 표시됩니다.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Change the chimes openpilot plays for its alerts, like the sound when it starts driving or warns you about something.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"Stock" uses openpilot's normal chimes. A pack only replaces the sound files it actually ships and anything it leaves out stays stock, so the holiday packs mostly bring just their own engage and disengage chimes. How loud each one plays is set separately under "Alert Volumes" in "Alerts and Sounds".</source>
@@ -4232,115 +4327,119 @@ Only continue if you know what they do.</source>
     </message>
     <message>
         <source>Select color schemes to delete</source>
-        <translation type="unfinished"></translation>
+        <translation>삭제할 색 구성표 선택</translation>
     </message>
     <message>
         <source>Delete the %1 selected color schemes?</source>
-        <translation type="unfinished"></translation>
+        <translation>선택한 색 구성표 %1개를 삭제하시겠습니까?</translation>
     </message>
     <message>
         <source>Select color schemes to download</source>
-        <translation type="unfinished"></translation>
+        <translation>다운로드할 색 구성표 선택</translation>
     </message>
     <message>
         <source>Select personality button packs to delete</source>
-        <translation type="unfinished"></translation>
+        <translation>삭제할 주행 성향 버튼 팩을 선택하세요</translation>
     </message>
     <message>
         <source>Delete the "%1" personality button pack?</source>
-        <translation type="unfinished"></translation>
+        <translation>"%1" 주행 성향 버튼 팩을 삭제하시겠습니까?</translation>
     </message>
     <message>
         <source>Delete the %1 selected personality button packs?</source>
-        <translation type="unfinished"></translation>
+        <translation>선택한 주행 성향 버튼 팩 %1개를 삭제하시겠습니까?</translation>
     </message>
     <message>
         <source>Select personality button packs to download</source>
-        <translation type="unfinished"></translation>
+        <translation>다운로드할 주행 성향 버튼 팩을 선택하세요</translation>
     </message>
     <message>
         <source>Select a personality button pack</source>
-        <translation type="unfinished"></translation>
+        <translation>주행 성향 버튼 팩을 선택하세요</translation>
     </message>
     <message>
         <source>Select icon packs to delete</source>
-        <translation type="unfinished"></translation>
+        <translation>삭제할 아이콘 팩 선택</translation>
     </message>
     <message>
         <source>Delete the %1 selected icon packs?</source>
-        <translation type="unfinished"></translation>
+        <translation>선택한 아이콘 팩 %1개를 삭제하시겠습니까?</translation>
     </message>
     <message>
         <source>Select icon packs to download</source>
-        <translation type="unfinished"></translation>
+        <translation>다운로드할 아이콘 팩 선택</translation>
     </message>
     <message>
         <source>Select signal animations to delete</source>
-        <translation type="unfinished"></translation>
+        <translation>삭제할 방향지시등 애니메이션을 선택하세요</translation>
     </message>
     <message>
         <source>Delete the %1 selected signal animations?</source>
-        <translation type="unfinished"></translation>
+        <translation>선택한 방향지시등 애니메이션 %1개를 삭제하시겠습니까?</translation>
     </message>
     <message>
         <source>Select signal animations to download</source>
-        <translation type="unfinished"></translation>
+        <translation>다운로드할 방향지시등 애니메이션을 선택하세요</translation>
     </message>
     <message>
         <source>Select sound packs to delete</source>
-        <translation type="unfinished"></translation>
+        <translation>삭제할 사운드 팩을 선택하세요.</translation>
     </message>
     <message>
         <source>Delete the %1 selected sound packs?</source>
-        <translation type="unfinished"></translation>
+        <translation>선택한 사운드 팩 %1개를 삭제하시겠습니까?</translation>
     </message>
     <message>
         <source>Select sound packs to download</source>
-        <translation type="unfinished"></translation>
+        <translation>다운로드할 사운드 팩을 선택하세요.</translation>
     </message>
     <message>
         <source>Select steering wheels to delete</source>
-        <translation type="unfinished"></translation>
+        <translation>삭제할 스티어링 휠을 선택하세요.</translation>
     </message>
     <message>
         <source>Delete the %1 selected steering wheels?</source>
-        <translation type="unfinished"></translation>
+        <translation>선택한 스티어링 휠 %1개를 삭제하시겠습니까?</translation>
     </message>
     <message>
         <source>Select steering wheels to download</source>
-        <translation type="unfinished"></translation>
+        <translation>다운로드할 스티어링 휠을 선택하세요.</translation>
     </message>
     <message>
         <source>Personality Button</source>
-        <translation type="unfinished"></translation>
+        <translation>주행 성향 버튼</translation>
     </message>
     <message>
         <source>&lt;b&gt;Change the two lines of text openpilot shows on screen at the start of every drive.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"STOCK" is openpilot's usual safety reminder and "FROGPILOT" is the frog version. "CUSTOM" lets you write your own, up to 35 characters on the top line and 45 on the bottom.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;주행을 시작할 때마다 openpilot이 화면에 표시하는 두 줄의 문구를 변경합니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"기본"은 openpilot의 일반적인 안전 안내 문구이고 "FROGPILOT"은 개구리 버전입니다. "사용자 지정"을 선택하면 윗줄 최대 35자, 아랫줄 최대 45자까지 직접 작성할 수 있습니다.</translation>
     </message>
     <message>
         <source>Download</source>
-        <translation type="unfinished">다운로드</translation>
+        <translation>다운로드</translation>
     </message>
     <message>
         <source>"Random Themes" picks from the built-in Frog theme, the holiday themes when "Include Holiday Themes" is on, and themes you've already downloaded, so grab the ones you want it to use!</source>
-        <translation type="unfinished"></translation>
+        <translation>"무작위 테마"는 기본 제공 Frog 테마, "홀리데이 테마 포함"이 켜져 있을 때의 홀리데이 테마, 이미 다운로드한 테마 중에서 선택하므로 사용할 테마를 먼저 다운로드하세요!</translation>
     </message>
     <message>
         <source>%1 of %2 downloaded, %3 failed</source>
-        <translation type="unfinished"></translation>
+        <translation>%2개 중 %1개 다운로드 완료, %3개 실패</translation>
     </message>
     <message>
         <source>Downloading %1 of %2 (%3)</source>
-        <translation type="unfinished"></translation>
+        <translation>%2개 중 %1번째 다운로드 중 (%3)</translation>
     </message>
     <message>
         <source>Download invalid...</source>
-        <translation type="unfinished"></translation>
+        <translation>잘못된 다운로드...</translation>
     </message>
     <message>
         <source>&lt;b&gt;Start every drive with a theme picked at random from the built-in Frog theme and the packs you have already downloaded.&lt;/b&gt;&lt;br&gt;&lt;br&gt;A downloaded pack only joins the mix once you have its colors, icons, and sounds, and the same theme can come up twice in a row. With "Include Holiday Themes" on, the holiday themes are in the mix too. While this is on, the rows inside "Custom Themes" stop offering "SELECT", and turning it back off gives you your own picks again.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;주행을 시작할 때마다 기본 제공 Frog 테마와 이미 다운로드한 팩 중에서 무작위로 고른 테마를 사용합니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;다운로드한 팩은 해당 테마의 색상, 아이콘, 소리를 모두 받은 경우에만 후보에 포함되며, 같은 테마가 연속으로 선택될 수도 있습니다. "홀리데이 테마 포함"이 켜져 있으면 홀리데이 테마도 후보에 포함됩니다. 이 기능이 켜져 있는 동안에는 "사용자 지정 테마" 안의 항목에서 "선택"을 사용할 수 없으며, 다시 끄면 직접 고른 테마로 돌아갑니다.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Change the icons on the driving personality button, the one you tap on the driving screen to switch between Aggressive, Standard, and Relaxed.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Each pack draws four icons, one each for Aggressive, Standard, and Relaxed, plus one that takes over while Traffic Mode is on. This row only appears while that button is switched on under "Driving Personality Button".</source>
+        <translation>&lt;b&gt;주행 화면에서 공격적, 표준, 편안한 주행 성향을 전환할 때 누르는 주행 성향 버튼의 아이콘을 변경합니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;각 팩에는 공격적, 표준, 편안한 성향용 아이콘과 교통 모드 작동 중 사용할 아이콘까지 모두 네 개가 포함됩니다. 이 항목은 "주행 성향 버튼" 설정에서 해당 버튼을 켠 경우에만 표시됩니다.</translation>
     </message>
 </context>
 <context>
@@ -4455,140 +4554,145 @@ Only continue if you know what they do.</source>
     </message>
     <message>
         <source>Reset!</source>
-        <translation>초기화 완료!</translation>
+        <translation type="vanished">초기화 완료!</translation>
     </message>
     <message>
         <source>&lt;b&gt;Make openpilot behave as though the car is running, or as though it is parked, without the car actually being either.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This is a testing tool. Forcing the running state ignores your "Screen Brightness (Onroad)" setting and stops openpilot warning you that its controls are unresponsive, so leave it on "OFF" unless you know why you need it. Forcing the running state ends when you turn the car on, and either state clears itself the next time the device restarts. While it is forced, the device still drops back to offroad if it overheats and still shuts down on its usual timer or a low car battery. With the car off, a forced running state runs on the car's battery until the device powers itself off.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;차량이 실제로 그 상태가 아니어도 시동이 걸려 있거나 주차된 것처럼 openpilot이 작동하게 합니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;이 기능은 테스트용 도구입니다. 주행 상태를 강제하면 "화면 밝기 (주행 시)" 설정이 무시되고 openpilot이 제어가 응답하지 않는다고 경고하지 않으므로, 필요한 이유를 알고 있지 않다면 "끄기"로 두세요. 주행 상태 강제는 차량 시동을 켜면 종료되며, 두 상태 모두 다음에 장치가 재시작될 때 자동으로 해제됩니다. 강제 중에도 장치는 과열되면 비주행 상태로 돌아가고, 평소의 타이머나 차량 배터리 부족으로 종료됩니다. 차량 시동이 꺼진 상태에서 주행 상태를 강제하면 장치가 스스로 꺼질 때까지 차량 배터리로 작동합니다.</translation>
     </message>
     <message>
         <source>The parked state can't be forced while openpilot is steering. Disengage and try again.</source>
-        <translation type="unfinished"></translation>
+        <translation>openpilot이 조향 중일 때는 주차 상태를 강제할 수 없습니다. 해제한 후 다시 시도하세요.</translation>
     </message>
     <message>
         <source>The running state can't be forced while the car is on. Turn the car off and try again.</source>
-        <translation type="unfinished"></translation>
+        <translation>차량 시동이 켜져 있을 때는 주행 상태를 강제할 수 없습니다. 시동을 끄고 다시 시도하세요.</translation>
     </message>
     <message>
         <source>Reflash the Panda</source>
-        <translation type="unfinished"></translation>
+        <translation>Panda 다시 플래시</translation>
     </message>
     <message>
         <source>The Panda can't be reflashed while the car is on. Turn the car off and try again.</source>
-        <translation type="unfinished"></translation>
+        <translation>차량 시동이 켜져 있을 때는 Panda를 다시 플래시할 수 없습니다. 시동을 끄고 다시 시도하세요.</translation>
     </message>
     <message>
         <source>Something else is already running. Wait for it to finish and try again.</source>
-        <translation type="unfinished"></translation>
+        <translation>다른 작업이 이미 실행 중입니다. 작업이 끝난 뒤 다시 시도하세요.</translation>
     </message>
     <message>
         <source>Reflash the Panda? Your device reboots once it finishes.</source>
-        <translation type="unfinished"></translation>
+        <translation>Panda를 다시 플래시하시겠습니까? 완료되면 장치가 재부팅됩니다.</translation>
     </message>
     <message>
         <source>Flash failed...</source>
-        <translation type="unfinished"></translation>
+        <translation>플래시 실패...</translation>
     </message>
     <message>
         <source>Connect to Wi-Fi or a hotspot first, then send your report.</source>
-        <translation type="unfinished"></translation>
+        <translation>먼저 Wi-Fi 또는 핫스팟에 연결한 뒤 보고서를 보내세요.</translation>
     </message>
     <message>
         <source>Retry previous report</source>
-        <translation type="unfinished"></translation>
+        <translation>이전 보고서 다시 보내기</translation>
     </message>
     <message>
         <source>Delivery wasn't confirmed.
 Retry to avoid duplicates.</source>
-        <translation type="unfinished"></translation>
+        <translation>전송이 확인되지 않았습니다.
+중복을 피하려면 다시 시도하세요.</translation>
     </message>
     <message>
         <source>Start a new report</source>
-        <translation type="unfinished"></translation>
+        <translation>새 보고서 작성</translation>
     </message>
     <message>
         <source>An alert was unclear and I didn't know what it meant</source>
-        <translation type="unfinished"></translation>
+        <translation>알림의 의미가 불분명했습니다</translation>
     </message>
     <message>
         <source>My screen froze or is stuck loading something</source>
-        <translation type="unfinished"></translation>
+        <translation>화면이 멈추거나 로딩 상태에서 진행되지 않습니다</translation>
     </message>
     <message>
         <source>openpilot doesn't react to stopped vehicles ahead</source>
-        <translation type="unfinished"></translation>
+        <translation>openpilot이 전방의 정지 차량에 반응하지 않습니다</translation>
     </message>
     <message>
         <source>openpilot doesn't resume from a stop</source>
-        <translation type="unfinished"></translation>
+        <translation>openpilot이 정지 후 다시 출발하지 않습니다</translation>
     </message>
     <message>
         <source>Steering feels twitchy or unnatural</source>
-        <translation type="unfinished"></translation>
+        <translation>조향이 민감하거나 부자연스럽습니다</translation>
     </message>
     <message>
         <source>The car doesn't follow curves well</source>
-        <translation type="unfinished"></translation>
+        <translation>차량이 커브를 제대로 따라가지 못합니다</translation>
     </message>
     <message>
         <source>The car isn't staying centered in its lane</source>
-        <translation type="unfinished"></translation>
+        <translation>차량이 차로 중앙을 유지하지 못합니다</translation>
     </message>
     <message>
         <source>What went wrong?</source>
-        <translation type="unfinished"></translation>
+        <translation>어떤 문제가 발생했나요?</translation>
     </message>
     <message>
         <source>Settings can't be reset while the car is on. Turn the car off and try again.</source>
-        <translation type="unfinished"></translation>
+        <translation>차량 시동이 켜져 있을 때는 설정을 초기화할 수 없습니다. 시동을 끄고 다시 시도하세요.</translation>
     </message>
     <message>
         <source>Reset Settings to Default</source>
-        <translation type="unfinished"></translation>
+        <translation>설정을 기본값으로 초기화</translation>
     </message>
     <message>
         <source>Reset Settings to Stock openpilot</source>
-        <translation type="unfinished"></translation>
+        <translation>기본 openpilot 설정으로 초기화</translation>
     </message>
     <message>
         <source>Sending...</source>
-        <translation type="unfinished"></translation>
+        <translation>전송 중...</translation>
     </message>
     <message>
         <source>RETRY</source>
-        <translation type="unfinished"></translation>
+        <translation>다시 시도</translation>
     </message>
     <message>
         <source>Sent</source>
-        <translation type="unfinished"></translation>
+        <translation>전송 완료</translation>
     </message>
     <message>
         <source>Failed</source>
-        <translation type="unfinished"></translation>
+        <translation>실패</translation>
     </message>
     <message>
         <source>&lt;b&gt;Show FrogPilot's developer readouts on the driving screen for your next drive, so a bug report can say what openpilot was actually doing.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It switches itself back off once you finish the drive. While it is on, the temperature reads in Celsius and the developer numbers read in scientific units, whatever you picked elsewhere. It also brings back anything you hid from the driving screen and uses the default "Model UI" sizes and "Camera View", with "Rainbow Path" off, until the drive ends. Your speedometer keeps its own units.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;다음 주행에서 FrogPilot 개발자 수치를 주행 화면에 표시하여 버그 보고서에 openpilot의 실제 동작을 담을 수 있게 합니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;주행을 마치면 자동으로 다시 꺼집니다. 이 기능이 켜져 있는 동안 다른 설정과 관계없이 온도는 섭씨로, 개발자 수치는 과학 단위로 표시됩니다. 또한 주행이 끝날 때까지 주행 화면에서 숨긴 항목을 모두 다시 표시하고, "무지개 주행 경로"를 끈 상태로 기본 "모델 UI" 크기와 "카메라 화면"을 사용합니다. 속도계는 원래 단위를 유지합니다.</translation>
     </message>
     <message>
-        <source>Tailscale sign-out failed...</source>
-        <translation type="unfinished"></translation>
+        <source>openpilot hasn't learned your car yet, so it can't be forced onroad. Complete a drive first.</source>
+        <translation>openpilot이 아직 차량을 학습하지 않아 주행 상태를 강제할 수 없습니다. 먼저 한 번 주행을 완료하세요.</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Put every FrogPilot setting back to the value it shipped with, along with some of openpilot's own settings.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Those openpilot settings are "Enable openpilot", "Disengage on Accelerator Pedal", "Driving Personality", and "Cellular Metered". This also clears your accepted terms, your completed training, and your language, so you go through first-time setup again in English the next time the device starts. It also erases your saved keys (Mapbox, weather, and Toyota security keys), favorite places, Discord name, timezone, map settings, FrogPilot driving stats, Speed Limit Filler data, saved car details, SSH keys, and the browsers paired with "The Pond" (making a new pairing code if pairing is on), turns SSH off, signs out of Tailscale, and asks again whether to share FrogPilot data, so the device is clean to sell or hand on. Your drives, backups, and downloaded themes are left alone, and settings backups still hold your keys and favorite places until you delete them.</source>
-        <translation type="unfinished"></translation>
+        <source>Rebooting to reset...</source>
+        <translation>초기화를 위해 재부팅 중...</translation>
     </message>
     <message>
-        <source>Reset all FrogPilot and some openpilot settings? This also erases your saved keys, favorite places, Discord name, timezone, map settings, driving stats, Speed Limit Filler data, saved car details, SSH keys, and paired browsers, turns SSH off, signs out of Tailscale, and asks again whether to share FrogPilot data. You will have to accept the terms, redo the training, and set your language again.</source>
-        <translation type="unfinished"></translation>
+        <source>&lt;b&gt;Put every FrogPilot setting back to the value it shipped with, along with some of openpilot's own settings.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Those openpilot settings are "Enable openpilot", "Disengage on Accelerator Pedal", "Driving Personality", and "Cellular Metered". This also clears your accepted terms, your completed training, and your language, so you go through first-time setup again in English. It also erases your saved keys (Mapbox and weather), favorite places, Discord name, timezone, chosen car make and model, SSH keys, and map settings, turns SSH and tethering off, asks again whether to share FrogPilot data, and unlinks this device from your FrogPilot.com account. The reset happens while the device reboots. Your drives, backups, downloaded themes, learned driving data, Speed Limit Filler data, FrogPilot Stats, Toyota security keys, "The Pond" pairing, Tailscale sign-in, "Experimental Mode", and "openpilot Longitudinal Control (Alpha)" are left alone, and settings backups still hold your keys and favorite places until you delete them.</source>
+        <translation>&lt;b&gt;모든 FrogPilot 설정과 일부 openpilot 자체 설정을 기본값으로 되돌립니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;해당 openpilot 설정은 "openpilot 사용", "가속페달 조작 시 해제", "주행 성향", "데이터 요금제"입니다. 동의한 약관, 완료한 트레이닝, 언어 설정도 지워지므로 영어로 초기 설정을 다시 진행하게 됩니다. 저장된 키(Mapbox, 날씨), 즐겨찾는 장소, Discord 이름, 시간대, 선택한 차량 제조사 및 모델, SSH 키, 지도 설정도 삭제하고, SSH와 테더링을 끄며, FrogPilot 데이터 공유 여부를 다시 묻고, 이 장치와 FrogPilot.com 계정의 연동을 해제합니다. 초기화는 장치가 재부팅되는 동안 진행됩니다. 주행 기록, 백업, 다운로드한 테마, 학습된 주행 데이터, 제한 속도 수집기 데이터, FrogPilot 통계, Toyota 보안 키, "The Pond" 페어링, Tailscale 로그인, "실험 모드", "openpilot 가감속 제어 (알파)"는 그대로 유지되며, 설정 백업에는 삭제할 때까지 키와 즐겨찾는 장소가 계속 남아 있습니다.</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Put every setting back to what plain openpilot uses, turning FrogPilot's own features off rather than back to FrogPilot's defaults.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This also clears your accepted terms, your completed training, and your language, so you go through first-time setup again in English the next time the device starts. It also erases your saved keys (Mapbox, weather, and Toyota security keys), favorite places, Discord name, timezone, map settings, FrogPilot driving stats, Speed Limit Filler data, saved car details, SSH keys, and the browsers paired with "The Pond" (making a new pairing code if pairing is on), turns SSH off, signs out of Tailscale, and asks again whether to share FrogPilot data, so the device is clean to sell or hand on. Your drives, backups, and downloaded themes are left alone, and settings backups still hold your keys and favorite places until you delete them.</source>
-        <translation type="unfinished"></translation>
+        <source>Reset all FrogPilot and some openpilot settings? This erases your saved keys, favorite places, Discord name, timezone, chosen car make and model, SSH keys, and map settings, turns SSH and tethering off, asks again whether to share FrogPilot data, and unlinks this device from your FrogPilot.com account. The device reboots into first-time setup. Learned driving data, Speed Limit Filler data, FrogPilot Stats, Toyota security keys, "The Pond" pairing, and Tailscale sign-in stay.</source>
+        <translation>모든 FrogPilot 설정과 일부 openpilot 설정을 초기화하시겠습니까? 저장된 키, 즐겨찾는 장소, Discord 이름, 시간대, 선택한 차량 제조사 및 모델, SSH 키, 지도 설정이 삭제되고, SSH와 테더링이 꺼지며, FrogPilot 데이터 공유 여부를 다시 묻고, 이 장치와 FrogPilot.com 계정의 연동이 해제됩니다. 장치가 재부팅되어 초기 설정으로 들어갑니다. 학습된 주행 데이터, 제한 속도 수집기 데이터, FrogPilot 통계, Toyota 보안 키, "The Pond" 페어링, Tailscale 로그인은 유지됩니다.</translation>
     </message>
     <message>
-        <source>Reset every setting to match stock openpilot? This also erases your saved keys, favorite places, Discord name, timezone, map settings, driving stats, Speed Limit Filler data, saved car details, SSH keys, and paired browsers, turns SSH off, signs out of Tailscale, and asks again whether to share FrogPilot data. You will have to accept the terms, redo the training, and set your language again.</source>
-        <translation type="unfinished"></translation>
+        <source>&lt;b&gt;Put every setting back to what plain openpilot uses, turning FrogPilot's own features off rather than back to FrogPilot's defaults.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This also clears your accepted terms, your completed training, and your language, so you go through first-time setup again in English. It also erases your saved keys (Mapbox and weather), favorite places, Discord name, timezone, chosen car make and model, SSH keys, and map settings, turns SSH and tethering off, asks again whether to share FrogPilot data, and unlinks this device from your FrogPilot.com account. The reset happens while the device reboots. Your drives, backups, downloaded themes, learned driving data, Speed Limit Filler data, FrogPilot Stats, Toyota security keys, "The Pond" pairing, Tailscale sign-in, "Experimental Mode", and "openpilot Longitudinal Control (Alpha)" are left alone, and settings backups still hold your keys and favorite places until you delete them.</source>
+        <translation>&lt;b&gt;모든 설정을 기본 openpilot이 사용하는 값으로 되돌리며, FrogPilot 자체 기능은 FrogPilot 기본값으로 되돌리는 대신 끕니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;동의한 약관, 완료한 트레이닝, 언어 설정도 지워지므로 영어로 초기 설정을 다시 진행하게 됩니다. 저장된 키(Mapbox, 날씨), 즐겨찾는 장소, Discord 이름, 시간대, 선택한 차량 제조사 및 모델, SSH 키, 지도 설정도 삭제하고, SSH와 테더링을 끄며, FrogPilot 데이터 공유 여부를 다시 묻고, 이 장치와 FrogPilot.com 계정의 연동을 해제합니다. 초기화는 장치가 재부팅되는 동안 진행됩니다. 주행 기록, 백업, 다운로드한 테마, 학습된 주행 데이터, 제한 속도 수집기 데이터, FrogPilot 통계, Toyota 보안 키, "The Pond" 페어링, Tailscale 로그인, "실험 모드", "openpilot 가감속 제어 (알파)"는 그대로 유지되며, 설정 백업에는 삭제할 때까지 키와 즐겨찾는 장소가 계속 남아 있습니다.</translation>
+    </message>
+    <message>
+        <source>Reset every setting to match stock openpilot? This erases your saved keys, favorite places, Discord name, timezone, chosen car make and model, SSH keys, and map settings, turns SSH and tethering off, asks again whether to share FrogPilot data, and unlinks this device from your FrogPilot.com account. The device reboots into first-time setup. Learned driving data, Speed Limit Filler data, FrogPilot Stats, Toyota security keys, "The Pond" pairing, and Tailscale sign-in stay.</source>
+        <translation>모든 설정을 기본 openpilot에 맞게 초기화하시겠습니까? 저장된 키, 즐겨찾는 장소, Discord 이름, 시간대, 선택한 차량 제조사 및 모델, SSH 키, 지도 설정이 삭제되고, SSH와 테더링이 꺼지며, FrogPilot 데이터 공유 여부를 다시 묻고, 이 장치와 FrogPilot.com 계정의 연동이 해제됩니다. 장치가 재부팅되어 초기 설정으로 들어갑니다. 학습된 주행 데이터, 제한 속도 수집기 데이터, FrogPilot 통계, Toyota 보안 키, "The Pond" 페어링, Tailscale 로그인은 유지됩니다.</translation>
     </message>
 </context>
 <context>
@@ -4814,84 +4918,84 @@ Retry to avoid duplicates.</source>
         <translation>첫 주행 전에는 알 수 없음</translation>
     </message>
     <message>
-        <source>&lt;b&gt;The make of the car openpilot is using.&lt;/b&gt; To pick one yourself, turn on "Disable Automatic Fingerprint Detection" first ("Advanced" tuning level).</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;The model of the car openpilot is using.&lt;/b&gt; To pick one yourself, turn on "Disable Automatic Fingerprint Detection" first ("Advanced" tuning level).</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>&lt;b&gt;Settings that only work on Genesis, Hyundai, and Kia cars, covering a steering torque hack.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The steering hack only appears on cars using CAN-FD.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Genesis, Hyundai, Kia 차량에서만 작동하며 조향 토크 조정 기능을 포함합니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;조향 토크 조정은 CAN-FD 차량에서만 표시됩니다.</translation>
     </message>
     <message>
         <source>Reset</source>
-        <translation type="unfinished">초기화</translation>
+        <translation>초기화</translation>
     </message>
     <message>
         <source>&lt;b&gt;Warning:&lt;/b&gt; openpilot can't tell whether your keys are still in the car, so keep a spare somewhere safe before you rely on this!</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Line up the speed openpilot shows on screen with the number on your dashboard, which most cars deliberately read a little high.&lt;/b&gt;&lt;br&gt;&lt;br&gt;With "Use Wheel Speed" off, raise it until openpilot's number matches your dashboard. This does not change how fast openpilot actually drives, with one exception: while it is following posted speed limits, a higher number here makes it drive slightly slower.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;경고:&lt;/b&gt; openpilot은 차량 안에 키가 남아 있는지 확인할 수 없습니다. 이 기능을 사용하기 전에 예비 키를 안전한 곳에 보관하세요!</translation>
     </message>
     <message>
         <source>Acura/Honda Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Acura/Honda 설정</translation>
     </message>
     <message>
         <source>&lt;b&gt;Settings that only work on Acura and Honda cars with the older Nidec cruise control, covering how openpilot follows and brakes.&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;구형 Nidec 크루즈 컨트롤을 사용하는 Acura 및 Honda 차량에서만 작동하며 openpilot의 선행 차량 추종과 제동 방식을 조정합니다.&lt;/b&gt;</translation>
     </message>
     <message>
         <source>Gentle Following</source>
-        <translation type="unfinished"></translation>
+        <translation>부드러운 선행 차량 추종</translation>
     </message>
     <message>
         <source>&lt;b&gt;Soften how hard openpilot corrects its speed behind the car ahead, for smoother following in stop-and-go traffic.&lt;/b&gt;&lt;br&gt;&lt;br&gt;openpilot settles small speed differences more slowly, so it can take a moment longer to close a gap after the car ahead pulls away.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;선행 차량 뒤에서 openpilot이 속도를 보정하는 강도를 줄여 정체 구간에서 더 부드럽게 추종합니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;openpilot이 작은 속도 차이를 더 천천히 줄이므로 선행 차량이 출발한 뒤 차간 거리를 좁히는 데 시간이 조금 더 걸릴 수 있습니다.</translation>
     </message>
     <message>
         <source>Increased Braking Force</source>
-        <translation type="unfinished"></translation>
+        <translation>제동력 강화</translation>
     </message>
     <message>
         <source>&lt;b&gt;Let openpilot use your car's full braking force for its hardest stops.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Without it, openpilot's hardest stop only uses about four fifths of the brakes on these cars. With it on, every stop brakes a little firmer for the same request.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;openpilot이 가장 강하게 정지할 때 차량의 최대 제동력을 사용하도록 합니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;이 기능이 없으면 이 차량들에서 openpilot의 가장 강한 정지는 브레이크 성능의 약 오분의 사만 사용합니다. 이 기능을 켜면 같은 요청에도 모든 정지에서 조금 더 강하게 제동합니다.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Settings that only work on Buick, Cadillac, Chevrolet, GMC, and Holden cars, covering pedal response on hills and how openpilot stops and starts.&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Buick, Cadillac, Chevrolet, GMC, Holden 차량에서만 작동하며 경사로에서의 페달 반응과 openpilot의 정지 및 출발 방식을 조정합니다.&lt;/b&gt;</translation>
     </message>
     <message>
         <source>Smooth Pedal Response on Hills</source>
-        <translation type="unfinished"></translation>
+        <translation>경사로 페달 반응 완화</translation>
     </message>
     <message>
         <source>&lt;b&gt;Add gas going uphill and ease off going downhill, so openpilot holds a steady pace on hills instead of correcting after the car has already slowed down or sped up.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Slopes gentler than about 1% are ignored. The brakes get the same adjustment above about 22 mph, and it fades out as you slow to about 11 mph so stops feel the same as on flat ground.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Extra hardware openpilot has found fitted to your car, such as a comma pedal, an SDSU, or a ZSS.&lt;/b&gt;&lt;br&gt;&lt;br&gt;openpilot works these out from your car's wiring on its own. "None" is not proof nothing is fitted: a comma pedal is only reported on cars that support one.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;오르막에서는 가속을 더하고 내리막에서는 줄여, 차량이 이미 느려지거나 빨라진 뒤에 보정하는 대신 언덕에서도 일정한 속도를 유지합니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;약 1%보다 완만한 경사는 무시합니다. 약 22 mph 이상에서는 브레이크에도 같은 보정이 적용되며, 약 11 mph까지 감속하는 동안 점차 줄어들어 평지와 같은 느낌으로 정지합니다.</translation>
     </message>
     <message>
         <source>Responsive Pedal at Low Speeds</source>
-        <translation type="unfinished"></translation>
+        <translation>저속 페달 반응 향상</translation>
     </message>
     <message>
         <source>&lt;b&gt;Improves acceleration from a standstill for a more responsive throttle feel in city driving.&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;정지 상태에서의 가속을 개선하여 시내 주행에서 더 민첩한 스로틀 반응을 제공합니다.&lt;/b&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Swap in FrogsGoMoo's own settings for how openpilot comes to a stop.&lt;/b&gt;&lt;br&gt;&lt;br&gt;These are personal preferences rather than a fix for anything, and they are already on. They take over your stopping and starting values from "Driving Controls" and hide those rows while this is on, though on a Toyota the starting value has no effect. They also make openpilot's gas and brake control predict the car's acceleration further ahead at every speed, so they change how it drives while cruising as well.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;openpilot이 정지하는 방식에 FrogsGoMoo의 개인 설정을 대신 적용합니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;이 설정은 문제를 해결하기 위한 것이 아니라 개인 취향이며 이미 켜져 있습니다. 이 기능이 켜져 있는 동안 "주행 제어"의 정지 및 출발 값을 대신하고 해당 항목을 숨기지만, Toyota 차량에서는 출발 값이 아무런 효과가 없습니다. 또한 openpilot의 가감속 제어가 모든 속도에서 차량의 가속도를 더 앞선 시점까지 예측하게 하므로 순항 중 주행 방식도 바뀝니다.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Make the car pull away by itself after a full stop on a Lexus or Toyota that does not do this from the factory.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Without it you have to press the gas or the resume button every time traffic moves off. It works by telling the car openpilot is never fully stopped, so keep your foot near the brake the first few times. It also lets openpilot engage, and stay engaged, below about 19 mph (30 km/h), where it would otherwise refuse or turn itself off.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;출고 상태에서는 지원하지 않는 Lexus 또는 Toyota 차량이 완전히 정지한 뒤 자동으로 출발하도록 합니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;이 기능이 없으면 교통 흐름이 다시 움직일 때마다 가속 페달이나 재개 버튼을 눌러야 합니다. openpilot이 결코 완전히 정지하지 않는다고 차량에 알리는 방식으로 작동하므로 처음 몇 번은 브레이크 가까이에 발을 두세요. 또한 원래는 제어 시작을 거부하거나 스스로 꺼지는 약 19 mph (30 km/h) 미만에서도 openpilot 제어를 시작하고 유지할 수 있습니다.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;The make of the car openpilot is using.&lt;/b&gt; If openpilot doesn't recognize your car, pick it here and openpilot uses it instead. To always use the car you pick, turn on "Disable Automatic Fingerprint Detection" ("Advanced" tuning level).</source>
+        <translation>&lt;b&gt;openpilot이 사용 중인 차량의 제조사입니다.&lt;/b&gt; openpilot이 차량을 인식하지 못하면 여기에서 선택하세요. openpilot이 선택한 차량을 대신 사용합니다. 선택한 차량을 항상 사용하려면 "핑거프린트 자동 인식 비활성화"("고급" 튜닝 수준)를 켜세요.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;The model of the car openpilot is using.&lt;/b&gt; If openpilot doesn't recognize your car, pick it here and openpilot uses it instead. To always use the car you pick, turn on "Disable Automatic Fingerprint Detection" ("Advanced" tuning level).</source>
+        <translation>&lt;b&gt;openpilot이 사용 중인 차량의 모델입니다.&lt;/b&gt; openpilot이 차량을 인식하지 못하면 여기에서 선택하세요. openpilot이 선택한 차량을 대신 사용합니다. 선택한 차량을 항상 사용하려면 "핑거프린트 자동 인식 비활성화"("고급" 튜닝 수준)를 켜세요.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Line up the speed openpilot shows on screen with the number on your dashboard, which most cars deliberately read a little high.&lt;/b&gt;&lt;br&gt;&lt;br&gt;With "Use Wheel Speed" off, raise it until openpilot's number matches your dashboard. This does not change how fast openpilot actually drives, except that while it is following posted speed limits, a higher number here makes it drive slightly slower.</source>
+        <translation>&lt;b&gt;openpilot이 화면에 표시하는 속도를 계기판 숫자에 맞춥니다. 대부분의 차량은 계기판 속도를 의도적으로 조금 높게 표시합니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"휠 속도 사용"이 꺼진 상태에서 openpilot의 숫자가 계기판과 일치할 때까지 값을 높이세요. 이 설정은 openpilot의 실제 주행 속도를 바꾸지 않습니다. 단, 표지판의 제한 속도를 따르는 동안에는 이 값이 높을수록 조금 더 느리게 주행합니다.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Extra hardware openpilot has found fitted to your car, such as a comma pedal, an SDSU, or a ZSS.&lt;/b&gt;&lt;br&gt;&lt;br&gt;openpilot works these out from your car's wiring on its own. "None" is not proof nothing is fitted. A comma pedal is only reported on cars that support one.</source>
+        <translation>&lt;b&gt;openpilot이 차량에서 감지한 comma pedal, SDSU, ZSS 등의 추가 하드웨어를 표시합니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;openpilot이 차량 배선을 통해 자동으로 판별합니다. "없음"이 실제로 아무 하드웨어도 장착되지 않았다는 증거는 아닙니다. comma pedal은 이를 지원하는 차량에서만 보고됩니다.</translation>
     </message>
 </context>
 <context>
@@ -5098,7 +5202,7 @@ Retry to avoid duplicates.</source>
     </message>
     <message>
         <source>&lt;b&gt;Add extra things to the driving screen that stock openpilot does not show.&lt;/b&gt;&lt;br&gt;&lt;br&gt;One of these does change how the car drives: the "Driving Personality Button" switches your following distance.</source>
-        <translation>&lt;b&gt;기본 openpilot에 없는 추가 항목을 주행 화면에 표시합니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;이 중 한 가지는 실제 차량 주행 방식도 바꿉니다. "주행 성향 버튼"은 차간 거리를 전환합니다.</translation>
+        <translation type="vanished">&lt;b&gt;기본 openpilot에 없는 추가 항목을 주행 화면에 표시합니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;이 중 한 가지는 실제 차량 주행 방식도 바꿉니다. "주행 성향 버튼"은 차간 거리를 전환합니다.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Color the driving path green when openpilot is speeding up and red when it is slowing down.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Handy for seeing a slowdown coming before you feel it.</source>
@@ -5158,47 +5262,51 @@ Retry to avoid duplicates.</source>
     </message>
     <message>
         <source>&lt;b&gt;Add a compass to the driving screen showing which way you are heading.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Without a GPS fix it freezes on the last heading it knew rather than disappearing, so treat a compass that never moves as no reading at all.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;주행 방향을 알려 주는 나침반을 주행 화면에 추가합니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;GPS 위치가 확인되지 않으면 사라지는 대신 마지막으로 알던 방향에서 멈추므로, 움직이지 않는 나침반은 방향 정보가 없는 것으로 간주하세요.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Change what navigation shows on the driving screen, from the road name to speed limit signs.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Some of these need map data downloaded under "Maps and Navigation" before they show anything.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;도로 이름부터 제한 속도 표지판까지 내비게이션이 주행 화면에 표시하는 내용을 변경합니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;일부 항목은 "지도 및 내비게이션"에서 지도 데이터를 다운로드해야 표시됩니다.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Show the posted speed limit as a sign in the top-left corner of the driving screen.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The limit comes from your downloaded map data first, then from your car's dashboard where it can read one, and from signs read by the camera otherwise.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;도로의 제한 속도를 주행 화면 왼쪽 상단에 표지판 형태로 표시합니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;제한 속도는 먼저 다운로드한 지도 데이터에서, 그다음 제한 속도를 읽을 수 있는 차량에서는 계기판에서, 그 외에는 카메라가 읽은 표지판에서 가져옵니다.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Draw the paths of the lanes either side of you, so you can see where openpilot thinks they run.&lt;/b&gt;&lt;br&gt;&lt;br&gt;They only appear above your "Minimum Lane Change Speed" (20 mph or 32 km/h by default), and only where openpilot sees a lane between you and the road edge.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;openpilot이 판단한 양옆 차로의 경로를 표시합니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"최소 차로 변경 속도"(기본값 20 mph 또는 32 km/h) 이상에서만, 그리고 openpilot이 내 차와 도로 가장자리 사이에 차로를 인식한 곳에서만 표시됩니다.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Turn the lane beside you red whenever your car's sensors see something in that blind spot.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It only shows up above your "Minimum Lane Change Speed" (20 mph or 32 km/h by default), so it stays away in slow traffic and parking lots. Keep checking your mirrors regardless.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;차량 센서가 사각지대에서 물체를 감지하면 옆 차로를 빨간색으로 표시합니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"최소 차로 변경 속도"(기본값 20 mph 또는 32 km/h) 이상에서만 표시되므로 저속 정체 구간이나 주차장에서는 나타나지 않습니다. 이 표시와 관계없이 항상 거울을 직접 확인하세요.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Add a button to the driving screen that switches your following distance between Aggressive, Standard, and Relaxed without going into the menus.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It works as a second "Distance" button, so holding it, or changing what that button does under "WHEEL BUTTONS", gives you those actions instead. This changes how the car actually drives, not just what you see. It also shows which one is active.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;메뉴를 열지 않고 공격적, 표준, 편안한 주행 성향 간 차간 거리를 전환하는 버튼을 주행 화면에 추가합니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;두 번째 "거리" 버튼으로 작동하므로 길게 누르거나 "핸들 버튼"에서 해당 버튼의 동작을 바꾸면 그 동작이 대신 실행됩니다. 표시만 바꾸는 것이 아니라 차량의 실제 주행 방식을 변경하며 현재 활성화된 성향도 보여 줍니다.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Show gas and brake indicators on the driving screen that light up as the car speeds up or slows down, whether openpilot or you are driving.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"Dynamic" fades them in and out with how hard the car is accelerating or braking. "Static" shows them fully lit when active and dim when not.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;openpilot과 운전자 중 누가 주행하든 차량이 가속하거나 감속할 때 켜지는 가속 및 제동 표시를 주행 화면에 추가합니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"동적"은 차량의 가속 또는 제동 강도에 따라 표시를 점차 밝히거나 어둡게 합니다. "고정"은 작동 중일 때 밝게, 작동하지 않을 때 어둡게 표시합니다.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Make the driving path narrower when openpilot is doing less of the driving, so you can tell at a glance how much control it has.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Full width while openpilot is driving, three quarters while "Always On Lateral" is steering for you, and half the rest of the time.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;openpilot이 담당하는 주행 제어가 적을수록 주행 경로를 좁게 표시하여 제어 범위를 한눈에 알 수 있게 합니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;openpilot이 주행을 제어할 때는 전체 폭, "상시 조향"이 조향할 때는 사분의 삼, 그 외에는 절반 폭으로 표시합니다.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Set how thick the colored stripe down each side of the driving path is, which is what tells you which mode openpilot is in.&lt;/b&gt;&lt;br&gt;&lt;br&gt;By default the two stripes together take up a fifth of the path width. Set it to zero to hide the stripe entirely.&lt;br&gt;&lt;br&gt;Light blue means "Always On Lateral" is steering for you, green is normal driving, orange is Experimental Mode, red is Traffic Mode, and yellow means you have overridden Conditional Experimental Mode to keep Experimental Mode off.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;주행 경로 양쪽의 색상 줄무늬 두께를 설정합니다. 이 줄무늬의 색상으로 openpilot의 현재 모드를 알 수 있습니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;기본적으로 두 줄무늬를 합치면 경로 폭의 5분의 1을 차지합니다. 0으로 설정하면 줄무늬가 완전히 숨겨집니다.&lt;br&gt;&lt;br&gt;하늘색은 "상시 조향"이 조향 중이라는 뜻이고, 녹색은 일반 주행, 주황색은 실험 모드, 빨간색은 교통 모드, 노란색은 운전자가 조건부 실험 모드를 수동으로 재정의하여 실험 모드를 꺼 둔 상태를 뜻합니다.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Replace your speed with a running timer once you come to a complete stop, so you can see how long you have been waiting.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It stays off for the first minute of a drive.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;완전히 정지하면 현재 속도 대신 계속 증가하는 타이머를 표시하여 대기 시간을 확인할 수 있게 합니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;주행 시작 후 처음 1분 동안은 표시되지 않습니다.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Fall back to Mapbox for the speed limit when none of your downloaded maps, your dashboard, or signs read by the camera know one.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Needs your Public Mapbox Key set up under "Maps and Navigation" and a working internet connection. It sends your location to Mapbox to look up the limit.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;다운로드한 지도, 계기판, 카메라가 읽은 표지판 모두에서 제한 속도를 알 수 없을 때 Mapbox의 제한 속도를 대신 사용합니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"지도 및 내비게이션"에서 설정한 Mapbox 공개 키와 정상적인 인터넷 연결이 필요합니다. 제한 속도를 조회하기 위해 사용자의 위치를 Mapbox로 전송합니다.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Add extra things to the driving screen that stock openpilot does not show.&lt;/b&gt;&lt;br&gt;&lt;br&gt;One of these does change how the car drives. The "Driving Personality Button" switches your following distance.</source>
+        <translation>&lt;b&gt;기본 openpilot에 없는 추가 항목을 주행 화면에 표시합니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;이 중 한 가지는 실제 차량 주행 방식도 바꿉니다. "주행 성향 버튼"은 차간 거리를 전환합니다.</translation>
     </message>
 </context>
 <context>
@@ -5269,7 +5377,7 @@ Retry to avoid duplicates.</source>
     </message>
     <message>
         <source>&lt;b&gt;Action performed when the "Distance" button is pressed.&lt;/b&gt;&lt;br&gt;&lt;br&gt;On GM cars with adaptive cruise, changing the "Personality Profile" takes a second press within 3.5 seconds of the first.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;"거리" 버튼을 눌렀을 때 실행할 동작입니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;어댑티브 크루즈가 있는 GM 차량에서 "주행 성향"을 변경하려면 첫 번째 누름 후 3.5초 이내에 한 번 더 눌러야 합니다.</translation>
     </message>
 </context>
 <context>
@@ -5308,933 +5416,933 @@ Retry to avoid duplicates.</source>
     <name>InstantReplayButton</name>
     <message>
         <source>SAVING...</source>
-        <translation type="unfinished"></translation>
+        <translation>저장 중...</translation>
     </message>
     <message>
         <source>CAPTURE</source>
-        <translation type="unfinished"></translation>
+        <translation>캡처</translation>
     </message>
     <message>
         <source>BUFFERING...</source>
-        <translation type="unfinished"></translation>
+        <translation>버퍼링 중...</translation>
     </message>
 </context>
 <context>
     <name>MapSelectionControl</name>
     <message>
         <source>Algeria</source>
-        <translation type="unfinished"></translation>
+        <translation>알제리</translation>
     </message>
     <message>
         <source>Angola</source>
-        <translation type="unfinished"></translation>
+        <translation>앙골라</translation>
     </message>
     <message>
         <source>Benin</source>
-        <translation type="unfinished"></translation>
+        <translation>베냉</translation>
     </message>
     <message>
         <source>Botswana</source>
-        <translation type="unfinished"></translation>
+        <translation>보츠와나</translation>
     </message>
     <message>
         <source>Burkina Faso</source>
-        <translation type="unfinished"></translation>
+        <translation>부르키나파소</translation>
     </message>
     <message>
         <source>Burundi</source>
-        <translation type="unfinished"></translation>
+        <translation>부룬디</translation>
     </message>
     <message>
         <source>Cameroon</source>
-        <translation type="unfinished"></translation>
+        <translation>카메룬</translation>
     </message>
     <message>
         <source>Central African Republic</source>
-        <translation type="unfinished"></translation>
+        <translation>중앙아프리카 공화국</translation>
     </message>
     <message>
         <source>Chad</source>
-        <translation type="unfinished"></translation>
+        <translation>차드</translation>
     </message>
     <message>
         <source>Congo (Brazzaville)</source>
-        <translation type="unfinished"></translation>
+        <translation>콩고 (브라자빌)</translation>
     </message>
     <message>
         <source>Congo (Kinshasa)</source>
-        <translation type="unfinished"></translation>
+        <translation>콩고 (킨샤사)</translation>
     </message>
     <message>
         <source>Djibouti</source>
-        <translation type="unfinished"></translation>
+        <translation>지부티</translation>
     </message>
     <message>
         <source>Egypt</source>
-        <translation type="unfinished"></translation>
+        <translation>이집트</translation>
     </message>
     <message>
         <source>Equatorial Guinea</source>
-        <translation type="unfinished"></translation>
+        <translation>적도 기니</translation>
     </message>
     <message>
         <source>Eritrea</source>
-        <translation type="unfinished"></translation>
+        <translation>에리트레아</translation>
     </message>
     <message>
         <source>Eswatini</source>
-        <translation type="unfinished"></translation>
+        <translation>에스와티니</translation>
     </message>
     <message>
         <source>Ethiopia</source>
-        <translation type="unfinished"></translation>
+        <translation>에티오피아</translation>
     </message>
     <message>
         <source>Gabon</source>
-        <translation type="unfinished"></translation>
+        <translation>가봉</translation>
     </message>
     <message>
         <source>Gambia</source>
-        <translation type="unfinished"></translation>
+        <translation>감비아</translation>
     </message>
     <message>
         <source>Ghana</source>
-        <translation type="unfinished"></translation>
+        <translation>가나</translation>
     </message>
     <message>
         <source>Guinea</source>
-        <translation type="unfinished"></translation>
+        <translation>기니</translation>
     </message>
     <message>
         <source>Guinea-Bissau</source>
-        <translation type="unfinished"></translation>
+        <translation>기니비사우</translation>
     </message>
     <message>
         <source>Ivory Coast</source>
-        <translation type="unfinished"></translation>
+        <translation>코트디부아르</translation>
     </message>
     <message>
         <source>Kenya</source>
-        <translation type="unfinished"></translation>
+        <translation>케냐</translation>
     </message>
     <message>
         <source>Lesotho</source>
-        <translation type="unfinished"></translation>
+        <translation>레소토</translation>
     </message>
     <message>
         <source>Liberia</source>
-        <translation type="unfinished"></translation>
+        <translation>라이베리아</translation>
     </message>
     <message>
         <source>Libya</source>
-        <translation type="unfinished"></translation>
+        <translation>리비아</translation>
     </message>
     <message>
         <source>Madagascar</source>
-        <translation type="unfinished"></translation>
+        <translation>마다가스카르</translation>
     </message>
     <message>
         <source>Malawi</source>
-        <translation type="unfinished"></translation>
+        <translation>말라위</translation>
     </message>
     <message>
         <source>Mali</source>
-        <translation type="unfinished"></translation>
+        <translation>말리</translation>
     </message>
     <message>
         <source>Mauritania</source>
-        <translation type="unfinished"></translation>
+        <translation>모리타니</translation>
     </message>
     <message>
         <source>Morocco</source>
-        <translation type="unfinished"></translation>
+        <translation>모로코</translation>
     </message>
     <message>
         <source>Mozambique</source>
-        <translation type="unfinished"></translation>
+        <translation>모잠비크</translation>
     </message>
     <message>
         <source>Namibia</source>
-        <translation type="unfinished"></translation>
+        <translation>나미비아</translation>
     </message>
     <message>
         <source>Niger</source>
-        <translation type="unfinished"></translation>
+        <translation>니제르</translation>
     </message>
     <message>
         <source>Nigeria</source>
-        <translation type="unfinished"></translation>
+        <translation>나이지리아</translation>
     </message>
     <message>
         <source>Rwanda</source>
-        <translation type="unfinished"></translation>
+        <translation>르완다</translation>
     </message>
     <message>
         <source>Senegal</source>
-        <translation type="unfinished"></translation>
+        <translation>세네갈</translation>
     </message>
     <message>
         <source>Sierra Leone</source>
-        <translation type="unfinished"></translation>
+        <translation>시에라리온</translation>
     </message>
     <message>
         <source>Somalia</source>
-        <translation type="unfinished"></translation>
+        <translation>소말리아</translation>
     </message>
     <message>
         <source>South Africa</source>
-        <translation type="unfinished"></translation>
+        <translation>남아프리카 공화국</translation>
     </message>
     <message>
         <source>South Sudan</source>
-        <translation type="unfinished"></translation>
+        <translation>남수단</translation>
     </message>
     <message>
         <source>Sudan</source>
-        <translation type="unfinished"></translation>
+        <translation>수단</translation>
     </message>
     <message>
         <source>Tanzania</source>
-        <translation type="unfinished"></translation>
+        <translation>탄자니아</translation>
     </message>
     <message>
         <source>Togo</source>
-        <translation type="unfinished"></translation>
+        <translation>토고</translation>
     </message>
     <message>
         <source>Tunisia</source>
-        <translation type="unfinished"></translation>
+        <translation>튀니지</translation>
     </message>
     <message>
         <source>Uganda</source>
-        <translation type="unfinished"></translation>
+        <translation>우간다</translation>
     </message>
     <message>
         <source>Zambia</source>
-        <translation type="unfinished"></translation>
+        <translation>잠비아</translation>
     </message>
     <message>
         <source>Zimbabwe</source>
-        <translation type="unfinished"></translation>
+        <translation>짐바브웨</translation>
     </message>
     <message>
         <source>Antarctica</source>
-        <translation type="unfinished">남극</translation>
+        <translation>남극</translation>
     </message>
     <message>
         <source>Afghanistan</source>
-        <translation type="unfinished"></translation>
+        <translation>아프가니스탄</translation>
     </message>
     <message>
         <source>Armenia</source>
-        <translation type="unfinished"></translation>
+        <translation>아르메니아</translation>
     </message>
     <message>
         <source>Azerbaijan</source>
-        <translation type="unfinished"></translation>
+        <translation>아제르바이잔</translation>
     </message>
     <message>
         <source>Bangladesh</source>
-        <translation type="unfinished"></translation>
+        <translation>방글라데시</translation>
     </message>
     <message>
         <source>Bhutan</source>
-        <translation type="unfinished"></translation>
+        <translation>부탄</translation>
     </message>
     <message>
         <source>Brunei</source>
-        <translation type="unfinished"></translation>
+        <translation>브루나이</translation>
     </message>
     <message>
         <source>Cambodia</source>
-        <translation type="unfinished"></translation>
+        <translation>캄보디아</translation>
     </message>
     <message>
         <source>China</source>
-        <translation type="unfinished"></translation>
+        <translation>중국</translation>
     </message>
     <message>
         <source>Cyprus</source>
-        <translation type="unfinished"></translation>
+        <translation>키프로스</translation>
     </message>
     <message>
         <source>East Timor</source>
-        <translation type="unfinished"></translation>
+        <translation>동티모르</translation>
     </message>
     <message>
         <source>India</source>
-        <translation type="unfinished"></translation>
+        <translation>인도</translation>
     </message>
     <message>
         <source>Indonesia</source>
-        <translation type="unfinished"></translation>
+        <translation>인도네시아</translation>
     </message>
     <message>
         <source>Iran</source>
-        <translation type="unfinished"></translation>
+        <translation>이란</translation>
     </message>
     <message>
         <source>Iraq</source>
-        <translation type="unfinished"></translation>
+        <translation>이라크</translation>
     </message>
     <message>
         <source>Israel</source>
-        <translation type="unfinished"></translation>
+        <translation>이스라엘</translation>
     </message>
     <message>
         <source>Japan</source>
-        <translation type="unfinished"></translation>
+        <translation>일본</translation>
     </message>
     <message>
         <source>Jordan</source>
-        <translation type="unfinished"></translation>
+        <translation>요르단</translation>
     </message>
     <message>
         <source>Kazakhstan</source>
-        <translation type="unfinished"></translation>
+        <translation>카자흐스탄</translation>
     </message>
     <message>
         <source>Kuwait</source>
-        <translation type="unfinished"></translation>
+        <translation>쿠웨이트</translation>
     </message>
     <message>
         <source>Kyrgyzstan</source>
-        <translation type="unfinished"></translation>
+        <translation>키르기스스탄</translation>
     </message>
     <message>
         <source>Laos</source>
-        <translation type="unfinished"></translation>
+        <translation>라오스</translation>
     </message>
     <message>
         <source>Lebanon</source>
-        <translation type="unfinished"></translation>
+        <translation>레바논</translation>
     </message>
     <message>
         <source>Malaysia</source>
-        <translation type="unfinished"></translation>
+        <translation>말레이시아</translation>
     </message>
     <message>
         <source>Mongolia</source>
-        <translation type="unfinished"></translation>
+        <translation>몽골</translation>
     </message>
     <message>
         <source>Myanmar</source>
-        <translation type="unfinished"></translation>
+        <translation>미얀마</translation>
     </message>
     <message>
         <source>Nepal</source>
-        <translation type="unfinished"></translation>
+        <translation>네팔</translation>
     </message>
     <message>
         <source>North Korea</source>
-        <translation type="unfinished"></translation>
+        <translation>북한</translation>
     </message>
     <message>
         <source>Oman</source>
-        <translation type="unfinished"></translation>
+        <translation>오만</translation>
     </message>
     <message>
         <source>Pakistan</source>
-        <translation type="unfinished"></translation>
+        <translation>파키스탄</translation>
     </message>
     <message>
         <source>Palestine</source>
-        <translation type="unfinished"></translation>
+        <translation>팔레스타인</translation>
     </message>
     <message>
         <source>Philippines</source>
-        <translation type="unfinished"></translation>
+        <translation>필리핀</translation>
     </message>
     <message>
         <source>Qatar</source>
-        <translation type="unfinished"></translation>
+        <translation>카타르</translation>
     </message>
     <message>
         <source>Russia</source>
-        <translation type="unfinished"></translation>
+        <translation>러시아</translation>
     </message>
     <message>
         <source>Saudi Arabia</source>
-        <translation type="unfinished"></translation>
+        <translation>사우디아라비아</translation>
     </message>
     <message>
         <source>South Korea</source>
-        <translation type="unfinished"></translation>
+        <translation>대한민국</translation>
     </message>
     <message>
         <source>Sri Lanka</source>
-        <translation type="unfinished"></translation>
+        <translation>스리랑카</translation>
     </message>
     <message>
         <source>Syria</source>
-        <translation type="unfinished"></translation>
+        <translation>시리아</translation>
     </message>
     <message>
         <source>Taiwan</source>
-        <translation type="unfinished"></translation>
+        <translation>대만</translation>
     </message>
     <message>
         <source>Tajikistan</source>
-        <translation type="unfinished"></translation>
+        <translation>타지키스탄</translation>
     </message>
     <message>
         <source>Thailand</source>
-        <translation type="unfinished"></translation>
+        <translation>태국</translation>
     </message>
     <message>
         <source>Turkey</source>
-        <translation type="unfinished"></translation>
+        <translation>튀르키예</translation>
     </message>
     <message>
         <source>Turkmenistan</source>
-        <translation type="unfinished"></translation>
+        <translation>투르크메니스탄</translation>
     </message>
     <message>
         <source>United Arab Emirates</source>
-        <translation type="unfinished"></translation>
+        <translation>아랍에미리트</translation>
     </message>
     <message>
         <source>Uzbekistan</source>
-        <translation type="unfinished"></translation>
+        <translation>우즈베키스탄</translation>
     </message>
     <message>
         <source>Vietnam</source>
-        <translation type="unfinished"></translation>
+        <translation>베트남</translation>
     </message>
     <message>
         <source>Yemen</source>
-        <translation type="unfinished"></translation>
+        <translation>예멘</translation>
     </message>
     <message>
         <source>Albania</source>
-        <translation type="unfinished"></translation>
+        <translation>알바니아</translation>
     </message>
     <message>
         <source>Austria</source>
-        <translation type="unfinished"></translation>
+        <translation>오스트리아</translation>
     </message>
     <message>
         <source>Belarus</source>
-        <translation type="unfinished"></translation>
+        <translation>벨라루스</translation>
     </message>
     <message>
         <source>Belgium</source>
-        <translation type="unfinished"></translation>
+        <translation>벨기에</translation>
     </message>
     <message>
         <source>Bosnia and Herzegovina</source>
-        <translation type="unfinished"></translation>
+        <translation>보스니아 헤르체고비나</translation>
     </message>
     <message>
         <source>Bulgaria</source>
-        <translation type="unfinished"></translation>
+        <translation>불가리아</translation>
     </message>
     <message>
         <source>Croatia</source>
-        <translation type="unfinished"></translation>
+        <translation>크로아티아</translation>
     </message>
     <message>
         <source>Czech Republic</source>
-        <translation type="unfinished"></translation>
+        <translation>체코</translation>
     </message>
     <message>
         <source>Denmark</source>
-        <translation type="unfinished"></translation>
+        <translation>덴마크</translation>
     </message>
     <message>
         <source>Estonia</source>
-        <translation type="unfinished"></translation>
+        <translation>에스토니아</translation>
     </message>
     <message>
         <source>Finland</source>
-        <translation type="unfinished"></translation>
+        <translation>핀란드</translation>
     </message>
     <message>
         <source>France</source>
-        <translation type="unfinished"></translation>
+        <translation>프랑스</translation>
     </message>
     <message>
         <source>Georgia</source>
-        <translation type="unfinished"></translation>
+        <translation>조지아</translation>
     </message>
     <message>
         <source>Germany</source>
-        <translation type="unfinished"></translation>
+        <translation>독일</translation>
     </message>
     <message>
         <source>Greece</source>
-        <translation type="unfinished"></translation>
+        <translation>그리스</translation>
     </message>
     <message>
         <source>Hungary</source>
-        <translation type="unfinished"></translation>
+        <translation>헝가리</translation>
     </message>
     <message>
         <source>Iceland</source>
-        <translation type="unfinished"></translation>
+        <translation>아이슬란드</translation>
     </message>
     <message>
         <source>Ireland</source>
-        <translation type="unfinished"></translation>
+        <translation>아일랜드</translation>
     </message>
     <message>
         <source>Italy</source>
-        <translation type="unfinished"></translation>
+        <translation>이탈리아</translation>
     </message>
     <message>
         <source>Latvia</source>
-        <translation type="unfinished"></translation>
+        <translation>라트비아</translation>
     </message>
     <message>
         <source>Lithuania</source>
-        <translation type="unfinished"></translation>
+        <translation>리투아니아</translation>
     </message>
     <message>
         <source>Luxembourg</source>
-        <translation type="unfinished"></translation>
+        <translation>룩셈부르크</translation>
     </message>
     <message>
         <source>Moldova</source>
-        <translation type="unfinished"></translation>
+        <translation>몰도바</translation>
     </message>
     <message>
         <source>Montenegro</source>
-        <translation type="unfinished"></translation>
+        <translation>몬테네그로</translation>
     </message>
     <message>
         <source>Netherlands</source>
-        <translation type="unfinished"></translation>
+        <translation>네덜란드</translation>
     </message>
     <message>
         <source>North Macedonia</source>
-        <translation type="unfinished"></translation>
+        <translation>북마케도니아</translation>
     </message>
     <message>
         <source>Norway</source>
-        <translation type="unfinished"></translation>
+        <translation>노르웨이</translation>
     </message>
     <message>
         <source>Poland</source>
-        <translation type="unfinished"></translation>
+        <translation>폴란드</translation>
     </message>
     <message>
         <source>Portugal</source>
-        <translation type="unfinished"></translation>
+        <translation>포르투갈</translation>
     </message>
     <message>
         <source>Romania</source>
-        <translation type="unfinished"></translation>
+        <translation>루마니아</translation>
     </message>
     <message>
         <source>Serbia</source>
-        <translation type="unfinished"></translation>
+        <translation>세르비아</translation>
     </message>
     <message>
         <source>Slovakia</source>
-        <translation type="unfinished"></translation>
+        <translation>슬로바키아</translation>
     </message>
     <message>
         <source>Slovenia</source>
-        <translation type="unfinished"></translation>
+        <translation>슬로베니아</translation>
     </message>
     <message>
         <source>Spain</source>
-        <translation type="unfinished"></translation>
+        <translation>스페인</translation>
     </message>
     <message>
         <source>Sweden</source>
-        <translation type="unfinished"></translation>
+        <translation>스웨덴</translation>
     </message>
     <message>
         <source>Switzerland</source>
-        <translation type="unfinished"></translation>
+        <translation>스위스</translation>
     </message>
     <message>
         <source>Ukraine</source>
-        <translation type="unfinished"></translation>
+        <translation>우크라이나</translation>
     </message>
     <message>
         <source>United Kingdom</source>
-        <translation type="unfinished"></translation>
+        <translation>영국</translation>
     </message>
     <message>
         <source>Bahamas</source>
-        <translation type="unfinished"></translation>
+        <translation>바하마</translation>
     </message>
     <message>
         <source>Belize</source>
-        <translation type="unfinished"></translation>
+        <translation>벨리즈</translation>
     </message>
     <message>
         <source>Canada</source>
-        <translation type="unfinished"></translation>
+        <translation>캐나다</translation>
     </message>
     <message>
         <source>Costa Rica</source>
-        <translation type="unfinished"></translation>
+        <translation>코스타리카</translation>
     </message>
     <message>
         <source>Cuba</source>
-        <translation type="unfinished"></translation>
+        <translation>쿠바</translation>
     </message>
     <message>
         <source>Dominican Republic</source>
-        <translation type="unfinished"></translation>
+        <translation>도미니카 공화국</translation>
     </message>
     <message>
         <source>El Salvador</source>
-        <translation type="unfinished"></translation>
+        <translation>엘살바도르</translation>
     </message>
     <message>
         <source>Greenland</source>
-        <translation type="unfinished"></translation>
+        <translation>그린란드</translation>
     </message>
     <message>
         <source>Guatemala</source>
-        <translation type="unfinished"></translation>
+        <translation>과테말라</translation>
     </message>
     <message>
         <source>Haiti</source>
-        <translation type="unfinished"></translation>
+        <translation>아이티</translation>
     </message>
     <message>
         <source>Honduras</source>
-        <translation type="unfinished"></translation>
+        <translation>온두라스</translation>
     </message>
     <message>
         <source>Jamaica</source>
-        <translation type="unfinished"></translation>
+        <translation>자메이카</translation>
     </message>
     <message>
         <source>Mexico</source>
-        <translation type="unfinished"></translation>
+        <translation>멕시코</translation>
     </message>
     <message>
         <source>Nicaragua</source>
-        <translation type="unfinished"></translation>
+        <translation>니카라과</translation>
     </message>
     <message>
         <source>Panama</source>
-        <translation type="unfinished"></translation>
+        <translation>파나마</translation>
     </message>
     <message>
         <source>Trinidad and Tobago</source>
-        <translation type="unfinished"></translation>
+        <translation>트리니다드 토바고</translation>
     </message>
     <message>
         <source>United States</source>
-        <translation type="unfinished"></translation>
+        <translation>미국</translation>
     </message>
     <message>
         <source>Australia</source>
-        <translation type="unfinished"></translation>
+        <translation>호주</translation>
     </message>
     <message>
         <source>Fiji</source>
-        <translation type="unfinished"></translation>
+        <translation>피지</translation>
     </message>
     <message>
         <source>French Southern Territories</source>
-        <translation type="unfinished"></translation>
+        <translation>프랑스령 남방 지역</translation>
     </message>
     <message>
         <source>New Caledonia</source>
-        <translation type="unfinished"></translation>
+        <translation>뉴칼레도니아</translation>
     </message>
     <message>
         <source>New Zealand</source>
-        <translation type="unfinished"></translation>
+        <translation>뉴질랜드</translation>
     </message>
     <message>
         <source>Papua New Guinea</source>
-        <translation type="unfinished"></translation>
+        <translation>파푸아뉴기니</translation>
     </message>
     <message>
         <source>Solomon Islands</source>
-        <translation type="unfinished"></translation>
+        <translation>솔로몬 제도</translation>
     </message>
     <message>
         <source>Vanuatu</source>
-        <translation type="unfinished"></translation>
+        <translation>바누아투</translation>
     </message>
     <message>
         <source>Argentina</source>
-        <translation type="unfinished"></translation>
+        <translation>아르헨티나</translation>
     </message>
     <message>
         <source>Bolivia</source>
-        <translation type="unfinished"></translation>
+        <translation>볼리비아</translation>
     </message>
     <message>
         <source>Brazil</source>
-        <translation type="unfinished"></translation>
+        <translation>브라질</translation>
     </message>
     <message>
         <source>Chile</source>
-        <translation type="unfinished"></translation>
+        <translation>칠레</translation>
     </message>
     <message>
         <source>Colombia</source>
-        <translation type="unfinished"></translation>
+        <translation>콜롬비아</translation>
     </message>
     <message>
         <source>Ecuador</source>
-        <translation type="unfinished"></translation>
+        <translation>에콰도르</translation>
     </message>
     <message>
         <source>Falkland Islands</source>
-        <translation type="unfinished"></translation>
+        <translation>포클랜드 제도</translation>
     </message>
     <message>
         <source>Guyana</source>
-        <translation type="unfinished"></translation>
+        <translation>가이아나</translation>
     </message>
     <message>
         <source>Paraguay</source>
-        <translation type="unfinished"></translation>
+        <translation>파라과이</translation>
     </message>
     <message>
         <source>Peru</source>
-        <translation type="unfinished"></translation>
+        <translation>페루</translation>
     </message>
     <message>
         <source>Suriname</source>
-        <translation type="unfinished"></translation>
+        <translation>수리남</translation>
     </message>
     <message>
         <source>Uruguay</source>
-        <translation type="unfinished"></translation>
+        <translation>우루과이</translation>
     </message>
     <message>
         <source>Venezuela</source>
-        <translation type="unfinished"></translation>
+        <translation>베네수엘라</translation>
     </message>
 </context>
 <context>
     <name>MapSelectionControlStates</name>
     <message>
         <source>Illinois</source>
-        <translation type="unfinished"></translation>
+        <translation>일리노이주</translation>
     </message>
     <message>
         <source>Indiana</source>
-        <translation type="unfinished"></translation>
+        <translation>인디애나주</translation>
     </message>
     <message>
         <source>Iowa</source>
-        <translation type="unfinished"></translation>
+        <translation>아이오와주</translation>
     </message>
     <message>
         <source>Kansas</source>
-        <translation type="unfinished"></translation>
+        <translation>캔자스주</translation>
     </message>
     <message>
         <source>Michigan</source>
-        <translation type="unfinished"></translation>
+        <translation>미시간주</translation>
     </message>
     <message>
         <source>Minnesota</source>
-        <translation type="unfinished"></translation>
+        <translation>미네소타주</translation>
     </message>
     <message>
         <source>Missouri</source>
-        <translation type="unfinished"></translation>
+        <translation>미주리주</translation>
     </message>
     <message>
         <source>Nebraska</source>
-        <translation type="unfinished"></translation>
+        <translation>네브래스카주</translation>
     </message>
     <message>
         <source>North Dakota</source>
-        <translation type="unfinished"></translation>
+        <translation>노스다코타주</translation>
     </message>
     <message>
         <source>Ohio</source>
-        <translation type="unfinished"></translation>
+        <translation>오하이오주</translation>
     </message>
     <message>
         <source>South Dakota</source>
-        <translation type="unfinished"></translation>
+        <translation>사우스다코타주</translation>
     </message>
     <message>
         <source>Wisconsin</source>
-        <translation type="unfinished"></translation>
+        <translation>위스콘신주</translation>
     </message>
     <message>
         <source>Connecticut</source>
-        <translation type="unfinished"></translation>
+        <translation>코네티컷주</translation>
     </message>
     <message>
         <source>Maine</source>
-        <translation type="unfinished"></translation>
+        <translation>메인주</translation>
     </message>
     <message>
         <source>Massachusetts</source>
-        <translation type="unfinished"></translation>
+        <translation>매사추세츠주</translation>
     </message>
     <message>
         <source>New Hampshire</source>
-        <translation type="unfinished"></translation>
+        <translation>뉴햄프셔주</translation>
     </message>
     <message>
         <source>New Jersey</source>
-        <translation type="unfinished"></translation>
+        <translation>뉴저지주</translation>
     </message>
     <message>
         <source>New York</source>
-        <translation type="unfinished"></translation>
+        <translation>뉴욕주</translation>
     </message>
     <message>
         <source>Pennsylvania</source>
-        <translation type="unfinished"></translation>
+        <translation>펜실베이니아주</translation>
     </message>
     <message>
         <source>Rhode Island</source>
-        <translation type="unfinished"></translation>
+        <translation>로드아일랜드주</translation>
     </message>
     <message>
         <source>Vermont</source>
-        <translation type="unfinished"></translation>
+        <translation>버몬트주</translation>
     </message>
     <message>
         <source>Alabama</source>
-        <translation type="unfinished"></translation>
+        <translation>앨라배마주</translation>
     </message>
     <message>
         <source>Arkansas</source>
-        <translation type="unfinished"></translation>
+        <translation>아칸소주</translation>
     </message>
     <message>
         <source>Delaware</source>
-        <translation type="unfinished"></translation>
+        <translation>델라웨어주</translation>
     </message>
     <message>
         <source>District of Columbia</source>
-        <translation type="unfinished"></translation>
+        <translation>컬럼비아 특별구</translation>
     </message>
     <message>
         <source>Florida</source>
-        <translation type="unfinished"></translation>
+        <translation>플로리다주</translation>
     </message>
     <message>
         <source>Georgia</source>
-        <translation type="unfinished"></translation>
+        <translation>조지아주</translation>
     </message>
     <message>
         <source>Kentucky</source>
-        <translation type="unfinished"></translation>
+        <translation>켄터키주</translation>
     </message>
     <message>
         <source>Louisiana</source>
-        <translation type="unfinished"></translation>
+        <translation>루이지애나주</translation>
     </message>
     <message>
         <source>Maryland</source>
-        <translation type="unfinished"></translation>
+        <translation>메릴랜드주</translation>
     </message>
     <message>
         <source>Mississippi</source>
-        <translation type="unfinished"></translation>
+        <translation>미시시피주</translation>
     </message>
     <message>
         <source>North Carolina</source>
-        <translation type="unfinished"></translation>
+        <translation>노스캐롤라이나주</translation>
     </message>
     <message>
         <source>Oklahoma</source>
-        <translation type="unfinished"></translation>
+        <translation>오클라호마주</translation>
     </message>
     <message>
         <source>South Carolina</source>
-        <translation type="unfinished"></translation>
+        <translation>사우스캐롤라이나주</translation>
     </message>
     <message>
         <source>Tennessee</source>
-        <translation type="unfinished"></translation>
+        <translation>테네시주</translation>
     </message>
     <message>
         <source>Texas</source>
-        <translation type="unfinished"></translation>
+        <translation>텍사스주</translation>
     </message>
     <message>
         <source>Virginia</source>
-        <translation type="unfinished"></translation>
+        <translation>버지니아주</translation>
     </message>
     <message>
         <source>West Virginia</source>
-        <translation type="unfinished"></translation>
+        <translation>웨스트버지니아주</translation>
     </message>
     <message>
         <source>Alaska</source>
-        <translation type="unfinished"></translation>
+        <translation>알래스카주</translation>
     </message>
     <message>
         <source>Arizona</source>
-        <translation type="unfinished"></translation>
+        <translation>애리조나주</translation>
     </message>
     <message>
         <source>California</source>
-        <translation type="unfinished"></translation>
+        <translation>캘리포니아주</translation>
     </message>
     <message>
         <source>Colorado</source>
-        <translation type="unfinished"></translation>
+        <translation>콜로라도주</translation>
     </message>
     <message>
         <source>Hawaii</source>
-        <translation type="unfinished"></translation>
+        <translation>하와이주</translation>
     </message>
     <message>
         <source>Idaho</source>
-        <translation type="unfinished"></translation>
+        <translation>아이다호주</translation>
     </message>
     <message>
         <source>Montana</source>
-        <translation type="unfinished"></translation>
+        <translation>몬태나주</translation>
     </message>
     <message>
         <source>Nevada</source>
-        <translation type="unfinished"></translation>
+        <translation>네바다주</translation>
     </message>
     <message>
         <source>New Mexico</source>
-        <translation type="unfinished"></translation>
+        <translation>뉴멕시코주</translation>
     </message>
     <message>
         <source>Oregon</source>
-        <translation type="unfinished"></translation>
+        <translation>오리건주</translation>
     </message>
     <message>
         <source>Utah</source>
-        <translation type="unfinished"></translation>
+        <translation>유타주</translation>
     </message>
     <message>
         <source>Washington</source>
-        <translation type="unfinished"></translation>
+        <translation>워싱턴주</translation>
     </message>
     <message>
         <source>Wyoming</source>
-        <translation type="unfinished"></translation>
+        <translation>와이오밍주</translation>
     </message>
     <message>
         <source>American Samoa</source>
-        <translation type="unfinished"></translation>
+        <translation>아메리칸사모아</translation>
     </message>
     <message>
         <source>Guam</source>
-        <translation type="unfinished"></translation>
+        <translation>괌</translation>
     </message>
     <message>
         <source>Northern Mariana Islands</source>
-        <translation type="unfinished"></translation>
+        <translation>북마리아나 제도</translation>
     </message>
     <message>
         <source>Puerto Rico</source>
-        <translation type="unfinished"></translation>
+        <translation>푸에르토리코</translation>
     </message>
     <message>
         <source>Virgin Islands</source>
-        <translation type="unfinished"></translation>
+        <translation>미국령 버진아일랜드</translation>
     </message>
 </context>
 <context>
@@ -6271,37 +6379,37 @@ Retry to avoid duplicates.</source>
     <name>OffroadAlert</name>
     <message>
         <source>Immediately connect to the internet to check for updates. If you do not connect to the internet, openpilot won't engage in %1</source>
-        <translation>즉시 인터넷에 연결하여 업데이트를 확인하세요. 인터넷에 연결하지 않으면 %1 후에는 openpilot 제어를 시작할 수 없습니다.</translation>
+        <translation type="vanished">즉시 인터넷에 연결하여 업데이트를 확인하세요. 인터넷에 연결하지 않으면 %1 후에는 openpilot 제어를 시작할 수 없습니다.</translation>
     </message>
     <message>
         <source>Connect to internet to check for updates. openpilot won't automatically start until it connects to internet to check for updates.</source>
-        <translation>업데이트를 확인하려면 인터넷에 연결하세요. openpilot은 업데이트를 확인하기 위해 인터넷에 연결할 때까지 자동으로 시작되지 않습니다.</translation>
+        <translation type="vanished">업데이트를 확인하려면 인터넷에 연결하세요. openpilot은 업데이트를 확인하기 위해 인터넷에 연결할 때까지 자동으로 시작되지 않습니다.</translation>
     </message>
     <message>
         <source>Unable to download updates
 %1</source>
-        <translation>업데이트를 다운로드할 수 없습니다
+        <translation type="vanished">업데이트를 다운로드할 수 없습니다
 %1</translation>
     </message>
     <message>
         <source>Taking camera snapshots. System won't start until finished.</source>
-        <translation>카메라 스냅샷 찍기가 완료될 때까지 시스템이 시작되지 않습니다.</translation>
+        <translation type="vanished">카메라 스냅샷 찍기가 완료될 때까지 시스템이 시작되지 않습니다.</translation>
     </message>
     <message>
         <source>An update to your device's operating system is downloading in the background. You will be prompted to update when it's ready to install.</source>
-        <translation>백그라운드에서 운영 체제에 대한 업데이트가 다운로드되고 있습니다. 설치가 준비되면 업데이트 메시지가 표시됩니다.</translation>
+        <translation type="vanished">백그라운드에서 운영 체제에 대한 업데이트가 다운로드되고 있습니다. 설치가 준비되면 업데이트 메시지가 표시됩니다.</translation>
     </message>
     <message>
         <source>openpilot was unable to identify your car. Your car is either unsupported or its ECUs are not recognized. Please submit a pull request to add the firmware versions to the proper vehicle. Need help? Join discord.comma.ai.</source>
-        <translation>openpilot이 차량을 식별할 수 없었습니다. 지원되지 않는 차량이거나 ECU가 인식되지 않습니다. 해당 차량에 맞는 펌웨어 버전을 추가하려면 PR을 제출하세요. 도움이 필요하시면 discord.comma.ai에 가입하세요.</translation>
+        <translation type="vanished">openpilot이 차량을 식별할 수 없었습니다. 지원되지 않는 차량이거나 ECU가 인식되지 않습니다. 해당 차량에 맞는 펌웨어 버전을 추가하려면 PR을 제출하세요. 도움이 필요하시면 discord.comma.ai에 가입하세요.</translation>
     </message>
     <message>
         <source>openpilot detected a change in the device's mounting position. Ensure the device is fully seated in the mount and the mount is firmly secured to the windshield.</source>
-        <translation>openpilot 장치의 장착 위치가 변경되었습니다. 장치가 마운트에 완전히 장착되고 마운트가 앞유리에 단단히 고정되었는지 확인하세요.</translation>
+        <translation type="vanished">openpilot 장치의 장착 위치가 변경되었습니다. 장치가 마운트에 완전히 장착되고 마운트가 앞유리에 단단히 고정되었는지 확인하세요.</translation>
     </message>
     <message>
         <source>Device temperature too high. System cooling down before starting. Current internal component temperature: %1</source>
-        <translation>장치 온도가 너무 높습니다. 시스템이 시작 전에 냉각 중입니다. 현재 내부 부품 온도: %1</translation>
+        <translation type="vanished">장치 온도가 너무 높습니다. 시스템이 시작 전에 냉각 중입니다. 현재 내부 부품 온도: %1</translation>
     </message>
     <message>
         <source>Acknowledge Excessive Actuation</source>
@@ -6313,19 +6421,15 @@ Retry to avoid duplicates.</source>
     </message>
     <message>
         <source>Failed to register with comma.ai backend. It will not connect or upload to comma.ai servers, and receives no support from comma.ai. If this is a device purchased at comma.ai/shop, open a ticket at https://comma.ai/support.</source>
-        <translation>comma.ai 백엔드에 등록하지 못했습니다. comma.ai 서버에 연결하거나 업로드하지 않으며 comma.ai로부터 지원을 받지 않습니다. comma.ai/shop에서 구매한 기기인 경우 https://comma.ai/support에서 지원 요청을 생성하세요.</translation>
+        <translation type="vanished">comma.ai 백엔드에 등록하지 못했습니다. comma.ai 서버에 연결하거나 업로드하지 않으며 comma.ai로부터 지원을 받지 않습니다. comma.ai/shop에서 구매한 기기인 경우 https://comma.ai/support에서 지원 요청을 생성하세요.</translation>
     </message>
     <message>
         <source>Poor visibility detected for driver monitoring. Ensure the device has a clear view of the driver. This can be checked in the device settings. Extreme lighting conditions and/or unconventional mounting positions may also trigger this alert.</source>
-        <translation>운전자 모니터링에서 가시성이 좋지 않은 것으로 감지되었습니다. 장치에서 운전자를 명확하게 볼 수 있는지 확인하십시오. 이는 기기 설정에서 확인할 수 있습니다. 극단적인 조명 조건 및/또는 색다른 장착 위치에서도 이 경고가 발생할 수 있습니다.</translation>
+        <translation type="vanished">운전자 모니터링에서 가시성이 좋지 않은 것으로 감지되었습니다. 장치에서 운전자를 명확하게 볼 수 있는지 확인하십시오. 이는 기기 설정에서 확인할 수 있습니다. 극단적인 조명 조건 및/또는 색다른 장착 위치에서도 이 경고가 발생할 수 있습니다.</translation>
     </message>
     <message>
         <source>Excessive %1 actuation detected on your last drive. Please contact support at https://comma.ai/support and share your device's Dongle ID for troubleshooting.</source>
-        <translation>마지막 주행에서 과도한 %1 작동이 감지되었습니다. 문제 해결을 위해 https://comma.ai/support으로 지원팀에 문의하고 기기의 동글 ID를 공유하세요.</translation>
-    </message>
-    <message>
-        <source>NVMe drive not mounted.</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">마지막 주행에서 과도한 %1 작동이 감지되었습니다. 문제 해결을 위해 https://comma.ai/support으로 지원팀에 문의하고 기기의 동글 ID를 공유하세요.</translation>
     </message>
 </context>
 <context>
@@ -6344,7 +6448,7 @@ Retry to avoid duplicates.</source>
     </message>
     <message>
         <source>Mystery Model 👻</source>
-        <translation type="unfinished"></translation>
+        <translation>미스터리 모델 👻</translation>
     </message>
 </context>
 <context>
@@ -6524,63 +6628,63 @@ Retry to avoid duplicates.</source>
     </message>
     <message>
         <source>April Fools</source>
-        <translation type="unfinished"></translation>
+        <translation>만우절</translation>
     </message>
     <message>
         <source>Christmas</source>
-        <translation type="unfinished"></translation>
+        <translation>크리스마스</translation>
     </message>
     <message>
         <source>Cinco de Mayo</source>
-        <translation type="unfinished"></translation>
+        <translation>싱코 데 마요</translation>
     </message>
     <message>
         <source>Easter</source>
-        <translation type="unfinished"></translation>
+        <translation>부활절</translation>
     </message>
     <message>
         <source>Fourth of July</source>
-        <translation type="unfinished"></translation>
+        <translation>미국 독립기념일</translation>
     </message>
     <message>
         <source>Halloween</source>
-        <translation type="unfinished"></translation>
+        <translation>할로윈</translation>
     </message>
     <message>
         <source>May the Fourth</source>
-        <translation type="unfinished"></translation>
+        <translation>스타워즈 데이</translation>
     </message>
     <message>
         <source>New Year's</source>
-        <translation type="unfinished"></translation>
+        <translation>새해</translation>
     </message>
     <message>
         <source>None</source>
-        <translation type="unfinished">없음</translation>
+        <translation>없음</translation>
     </message>
     <message>
         <source>St. Patrick's Day</source>
-        <translation type="unfinished"></translation>
+        <translation>성 패트릭의 날</translation>
     </message>
     <message>
         <source>Stitch Day</source>
-        <translation type="unfinished"></translation>
+        <translation>스티치 데이</translation>
     </message>
     <message>
         <source>Stock</source>
-        <translation type="unfinished"></translation>
+        <translation>기본</translation>
     </message>
     <message>
         <source>Thanksgiving</source>
-        <translation type="unfinished"></translation>
+        <translation>추수감사절</translation>
     </message>
     <message>
         <source>Valentine's Day</source>
-        <translation type="unfinished"></translation>
+        <translation>밸런타인데이</translation>
     </message>
     <message>
         <source>World Frog Day</source>
-        <translation type="unfinished"></translation>
+        <translation>세계 개구리의 날</translation>
     </message>
 </context>
 <context>
@@ -6871,15 +6975,15 @@ Retry to avoid duplicates.</source>
     </message>
     <message>
         <source>Share FrogPilot Data</source>
-        <translation type="unfinished"></translation>
+        <translation>FrogPilot 데이터 공유</translation>
     </message>
     <message>
         <source>Automatically update FrogPilot when the car is off and the device is on an unmetered connection, such as Wi-Fi. Automatic updates turn off after a FrogPilot backup is restored until you update manually.</source>
-        <translation type="unfinished"></translation>
+        <translation>차량 시동이 꺼져 있고 장치가 Wi-Fi 등 데이터 요금제가 적용되지 않는 연결에 있을 때 FrogPilot을 자동으로 업데이트합니다. FrogPilot 백업을 복원하면 수동으로 업데이트할 때까지 자동 업데이트가 꺼집니다.</translation>
     </message>
     <message>
         <source>No error log found.</source>
-        <translation type="unfinished"></translation>
+        <translation>오류 로그를 찾을 수 없습니다.</translation>
     </message>
 </context>
 <context>
@@ -7069,6 +7173,18 @@ Retry to avoid duplicates.</source>
         <source>An alpha version of openpilot longitudinal control can be tested, along with Experimental mode, on non-release branches.</source>
         <translation>오픈파일럿 가감속 제어 알파 버전은 비 릴리즈 브랜치에서 실험 모드와 함께 테스트할 수 있습니다.</translation>
     </message>
+    <message>
+        <source>openpilot Longitudinal Control (Alpha)</source>
+        <translation>openpilot 가감속 제어 (알파)</translation>
+    </message>
+    <message>
+        <source>WARNING: openpilot longitudinal control is in alpha for this car and will disable Automatic Emergency Braking (AEB).</source>
+        <translation>경고: 이 차량의 openpilot 가감속 제어는 알파 단계이며 자동 긴급 제동(AEB)을 비활성화합니다.</translation>
+    </message>
+    <message>
+        <source>On this car, openpilot defaults to the car's built-in ACC instead of openpilot's longitudinal control. Enable this to switch to openpilot longitudinal control. Enabling Experimental mode is recommended when enabling openpilot longitudinal control alpha.</source>
+        <translation>이 차량은 openpilot 가감속 제어 대신 기본적으로 차량의 ACC로 가감속을 제어합니다. openpilot의 가감속 제어로 전환하려면 이 기능을 활성화하세요. openpilot 가감속 제어 알파를 활성화하는 경우 실험 모드 활성화를 권장합니다.</translation>
+    </message>
 </context>
 <context>
     <name>WiFiPromptWidget</name>
@@ -7086,11 +7202,11 @@ Retry to avoid duplicates.</source>
     </message>
     <message>
         <source>Uploading disabled</source>
-        <translation type="unfinished"></translation>
+        <translation>업로드 비활성화</translation>
     </message>
     <message>
         <source>Turn off "Disable Uploads" to upload your drives again.</source>
-        <translation type="unfinished"></translation>
+        <translation>주행 기록을 다시 업로드하려면 "업로드 비활성화"를 끄세요.</translation>
     </message>
 </context>
 <context>

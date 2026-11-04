@@ -38,6 +38,7 @@ STOP_SIGN_PATH = Path(BASEDIR) / "frogpilot/assets/other_images/stop_sign.png"
 BORDERS_PATH = Path(BASEDIR) / "frogpilot/assets/borders.json"
 # City data from GeoNames (https://www.geonames.org/), CC BY 4.0
 CITIES_PATH = Path(BASEDIR) / "frogpilot/assets/cities.json"
+STATS_DICTIONARY_PATH = Path(BASEDIR) / "frogpilot/assets/stats_dictionary.txt"
 
 ERROR_LOGS_PATH = Path("/data/error_logs")
 ERROR_LOG_PATH = ERROR_LOGS_PATH / "error.txt"

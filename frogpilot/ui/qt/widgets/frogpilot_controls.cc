@@ -217,14 +217,6 @@ QPixmap FrogPilotMovie::currentPixmap() {
   return pixmap;
 }
 
-QSize FrogPilotMovie::scaledSize() const {
-  return size;
-}
-
-QString FrogPilotMovie::fileName() const {
-  return path;
-}
-
 void loadImage(const QString &basePath, QPixmap &pixmap, QSharedPointer<FrogPilotMovie> &movie, const QSize &size, QWidget *parent, bool repaintOnFrame) {
   const QString gifPath = basePath + ".gif";
   if (QFileInfo::exists(gifPath)) {
@@ -259,7 +251,7 @@ void loadMovie(const QString &moviePath, QSharedPointer<FrogPilotMovie> &movie, 
     return;
   }
 
-  if (!movie || movie->fileName() != sourcePath || movie->scaledSize() != size) {
+  if (!movie || movie->path != sourcePath || movie->size != size) {
     movie = QSharedPointer<FrogPilotMovie>::create(sourcePath, size);
 
     if (repaintOnFrame) {

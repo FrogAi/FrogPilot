@@ -120,7 +120,7 @@
     </message>
     <message>
         <source>Share your device's internet connection with other devices all the time, only while driving, or until the device reboots. Internet sharing only works on a paired device with comma prime lite or no comma prime.</source>
-        <translation type="unfinished"></translation>
+        <translation>Cihazınızın internet bağlantısını diğer cihazlarla her zaman, yalnızca sürüş sırasında veya cihaz yeniden başlatılana kadar paylaşın. İnternet paylaşımı yalnızca comma prime lite aboneliği olan veya comma prime aboneliği olmayan eşleştirilmiş cihazlarda çalışır.</translation>
     </message>
 </context>
 <context>
@@ -169,15 +169,15 @@
     </message>
     <message>
         <source>openpilot Longitudinal Control (Alpha)</source>
-        <translation>openpilot Boyuna Kontrolü (Alfa)</translation>
+        <translation type="vanished">openpilot Boyuna Kontrolü (Alfa)</translation>
     </message>
     <message>
         <source>WARNING: openpilot longitudinal control is in alpha for this car and will disable Automatic Emergency Braking (AEB).</source>
-        <translation>UYARI: openpilot boyuna kontrolü bu araç için alfa aşamasındadır ve Otomatik Acil Frenlemeyi (AEB) devre dışı bırakır.</translation>
+        <translation type="vanished">UYARI: openpilot boyuna kontrolü bu araç için alfa aşamasındadır ve Otomatik Acil Frenlemeyi (AEB) devre dışı bırakır.</translation>
     </message>
     <message>
         <source>On this car, openpilot defaults to the car's built-in ACC instead of openpilot's longitudinal control. Enable this to switch to openpilot longitudinal control. Enabling Experimental mode is recommended when enabling openpilot longitudinal control alpha.</source>
-        <translation>Bu araçta openpilot, varsayılan olarak kendi boyuna kontrolü yerine aracın yerleşik ACC sistemini kullanır. openpilot boyuna kontrolüne geçmek için bunu etkinleştirin. openpilot boyuna kontrolü alfa sürümünü etkinleştirirken Deneysel Modun da etkinleştirilmesi önerilir.</translation>
+        <translation type="vanished">Bu araçta openpilot, varsayılan olarak kendi boyuna kontrolü yerine aracın yerleşik ACC sistemini kullanır. openpilot boyuna kontrolüne geçmek için bunu etkinleştirin. openpilot boyuna kontrolü alfa sürümünü etkinleştirirken Deneysel Modun da etkinleştirilmesi önerilir.</translation>
     </message>
     <message>
         <source>Developer UI</source>
@@ -449,19 +449,19 @@
     </message>
     <message>
         <source>&lt;b&gt;Color the edge of the driving screen to show what openpilot is reacting to.&lt;/b&gt;&lt;br&gt;&lt;br&gt;You can switch on the blind spot, steering effort, and turn signal borders separately. The blind spot one only appears on cars with factory blind spot monitoring, and the steering effort one only appears on cars where openpilot sends a steering effort rather than a steering angle.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;openpilot'ın neye tepki verdiğini göstermek için sürüş ekranının kenarını renklendirin.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Kör nokta, direksiyon kuvveti ve sinyal kenarlarını ayrı ayrı açabilirsiniz. Kör nokta kenarı yalnızca fabrikasyon kör nokta izleme sistemi olan araçlarda, direksiyon kuvveti kenarı ise yalnızca openpilot'ın direksiyon açısı yerine direksiyon kuvveti gönderdiği araçlarda görünür.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Print how far away the car ahead is and how fast it is going, underneath its marker.&lt;/b&gt;&lt;br&gt;&lt;br&gt;On cars where openpilot handles the gas and brake, it also shows the gap openpilot is aiming for, so you can see it closing in on the distance you asked for.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Öndeki aracın ne kadar uzakta olduğunu ve hızını işaretinin altında gösterin.&lt;/b&gt;&lt;br&gt;&lt;br&gt;openpilot'ın gaz ve freni yönettiği araçlarda openpilot'ın hedeflediği aralığı da gösterir; böylece istediğiniz mesafeye yaklaşmasını izleyebilirsiniz.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Add a second sidebar down the right-hand side, holding up to seven readouts you pick yourself.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It makes the camera view narrower, so it is worth turning off when you are not using it. Setting all seven to "None" leaves the bar there but empty.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Sağ tarafa, kendiniz seçtiğiniz en fazla yedi değeri gösteren ikinci bir kenar çubuğu ekleyin.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Kamera görüntüsünü daralttığından kullanmadığınızda kapatmanız önerilir. Yedi seçeneğin tümünü "Yok" yapmak çubuğu yerinde ancak boş bırakır.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Drop a stop sign on the road where openpilot is planning to come to a stop.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It only marks stops openpilot works out for itself, so it stays away when openpilot is slowing for a car ahead, and "Traffic Mode" switches it off entirely. "Show Distance" also prints how far away that stop is.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;openpilot'ın durmayı planladığı yere, yolun üzerine bir dur işareti koyun.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Yalnızca openpilot'ın kendi belirlediği duruşları işaretler; bu nedenle openpilot öndeki bir araç için yavaşlarken görünmez ve "Trafik Modu" bunu tamamen kapatır. "Mesafeyi Göster" ayrıca bu duruşun ne kadar uzakta olduğunu da yazar.</translation>
     </message>
 </context>
 <context>
@@ -715,15 +715,15 @@ Direksiyon gecikmesi kalibrasyonu tamamlandı.</translation>
     </message>
     <message>
         <source>Soft Reboot</source>
-        <translation type="unfinished"></translation>
+        <translation>Yazılımsal Yeniden Başlat</translation>
     </message>
     <message>
         <source>Are you sure you want to soft reboot?</source>
-        <translation type="unfinished"></translation>
+        <translation>Cihazı yazılımsal olarak yeniden başlatmak istediğinizden emin misiniz?</translation>
     </message>
     <message>
         <source>Disengage to Soft Reboot</source>
-        <translation type="unfinished"></translation>
+        <translation>openpilot'ı Devreden Çıkarıp Yazılımsal Olarak Yeniden Başlat</translation>
     </message>
 </context>
 <context>
@@ -821,6 +821,41 @@ Firehose Modu, openpilot'un sürüş modellerini geliştirmek için eğitim veri
     </message>
 </context>
 <context>
+    <name>FrogPilotAccountPopup</name>
+    <message>
+        <source>Delete your FrogPilot data</source>
+        <translation>FrogPilot verilerinizi silin</translation>
+    </message>
+    <message>
+        <source>Check what will be deleted on FrogPilot.com</source>
+        <translation>Nelerin silineceğini FrogPilot.com'da kontrol edin</translation>
+    </message>
+    <message>
+        <source>Confirm to delete it</source>
+        <translation>Silmek için onaylayın</translation>
+    </message>
+    <message>
+        <source>Link this device to your FrogPilot.com account</source>
+        <translation>Bu cihazı FrogPilot.com hesabınıza bağlayın</translation>
+    </message>
+    <message>
+        <source>Sign in to FrogPilot.com if asked</source>
+        <translation>İstenirse FrogPilot.com'da oturum açın</translation>
+    </message>
+    <message>
+        <source>Confirm to link this device</source>
+        <translation>Bu cihazı bağlamak için onaylayın</translation>
+    </message>
+    <message>
+        <source>Scan the QR code on the right with your phone</source>
+        <translation>Sağdaki QR kodunu telefonunuzla tarayın</translation>
+    </message>
+    <message>
+        <source>Connect to the internet to set the clock first</source>
+        <translation>Saati ayarlamak için önce internete bağlanın</translation>
+    </message>
+</context>
+<context>
     <name>FrogPilotAnnotatedCameraWidget</name>
     <message>
         <source> meters</source>
@@ -888,68 +923,68 @@ Firehose Modu, openpilot'un sürüş modellerini geliştirmek için eğitim veri
     </message>
     <message>
         <source>N</source>
-        <translation type="unfinished"></translation>
+        <translation>K</translation>
     </message>
     <message>
         <source>NE</source>
-        <translation type="unfinished"></translation>
+        <translation>KD</translation>
     </message>
     <message>
         <source>E</source>
-        <translation type="unfinished"></translation>
+        <translation>D</translation>
     </message>
     <message>
         <source>SE</source>
-        <translation type="unfinished"></translation>
+        <translation>GD</translation>
     </message>
     <message>
         <source>S</source>
-        <translation type="unfinished"></translation>
+        <translation>G</translation>
     </message>
     <message>
         <source>SW</source>
-        <translation type="unfinished"></translation>
+        <translation>GB</translation>
     </message>
     <message>
         <source>W</source>
-        <translation type="unfinished"></translation>
+        <translation>B</translation>
     </message>
     <message>
         <source>NW</source>
-        <translation type="unfinished"></translation>
+        <translation>KB</translation>
     </message>
     <message>
         <source>Training...</source>
-        <translation type="unfinished"></translation>
+        <translation>Eğitiliyor...</translation>
     </message>
     <message>
         <source>N/A</source>
-        <translation type="unfinished">Yok</translation>
+        <translation>Yok</translation>
     </message>
     <message>
         <source>Camera</source>
-        <translation type="unfinished"></translation>
+        <translation>Kamera</translation>
     </message>
     <message>
         <source>Dashboard</source>
-        <translation type="unfinished">Gösterge Paneli</translation>
+        <translation>Gösterge</translation>
     </message>
     <message>
         <source>Map Data</source>
-        <translation type="unfinished">Harita Verileri</translation>
+        <translation>Harita</translation>
     </message>
     <message>
         <source>Mapbox</source>
-        <translation type="unfinished"></translation>
+        <translation>Mapbox</translation>
     </message>
     <message>
         <source>Upcoming</source>
-        <translation type="unfinished"></translation>
+        <translation>Yaklaşan</translation>
     </message>
     <message>
         <source>LIMIT</source>
         <comment>speed limit sign, line under SPEED</comment>
-        <translation type="unfinished">SINIR</translation>
+        <translation>SINIRI</translation>
     </message>
 </context>
 <context>
@@ -976,7 +1011,7 @@ Firehose Modu, openpilot'un sürüş modellerini geliştirmek için eğitim veri
     </message>
     <message>
         <source>The device can't reboot while openpilot is steering. Disengage, then reboot from the Device panel.</source>
-        <translation type="unfinished"></translation>
+        <translation>openpilot direksiyonu kontrol ederken cihaz yeniden başlatılamaz. Devreden çıkarın, ardından Cihaz panelinden yeniden başlatın.</translation>
     </message>
 </context>
 <context>
@@ -1412,142 +1447,182 @@ Firehose Modu, openpilot'un sürüş modellerini geliştirmek için eğitim veri
     <message>
         <source>th</source>
         <comment>ordinal suffix</comment>
-        <translation type="unfinished"></translation>
+        <translation> </translation>
     </message>
     <message>
         <source>st</source>
         <comment>ordinal suffix</comment>
-        <translation type="unfinished"></translation>
+        <translation> </translation>
     </message>
     <message>
         <source>nd</source>
         <comment>ordinal suffix</comment>
-        <translation type="unfinished"></translation>
+        <translation> </translation>
     </message>
     <message>
         <source>rd</source>
         <comment>ordinal suffix</comment>
-        <translation type="unfinished"></translation>
+        <translation> </translation>
     </message>
     <message>
         <source>%1 %2%3, %4 (%5)</source>
-        <translation type="unfinished"></translation>
+        <translation>%2%3%1 %4 (%5)</translation>
     </message>
     <message>
         <source> (Replay)</source>
-        <translation type="unfinished"></translation>
+        <translation> (Tekrar)</translation>
     </message>
     <message>
         <source>Choose screen recordings to delete</source>
-        <translation type="unfinished"></translation>
+        <translation>Silinecek ekran kayıtlarını seçin</translation>
     </message>
     <message>
         <source>Delete the %1 selected screen recordings?</source>
-        <translation type="unfinished"></translation>
+        <translation>Seçilen %1 ekran kaydı silinsin mi?</translation>
     </message>
     <message>
         <source>Choose backups to delete</source>
-        <translation type="unfinished"></translation>
+        <translation>Silinecek yedekleri seçin</translation>
     </message>
     <message>
         <source>Delete the %1 selected backups?</source>
-        <translation type="unfinished"></translation>
+        <translation>Seçilen %1 yedek silinsin mi?</translation>
     </message>
     <message>
         <source>&lt;b&gt;Save a copy of your current settings, restore a saved copy, or delete ones you no longer need.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Restoring applies most settings right away, but a few, such as "High-Quality Recording" and "Use Konik Server", need a reboot. FrogPilot also saves a copy automatically whenever you change a setting, but it only keeps the newest few and deletes the older ones. Those show up in the list by date and time.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Mevcut ayarlarınızın bir kopyasını kaydedin, kayıtlı bir kopyayı geri yükleyin veya artık gerekmeyenleri silin.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Geri yükleme çoğu ayarı hemen uygular; ancak "Yüksek Kaliteli Kayıt" ve "Konik Sunucusunu Kullan" gibi birkaçı için yeniden başlatma gerekir. FrogPilot ayrıca bir ayarı her değiştirdiğinizde otomatik olarak bir kopya kaydeder, ancak yalnızca en yeni birkaçını tutar ve eskilerini siler. Bu kopyalar listede tarih ve saatleriyle görünür.</translation>
     </message>
     <message>
         <source>Goat Screams</source>
-        <translation type="unfinished"></translation>
+        <translation>Keçi Çığlıkları</translation>
     </message>
     <message>
         <source>Collision Alerts</source>
-        <translation type="unfinished"></translation>
+        <translation>Çarpışma Uyarısı</translation>
     </message>
     <message>
         <source>Disengagements</source>
-        <translation type="unfinished"></translation>
+        <translation>Devreden Çıkma</translation>
     </message>
     <message>
         <source>Engagements</source>
-        <translation type="unfinished"></translation>
+        <translation>Devreye Girme</translation>
     </message>
     <message>
         <source>Frog Chirps</source>
-        <translation type="unfinished"></translation>
+        <translation>Kurbağa Cıvıltısı</translation>
     </message>
     <message>
         <source>Frog Hops</source>
-        <translation type="unfinished"></translation>
+        <translation>Kurbağa Zıplaması</translation>
     </message>
     <message>
         <source>Drives</source>
-        <translation type="unfinished">Sürüşler</translation>
+        <translation>Sürüş</translation>
     </message>
     <message>
         <source>Frog Squeaks</source>
-        <translation type="unfinished"></translation>
+        <translation>Kurbağa Gıcırtısı</translation>
     </message>
     <message>
         <source>Overrides</source>
-        <translation type="unfinished"></translation>
+        <translation>Geçersiz Kılma</translation>
     </message>
     <message>
         <source>Aggressive</source>
-        <translation type="unfinished">Atak</translation>
+        <translation>Atak</translation>
     </message>
     <message>
         <source>Relaxed</source>
-        <translation type="unfinished">Rahat</translation>
+        <translation>Rahat</translation>
     </message>
     <message>
         <source>Standard</source>
-        <translation type="unfinished">Standart</translation>
+        <translation>Standart</translation>
     </message>
     <message>
         <source>Clear</source>
-        <translation type="unfinished"></translation>
+        <translation>Açık</translation>
     </message>
     <message>
         <source>Low Visibility</source>
-        <translation type="unfinished">Düşük Görüş</translation>
+        <translation>Düşük Görüş</translation>
     </message>
     <message>
         <source>Rain</source>
-        <translation type="unfinished">Yağmur</translation>
+        <translation>Yağmur</translation>
     </message>
     <message>
         <source>Rain Storm</source>
-        <translation type="unfinished"></translation>
+        <translation>Şiddetli Yağmur</translation>
     </message>
     <message>
         <source>Snow</source>
-        <translation type="unfinished">Kar</translation>
+        <translation>Kar</translation>
     </message>
     <message>
         <source>% of %1</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 (%)</translation>
     </message>
     <message>
         <source>&lt;b&gt;Delete every recorded drive to free up space and clear personal footage off the device.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Only the one-minute chunk of footage containing the moment you flagged is kept, not the rest of that drive. Drives preserved in "The Pond" are kept whole.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Alan açmak ve kişisel görüntüleri cihazdan temizlemek için kaydedilen tüm sürüşleri silin.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Yalnızca işaretlediğiniz anı içeren bir dakikalık görüntü bölümü saklanır, o sürüşün geri kalanı saklanmaz. "The Pond"da korunan sürüşler ise bütünüyle saklanır.</translation>
     </message>
     <message>
         <source>Delete all driving footage and data? Only the flagged one-minute chunks and the drives preserved in "The Pond" will be kept.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tüm sürüş görüntüleri ve verileri silinsin mi? Yalnızca işaretlenen bir dakikalık bölümler ve "The Pond"da korunan sürüşler saklanır.</translation>
     </message>
     <message>
         <source>An update check is running. Wait for it to finish and try again.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bir güncelleme denetimi çalışıyor. Bitmesini bekleyip tekrar deneyin.</translation>
     </message>
     <message>
         <source>Reboots when the car is off</source>
-        <translation type="unfinished"></translation>
+        <translation>Araç kapanınca yeniden başlatılır</translation>
     </message>
     <message>
         <source>Total Time Tracked</source>
-        <translation type="unfinished"></translation>
+        <translation>Takip Edilen Toplam Süre</translation>
+    </message>
+    <message>
+        <source>FrogPilot.com Account</source>
+        <translation>FrogPilot.com Hesabı</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Link this device to your FrogPilot.com account, or delete the data FrogPilot keeps about it.&lt;/b&gt;&lt;br&gt;&lt;br&gt;A linked device's stats and reports show in your account. Both show a code to scan with your phone.</source>
+        <translation>&lt;b&gt;Bu cihazı FrogPilot.com hesabınıza bağlayın veya FrogPilot'ın bu cihaz hakkında tuttuğu verileri silin.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Bağlı bir cihazın istatistikleri ve raporları hesabınızda görünür. Her iki seçenek de telefonunuzla taramanız için bir kod gösterir.</translation>
+    </message>
+    <message>
+        <source>LINK</source>
+        <translation>BAĞLA</translation>
+    </message>
+    <message>
+        <source>UNLINK</source>
+        <translation>BAĞLANTIYI KALDIR</translation>
+    </message>
+    <message>
+        <source>This shows a code to scan with your phone. On FrogPilot.com you'll see exactly what will be deleted before anything is.</source>
+        <translation>Bu işlem, telefonunuzla taramanız için bir kod gösterir. Herhangi bir şey silinmeden önce FrogPilot.com'da tam olarak nelerin silineceğini göreceksiniz.</translation>
+    </message>
+    <message>
+        <source>Continue</source>
+        <translation>Devam Et</translation>
+    </message>
+    <message>
+        <source>Unlink this device from your FrogPilot.com account?</source>
+        <translation>Bu cihazın FrogPilot.com hesabınızla bağlantısı kaldırılsın mı?</translation>
+    </message>
+    <message>
+        <source>Unlink</source>
+        <translation>Bağlantıyı Kaldır</translation>
+    </message>
+    <message>
+        <source>Unlinking...</source>
+        <translation>Bağlantı kaldırılıyor...</translation>
+    </message>
+    <message>
+        <source>Linked as @%1</source>
+        <translation>@%1 olarak bağlı</translation>
     </message>
 </context>
 <context>
@@ -1689,56 +1764,56 @@ Firehose Modu, openpilot'un sürüş modellerini geliştirmek için eğitim veri
         <translation>&lt;b&gt;Sürüş sırasında ekranı kapatın; uyarılarda veya openpilot devreye girip çıktığında otomatik uyandırın.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Ekrana dokunmak da ekranı uyandırır.</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Let the device run about 6 degrees Celsius hotter than normal before openpilot disengages because of the heat.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Normally openpilot disengages and will not re-engage once the device gets hot, and drops back to the offroad screen if it keeps climbing. This only makes the first happen later: the device still drops back to the offroad screen at the normal temperature. Running the device that hot can shorten its life or damage it, so only use this if you understand the risk.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Capture Recent Footage</source>
-        <translation type="unfinished"></translation>
+        <translation>Son Görüntüleri Kaydet</translation>
     </message>
     <message>
         <source>&lt;b&gt;Save what just happened on your driving screen.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Choose how far back to keep, then tap "CAPTURE" to save a moment you want to review or share. There's no need to remember to start recording beforehand.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Sürüş ekranınızda az önce olanları kaydedin.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Ne kadar geriye gidileceğini seçin, ardından incelemek veya paylaşmak istediğiniz bir anı kaydetmek için "KAYDET"e dokunun. Kaydı önceden başlatmayı hatırlamanıza gerek yoktur.</translation>
     </message>
     <message>
         <source>Off</source>
-        <translation type="unfinished">Kapalı</translation>
+        <translation>Kapalı</translation>
     </message>
     <message>
         <source>30 seconds</source>
-        <translation type="unfinished"></translation>
+        <translation>30 saniye</translation>
     </message>
     <message>
         <source>1 minute</source>
-        <translation type="unfinished"></translation>
+        <translation>1 dakika</translation>
     </message>
     <message>
         <source> minutes</source>
-        <translation type="unfinished"> dakika</translation>
+        <translation> dakika</translation>
     </message>
     <message>
         <source>Start Recording</source>
-        <translation type="unfinished"></translation>
+        <translation>Kaydı Başlat</translation>
     </message>
     <message>
         <source>Stop Recording</source>
-        <translation type="unfinished"></translation>
+        <translation>Kaydı Durdur</translation>
     </message>
     <message>
         <source>&lt;b&gt;Stop the device from recording your drives.&lt;/b&gt;&lt;br&gt;&lt;br&gt;No driving logs or camera footage are saved, so you won't be able to review your drives later or send a useful bug report, and FrogPilot driving logs are no longer shared. Screen recordings, speed limit sign photos, and the device's own system logs are still saved.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Cihazın sürüşlerinizi kaydetmesini durdurun.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Sürüş günlükleri ve kamera görüntüleri kaydedilmez; bu nedenle sürüşlerinizi daha sonra inceleyemez veya işe yarar bir hata raporu gönderemezsiniz, FrogPilot sürüş günlükleri de artık paylaşılmaz. Ekran kayıtları, hız sınırı levhası fotoğrafları ve cihazın kendi sistem günlükleri kaydedilmeye devam eder.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Stop the device from uploading your drives to "comma connect" or Konik and from sharing FrogPilot driving logs, speed limit sign clips, and learned speed limits.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Your drives are still saved on the device. comma uses uploads for debugging and official support, so turning this on limits the help they can give. Files that comma connect or Konik asks the device to upload, usage stats, device registration, crash reports, and weather and Mapbox lookups are not affected. "Disable Onroad Only" pauses uploads while you drive and lets them finish once you park, but only while the device is on Wi-Fi or Ethernet.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Cihazın sürüşlerinizi "comma connect"e veya Konik'e yüklemesini ve FrogPilot sürüş günlüklerini, hız sınırı levhası kliplerini ve öğrenilen hız sınırlarını paylaşmasını durdurun.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Sürüşleriniz cihazda kaydedilmeye devam eder. comma, yüklemeleri hata ayıklama ve resmî destek için kullanır; bu nedenle bunu açmak verebilecekleri yardımı sınırlar. comma connect'in veya Konik'in cihazdan yüklemesini istediği dosyalar, kullanım istatistikleri, cihaz kaydı, çökme raporları ile hava durumu ve Mapbox sorguları bundan etkilenmez. "Yalnızca Sürüşte Devre Dışı Bırak" siz sürerken yüklemeleri duraklatır ve park ettiğinizde tamamlanmalarına izin verir; ancak bu yalnızca cihaz Wi-Fi veya Ethernet'e bağlıyken geçerlidir.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Upload your drives to "stable.konik.ai" instead of "connect.comma.ai".&lt;/b&gt;&lt;br&gt;&lt;br&gt;Device registration and remote access go through Konik too. Registering with Konik sends the device's IMEI and serial number. The device needs to reboot for this to take effect.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Sürüşlerinizi "connect.comma.ai" yerine "stable.konik.ai" adresine yükleyin.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Cihaz kaydı ve uzaktan erişim de Konik üzerinden yapılır. Konik'e kayıt sırasında cihazın IMEI ve seri numarası gönderilir. Değişikliğin uygulanması için cihazın yeniden başlatılması gerekir.</translation>
     </message>
     <message>
         <source>&lt;b&gt;How bright the screen is while you're driving.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"Auto" matches the light around you, and "Screen Off" keeps the display dark until you tap it, an alert shows, or openpilot engages or disengages. A tap or wake-up brightens anything below 5% to 5% until the screen times out.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Sürüş sırasında ekranın ne kadar parlak olacağını belirler.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"Otomatik" ortam ışığına uyum sağlar; "Ekran Kapalı" ise siz dokunana, bir uyarı görünene veya openpilot devreye girene ya da devreden çıkana kadar ekranı karanlık tutar. Dokunma veya uyanma, yüzde 5'in altındaki parlaklığı ekran zaman aşımına uğrayana kadar yüzde 5'e çıkarır.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Let the device run about 6 degrees Celsius hotter than normal before openpilot disengages because of the heat.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Normally openpilot disengages and will not re-engage once the device gets hot, and drops back to the offroad screen if it keeps climbing. This only makes the first happen later. The device still drops back to the offroad screen at the normal temperature. Running the device that hot can shorten its life or damage it, so only use this if you understand the risk.</source>
+        <translation>&lt;b&gt;openpilot ısı nedeniyle devreden çıkmadan önce cihazın normalden yaklaşık 6 santigrat derece daha sıcak çalışmasına izin verin.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Normalde cihaz ısındığında openpilot devreden çıkar ve yeniden devreye girmez; sıcaklık artmaya devam ederse de sürüş dışı ekranına döner. Bu ayar yalnızca ilkinin daha geç gerçekleşmesini sağlar. Cihaz yine normal sıcaklıkta sürüş dışı ekranına döner. Cihazı bu kadar sıcak çalıştırmak ömrünü kısaltabilir veya ona zarar verebilir; bu nedenle yalnızca riski anlıyorsanız kullanın.</translation>
     </message>
 </context>
 <context>
@@ -2027,36 +2102,36 @@ Firehose Modu, openpilot'un sürüş modellerini geliştirmek için eğitim veri
         <translation>Her hız</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Use the LKAS button to arm steering, so openpilot keeps steering even when it is not engaged.&lt;/b&gt;&lt;br&gt;&lt;br&gt;openpilot does not read your car's LKAS status for this. It starts every drive disarmed and each press of the LKAS button flips it, so expect one press after starting the car. With this off, the LKAS button is free to reassign under "LKAS Button", and steering stops as soon as openpilot is no longer engaged, unless openpilot handles the gas and brake, in which case the cruise control button arms it instead.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Reset</source>
-        <translation type="unfinished">Sıfırla</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;openpilot keeps steering for you even when it isn't controlling the gas and brake, so it holds your lane when you press a pedal, cancel, or haven't engaged openpilot at all.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It steers from the moment your car's cruise control is switched on until you switch that back off or shift out of drive, and it pauses while you brake below the speed set in "Pause on Brake Press Below", except at a full stop. On the newer Hyundai, Kia, and Genesis cars, the LKAS button takes the place of cruise control while "Enable With LKAS" is on.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sıfırla</translation>
     </message>
     <message>
         <source>&lt;b&gt;Pause "Always On Lateral" below the set speed while the brake pedal is pressed, except at a full stop.&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Tam duruş hâli dışında, fren pedalına basıldığında ayarlanan hızın altında "Her Zaman Açık Yanal Kontrol"ü duraklatın.&lt;/b&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Switch openpilot's steering over to a neural network for a smoother wheel on cars that support it, and have it steer into turns when you signal below your minimum lane change speed.&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Destekleyen araçlarda direksiyonun daha akıcı olması için openpilot'ın yönlendirmesini bir sinir ağına geçirin ve asgari şerit değiştirme hızınızın altında sinyal verdiğinizde dönüşe yönlendirmesini sağlayın.&lt;/b&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Use the friction, lateral acceleration, and steer ratio you set instead of the values openpilot works out on its own.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Only offered on cars that normally tune themselves.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;openpilot'ın kendi hesapladığı değerler yerine ayarladığınız sürtünme, yanal ivme ve direksiyon oranını kullanın.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Yalnızca normalde kendi kendini ayarlayan araçlarda sunulur.</translation>
     </message>
     <message>
         <source>&lt;b&gt;openpilot steers using a model trained on real driving data from cars like yours, which usually holds the lane more steadily and tracks curves more closely.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It only appears when a trained model matches your car. While it's on, the "Friction" and "Lateral Acceleration" rows disappear, but some car models still use the friction value. Built by Twilsonco.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;openpilot, sizinkine benzer araçların gerçek sürüş verileriyle eğitilmiş bir modelle yönlendirir; bu, genellikle şeridi daha kararlı biçimde korur ve virajları daha yakından izler.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Yalnızca aracınızla eşleşen eğitilmiş bir model olduğunda görünür. Açıkken "Sürtünme" ve "Yanal İvme" satırları kaybolur, ancak bazı araç modelleri sürtünme değerini kullanmaya devam eder. Twilsonco tarafından geliştirilmiştir.</translation>
     </message>
     <message>
         <source>&lt;b&gt;openpilot looks ahead at how sharply the road is about to bend and starts adjusting its steering early, which smooths how it enters and leaves curves.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Use this when the full "Neural Network Feedforward (NNFF)" setting isn't offered for your car. It borrows the look-ahead without the trained model, so the improvement is smaller. On cars that normally use openpilot's PID steering, this also switches them to the torque controller.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;openpilot yolun ileride ne kadar keskin kıvrılacağına bakar ve yönlendirmesini erkenden ayarlamaya başlar; bu, virajlara giriş ve çıkışlarını daha akıcı hâle getirir.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Aracınız için tam "Sinir Ağı İleri Besleme (NNFF)" ayarı sunulmuyorsa bunu kullanın. Eğitilmiş model olmadan yalnızca ileriye bakma özelliğini aldığından iyileşme daha azdır. Normalde openpilot'ın PID yönlendirmesini kullanan araçlarda bu ayar ayrıca tork denetleyicisine geçiş yapar.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;openpilot keeps steering for you even when it isn't controlling the gas and brake, so it holds your lane when you press a pedal, cancel, or haven't engaged openpilot at all.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It steers from the moment your car's cruise control is switched on until you switch that back off or shift out of drive, and it pauses while you brake below the speed set in "Pause on Brake Press Below", except at a full stop. If cruise control is already on when you start the car, it waits until you engage openpilot, switch cruise control off and on, or press your car's LKAS button if it has one (not on Mazda, Nissan, or Subaru). That press only starts steering and doesn't run anything assigned to the button. On Hyundai, Kia, and Genesis cars with CAN FD where your car handles the gas and brake, or with "Enable With LKAS" on, engaging openpilot or pressing the LKAS button takes the place of cruise control.</source>
+        <translation>&lt;b&gt;openpilot gaz ve freni kontrol etmediğinde bile sizin için yönlendirmeye devam eder; böylece bir pedala bastığınızda, iptal ettiğinizde veya openpilot'ı hiç devreye almadığınızda şeridinizi korur.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Aracın hız sabitleyicisi açıldığı andan siz kapatana veya sürüş vitesinden çıkana kadar yönlendirir. Tam duruş hâli dışında, "Şu Hızın Altında Frene Basınca Duraklat" ayarındaki hızın altında frene bastığınızda duraklar. Aracı çalıştırdığınızda hız sabitleyici zaten açıksa, openpilot'ı devreye almanızı, hız sabitleyiciyi kapatıp açmanızı veya varsa aracınızın LKAS düğmesine basmanızı (Mazda, Nissan ve Subaru hariç) bekler. Bu basış yalnızca yönlendirmeyi başlatır ve düğmeye atanan işlevi çalıştırmaz. CAN FD kullanan Hyundai, Kia ve Genesis araçlarda, gaz ve freni aracınız yönetiyorsa veya "LKAS ile Etkinleştir" açıksa, hız sabitleyicinin yerini openpilot'ı devreye almak veya LKAS düğmesine basmak alır.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Use the LKAS button instead of cruise control to arm steering, so openpilot keeps steering even when it is not engaged.&lt;/b&gt;&lt;br&gt;&lt;br&gt;openpilot does not read your car's LKAS status for this. It starts every drive disarmed, engaging openpilot arms it, and each press of the LKAS button while openpilot isn't engaged flips it. Switching cruise control off doesn't stop it. With this off, cruise control arms steering and the LKAS button is free to reassign under "LKAS Button".</source>
+        <translation>&lt;b&gt;Direksiyon kontrolünü hazırlamak için hız sabitleyici yerine LKAS düğmesini kullanın; böylece openpilot devrede değilken bile yönlendirmeye devam eder.&lt;/b&gt;&lt;br&gt;&lt;br&gt;openpilot bunun için aracınızın LKAS durumunu okumaz. Her sürüşe hazırlanmamış olarak başlar; openpilot'ı devreye almak yönlendirmeyi hazırlar ve openpilot devrede değilken LKAS düğmesine her basış durumu değiştirir. Hız sabitleyiciyi kapatmak bunu durdurmaz. Bu kapalıyken yönlendirmeyi hız sabitleyici hazırlar ve LKAS düğmesi "LKAS Düğmesi" altında başka bir işleve atanabilir.</translation>
     </message>
 </context>
 <context>
@@ -2643,11 +2718,11 @@ Firehose Modu, openpilot'un sürüş modellerini geliştirmek için eğitim veri
     </message>
     <message>
         <source>&lt;b&gt;How hard openpilot pulls away in the first moment after a stop.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for quicker takeoffs. Lower it for gentler ones. Only some cars use a fixed launch push like this, so on most cars this row does nothing.</source>
-        <translation>&lt;b&gt;openpilot'ın duruştan sonraki ilk anda ne kadar güçlü kalktığını belirler.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Daha hızlı kalkışlar için artırın, daha yumuşak kalkışlar için azaltın. Bu tür sabit bir kalkış itişini yalnızca bazı araçlar kullandığından çoğu araçta bu ayarın etkisi yoktur.</translation>
+        <translation type="vanished">&lt;b&gt;openpilot'ın duruştan sonraki ilk anda ne kadar güçlü kalktığını belirler.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Daha hızlı kalkışlar için artırın, daha yumuşak kalkışlar için azaltın. Bu tür sabit bir kalkış itişini yalnızca bazı araçlar kullandığından çoğu araçta bu ayarın etkisi yoktur.</translation>
     </message>
     <message>
         <source>&lt;b&gt;The speed that marks the end of pulling away from a stop, which sets how long openpilot holds its takeoff acceleration.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it to keep that takeoff push going up to a higher speed. Lower it to hand back to normal gas and brake control almost as soon as the wheels turn, which makes the start softer. Only some cars have a separate takeoff stage at all, so on most cars this row does nothing.</source>
-        <translation>&lt;b&gt;Duruştan kalkış aşamasının bittiği hızı ve dolayısıyla openpilot'ın kalkış ivmesini ne kadar süre koruyacağını belirler.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Kalkış itişini daha yüksek bir hıza kadar sürdürmek için artırın. Tekerlekler dönmeye başlar başlamaz normal gaz ve fren kontrolüne dönerek daha yumuşak kalkmak için azaltın. Yalnızca bazı araçlarda ayrı bir kalkış aşaması bulunduğundan çoğu araçta bu ayarın etkisi yoktur.</translation>
+        <translation type="vanished">&lt;b&gt;Duruştan kalkış aşamasının bittiği hızı ve dolayısıyla openpilot'ın kalkış ivmesini ne kadar süre koruyacağını belirler.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Kalkış itişini daha yüksek bir hıza kadar sürdürmek için artırın. Tekerlekler dönmeye başlar başlamaz normal gaz ve fren kontrolüne dönerek daha yumuşak kalkmak için azaltın. Yalnızca bazı araçlarda ayrı bir kalkış aşaması bulunduğundan çoğu araçta bu ayarın etkisi yoktur.</translation>
     </message>
     <message>
         <source>&lt;b&gt;How hard openpilot holds the brakes as your car finishes stopping and while it sits still.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The number is negative because it is braking, so -2.00 holds harder than -0.50. Go more negative if your car creeps or rolls back on a hill, and closer to zero if the last moment of the stop feels too abrupt.</source>
@@ -2915,211 +2990,219 @@ Firehose Modu, openpilot'un sürüş modellerini geliştirmek için eğitim veri
     </message>
     <message>
         <source>Acceleration and Braking</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;openpilot follows the car ahead more naturally, reading where that car is headed so it eases off and starts braking earlier and softer instead of reacting late.&lt;/b&gt;&lt;br&gt;&lt;br&gt;On the default driving model this only works while openpilot can clearly see the car ahead.</source>
-        <translation type="unfinished"></translation>
+        <translation>Hızlanma ve Frenleme</translation>
     </message>
     <message>
         <source>&lt;b&gt;Switch to "Experimental Mode" when you need to brake for the car ahead.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"Slower Lead" covers a car that is slowing down or much slower than you, and "Stopped Lead" covers a car that is stopped or about to stop. Gently catching up to a slightly slower car stays in normal driving. Both start off, so pick at least one with the buttons on this row or nothing happens.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Öndeki araç için frenlemek gerektiğinde "Deneysel Mod"a geçin.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"Daha Yavaş Öndeki Araç" yavaşlayan veya sizden çok daha yavaş giden bir aracı, "Duran Öndeki Araç" ise durmuş veya durmak üzere olan bir aracı kapsar. Biraz daha yavaş bir araca yumuşakça yaklaşırken normal sürüşte kalınır. İkisi de başlangıçta kapalıdır; bu nedenle bu satırdaki düğmelerle en az birini seçin, aksi hâlde hiçbir şey olmaz.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Switch to "Experimental Mode" when you signal below the set speed. Turn on "Not For Detected Lanes" to suppress this when an adjacent lane is detected as you start signaling.&lt;/b&gt;&lt;br&gt;&lt;br&gt;With the button off, any signal below the set speed can trigger it. With it on, the space beside you must be narrower than the "Minimum Lane Width" under "Lane Changes" in the "STEERING" panel when you start signaling, or you must be below the "Minimum Lane Change Speed". That width starts at zero, so raise it to use lane detection. Lane estimates can miss an adjacent lane.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Ayarlanan hızın altında sinyal verdiğinizde "Deneysel Mod"a geçin. Sinyal vermeye başladığınızda bitişik bir şerit algılanırsa bunu engellemek için "Algılanan Şeritlerde Kullanma"yı açın.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Düğme kapalıyken ayarlanan hızın altındaki her sinyal bunu tetikleyebilir. Düğme açıkken, sinyal vermeye başladığınızda yanınızdaki alanın "DİREKSİYON" panelindeki "Şerit Değiştirmeler" altında bulunan "Asgari Şerit Genişliği"nden dar olması veya "Asgari Şerit Değiştirme Hızı"nın altında olmanız gerekir. Bu genişlik sıfırdan başlar; şerit algılamayı kullanmak için artırın. Şerit tahminleri bitişik bir şeridi kaçırabilir.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Use your own "OpenWeatherMap" key for weather requests every minute.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Requires a One Call API 4.0 subscription. Without a working personal key, FrogPilot tries shared weather with a 15-minute request interval. Your saved key is kept.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Dakikada bir hava durumu isteği için kendi "OpenWeatherMap" anahtarınızı kullanın.&lt;/b&gt;&lt;br&gt;&lt;br&gt;One Call API 4.0 aboneliği gerekir. Çalışan bir kişisel anahtar olmadığında FrogPilot, 15 dakikalık istek aralığıyla ortak hava durumu hizmetini kullanmayı dener. Kayıtlı anahtarınız korunur.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Hold openpilot's max speed to the posted speed limit.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The limit comes from your downloaded maps, Mapbox, speed limit signs read by the road camera, or, on supported Ford, Genesis, Hyundai, Kia, Lexus, and Toyota models, your dashboard.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;openpilot'ın azami hızını belirtilen hız sınırıyla kısıtlayın.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Sınır; indirdiğiniz haritalardan, Mapbox'tan, yol kamerasının okuduğu hız sınırı levhalarından veya desteklenen Ford, Genesis, Hyundai, Kia, Lexus ve Toyota modellerinde gösterge panelinizden alınır.</translation>
     </message>
     <message>
         <source>Speed Limit Changes</source>
-        <translation type="unfinished"></translation>
+        <translation>Hız Sınırı Ayarlamaları</translation>
     </message>
     <message>
         <source>&lt;b&gt;Choose which sources openpilot checks for the speed limit and in what order, or have it always use the highest or lowest limit being reported.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Pick up to three sources and openpilot uses the first one that currently has a limit. "Camera" is openpilot reading speed limit signs with the road camera. "Highest" and "Lowest" ignore the order and take the fastest or slowest limit any source reports, so one wrong map entry can hold you well below the posted limit.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;openpilot'ın hız sınırı için hangi kaynaklara hangi sırayla bakacağını seçin veya her zaman bildirilen en yüksek ya da en düşük sınırı kullanmasını sağlayın.&lt;/b&gt;&lt;br&gt;&lt;br&gt;En fazla üç kaynak seçin; openpilot o anda sınır bilgisi olan ilk kaynağı kullanır. "Kamera", openpilot'ın yol kamerasıyla hız sınırı levhalarını okumasıdır. "En Yüksek" ve "En Düşük" sırayı yok sayar ve herhangi bir kaynağın bildirdiği en yüksek ya da en düşük sınırı alır; bu nedenle tek bir hatalı harita kaydı sizi belirtilen sınırın epey altında tutabilir.</translation>
     </message>
     <message>
         <source>&lt;b&gt;How far above or below the posted limit openpilot drives on roads posted between 0 and 24 mph.&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Hız sınırı 0 ile 24 mil/sa arasında olan yollarda openpilot'ın belirtilen sınırın ne kadar üzerinde veya altında süreceğini belirler.&lt;/b&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;How far above or below the posted limit openpilot drives on roads posted between 25 and 34 mph.&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Hız sınırı 25 ile 34 mil/sa arasında olan yollarda openpilot'ın belirtilen sınırın ne kadar üzerinde veya altında süreceğini belirler.&lt;/b&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;How far above or below the posted limit openpilot drives on roads posted between 35 and 44 mph.&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Hız sınırı 35 ile 44 mil/sa arasında olan yollarda openpilot'ın belirtilen sınırın ne kadar üzerinde veya altında süreceğini belirler.&lt;/b&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;How far above or below the posted limit openpilot drives on roads posted between 45 and 54 mph.&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Hız sınırı 45 ile 54 mil/sa arasında olan yollarda openpilot'ın belirtilen sınırın ne kadar üzerinde veya altında süreceğini belirler.&lt;/b&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;How far above or below the posted limit openpilot drives on roads posted between 55 and 64 mph.&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Hız sınırı 55 ile 64 mil/sa arasında olan yollarda openpilot'ın belirtilen sınırın ne kadar üzerinde veya altında süreceğini belirler.&lt;/b&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;How far above or below the posted limit openpilot drives on roads posted between 65 and 74 mph.&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Hız sınırı 65 ile 74 mil/sa arasında olan yollarda openpilot'ın belirtilen sınırın ne kadar üzerinde veya altında süreceğini belirler.&lt;/b&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;How far above or below the posted limit openpilot drives on roads posted between 75 and 99 mph.&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Hız sınırı 75 ile 99 mil/sa arasında olan yollarda openpilot'ın belirtilen sınırın ne kadar üzerinde veya altında süreceğini belirler.&lt;/b&gt;</translation>
     </message>
     <message>
         <source>Camera</source>
-        <translation type="unfinished"></translation>
+        <translation>Kamera</translation>
     </message>
     <message>
         <source>Select your tertiary priority</source>
-        <translation type="unfinished"></translation>
+        <translation>Üçüncül önceliğinizi seçin</translation>
     </message>
     <message>
         <source>Key is valid for OpenWeatherMap One Call API 4.0!</source>
-        <translation type="unfinished"></translation>
+        <translation>Anahtar OpenWeatherMap One Call API 4.0 için geçerli!</translation>
     </message>
     <message>
         <source>OpenWeatherMap returned incomplete weather data. Try again later.</source>
-        <translation type="unfinished"></translation>
+        <translation>OpenWeatherMap eksik hava durumu verisi döndürdü. Daha sonra tekrar deneyin.</translation>
     </message>
     <message>
         <source>OpenWeatherMap did not accept this key for One Call API 4.0. Check the key and make sure it has a One Call API 4.0 subscription. Until then, FrogPilot uses shared weather, updated every 15 minutes.</source>
-        <translation type="unfinished"></translation>
+        <translation>OpenWeatherMap bu anahtarı One Call API 4.0 için kabul etmedi. Anahtarı kontrol edin ve One Call API 4.0 aboneliği olduğundan emin olun. O zamana kadar FrogPilot, 15 dakikada bir güncellenen ortak hava durumu hizmetini kullanır.</translation>
     </message>
     <message>
         <source>OpenWeatherMap's request limit was reached. Try again later.</source>
-        <translation type="unfinished"></translation>
+        <translation>OpenWeatherMap istek sınırına ulaşıldı. Daha sonra tekrar deneyin.</translation>
     </message>
     <message>
         <source>OpenWeatherMap request failed (HTTP %1).</source>
-        <translation type="unfinished"></translation>
+        <translation>OpenWeatherMap isteği başarısız oldu (HTTP %1).</translation>
     </message>
     <message>
         <source>Could not reach OpenWeatherMap. Check your connection and try again.</source>
-        <translation type="unfinished"></translation>
+        <translation>OpenWeatherMap'e ulaşılamadı. Bağlantınızı kontrol edip tekrar deneyin.</translation>
     </message>
     <message>
         <source>&lt;b&gt;How far above or below the posted limit openpilot drives on roads posted between 0 and 29 km/h.&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Hız sınırı 0 ile 29 km/sa arasında olan yollarda openpilot'ın belirtilen sınırın ne kadar üzerinde veya altında süreceğini belirler.&lt;/b&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;How far above or below the posted limit openpilot drives on roads posted between 30 and 49 km/h.&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Hız sınırı 30 ile 49 km/sa arasında olan yollarda openpilot'ın belirtilen sınırın ne kadar üzerinde veya altında süreceğini belirler.&lt;/b&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;How far above or below the posted limit openpilot drives on roads posted between 50 and 59 km/h.&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Hız sınırı 50 ile 59 km/sa arasında olan yollarda openpilot'ın belirtilen sınırın ne kadar üzerinde veya altında süreceğini belirler.&lt;/b&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;How far above or below the posted limit openpilot drives on roads posted between 60 and 79 km/h.&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Hız sınırı 60 ile 79 km/sa arasında olan yollarda openpilot'ın belirtilen sınırın ne kadar üzerinde veya altında süreceğini belirler.&lt;/b&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;How far above or below the posted limit openpilot drives on roads posted between 80 and 99 km/h.&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Hız sınırı 80 ile 99 km/sa arasında olan yollarda openpilot'ın belirtilen sınırın ne kadar üzerinde veya altında süreceğini belirler.&lt;/b&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;How far above or below the posted limit openpilot drives on roads posted between 100 and 119 km/h.&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Hız sınırı 100 ile 119 km/sa arasında olan yollarda openpilot'ın belirtilen sınırın ne kadar üzerinde veya altında süreceğini belirler.&lt;/b&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;How far above or below the posted limit openpilot drives on roads posted between 120 and 140 km/h.&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Hız sınırı 120 ile 140 km/sa arasında olan yollarda openpilot'ın belirtilen sınırın ne kadar üzerinde veya altında süreceğini belirler.&lt;/b&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;openpilot watches the cars in the lane it is moving into and adjusts its speed for them during a lane change.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Without this it only reacts to the car directly ahead until the move is finished. It only takes over while openpilot is already tracking a car ahead, so with a clear lane in front of you nothing changes.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;openpilot şerit değiştirirken geçmekte olduğu şeritteki araçları izler ve hızını onlara göre ayarlar.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Bu özellik olmadan manevra tamamlanana kadar yalnızca doğrudan önündeki araca tepki verir. Yalnızca openpilot önde bir aracı zaten izliyorsa devreye girer; bu nedenle önünüzdeki şerit boşken hiçbir şey değişmez.</translation>
     </message>
     <message>
         <source>&lt;b&gt;When the speed openpilot plans to be doing over the next second drops below this, it treats your car as stopped and switches to holding the brakes.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it to settle into the stop earlier and more smoothly. Lower it to keep normal braking going longer, at the risk of rolling past your mark.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;openpilot'ın sonraki bir saniye içinde planladığı hız bu değerin altına düştüğünde aracınızı durmuş kabul eder ve freni tutmaya geçer.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Duruşa daha erken ve daha yumuşak geçmek için artırın. Normal frenlemeyi daha uzun sürdürmek için azaltın; ancak bu, durmanız gereken noktayı geçme riski taşır.</translation>
     </message>
     <message>
         <source>&lt;b&gt;How much your set speed moves with each tap of the + or - cruise button.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Set it to 1 to land on any speed exactly, or higher to get where you are going in fewer taps. When this is 5 or another multiple of 5, a tap from a set speed in between only goes as far as the next multiple of it, so with 5 a set speed of 63 becomes 65 or 60.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Hız sabitleyicinin + veya - düğmesine her kısa basışta ayarlanan hızın ne kadar değiştiğini belirler.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Her hızı tam olarak seçebilmek için 1'e, daha az basışla hedefe ulaşmak için daha yüksek bir değere ayarlayın. Bu değer 5 veya 5'in başka bir katı olduğunda, arada kalan bir ayarlanan hızdan yapılan kısa basış yalnızca bu değerin bir sonraki katına kadar gider; dolayısıyla değer 5 iken 63 olan ayarlanan hız 65 veya 60 olur.</translation>
     </message>
     <message>
         <source>&lt;b&gt;How much your set speed moves while you hold the + or - cruise button down.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The default is 5, against 1 for a single tap. When this is 5 or another multiple of 5, the first step from a set speed in between only goes as far as the next multiple of it, so with 5 a set speed of 63 becomes 65 or 60.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Hız sabitleyicinin + veya - düğmesini basılı tuttuğunuzda ayarlanan hızın ne kadar değiştiğini belirler.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Varsayılan değer 5'tir; tek kısa basış için bu değer 1'dir. Bu değer 5 veya 5'in başka bir katı olduğunda, arada kalan bir ayarlanan hızdan ilk adım yalnızca bu değerin bir sonraki katına kadar gider; dolayısıyla değer 5 iken 63 olan ayarlanan hız 65 veya 60 olur.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Adds an extra amount on top of the "Cruise Interval (Hold)" step, but only when you press and hold the + cruise button.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The - button does not mirror it. Holding - takes the normal hold step down and then moves down by one more "Cruise Interval (Hold)" amount minus this offset, so with a hold interval of 5 and 5 chosen here you just get the normal hold step down, as you also do with any offset above the hold interval. A quick tap is never affected, and 0 turns this off.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Yalnızca + hız sabitleyici düğmesini basılı tuttuğunuzda "Hız Sabitleyici Adımı (Basılı Tutma)" adımının üzerine ek bir miktar ekler.&lt;/b&gt;&lt;br&gt;&lt;br&gt;- düğmesi bunu yansıtmaz. - düğmesini basılı tutmak hızı önce normal basılı tutma adımı kadar düşürür, ardından bir "Hız Sabitleyici Adımı (Basılı Tutma)" miktarından bu ek değerin çıkarılmasıyla kalan kadar daha düşürür; bu nedenle basılı tutma adımı 5 iken burada 5 seçerseniz yalnızca normal basılı tutma adımı kadar düşer; basılı tutma adımından büyük herhangi bir ek değerde de aynısı olur. Kısa basış hiçbir zaman etkilenmez ve 0 bunu kapatır.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Adds extra room between you and the car ahead in low visibility, at every speed and not just when stopped.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This stacks on top of the same setting under "Quality of Life". "Traffic Mode" ignores both.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Düşük görüşte, yalnızca dururken değil her hızda, sizinle öndeki araç arasına ek mesafe koyar.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Bu, "Kullanım Kolaylığı" altındaki aynı ayarın üzerine eklenir. "Trafik Modu" ikisini de yok sayar.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Holds openpilot back from accelerating as hard in low visibility.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This does not apply while "Experimental Mode" is running.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Düşük görüşte openpilot'ın güçlü hızlanmasını sınırlar.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"Deneysel Mod" çalışırken bu uygulanmaz.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Adds extra room between you and the car ahead in rain, at every speed and not just when stopped.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This stacks on top of the same setting under "Quality of Life". "Traffic Mode" ignores both.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Yağmurda, yalnızca dururken değil her hızda, sizinle öndeki araç arasına ek mesafe koyar.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Bu, "Kullanım Kolaylığı" altındaki aynı ayarın üzerine eklenir. "Trafik Modu" ikisini de yok sayar.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Holds openpilot back from accelerating as hard in rain.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for softer, more controlled pickup on a slippery road. This does not apply while "Experimental Mode" is running.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Yağmurda openpilot'ın güçlü hızlanmasını sınırlar.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Kaygan yolda daha yumuşak ve kontrollü hızlanma için artırın. "Deneysel Mod" çalışırken bu uygulanmaz.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Adds extra room between you and the car ahead in a rainstorm, at every speed and not just when stopped.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This stacks on top of the same setting under "Quality of Life". "Traffic Mode" ignores both.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Şiddetli yağmurda, yalnızca dururken değil her hızda, sizinle öndeki araç arasına ek mesafe koyar.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Bu, "Kullanım Kolaylığı" altındaki aynı ayarın üzerine eklenir. "Trafik Modu" ikisini de yok sayar.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Holds openpilot back from accelerating as hard in a rainstorm.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for softer, more controlled pickup on a slippery road. This does not apply while "Experimental Mode" is running.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Şiddetli yağmurda openpilot'ın güçlü hızlanmasını sınırlar.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Kaygan yolda daha yumuşak ve kontrollü hızlanma için artırın. "Deneysel Mod" çalışırken bu uygulanmaz.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Adds extra room between you and the car ahead in snow, at every speed and not just when stopped.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This stacks on top of the same setting under "Quality of Life". "Traffic Mode" ignores both.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Karda, yalnızca dururken değil her hızda, sizinle öndeki araç arasına ek mesafe koyar.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Bu, "Kullanım Kolaylığı" altındaki aynı ayarın üzerine eklenir. "Trafik Modu" ikisini de yok sayar.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Holds openpilot back from accelerating as hard in snow.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for softer, more controlled pickup on a slippery road. This does not apply while "Experimental Mode" is running.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Karda openpilot'ın güçlü hızlanmasını sınırlar.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Kaygan yolda daha yumuşak ve kontrollü hızlanma için artırın. "Deneysel Mod" çalışırken bu uygulanmaz.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Switch to "Experimental Mode" below this speed when openpilot is tracking a car ahead of you.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This replaces the "Below" value whenever there is a car ahead. It switches on once you are moving at walking pace or faster, and can then stay on as you crawl or stop behind that car.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;openpilot önünüzdeki bir aracı izlerken bu hızın altında "Deneysel Mod"a geçin.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Önde araç olduğunda bu değer "Şu Hızın Altında" değerinin yerini alır. Yürüme hızında veya daha hızlı ilerlerken açılır; sonrasında o aracın arkasında çok yavaş ilerlerken veya dururken açık kalabilir.</translation>
     </message>
     <message>
         <source>"Taco Bell Run" Turn Speed Hack</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;openpilot slows down more for left and right turns, using the trick comma built for their 2022 "Taco Bell Run" drive.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It does nothing while "Curve Speed Controller" is on. Otherwise it never switches off, so it is still working on fast highway curves. What stops at about 45 mph is the ramp: openpilot allows more cornering force the faster you go, up to that speed, then holds it flat. That makes the slowdown most noticeable in slow, tight turns.</source>
-        <translation type="unfinished"></translation>
+        <translation>"Taco Bell Run" Dönüş Hızı Hilesi</translation>
     </message>
     <message>
         <source>&lt;b&gt;How fast openpilot takes curves.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"Gentle" and "Standard" hold to a fixed, relaxed pace, "Sport" uses your car's maximum configured or learned cornering limit, and "Adaptive" learns how you prefer to take curves.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;openpilot'ın virajları ne kadar hızlı aldığı.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"Yumuşak" ve "Standart" sabit ve sakin bir tempoyu korur; "Spor", aracınız için yapılandırılmış veya öğrenilmiş azami viraj sınırını kullanır; "Uyarlanabilir" ise virajları nasıl almayı tercih ettiğinizi öğrenir.</translation>
     </message>
     <message>
         <source>&lt;b&gt;How gently openpilot slows down when the road ahead is clear.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"Standard" is openpilot's normal braking, "Eco" brakes about half as hard so you coast more, and "Eco+" just lets off the gas and coasts, so it slows quicker uphill and barely slows on a steep downhill until the road levels out. Whenever there is a car ahead, or while "Experimental Mode" is running, openpilot goes back to full-strength braking so it can still stop in time.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Önünüzdeki yol açıkken openpilot'ın ne kadar yumuşak yavaşlayacağını belirler.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"Standart" openpilot'ın normal frenlemesidir; "Eko" yaklaşık yarı güçte frenler, böylece daha çok süzülürsünüz; "Eko+" ise yalnızca gazı bırakıp süzülür, bu yüzden yokuş yukarı daha çabuk yavaşlar, dik yokuş aşağıda ise yol düzleşene kadar neredeyse hiç yavaşlamaz. Önde araç olduğunda veya "Deneysel Mod" çalışırken openpilot, zamanında durabilmek için tam güçte frenlemeye geri döner.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Switch to "Experimental Mode" when openpilot plans to slow down a lot or stop soon, except while following a detected lead.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It keeps checking for a possible stop behind that lead and can trigger once the lead is no longer tracked. "Traffic Mode" turns this condition off.&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Disclaimer&lt;/b&gt;: openpilot does not explicitly detect traffic lights or stop signs. In "Experimental Mode", openpilot makes end-to-end driving decisions from camera input, which means it may stop even when there's no clear reason!&lt;/i&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;openpilot çok yavaşlamayı veya yakında durmayı planladığında "Deneysel Mod"a geçin; algılanan bir öndeki aracı takip ederken bu geçerli değildir.&lt;/b&gt;&lt;br&gt;&lt;br&gt;O aracın arkasında olası bir duruşu denetlemeye devam eder ve araç artık izlenmediğinde tetiklenebilir. "Trafik Modu" bu koşulu kapatır.&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Sorumluluk reddi&lt;/b&gt;: openpilot trafik ışıklarını veya dur levhalarını açıkça algılamaz. "Deneysel Mod"da openpilot, kamera girdisinden uçtan uca sürüş kararları verir; bu da belirgin bir neden olmadığında bile durabileceği anlamına gelir!&lt;/i&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;openpilot comes to a full stop whenever it thinks it sees a red light or stop sign, whether or not "Experimental Mode" is running.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It only kicks in when openpilot is not already tracking a car ahead, so behind a queue at a light your normal following does the stopping instead. Touching the gas or pressing RES/+ cancels a forced stop. "Traffic Mode" turns this off.&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Heads up&lt;/b&gt;: openpilot never actually reads traffic lights or stop signs. It decides from what the camera sees, so it can stop when there is no reason to.&lt;/i&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Lets your car's "Eco" and "Sport" gear modes take over how openpilot speeds up, how it slows down, or both.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Pick "Acceleration", "Deceleration" or both with the buttons on this row, since neither starts on and nothing changes until you do.&lt;br&gt;&lt;br&gt;"Eco" gear makes openpilot accelerate gently and "Sport" gear makes it accelerate firmly. For braking, "Eco" gear halves how hard openpilot can brake and "Sport" gear uses openpilot's normal braking. The braking change only applies when there is no car ahead.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;"Deneysel Mod" çalışsın ya da çalışmasın, openpilot kırmızı ışık veya dur levhası gördüğünü düşündüğünde tamamen durur.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Yalnızca openpilot önde bir aracı zaten izlemiyorken etkinleşir; bu yüzden ışıktaki bir kuyruğun arkasında duruşu bunun yerine normal takip sağlar. Gaza dokunmak veya RES/+ düğmesine basmak zorunlu duruşu iptal eder. "Trafik Modu" bunu kapatır.&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Dikkat&lt;/b&gt;: openpilot trafik ışıklarını veya dur levhalarını gerçekte hiçbir zaman okumaz. Kameranın gördüklerine göre karar verir; bu nedenle durmak için bir neden yokken durabilir.&lt;/i&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Fall back to Mapbox for the speed limit when none of your chosen sources have one.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Needs your Public Mapbox Key and a working internet connection. It sends your location to Mapbox to look up the limit.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Seçtiğiniz kaynakların hiçbirinde hız sınırı yoksa yedek olarak Mapbox'ı kullanın.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Genel Mapbox Anahtarınız ve çalışan bir internet bağlantısı gerekir. Sınırı sorgulamak için konumunuzu Mapbox'a gönderir.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;openpilot follows the car ahead more naturally.&lt;/b&gt;&lt;br&gt;&lt;br&gt;With newer driving models like the default one, it reads where that car is headed so it eases off and starts braking earlier and softer instead of reacting late, as long as it can clearly see that car. On older driving models it needs radar, closing gaps behind faster cars for quicker takeoffs and braking more gently behind slower ones.</source>
+        <translation>&lt;b&gt;openpilot öndeki aracı daha doğal biçimde takip eder.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Varsayılan model gibi yeni sürüş modellerinde, o aracı net biçimde görebildiği sürece aracın nereye gittiğini okur; böylece geç tepki vermek yerine gazı erkenden keser ve daha erken ve yumuşak frenlemeye başlar. Eski sürüş modellerinde radar gerekir; daha hızlı kalkışlar için daha hızlı araçların arkasındaki aralıkları kapatır, daha yavaş araçların arkasında ise daha yumuşak frenler.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;openpilot slows down more for left and right turns, using the trick comma built for their 2022 "Taco Bell Run" drive.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It does nothing while "Curve Speed Controller" is on. Otherwise it never switches off, so it is still working on fast highway curves. What stops at about 45 mph is the ramp. openpilot allows more cornering force the faster you go, up to that speed, then holds it flat. That makes the slowdown most noticeable in slow, tight turns.</source>
+        <translation>&lt;b&gt;openpilot, comma'nın 2022'deki "Taco Bell Run" sürüşü için geliştirdiği yöntemi kullanarak sola ve sağa dönüşlerde daha fazla yavaşlar.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"Viraj Hızı Denetleyicisi" açıkken hiçbir etkisi olmaz. Aksi hâlde hiç kapanmaz; dolayısıyla hızlı otoyol virajlarında da çalışmaya devam eder. Yaklaşık 45 mil/sa hızda sona eren şey artış eğrisidir. openpilot bu hıza kadar hızlandıkça daha fazla viraj kuvvetine izin verir, ardından bu değeri sabit tutar. Bu nedenle yavaşlama en çok yavaş ve keskin dönüşlerde fark edilir.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;How hard openpilot pulls away in the first moment after a stop.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for quicker takeoffs. Lower it for gentler ones.</source>
+        <translation>&lt;b&gt;openpilot'ın duruştan sonraki ilk anda ne kadar güçlü kalktığını belirler.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Daha hızlı kalkışlar için artırın, daha yumuşak kalkışlar için azaltın.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;The speed that marks the end of pulling away from a stop, which sets how long openpilot holds its takeoff acceleration.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it to keep that takeoff push going up to a higher speed. Lower it to hand back to normal gas and brake control almost as soon as the wheels turn, which makes the start softer.</source>
+        <translation>&lt;b&gt;Duruştan kalkış aşamasının bittiği hızı ve dolayısıyla openpilot'ın kalkış ivmesini ne kadar süre koruyacağını belirler.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Kalkış itişini daha yüksek bir hıza kadar sürdürmek için artırın. Tekerlekler dönmeye başlar başlamaz normal gaz ve fren kontrolüne dönerek daha yumuşak kalkmak için azaltın.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Lets your car's "Eco" and "Sport" gear modes take over how openpilot speeds up, how it slows down, or both.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Pick "Acceleration", "Deceleration", or both with the buttons on this row, since neither starts on and nothing changes until you do.&lt;br&gt;&lt;br&gt;"Eco" gear makes openpilot accelerate gently and "Sport" gear makes it accelerate firmly. For braking, "Eco" gear halves how hard openpilot can brake and "Sport" gear uses openpilot's normal braking. The braking change only applies when there is no car ahead.</source>
+        <translation>&lt;b&gt;Aracınızın "Eko" ve "Spor" vites modlarının openpilot'ın nasıl hızlandığını, nasıl yavaşladığını veya her ikisini birden belirlemesini sağlar.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Bu satırdaki düğmelerle "Hızlanma", "Yavaşlama" veya ikisini birden seçin; ikisi de başlangıçta kapalıdır ve siz seçene kadar hiçbir şey değişmez.&lt;br&gt;&lt;br&gt;"Eko" vites openpilot'ın yumuşak, "Spor" vites ise güçlü hızlanmasını sağlar. Frenlemede "Eko" vites openpilot'ın uygulayabileceği frenleme gücünü yarıya indirir, "Spor" vites ise openpilot'ın normal frenlemesini kullanır. Frenleme değişikliği yalnızca önde araç yokken uygulanır.</translation>
     </message>
 </context>
 <context>
@@ -3281,23 +3364,23 @@ Firehose Modu, openpilot'un sürüş modellerini geliştirmek için eğitim veri
     </message>
     <message>
         <source>&lt;b&gt;Pick the countries or U.S. states you drive in, so openpilot knows their speed limits.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Map data within about 60 miles (100 km) of where you park downloads on its own, so pick only what covers the rest of your driving.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;openpilot'ın hız sınırlarını bilmesi için araç kullandığınız ülkeleri veya ABD eyaletlerini seçin.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Park ettiğiniz yerin yaklaşık 60 mil (100 km) çevresindeki harita verileri kendiliğinden indirilir; bu nedenle yalnızca sürüşlerinizin geri kalanını kapsayan yerleri seçin.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Delete your downloaded map data and clear the places you picked under "Map Sources", to free up storage.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Only the map data around where you park comes back on its own, the next time the device is on Wi-Fi. Everywhere else, "Speed Limit Controller" has no map speed limits until you pick your places again and start a new download.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Depolama alanı açmak için indirdiğiniz harita verilerini silin ve "Harita Kaynakları" altında seçtiğiniz yerleri temizleyin.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Yalnızca park ettiğiniz yerin çevresindeki harita verileri, cihaz bir sonraki kez Wi-Fi'ye bağlandığında kendiliğinden geri gelir. Diğer tüm bölgelerde, yerleri yeniden seçip yeni bir indirme başlatana kadar "Hız Sınırı Denetleyicisi" harita hız sınırlarına erişemez.</translation>
     </message>
     <message>
         <source>Removing...</source>
-        <translation type="unfinished"></translation>
+        <translation>Kaldırılıyor...</translation>
     </message>
     <message>
         <source>Some map data could not be removed. Try again.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bazı harita verileri kaldırılamadı. Tekrar deneyin.</translation>
     </message>
     <message>
         <source>&lt;b&gt;How often openpilot re-downloads the speed limit map data for the places you picked under "Map Sources". "Weekly" runs every Sunday, "Monthly" runs on the 1st, and "Manually" waits until you press "DOWNLOAD" yourself.&lt;/b&gt;&lt;br&gt;&lt;br&gt;There is one exception. Whenever the map data is missing from the device, openpilot starts the download on its own, usually within the hour. Automatic downloads only start on an unmetered connection, such as Wi-Fi, and unlike "DOWNLOAD" they do not wait until you park.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;openpilot'ın "Harita Kaynakları" altında seçtiğiniz yerlerin hız sınırı harita verilerini ne sıklıkta yeniden indireceğini belirler. "Haftalık" her pazar, "Aylık" her ayın 1'inde çalışır; "Elle" ise sizin "İNDİR" düğmesine basmanızı bekler.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Bir istisna vardır. Harita verileri cihazda bulunmadığında openpilot indirmeyi genellikle bir saat içinde kendiliğinden başlatır. Otomatik indirmeler yalnızca Wi-Fi gibi kotasız bir bağlantıda başlar ve "İNDİR" düğmesinin aksine park etmenizi beklemez.</translation>
     </message>
 </context>
 <context>
@@ -3504,105 +3587,105 @@ Firehose Modu, openpilot'un sürüş modellerini geliştirmek için eğitim veri
     </message>
     <message>
         <source>Not parked</source>
-        <translation type="unfinished">Araç park hâlinde değil</translation>
+        <translation>Araç park hâlinde değil</translation>
     </message>
     <message>
         <source>&lt;b&gt;Download driving models onto the device so you can switch to them.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"DOWNLOAD" lets you pick which ones, "DOWNLOAD ALL" fetches everything. Your car has to be parked and online, and models are large, so this can take a while.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Geçiş yapabilmek için sürüş modellerini cihaza indirin.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"İNDİR" hangilerinin indirileceğini seçmenizi sağlar, "TÜMÜNÜ İNDİR" hepsini getirir. Aracınız park hâlinde ve çevrimiçi olmalıdır; modeller büyük olduğundan işlem zaman alabilir.</translation>
     </message>
     <message>
         <source>Choose driving models to delete</source>
-        <translation type="unfinished"></translation>
+        <translation>Silinecek sürüş modellerini seçin</translation>
     </message>
     <message>
         <source>Are you sure you want to delete these %1 models?</source>
-        <translation type="unfinished"></translation>
+        <translation>Bu %1 modeli silmek istediğinizden emin misiniz?</translation>
     </message>
     <message>
         <source>Choose driving models to download</source>
-        <translation type="unfinished"></translation>
+        <translation>İndirilecek sürüş modellerini seçin</translation>
     </message>
     <message>
         <source>Download</source>
-        <translation type="unfinished">İndir</translation>
+        <translation>İndir</translation>
     </message>
     <message>
         <source>&lt;b&gt;Download new driving models on their own as they are released, so they are ready when you want to try one.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This runs whenever the device is on Wi-Fi or another unmetered connection, including while you are driving. It also grabs every model that is not already on the device, not just newly released ones, so anything you removed with "Delete Driving Models" comes back.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Yeni sürüş modelleri yayımlandıkça otomatik indirerek denemek istediğinizde hazır olmalarını sağlayın.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Sürüş sırasında dâhil, cihaz Wi-Fi veya başka bir kotasız bağlantıdayken her an çalışır. Yalnızca yeni yayımlananları değil, cihazda bulunmayan tüm modelleri indirir; bu nedenle "Sürüş Modellerini Sil" ile kaldırdığınız modeller geri gelir.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Remove driving models you have downloaded to free up storage.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"DELETE" lets you pick which ones, "DELETE ALL" removes the rest. The model you are currently using and the one FrogPilot ships with are always kept. Turn "Automatically Download New Models" off first, or anything you delete is downloaded again within the hour whenever the device is on Wi-Fi or another unmetered connection.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Depolama alanı açmak için indirdiğiniz sürüş modellerini kaldırın.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"SİL" hangilerinin silineceğini seçmenizi sağlar, "TÜMÜNÜ SİL" kalanları kaldırır. Hâlihazırda kullandığınız model ve FrogPilot ile birlikte gelen model her zaman korunur. Önce "Yeni Modelleri Otomatik İndir" seçeneğini kapatın; aksi hâlde sildikleriniz, cihaz Wi-Fi veya başka bir kotasız bağlantıdayken bir saat içinde yeniden indirilir.</translation>
     </message>
 </context>
 <context>
     <name>FrogPilotModelReview</name>
     <message>
         <source>How would you rate that drive?</source>
-        <translation type="unfinished"></translation>
+        <translation>Bu sürüşü nasıl değerlendirirsiniz?</translation>
     </message>
     <message>
         <source>Blacklist this model to remove it from rotation</source>
-        <translation type="unfinished"></translation>
+        <translation>Bu modeli rotasyondan çıkarmak için kara listeye alın</translation>
     </message>
     <message>
         <source>Blacklist Model</source>
-        <translation type="unfinished"></translation>
+        <translation>Modeli Kara Listeye Al</translation>
     </message>
     <message>
         <source>Model successfully blacklisted!</source>
-        <translation type="unfinished"></translation>
+        <translation>Model başarıyla kara listeye alındı!</translation>
     </message>
     <message>
         <source>Model used during that drive:</source>
-        <translation type="unfinished"></translation>
+        <translation>Bu sürüşte kullanılan model:</translation>
     </message>
     <message>
         <source>Model Rank</source>
-        <translation type="unfinished"></translation>
+        <translation>Model Sıralaması</translation>
     </message>
     <message>
         <source>Model Rating</source>
-        <translation type="unfinished"></translation>
+        <translation>Model Puanı</translation>
     </message>
     <message>
         <source>Model Drives</source>
-        <translation type="unfinished"></translation>
+        <translation>Model Sürüşleri</translation>
     </message>
     <message>
         <source>Total Drives</source>
-        <translation type="unfinished">Toplam Sürüş</translation>
+        <translation>Toplam Sürüş</translation>
     </message>
     <message>
         <source>#%1</source>
-        <translation type="unfinished"></translation>
+        <translation>#%1</translation>
     </message>
     <message>
         <source>%1%</source>
-        <translation type="unfinished"></translation>
+        <translation>%1%</translation>
     </message>
     <message>
         <source>%1 Drive</source>
-        <translation type="unfinished">%1 Sürüş</translation>
+        <translation>%1 Sürüş</translation>
     </message>
     <message>
         <source>%1 Drives</source>
-        <translation type="unfinished">%1 Sürüş</translation>
+        <translation>%1 Sürüş</translation>
     </message>
     <message>
         <source>%1 Total Drive</source>
-        <translation type="unfinished"></translation>
+        <translation>Toplam %1 Sürüş</translation>
     </message>
     <message>
         <source>%1 Total Drives</source>
-        <translation type="unfinished"></translation>
+        <translation>Toplam %1 Sürüş</translation>
     </message>
 </context>
 <context>
     <name>FrogPilotMultiOptionDialog</name>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation>İptal</translation>
     </message>
 </context>
 <context>
@@ -3697,38 +3780,38 @@ Firehose Modu, openpilot'un sürüş modellerini geliştirmek için eğitim veri
     </message>
     <message>
         <source>&lt;b&gt;Lets openpilot get speed limits from Mapbox.&lt;/b&gt;&lt;br&gt;&lt;br&gt;You make this key yourself on Mapbox's website. "Mapbox Setup Instructions" walks you through it.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;openpilot'ın hız sınırlarını Mapbox'tan almasını sağlar.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Bu anahtarı Mapbox'ın web sitesinde kendiniz oluşturursunuz. "Mapbox Kurulum Talimatları" size adım adım yol gösterir.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Walks you through getting your own free Mapbox keys.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The guide only shows the steps for where you are in setup, so it changes as you add each key. Tap the instructions to come back here.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Kendi ücretsiz Mapbox anahtarlarınızı edinmenize adım adım yardımcı olur.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Kılavuz yalnızca kurulumda bulunduğunuz aşamaya ilişkin adımları gösterir; her anahtarı ekledikçe değişir. Buraya dönmek için talimatlara dokunun.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Open this address in a browser on the same Wi-Fi to reach "The Pond", where you manage your drives, recordings, themes, and more from a phone or computer.&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Sürüşlerinizi, kayıtlarınızı, temalarınızı ve daha fazlasını telefon veya bilgisayardan yönettiğiniz "The Pond"a ulaşmak için bu adresi aynı Wi-Fi ağındaki bir tarayıcıda açın.&lt;/b&gt;</translation>
     </message>
     <message>
         <source>Pairing Code</source>
-        <translation type="unfinished"></translation>
+        <translation>Eşleştirme Kodu</translation>
     </message>
     <message>
         <source>&lt;b&gt;Ask for a code before a browser can use "The Pond".&lt;/b&gt;&lt;br&gt;&lt;br&gt;Without a code, any device on the same Wi-Fi or Tailscale network can open your drives, camera footage, logs, location, and saved places, and can change your settings, unlock your doors, reboot the device, switch branches, run any command on the device from its shell, restore a backup that replaces its software, or sign the device into a Tailscale account. The code shows next to the address above. Turning this off signs every browser out, and turning it back on makes a new code.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Bir tarayıcının "The Pond"u kullanabilmesi için kod isteyin.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Kod olmadan, aynı Wi-Fi veya Tailscale ağındaki herhangi bir cihaz sürüşlerinizi, kamera görüntülerinizi, günlüklerinizi, konumunuzu ve kayıtlı yerlerinizi açabilir; ayarlarınızı değiştirebilir, kapılarınızın kilidini açabilir, cihazı yeniden başlatabilir, dal değiştirebilir, kabuk (shell) üzerinden cihazda herhangi bir komut çalıştırabilir, yazılımının yerini alan bir yedeği geri yükleyebilir veya cihazda bir Tailscale hesabına oturum açabilir. Kod yukarıdaki adresin yanında görünür. Bunu kapatmak tüm tarayıcıların oturumunu kapatır, yeniden açmak ise yeni bir kod oluşturur.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Learns speed limits from the signs the camera reads on roads where your downloaded maps have no limit or the wrong one.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Each learned limit is saved for that road and direction and used in place of the map's limit the next time you drive there, and it is forgotten once the map matches the signs. It also keeps a cropped photo of the sign each learned limit came from. Roads with conditional limits, such as ones that change with the time of day or the weather, are skipped. Needs downloaded maps. With "Share FrogPilot Data" on, the learned limits, their sign photos, and the roads where the signs matched your map are sent to FrogPilot while parked on unmetered Wi-Fi or Ethernet and used to improve speed limits for everyone using FrogPilot.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;İndirdiğiniz haritalarda sınırın bulunmadığı veya yanlış olduğu yollarda, kameranın okuduğu levhalardan hız sınırlarını öğrenir.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Öğrenilen her sınır o yol ve yön için kaydedilir, oradan bir sonraki geçişinizde haritadaki sınırın yerine kullanılır ve harita levhalarla eşleştiğinde unutulur. Ayrıca öğrenilen her sınırın alındığı levhanın kırpılmış bir fotoğrafını da saklar. Günün saatine veya hava durumuna göre değişenler gibi koşullu sınırları olan yollar atlanır. İndirilmiş haritalar gerekir. "FrogPilot Verilerini Paylaş" açıkken öğrenilen sınırlar, levha fotoğrafları ve levhaların haritanızla eşleştiği yollar, araç park hâlindeyken kotasız Wi-Fi veya Ethernet üzerinden FrogPilot'a gönderilir ve FrogPilot kullanan herkes için hız sınırlarını iyileştirmede kullanılır.</translation>
     </message>
     <message>
         <source> (Code %1)</source>
-        <translation type="unfinished"></translation>
+        <translation> (Kod %1)</translation>
     </message>
 </context>
 <context>
     <name>FrogPilotOnroadWindow</name>
     <message>
         <source>FPS: %1 | Min: %2 | Max: %3 | Avg: %4</source>
-        <translation type="unfinished"></translation>
+        <translation>FPS: %1 | Min: %2 | Maks: %3 | Ort: %4</translation>
     </message>
 </context>
 <context>
@@ -3831,7 +3914,7 @@ Firehose Modu, openpilot'un sürüş modellerini geliştirmek için eğitim veri
     </message>
     <message>
         <source>&lt;b&gt;Tell openpilot what car you drive, turn on features made for your brand, and change what your steering wheel buttons do.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Brand features include things like smoother stop-and-go and automatic door locks. "WHEEL BUTTONS" only appears once your "Tuning Level" is "Advanced" or higher.</source>
-        <translation>&lt;b&gt;openpilot'a hangi aracı kullandığınızı bildirin, markanıza özel özellikleri açın ve direksiyon düğmelerinizin işlevlerini değiştirin.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Marka özellikleri daha yumuşak dur-kalk ve otomatik kapı kilitleri gibi işlevleri içerir. "DİREKSİYON DÜĞMELERİ" yalnızca "Ayarlama Seviyesi" "Gelişmiş" veya üzerindeyken görünür.</translation>
+        <translation type="vanished">&lt;b&gt;openpilot'a hangi aracı kullandığınızı bildirin, markanıza özel özellikleri açın ve direksiyon düğmelerinizin işlevlerini değiştirin.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Marka özellikleri daha yumuşak dur-kalk ve otomatik kapı kilitleri gibi işlevleri içerir. "DİREKSİYON DÜĞMELERİ" yalnızca "Ayarlama Seviyesi" "Gelişmiş" veya üzerindeyken görünür.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Choose how much control you want over FrogPilot's settings.&lt;/b&gt; Anything above your level is hidden and uses FrogPilot's recommended setting instead. Nothing you've set is lost, and it comes back when you move up.&lt;br&gt;&lt;br&gt;Minimal - FrogPilot decides nearly everything for you&lt;br&gt;Standard - Recommended for most drivers&lt;br&gt;Advanced - Extra fine-tuning once you know how your car drives&lt;br&gt;Developer - Everything, including settings that can drastically change how openpilot drives</source>
@@ -3859,19 +3942,23 @@ Yalnızca bu ayarların ne yaptığını biliyorsanız devam edin.</translation>
     </message>
     <message>
         <source>SPEED LIMIT MAPS</source>
-        <translation type="unfinished"></translation>
+        <translation>HIZ SINIRI HARİTALARI</translation>
     </message>
     <message>
         <source>DRIVING VIEW</source>
-        <translation type="unfinished"></translation>
+        <translation>SÜRÜŞ GÖRÜNÜMÜ</translation>
     </message>
     <message>
         <source>&lt;b&gt;Adjust how openpilot accelerates, brakes, steers, and changes lanes.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"GAS / BRAKE" only appears on cars where openpilot handles the gas and brake.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;openpilot'ın hızlanma, frenleme, yönlendirme ve şerit değiştirme biçimini ayarlayın.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"GAZ / FREN" yalnızca openpilot'ın gaz ve freni yönettiği araçlarda görünür.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Download the speed limit data openpilot uses, and set up Mapbox as a fallback speed limit source.&lt;/b&gt; Speed limits come from offline map data for the states or countries you pick, so they work without cell signal.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;openpilot'ın kullandığı hız sınırı verilerini indirin ve Mapbox'ı yedek hız sınırı kaynağı olarak ayarlayın.&lt;/b&gt; Hız sınırları, seçtiğiniz eyalet veya ülkelerin çevrimdışı harita verilerinden gelir; dolayısıyla hücresel sinyal olmadan da çalışır.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Tell openpilot what car you drive, turn on features made for your brand, and change what your steering wheel buttons do.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Brand features include things like smoother stop-and-go and automatic door locks. "WHEEL BUTTONS" only appears on cars with a button it can use, once your "Tuning Level" is "Advanced" or higher.</source>
+        <translation>&lt;b&gt;openpilot'a hangi aracı kullandığınızı bildirin, markanıza özel özellikleri açın ve direksiyon düğmelerinizin işlevlerini değiştirin.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Marka özellikleri daha yumuşak dur-kalk ve otomatik kapı kilitleri gibi işlevleri içerir. "DİREKSİYON DÜĞMELERİ" yalnızca kullanabileceği bir düğme bulunan araçlarda ve "Ayarlama Seviyesi" "Gelişmiş" veya üzerindeyken görünür.</translation>
     </message>
 </context>
 <context>
@@ -3966,62 +4053,70 @@ Yalnızca bu ayarların ne yaptığını biliyorsanız devam edin.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Turn on extra alerts stock openpilot doesn't have, for things you would otherwise have to catch yourself.&lt;/b&gt;&lt;br&gt;&lt;br&gt;These cover the light turning green, the car ahead pulling away, and the speed limit changing. The blind spot one in here is not a new alert: openpilot already chimes when you signal for a lane change and there's a car beside you, and this only swaps that chime for a louder one.</source>
-        <translation>&lt;b&gt;Aksi takdirde kendi başınıza yakalamak zorunda kalacağınız şeyler için standart openpilot'de bulunmayan ekstra uyarıları açın.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Bunlar, ışığın yeşile dönmesini, öndeki arabanın hareket etmeye başlamasını ve hız sınırının değişmesini kapsar. Buradaki kör nokta yeni bir uyarı değil: openpilot şerit değişikliği için sinyal verdiğinizde ve yanınızda bir araba olduğunda zaten çalıyor ve bu sadece o sesi daha yüksek bir sesle değiştiriyor.</translation>
+        <translation type="vanished">&lt;b&gt;Aksi takdirde kendi başınıza yakalamak zorunda kalacağınız şeyler için standart openpilot'de bulunmayan ekstra uyarıları açın.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Bunlar, ışığın yeşile dönmesini, öndeki arabanın hareket etmeye başlamasını ve hız sınırının değişmesini kapsar. Buradaki kör nokta yeni bir uyarı değil: openpilot şerit değişikliği için sinyal verdiğinizde ve yanınızda bir araba olduğunda zaten çalıyor ve bu sadece o sesi daha yüksek bir sesle değiştiriyor.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Set the volume for the quick chimes openpilot uses when it needs you to notice something.&lt;/b&gt;&lt;br&gt;&lt;br&gt;You hear these for things like a car sitting in your blind spot when you signal, or a turn too sharp for openpilot to steer through on its own. The "Goat Scream" alert plays at this volume as well. This one stops at 25% so it can always reach you.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;openpilot bir şeye dikkatinizi çekmek istediğinde kullandığı kısa seslerin düzeyini ayarlayın.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Sinyal verdiğinizde kör noktanızda araç olması veya dönüşün openpilot'ın tek başına yönlendiremeyeceği kadar keskin olması gibi durumlarda bu sesleri duyarsınız. "Keçi Çığlığı" uyarısı da bu düzeyde çalar. Uyarının her zaman duyulabilmesi için bu değer yüzde 25'in altına inmez.</translation>
     </message>
     <message>
         <source>Extra Alerts</source>
-        <translation type="unfinished"></translation>
+        <translation>Ek Uyarılar</translation>
     </message>
     <message>
         <source>&lt;b&gt;Play a chime whenever the speed limit openpilot is reading changes.&lt;/b&gt;&lt;br&gt;&lt;br&gt;That limit comes from your car's dashboard, your downloaded map data, signs read by the camera, or Mapbox, depending on which of those you have set up. You hear it right as the limit changes, such as entering a school zone or coming off the highway.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;openpilot'ın okuduğu hız sınırı her değiştiğinde ses çalın.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Bu sınır, hangilerini ayarladığınıza bağlı olarak aracınızın gösterge panelinden, indirdiğiniz harita verilerinden, kameranın okuduğu levhalardan veya Mapbox'tan gelir. Okul bölgesine girerken veya otoyoldan çıkarken olduğu gibi, sesi sınır değiştiği anda duyarsınız.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Play a chime when you're stopped at a light and openpilot sees the road ahead open up.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This only fires when nobody is stopped in front of you, and it stays quiet in "Traffic Mode". For a line of cars at a light you need "Lead Departing Alert" switched on as well, and that one starts off.&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Disclaimer&lt;/b&gt;: openpilot does not actually read traffic lights. It is going off what the camera sees, so it can chime when the light has not changed.&lt;/i&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Bir ışıkta durmuşken openpilot önünüzdeki yolun açıldığını gördüğünde ses çalın.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Bu yalnızca önünüzde duran kimse yoksa tetiklenir ve "Trafik Modu"nda sessiz kalır. Işıkta bir araç kuyruğundaysanız "Öndeki Araç Hareket Uyarısı"nın da açık olması gerekir; bu seçenek başlangıçta kapalıdır.&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Sorumluluk reddi&lt;/b&gt;: openpilot trafik ışıklarını gerçekte okumaz. Kamera görüntüsüne göre hareket eder; bu nedenle ışık değişmediği hâlde ses çıkarabilir.&lt;/i&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Upgrade "Car Detected in Blindspot" from openpilot's quiet prompt chime to its warning chime.&lt;/b&gt;&lt;br&gt;&lt;br&gt;You get this alert when you signal for a lane change while openpilot is steering and there is a car beside you where you cannot see it. It needs "Lane Changes" switched on and at least your "Minimum Lane Change Speed" (20 mph or 32 km/h by default), so signaling slower than that gets you nothing. Because it becomes a warning, its volume comes from "Soft Warning Volume" instead of "Prompt Volume".</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;"Car Detected in Blindspot" (Kör Noktada Araç Algılandı) sesini openpilot'ın düşük bilgilendirme sesinden uyarı sesine yükseltin.&lt;/b&gt;&lt;br&gt;&lt;br&gt;openpilot yönlendirme yaparken şerit değiştirmek için sinyal verdiğinizde ve göremediğiniz yan bölgede bir araç olduğunda bu uyarıyı alırsınız. "Şerit Değiştirmeler"in açık olması ve hızınızın en az "Asgari Şerit Değiştirme Hızı" (varsayılan olarak 20 mil/sa veya 32 km/sa) olması gerekir; daha düşük hızda sinyal verirseniz uyarı almazsınız. Uyarıya dönüştüğü için ses düzeyi "Bilgilendirme Sesi Düzeyi" yerine "Ciddi Uyarı Ses Düzeyi"nden alınır.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Set the volume for the sound openpilot makes when the driver camera thinks you've stopped watching the road.&lt;/b&gt;&lt;br&gt;&lt;br&gt;You hear this if you look down at your phone, or if the camera cannot see your face and you go too long without touching the wheel. Ignore it long enough and it escalates into the "DISENGAGE IMMEDIATELY" warning, which plays at "Urgent Warning Volume" instead. openpilot will not hand the car back on its own, so taking over is on you. It never plays quieter than "Auto" would, so it can always reach you.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Sürücü kamerası artık yolu izlemediğinizi düşündüğünde openpilot'ın çıkardığı sesin düzeyini ayarlayın.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Telefonunuza baktığınızda veya kamera yüzünüzü göremezken direksiyona uzun süre dokunmadığınızda bu sesi duyarsınız. Yeterince uzun süre yok sayarsanız "DISENGAGE IMMEDIATELY" uyarısına yükselir ve bunun yerine "Acil Uyarı Ses Düzeyi"nde çalar. openpilot aracı kendiliğinden size devretmez; kontrolü sizin devralmanız gerekir. Uyarının her zaman duyulabilmesi için ses düzeyi hiçbir zaman "Otomatik" ayarının vereceğinden düşük olmaz.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Set the volume for openpilot's serious warnings, such as "BRAKE! Risk of Collision" when it thinks you're about to hit something.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The "Louder Blind Spot Alert" plays at this volume too. It never plays quieter than "Auto" would, so it can always reach you.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;openpilot bir şeye çarpmak üzere olduğunuzu düşündüğünde verdiği "FREN! Çarpışma Riski" gibi ciddi uyarıların ses düzeyini ayarlayın.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"Daha Yüksek Kör Nokta Uyarısı" da bu düzeyde çalar. Uyarının her zaman duyulabilmesi için ses düzeyi hiçbir zaman "Otomatik" ayarının vereceğinden düşük olmaz.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Set the volume for openpilot's most urgent warnings, the ones telling you to take the wheel right now.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"DISENGAGE IMMEDIATELY" plays at this volume, which is what you get once you've ignored the driver camera long enough that openpilot no longer trusts you're paying attention. It never plays quieter than "Auto" would, so it can always reach you.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;openpilot'ın direksiyonu hemen devralmanızı isteyen en acil uyarılarının ses düzeyini ayarlayın.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Sürücü kamerasını openpilot artık dikkatinizi verdiğinize güvenmeyecek kadar uzun süre yok saydığınızda çıkan "DISENGAGE IMMEDIATELY" uyarısı bu düzeyde çalar. Uyarının her zaman duyulabilmesi için ses düzeyi hiçbir zaman "Otomatik" ayarının vereceğinden düşük olmaz.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Turn on extra alerts stock openpilot doesn't have, for things you would otherwise have to catch yourself.&lt;/b&gt;&lt;br&gt;&lt;br&gt;These cover the light turning green, the car ahead pulling away, and the speed limit changing. The blind spot one in here is not a new alert. openpilot already chimes when you signal for a lane change and there's a car beside you, and this only swaps that chime for a louder one.</source>
+        <translation>&lt;b&gt;Aksi takdirde kendi başınıza yakalamak zorunda kalacağınız şeyler için standart openpilot'de bulunmayan ekstra uyarıları açın.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Bunlar, ışığın yeşile dönmesini, öndeki arabanın hareket etmeye başlamasını ve hız sınırının değişmesini kapsar. Buradaki kör nokta yeni bir uyarı değil. openpilot şerit değişikliği için sinyal verdiğinizde ve yanınızda bir araba olduğunda zaten çalıyor ve bu sadece o sesi daha yüksek bir sesle değiştiriyor.</translation>
     </message>
 </context>
 <context>
     <name>FrogPilotTelemetryPage</name>
     <message>
         <source>Help Improve FrogPilot?</source>
-        <translation type="unfinished"></translation>
+        <translation>FrogPilot'ın geliştirilmesine yardım etmek ister misiniz?</translation>
     </message>
     <message>
         <source>No Thanks</source>
-        <translation type="unfinished"></translation>
+        <translation>Hayır, Teşekkürler</translation>
     </message>
     <message>
         <source>Yes, Share Data</source>
-        <translation type="unfinished"></translation>
+        <translation>Evet, Verileri Paylaş</translation>
     </message>
     <message>
         <source>Your FrogPilot device ID is &lt;b&gt;%1&lt;/b&gt;.</source>
-        <translation type="unfinished"></translation>
+        <translation>FrogPilot cihaz kimliğiniz: &lt;b&gt;%1&lt;/b&gt;.</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Help make FrogPilot better by sharing filtered driving logs, short speed limit sign clips, learned speed limits, and usage stats.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Your everyday drives help us improve steering, acceleration, and braking, fine-tune support for more cars, train the speed limit sign reader, and find and fix problems. Keeping sharing enabled gives us more real-world examples across cars, roads, and driving conditions.&lt;br&gt;&lt;br&gt;&lt;b&gt;Privacy protection starts on your device.&lt;/b&gt; Driving logs are filtered, and the location included in usage stats is generalized, before they are sent.&lt;br&gt;&lt;br&gt;&lt;b&gt;Driving logs&lt;/b&gt; record vehicle behavior and FrogPilot's driving decisions. Before upload, we remove camera footage, audio, driver face data, account details, SSH keys, navigation routes, and map road names and IDs. Exact GPS coordinates and recording date/time fields are cleared, and &lt;b&gt;the VIN field is removed entirely&lt;/b&gt;. Driver-monitoring data is limited to awareness level and whether your car is right-hand drive. We also discard CAN messages captured during startup vehicle identification. Each drive gets an ID that hides when it was recorded, and uploaded logs are linked to your FrogPilot device ID.&lt;br&gt;&lt;br&gt;Raw CAN data recorded during driving is kept to help improve car support. On some cars, these vehicle messages can still contain GPS, VIN, date/time, odometer, or seat occupancy information.&lt;br&gt;&lt;br&gt;&lt;b&gt;Usage stats&lt;/b&gt; cover your device, software, car and calibration details, FrogPilot settings, model usage and scores, and lifetime driving totals, including drives from before you turned sharing on. &lt;b&gt;Your location is generalized on your device.&lt;/b&gt; It reports the nearest city in your country or US state from a list filtered to populations of &lt;b&gt;50,000 or more&lt;/b&gt;. If that region has no qualifying city, it uses its capital instead. This helps protect location privacy in small communities. For location, these stats include only the resulting city, state, and country, never your exact GPS coordinates. The VIN is excluded from car details, and stats are linked to your FrogPilot device ID.&lt;br&gt;&lt;br&gt;&lt;b&gt;Speed limit sign clips&lt;/b&gt; are about 10 seconds of road camera video, recorded when a supported car's dashboard shows a new speed limit, when the speed limit sign reader sees a sign it isn't sure of, and for some of the limits it reads. No GPS coordinates or recording date/time are attached, and clip IDs hide the original recording time. Each clip includes the speed limit or the reader's reading, camera calibration, and basic device, camera, and software details, and is linked to your FrogPilot device ID. Video is uploaded as recorded and can show license plates, people, and identifiable places. Clips picked to train or test the reader may be kept for up to 2 years. Clips may be matched to driving logs.&lt;br&gt;&lt;br&gt;&lt;b&gt;Learned speed limits&lt;/b&gt; are the limits "Speed Limit Filler" learns from the signs the camera reads, when that setting is on. They are used to improve speed limits for everyone using FrogPilot. Each one includes the speed limit, the map ID of the road it was learned on, the direction of travel, the GPS location and heading where the sign was seen, the date, and how far the car drove with that limit, and they are linked to your FrogPilot device ID. Each one also includes a cropped photo of the sign it was read from, with the GPS location, heading, and time it was taken, and the photo can show part of the road around the sign. Roads where the sign matched your map's limit are sent too, with the limit and the date, to measure how accurate the sign reader is. Limits learned before you turned sharing on are included. The road IDs and locations show where the car has been driven.&lt;br&gt;&lt;br&gt;&lt;b&gt;Uploads&lt;/b&gt; of driving logs, clips, and learned speed limits happen only while your car is off, on unmetered Wi-Fi or Ethernet. Usage stats are sent at startup and after drives and may use other available internet connections.&lt;br&gt;&lt;br&gt;&lt;b&gt;Your choice.&lt;/b&gt; You can turn off "Share FrogPilot Data" anytime to stop sharing these logs, clips, learned speed limits, and usage stats. Basic device registration still sends device type, operating system and software build details, and a public authentication key. Startup and after-drive check-ins continue without your usage stats, settings, or location. Crash reports also continue, tagged with your comma device ID (or your Konik device ID when you use the Konik server) and software details. Python crash reports do not automatically collect local variable values.&lt;br&gt;&lt;br&gt;Read FrogPilot's full privacy policy at &lt;b&gt;frogpilot.com/privacy&lt;/b&gt;.</source>
-        <translation type="unfinished"></translation>
+        <source>Your drives make FrogPilot better for everyone, with better steering and braking, support for more cars, and smarter speed limits.&lt;br&gt;&lt;br&gt;Sharing sends filtered driving logs, short road camera clips, learned speed limits, and usage stats. Turn it off anytime in Settings. Learn more at &lt;b&gt;FrogPilot.com/privacy&lt;/b&gt;.</source>
+        <translation>Sürüşleriniz; daha iyi yönlendirme ve frenleme, daha fazla araç desteği ve daha akıllı hız sınırlarıyla FrogPilot'ı herkes için daha iyi hâle getirir.&lt;br&gt;&lt;br&gt;Paylaşım; filtrelenmiş sürüş günlüklerini, kısa yol kamerası kliplerini, öğrenilen hız sınırlarını ve kullanım istatistiklerini gönderir. İstediğiniz zaman Ayarlar'dan kapatabilirsiniz. Daha fazla bilgi için &lt;b&gt;FrogPilot.com/privacy&lt;/b&gt; adresini ziyaret edin.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Help make FrogPilot better by sharing filtered driving logs, short speed limit sign clips, learned speed limits, and usage stats.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Your everyday drives help us improve steering, acceleration, and braking, fine-tune support for more cars, train the speed limit sign reader, and find and fix problems. Keeping sharing enabled gives us more real-world examples across cars, roads, and driving conditions.&lt;br&gt;&lt;br&gt;&lt;b&gt;Privacy protection starts on your device.&lt;/b&gt; Driving logs are filtered, and the location included in usage stats is generalized, before they are sent.&lt;br&gt;&lt;br&gt;&lt;b&gt;Driving logs&lt;/b&gt; record vehicle behavior and FrogPilot's driving decisions. Before upload, we remove camera footage, audio, driver face data, account details, SSH keys, navigation routes, and map road names and IDs. Exact GPS coordinates and recording date/time fields are cleared, and &lt;b&gt;the VIN field is removed entirely&lt;/b&gt;. Driver-monitoring data is removed. We also discard CAN messages captured during startup vehicle identification. Each drive gets an ID that hides when it was recorded, and uploaded logs are linked to your FrogPilot device ID.&lt;br&gt;&lt;br&gt;Raw CAN data recorded during driving is kept to help improve car support. Known GPS position and VIN messages are dropped on GM, Toyota, Ford, and Tesla. Other data, including clocks and odometers, can remain, and other cars may still carry GPS position or VIN messages. On some cars, these vehicle messages can still contain seat occupancy information.&lt;br&gt;&lt;br&gt;&lt;b&gt;Usage stats&lt;/b&gt; cover your device, software, car and calibration details, FrogPilot settings, model usage and scores, and lifetime driving totals, including drives from before you turned sharing on. &lt;b&gt;Your location is generalized on your device.&lt;/b&gt; It reports the nearest city in your country or US state from a list filtered to populations of &lt;b&gt;50,000 or more&lt;/b&gt;. If that region has no qualifying city, it uses its capital instead. This helps protect location privacy in small communities. For location, these stats include only the resulting city, state, and country, never your exact GPS coordinates. The VIN is excluded from car details, and stats are linked to your FrogPilot device ID.&lt;br&gt;&lt;br&gt;&lt;b&gt;Speed limit sign clips&lt;/b&gt; are about 10 seconds of road camera video, recorded when a supported car's dashboard shows a new speed limit, when the speed limit sign reader sees a sign it isn't sure of, and for some of the limits it reads. No GPS coordinates or recording date/time are attached, and clip IDs hide the original recording time. Each clip includes the speed limit or the reader's reading, camera calibration, and basic device, camera, and software details, and is linked to your FrogPilot device ID. Video is uploaded as recorded and can show license plates, people, and identifiable places. Clips picked to train or test the reader may be kept for up to 2 years. Clips may be matched to driving logs. Small crops showing only a speed-limit sign may be shown to signed-in FrogPilot.com users who help label them.&lt;br&gt;&lt;br&gt;&lt;b&gt;Learned speed limits&lt;/b&gt; are the limits "Speed Limit Filler" learns from the signs the camera reads, when that setting is on. They are used to improve speed limits for everyone using FrogPilot. Each one includes the speed limit, the map ID of the road it was learned on, the direction of travel, the GPS location and heading where the sign was seen, the date, and how far the car drove with that limit, and they are linked to your FrogPilot device ID. Each one also includes a cropped photo of the sign it was read from, with the GPS location, heading, and time it was taken, and the photo can show part of the road around the sign. Roads where the sign matched your map's limit are sent too, with the limit and the date, to measure how accurate the sign reader is. Limits learned before you turned sharing on are included. The road IDs and locations show where the car has been driven.&lt;br&gt;&lt;br&gt;&lt;b&gt;Uploads&lt;/b&gt; of driving logs, clips, and learned speed limits happen only while your car is off, on unmetered Wi-Fi or Ethernet. Usage stats are sent at startup and after drives and may use other available internet connections.&lt;br&gt;&lt;br&gt;&lt;b&gt;Your choice.&lt;/b&gt; You can turn off "Share FrogPilot Data" anytime to stop sharing these logs, clips, learned speed limits, and usage stats. Basic device registration still sends device type, operating system and software build details, and a public authentication key. Startup and after-drive check-ins continue without your usage stats, settings, or location. Crash reports also continue, tagged with your comma device ID (or your Konik device ID when you use the Konik server) and software details. Python crash reports do not automatically collect local variable values.&lt;br&gt;&lt;br&gt;Read FrogPilot's full privacy policy at &lt;b&gt;FrogPilot.com/privacy&lt;/b&gt;.</source>
+        <translation>&lt;b&gt;Filtrelenmiş sürüş günlüklerini, kısa hız sınırı levhası kliplerini, öğrenilen hız sınırlarını ve kullanım istatistiklerini paylaşarak FrogPilot'ı daha iyi hâle getirmeye yardımcı olun.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Günlük sürüşleriniz; yönlendirme, hızlanma ve frenlemeyi iyileştirmemize, daha fazla araç için desteği ince ayarlamamıza, hız sınırı levhası okuyucusunu eğitmemize ve sorunları bulup düzeltmemize yardımcı olur. Paylaşımı açık tutmak bize farklı araçlar, yollar ve sürüş koşullarından daha fazla gerçek dünya örneği sağlar.&lt;br&gt;&lt;br&gt;&lt;b&gt;Gizlilik koruması cihazınızda başlar.&lt;/b&gt; Gönderilmeden önce sürüş günlükleri filtrelenir ve kullanım istatistiklerindeki konum genelleştirilir.&lt;br&gt;&lt;br&gt;&lt;b&gt;Sürüş günlükleri&lt;/b&gt; araç davranışını ve FrogPilot'ın sürüş kararlarını kaydeder. Yüklemeden önce kamera görüntülerini, sesi, sürücünün yüz verilerini, hesap bilgilerini, SSH anahtarlarını, navigasyon rotalarını ve harita yol adları ile kimliklerini kaldırırız. Kesin GPS koordinatları ile kayıt tarihi/saati alanları temizlenir ve &lt;b&gt;VIN alanı tamamen kaldırılır&lt;/b&gt;. Sürücü izleme verileri kaldırılır. Başlangıçtaki araç tanıma sırasında yakalanan CAN mesajlarını da atarız. Her sürüşe, ne zaman kaydedildiğini gizleyen bir kimlik verilir ve yüklenen günlükler FrogPilot cihaz kimliğinize bağlanır.&lt;br&gt;&lt;br&gt;Sürüş sırasında kaydedilen ham CAN verileri, araç desteğini iyileştirmeye yardımcı olmak için saklanır. GM, Toyota, Ford ve Tesla'da bilinen GPS konumu ve VIN mesajları çıkarılır. Saatler ve kilometre sayaçları dâhil diğer veriler kalabilir ve diğer araçlarda GPS konumu veya VIN mesajları yine bulunabilir. Bazı araçlarda bu araç mesajları yine de koltuk doluluk bilgisi içerebilir.&lt;br&gt;&lt;br&gt;&lt;b&gt;Kullanım istatistikleri&lt;/b&gt; cihaz, yazılım, araç ve kalibrasyon ayrıntılarınızı, FrogPilot ayarlarınızı, model kullanımı ve puanlarını ve paylaşımı açmadan önceki sürüşler dâhil tüm zamanların sürüş toplamlarını kapsar. &lt;b&gt;Konumunuz cihazınızda genelleştirilir.&lt;/b&gt; Nüfusu &lt;b&gt;50.000 veya üzeri&lt;/b&gt; olan şehirlerle sınırlı bir listeden, ülkenizdeki veya ABD eyaletinizdeki en yakın şehir bildirilir. O bölgede bu koşulu karşılayan bir şehir yoksa bunun yerine bölgenin başkenti kullanılır. Bu, küçük topluluklarda konum gizliliğini korumaya yardımcı olur. Konum olarak bu istatistikler yalnızca ortaya çıkan şehri, eyaleti ve ülkeyi içerir; kesin GPS koordinatlarınızı asla içermez. VIN, araç ayrıntılarının dışında tutulur ve istatistikler FrogPilot cihaz kimliğinize bağlanır.&lt;br&gt;&lt;br&gt;&lt;b&gt;Hız sınırı levhası klipleri&lt;/b&gt;, desteklenen bir aracın gösterge paneli yeni bir hız sınırı gösterdiğinde, hız sınırı levhası okuyucusu emin olmadığı bir levha gördüğünde ve okuduğu sınırların bir kısmı için kaydedilen yaklaşık 10 saniyelik yol kamerası videolarıdır. GPS koordinatları veya kayıt tarihi/saati eklenmez ve klip kimlikleri özgün kayıt zamanını gizler. Her klip, hız sınırını veya okuyucunun okuduğu değeri, kamera kalibrasyonunu ve temel cihaz, kamera ve yazılım ayrıntılarını içerir ve FrogPilot cihaz kimliğinize bağlanır. Video kaydedildiği gibi yüklenir ve plakaları, kişileri ve tanınabilir yerleri gösterebilir. Okuyucuyu eğitmek veya test etmek için seçilen klipler 2 yıla kadar saklanabilir. Klipler sürüş günlükleriyle eşleştirilebilir. Yalnızca bir hız sınırı levhasını gösteren küçük kırpılmış görüntüler, bunları etiketlemeye yardım eden ve FrogPilot.com'da oturum açmış kullanıcılara gösterilebilir.&lt;br&gt;&lt;br&gt;&lt;b&gt;Öğrenilen hız sınırları&lt;/b&gt;, "Hız Sınırı Tamamlayıcı" ayarı açıkken bu özelliğin kameranın okuduğu levhalardan öğrendiği sınırlardır. FrogPilot kullanan herkes için hız sınırlarını iyileştirmede kullanılırlar. Her biri hız sınırını, öğrenildiği yolun harita kimliğini, gidiş yönünü, levhanın görüldüğü GPS konumunu ve seyir yönünü, tarihi ve aracın bu sınırla ne kadar yol gittiğini içerir; bunlar FrogPilot cihaz kimliğinize bağlanır. Her biri ayrıca okunduğu levhanın kırpılmış bir fotoğrafını, çekildiği GPS konumu, seyir yönü ve saatle birlikte içerir; fotoğraf levhanın çevresindeki yolun bir kısmını gösterebilir. Levha okuyucusunun ne kadar doğru olduğunu ölçmek için, levhanın haritanızdaki sınırla eşleştiği yollar da sınır ve tarihle birlikte gönderilir. Paylaşımı açmadan önce öğrenilen sınırlar da buna dâhildir. Yol kimlikleri ve konumlar, aracın nerede sürüldüğünü gösterir.&lt;br&gt;&lt;br&gt;&lt;b&gt;Yüklemeler&lt;/b&gt;: Sürüş günlükleri, klipler ve öğrenilen hız sınırları yalnızca aracınız kapalıyken, kotasız Wi-Fi veya Ethernet üzerinden yüklenir. Kullanım istatistikleri başlangıçta ve sürüşlerden sonra gönderilir ve mevcut diğer internet bağlantılarını da kullanabilir.&lt;br&gt;&lt;br&gt;&lt;b&gt;Seçim sizin.&lt;/b&gt; Bu günlüklerin, kliplerin, öğrenilen hız sınırlarının ve kullanım istatistiklerinin paylaşımını durdurmak için "FrogPilot Verilerini Paylaş"ı istediğiniz zaman kapatabilirsiniz. Temel cihaz kaydı yine de cihaz türünü, işletim sistemi ve yazılım derlemesi ayrıntılarını ve herkese açık bir kimlik doğrulama anahtarını gönderir. Başlangıçta ve sürüşlerden sonra yapılan durum bildirimleri, kullanım istatistikleriniz, ayarlarınız veya konumunuz olmadan devam eder. Çökme raporları da comma cihaz kimliğiniz (Konik sunucusunu kullanıyorsanız Konik cihaz kimliğiniz) ve yazılım ayrıntılarıyla etiketlenerek gönderilmeye devam eder. Python çökme raporları yerel değişken değerlerini otomatik olarak toplamaz.&lt;br&gt;&lt;br&gt;FrogPilot'ın tam gizlilik politikasını &lt;b&gt;FrogPilot.com/privacy&lt;/b&gt; adresinden okuyun.</translation>
     </message>
 </context>
 <context>
@@ -4196,7 +4291,7 @@ Yalnızca bu ayarların ne yaptığını biliyorsanız devam edin.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Change the icons on the driving personality button, the one you tap on the driving screen to switch between Aggressive, Standard, and Relaxed.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Each pack draws four icons: one each for Aggressive, Standard, and Relaxed, plus one that takes over while Traffic Mode is on. This row only appears while that button is switched on under "Driving Personality Button".</source>
-        <translation>&lt;b&gt;Sürüş ekranında Atak, Standart ve Rahat arasında geçiş yapmak için dokunduğunuz sürüş karakteri düğmesindeki simgeleri değiştirin.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Her paket dört simge çizer: Atak, Standart ve Rahat için birer simge ile Trafik Modu açıkken kullanılan bir simge. Bu satır yalnızca "Sürüş Karakteri Düğmesi" altında söz konusu düğme açıkken görünür.</translation>
+        <translation type="vanished">&lt;b&gt;Sürüş ekranında Atak, Standart ve Rahat arasında geçiş yapmak için dokunduğunuz sürüş karakteri düğmesindeki simgeleri değiştirin.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Her paket dört simge çizer: Atak, Standart ve Rahat için birer simge ile Trafik Modu açıkken kullanılan bir simge. Bu satır yalnızca "Sürüş Karakteri Düğmesi" altında söz konusu düğme açıkken görünür.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Change the chimes openpilot plays for its alerts, like the sound when it starts driving or warns you about something.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"Stock" uses openpilot's normal chimes. A pack only replaces the sound files it actually ships and anything it leaves out stays stock, so the holiday packs mostly bring just their own engage and disengage chimes. How loud each one plays is set separately under "Alert Volumes" in "Alerts and Sounds".</source>
@@ -4232,115 +4327,119 @@ Yalnızca bu ayarların ne yaptığını biliyorsanız devam edin.</translation>
     </message>
     <message>
         <source>Select color schemes to delete</source>
-        <translation type="unfinished"></translation>
+        <translation>Silinecek renk şemalarını seçin</translation>
     </message>
     <message>
         <source>Delete the %1 selected color schemes?</source>
-        <translation type="unfinished"></translation>
+        <translation>Seçilen %1 renk şeması silinsin mi?</translation>
     </message>
     <message>
         <source>Select color schemes to download</source>
-        <translation type="unfinished"></translation>
+        <translation>İndirilecek renk şemalarını seçin</translation>
     </message>
     <message>
         <source>Select personality button packs to delete</source>
-        <translation type="unfinished"></translation>
+        <translation>Silinecek sürüş karakteri düğmesi paketlerini seçin</translation>
     </message>
     <message>
         <source>Delete the "%1" personality button pack?</source>
-        <translation type="unfinished"></translation>
+        <translation>"%1" sürüş karakteri düğmesi paketi silinsin mi?</translation>
     </message>
     <message>
         <source>Delete the %1 selected personality button packs?</source>
-        <translation type="unfinished"></translation>
+        <translation>Seçilen %1 sürüş karakteri düğmesi paketi silinsin mi?</translation>
     </message>
     <message>
         <source>Select personality button packs to download</source>
-        <translation type="unfinished"></translation>
+        <translation>İndirilecek sürüş karakteri düğmesi paketlerini seçin</translation>
     </message>
     <message>
         <source>Select a personality button pack</source>
-        <translation type="unfinished"></translation>
+        <translation>Bir sürüş karakteri düğmesi paketi seçin</translation>
     </message>
     <message>
         <source>Select icon packs to delete</source>
-        <translation type="unfinished"></translation>
+        <translation>Silinecek simge paketlerini seçin</translation>
     </message>
     <message>
         <source>Delete the %1 selected icon packs?</source>
-        <translation type="unfinished"></translation>
+        <translation>Seçilen %1 simge paketi silinsin mi?</translation>
     </message>
     <message>
         <source>Select icon packs to download</source>
-        <translation type="unfinished"></translation>
+        <translation>İndirilecek simge paketlerini seçin</translation>
     </message>
     <message>
         <source>Select signal animations to delete</source>
-        <translation type="unfinished"></translation>
+        <translation>Silinecek sinyal animasyonlarını seçin</translation>
     </message>
     <message>
         <source>Delete the %1 selected signal animations?</source>
-        <translation type="unfinished"></translation>
+        <translation>Seçilen %1 sinyal animasyonu silinsin mi?</translation>
     </message>
     <message>
         <source>Select signal animations to download</source>
-        <translation type="unfinished"></translation>
+        <translation>İndirilecek sinyal animasyonlarını seçin</translation>
     </message>
     <message>
         <source>Select sound packs to delete</source>
-        <translation type="unfinished"></translation>
+        <translation>Silinecek ses paketlerini seçin</translation>
     </message>
     <message>
         <source>Delete the %1 selected sound packs?</source>
-        <translation type="unfinished"></translation>
+        <translation>Seçilen %1 ses paketi silinsin mi?</translation>
     </message>
     <message>
         <source>Select sound packs to download</source>
-        <translation type="unfinished"></translation>
+        <translation>İndirilecek ses paketlerini seçin</translation>
     </message>
     <message>
         <source>Select steering wheels to delete</source>
-        <translation type="unfinished"></translation>
+        <translation>Silinecek direksiyonları seçin</translation>
     </message>
     <message>
         <source>Delete the %1 selected steering wheels?</source>
-        <translation type="unfinished"></translation>
+        <translation>Seçilen %1 direksiyon silinsin mi?</translation>
     </message>
     <message>
         <source>Select steering wheels to download</source>
-        <translation type="unfinished"></translation>
+        <translation>İndirilecek direksiyonları seçin</translation>
     </message>
     <message>
         <source>Personality Button</source>
-        <translation type="unfinished"></translation>
+        <translation>Sürüş Karakteri Düğmesi</translation>
     </message>
     <message>
         <source>&lt;b&gt;Change the two lines of text openpilot shows on screen at the start of every drive.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"STOCK" is openpilot's usual safety reminder and "FROGPILOT" is the frog version. "CUSTOM" lets you write your own, up to 35 characters on the top line and 45 on the bottom.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;openpilot'ın her sürüşün başında ekranda gösterdiği iki satırlık metni değiştirin.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"STANDART" openpilot'ın olağan güvenlik hatırlatmasıdır, "FROGPILOT" ise kurbağa sürümüdür. "ÖZEL", üst satırda en fazla 35, alt satırda en fazla 45 karakter olacak şekilde kendi metninizi yazmanızı sağlar.</translation>
     </message>
     <message>
         <source>Download</source>
-        <translation type="unfinished">İndir</translation>
+        <translation>İndir</translation>
     </message>
     <message>
         <source>"Random Themes" picks from the built-in Frog theme, the holiday themes when "Include Holiday Themes" is on, and themes you've already downloaded, so grab the ones you want it to use!</source>
-        <translation type="unfinished"></translation>
+        <translation>"Rastgele Temalar"; yerleşik Frog teması, "Tatil Temalarını Dâhil Et" açıkken tatil temaları ve önceden indirdiğiniz temalar arasından seçim yapar; kullanmasını istediklerinizi indirin!</translation>
     </message>
     <message>
         <source>%1 of %2 downloaded, %3 failed</source>
-        <translation type="unfinished"></translation>
+        <translation>%1/%2 indirildi, %3 başarısız</translation>
     </message>
     <message>
         <source>Downloading %1 of %2 (%3)</source>
-        <translation type="unfinished"></translation>
+        <translation>%1/%2 indiriliyor (%3)</translation>
     </message>
     <message>
         <source>Download invalid...</source>
-        <translation type="unfinished"></translation>
+        <translation>İndirme geçersiz...</translation>
     </message>
     <message>
         <source>&lt;b&gt;Start every drive with a theme picked at random from the built-in Frog theme and the packs you have already downloaded.&lt;/b&gt;&lt;br&gt;&lt;br&gt;A downloaded pack only joins the mix once you have its colors, icons, and sounds, and the same theme can come up twice in a row. With "Include Holiday Themes" on, the holiday themes are in the mix too. While this is on, the rows inside "Custom Themes" stop offering "SELECT", and turning it back off gives you your own picks again.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Her sürüşe, yerleşik Frog teması ile önceden indirdiğiniz paketler arasından rastgele seçilen bir temayla başlayın.&lt;/b&gt;&lt;br&gt;&lt;br&gt;İndirilen bir paket ancak renkleri, simgeleri ve sesleri cihazda olduğunda seçime katılır ve aynı tema art arda iki kez gelebilir. "Tatil Temalarını Dâhil Et" açıkken tatil temaları da seçime katılır. Bu özellik açıkken "Özel Temalar" içindeki satırlar "SEÇ" seçeneğini sunmaz; özelliği yeniden kapattığınızda kendi seçimlerinize geri dönersiniz.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Change the icons on the driving personality button, the one you tap on the driving screen to switch between Aggressive, Standard, and Relaxed.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Each pack draws four icons, one each for Aggressive, Standard, and Relaxed, plus one that takes over while Traffic Mode is on. This row only appears while that button is switched on under "Driving Personality Button".</source>
+        <translation>&lt;b&gt;Sürüş ekranında Atak, Standart ve Rahat arasında geçiş yapmak için dokunduğunuz sürüş karakteri düğmesindeki simgeleri değiştirin.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Her paket, Atak, Standart ve Rahat için birer simge ile Trafik Modu açıkken kullanılan bir simge olmak üzere dört simge çizer. Bu satır yalnızca "Sürüş Karakteri Düğmesi" altında söz konusu düğme açıkken görünür.</translation>
     </message>
 </context>
 <context>
@@ -4455,140 +4554,145 @@ Yalnızca bu ayarların ne yaptığını biliyorsanız devam edin.</translation>
     </message>
     <message>
         <source>Reset!</source>
-        <translation>Sıfırlandı!</translation>
+        <translation type="vanished">Sıfırlandı!</translation>
     </message>
     <message>
         <source>&lt;b&gt;Make openpilot behave as though the car is running, or as though it is parked, without the car actually being either.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This is a testing tool. Forcing the running state ignores your "Screen Brightness (Onroad)" setting and stops openpilot warning you that its controls are unresponsive, so leave it on "OFF" unless you know why you need it. Forcing the running state ends when you turn the car on, and either state clears itself the next time the device restarts. While it is forced, the device still drops back to offroad if it overheats and still shuts down on its usual timer or a low car battery. With the car off, a forced running state runs on the car's battery until the device powers itself off.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Araç gerçekte bu durumlardan hiçbirinde olmadan openpilot'ın araç çalışıyormuş veya park hâlindeymiş gibi davranmasını sağlayın.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Bu bir test aracıdır. Sürüş durumunu zorlamak "Ekran Parlaklığı (Sürüşte)" ayarınızı yok sayar ve openpilot'ın, kontrollerinin yanıt vermediği uyarısını vermesini engeller; bu nedenle neden gerektiğini bilmiyorsanız "KAPALI" konumunda bırakın. Zorlanan sürüş durumu aracı çalıştırdığınızda sona erer ve her iki durum da cihaz bir sonraki yeniden başlatıldığında kendiliğinden temizlenir. Durum zorlanırken cihaz aşırı ısınırsa yine sürüş dışı duruma döner; olağan zamanlayıcısıyla veya araç aküsü zayıfladığında da yine kapanır. Araç kapalıyken zorlanan sürüş durumu, cihaz kendini kapatana kadar aracın aküsüyle çalışır.</translation>
     </message>
     <message>
         <source>The parked state can't be forced while openpilot is steering. Disengage and try again.</source>
-        <translation type="unfinished"></translation>
+        <translation>openpilot direksiyonu kontrol ederken park durumu zorlanamaz. Devreden çıkarıp tekrar deneyin.</translation>
     </message>
     <message>
         <source>The running state can't be forced while the car is on. Turn the car off and try again.</source>
-        <translation type="unfinished"></translation>
+        <translation>Araç açıkken sürüş durumu zorlanamaz. Aracı kapatıp tekrar deneyin.</translation>
     </message>
     <message>
         <source>Reflash the Panda</source>
-        <translation type="unfinished"></translation>
+        <translation>Panda Yazılımını Yeniden Yükle</translation>
     </message>
     <message>
         <source>The Panda can't be reflashed while the car is on. Turn the car off and try again.</source>
-        <translation type="unfinished"></translation>
+        <translation>Araç açıkken Panda yazılımı yeniden yüklenemez. Aracı kapatıp tekrar deneyin.</translation>
     </message>
     <message>
         <source>Something else is already running. Wait for it to finish and try again.</source>
-        <translation type="unfinished"></translation>
+        <translation>Başka bir işlem zaten çalışıyor. Tamamlanmasını bekleyip tekrar deneyin.</translation>
     </message>
     <message>
         <source>Reflash the Panda? Your device reboots once it finishes.</source>
-        <translation type="unfinished"></translation>
+        <translation>Panda yazılımı yeniden yüklensin mi? İşlem tamamlandığında cihazınız yeniden başlatılır.</translation>
     </message>
     <message>
         <source>Flash failed...</source>
-        <translation type="unfinished"></translation>
+        <translation>Yükleme başarısız oldu...</translation>
     </message>
     <message>
         <source>Connect to Wi-Fi or a hotspot first, then send your report.</source>
-        <translation type="unfinished"></translation>
+        <translation>Önce Wi-Fi'ye veya bir erişim noktasına bağlanın, ardından raporunuzu gönderin.</translation>
     </message>
     <message>
         <source>Retry previous report</source>
-        <translation type="unfinished"></translation>
+        <translation>Önceki raporu tekrar gönder</translation>
     </message>
     <message>
         <source>Delivery wasn't confirmed.
 Retry to avoid duplicates.</source>
-        <translation type="unfinished"></translation>
+        <translation>Raporun iletildiği doğrulanamadı.
+Yinelenen rapor oluşmaması için tekrar deneyin.</translation>
     </message>
     <message>
         <source>Start a new report</source>
-        <translation type="unfinished"></translation>
+        <translation>Yeni bir rapor başlat</translation>
     </message>
     <message>
         <source>An alert was unclear and I didn't know what it meant</source>
-        <translation type="unfinished"></translation>
+        <translation>Bir uyarı anlaşılır değildi ve ne anlama geldiğini bilmiyordum</translation>
     </message>
     <message>
         <source>My screen froze or is stuck loading something</source>
-        <translation type="unfinished"></translation>
+        <translation>Ekranım dondu veya bir şeyi yüklerken takılı kaldı</translation>
     </message>
     <message>
         <source>openpilot doesn't react to stopped vehicles ahead</source>
-        <translation type="unfinished"></translation>
+        <translation>openpilot öndeki durmuş araçlara tepki vermiyor</translation>
     </message>
     <message>
         <source>openpilot doesn't resume from a stop</source>
-        <translation type="unfinished"></translation>
+        <translation>openpilot durduktan sonra yeniden hareket etmiyor</translation>
     </message>
     <message>
         <source>Steering feels twitchy or unnatural</source>
-        <translation type="unfinished"></translation>
+        <translation>Direksiyon ani veya doğal olmayan tepki veriyor</translation>
     </message>
     <message>
         <source>The car doesn't follow curves well</source>
-        <translation type="unfinished"></translation>
+        <translation>Araç virajları iyi izlemiyor</translation>
     </message>
     <message>
         <source>The car isn't staying centered in its lane</source>
-        <translation type="unfinished"></translation>
+        <translation>Araç şeridinin ortasında kalmıyor</translation>
     </message>
     <message>
         <source>What went wrong?</source>
-        <translation type="unfinished"></translation>
+        <translation>Ne yanlış gitti?</translation>
     </message>
     <message>
         <source>Settings can't be reset while the car is on. Turn the car off and try again.</source>
-        <translation type="unfinished"></translation>
+        <translation>Araç açıkken ayarlar sıfırlanamaz. Aracı kapatıp tekrar deneyin.</translation>
     </message>
     <message>
         <source>Reset Settings to Default</source>
-        <translation type="unfinished"></translation>
+        <translation>Ayarları Varsayılana Sıfırla</translation>
     </message>
     <message>
         <source>Reset Settings to Stock openpilot</source>
-        <translation type="unfinished"></translation>
+        <translation>Ayarları Standart openpilot'a Sıfırla</translation>
     </message>
     <message>
         <source>Sending...</source>
-        <translation type="unfinished"></translation>
+        <translation>Gönderiliyor...</translation>
     </message>
     <message>
         <source>RETRY</source>
-        <translation type="unfinished"></translation>
+        <translation>TEKRAR DENE</translation>
     </message>
     <message>
         <source>Sent</source>
-        <translation type="unfinished"></translation>
+        <translation>Gönderildi</translation>
     </message>
     <message>
         <source>Failed</source>
-        <translation type="unfinished"></translation>
+        <translation>Başarısız</translation>
     </message>
     <message>
         <source>&lt;b&gt;Show FrogPilot's developer readouts on the driving screen for your next drive, so a bug report can say what openpilot was actually doing.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It switches itself back off once you finish the drive. While it is on, the temperature reads in Celsius and the developer numbers read in scientific units, whatever you picked elsewhere. It also brings back anything you hid from the driving screen and uses the default "Model UI" sizes and "Camera View", with "Rainbow Path" off, until the drive ends. Your speedometer keeps its own units.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Hata raporunda openpilot'ın gerçekte ne yaptığının görülebilmesi için sonraki sürüşünüzde FrogPilot'ın geliştirici değerlerini sürüş ekranında gösterin.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Sürüşü bitirdiğinizde kendiliğinden kapanır. Açıkken başka yerdeki seçiminizden bağımsız olarak sıcaklık santigrat, geliştirici değerleri bilimsel birimlerle gösterilir. Ayrıca sürüş bitene kadar sürüş ekranında gizlediğiniz her şeyi geri getirir ve "Gökkuşağı Yolu" kapalı olarak varsayılan "Model Arayüzü" boyutlarını ve "Kamera Görünümü"nü kullanır. Hız göstergeniz kendi birimlerini korur.</translation>
     </message>
     <message>
-        <source>Tailscale sign-out failed...</source>
-        <translation type="unfinished"></translation>
+        <source>openpilot hasn't learned your car yet, so it can't be forced onroad. Complete a drive first.</source>
+        <translation>openpilot aracınızı henüz öğrenmediğinden sürüş durumu zorlanamaz. Önce bir sürüş tamamlayın.</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Put every FrogPilot setting back to the value it shipped with, along with some of openpilot's own settings.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Those openpilot settings are "Enable openpilot", "Disengage on Accelerator Pedal", "Driving Personality", and "Cellular Metered". This also clears your accepted terms, your completed training, and your language, so you go through first-time setup again in English the next time the device starts. It also erases your saved keys (Mapbox, weather, and Toyota security keys), favorite places, Discord name, timezone, map settings, FrogPilot driving stats, Speed Limit Filler data, saved car details, SSH keys, and the browsers paired with "The Pond" (making a new pairing code if pairing is on), turns SSH off, signs out of Tailscale, and asks again whether to share FrogPilot data, so the device is clean to sell or hand on. Your drives, backups, and downloaded themes are left alone, and settings backups still hold your keys and favorite places until you delete them.</source>
-        <translation type="unfinished"></translation>
+        <source>Rebooting to reset...</source>
+        <translation>Sıfırlamak için yeniden başlatılıyor...</translation>
     </message>
     <message>
-        <source>Reset all FrogPilot and some openpilot settings? This also erases your saved keys, favorite places, Discord name, timezone, map settings, driving stats, Speed Limit Filler data, saved car details, SSH keys, and paired browsers, turns SSH off, signs out of Tailscale, and asks again whether to share FrogPilot data. You will have to accept the terms, redo the training, and set your language again.</source>
-        <translation type="unfinished"></translation>
+        <source>&lt;b&gt;Put every FrogPilot setting back to the value it shipped with, along with some of openpilot's own settings.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Those openpilot settings are "Enable openpilot", "Disengage on Accelerator Pedal", "Driving Personality", and "Cellular Metered". This also clears your accepted terms, your completed training, and your language, so you go through first-time setup again in English. It also erases your saved keys (Mapbox and weather), favorite places, Discord name, timezone, chosen car make and model, SSH keys, and map settings, turns SSH and tethering off, asks again whether to share FrogPilot data, and unlinks this device from your FrogPilot.com account. The reset happens while the device reboots. Your drives, backups, downloaded themes, learned driving data, Speed Limit Filler data, FrogPilot Stats, Toyota security keys, "The Pond" pairing, Tailscale sign-in, "Experimental Mode", and "openpilot Longitudinal Control (Alpha)" are left alone, and settings backups still hold your keys and favorite places until you delete them.</source>
+        <translation>&lt;b&gt;Tüm FrogPilot ayarlarını, openpilot'ın kendi ayarlarından bazılarıyla birlikte varsayılan değerlerine döndürün.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Bu openpilot ayarları şunlardır: "openpilot'ı Etkinleştir", "Gaz Pedalına Basıldığında Devreden Çık", "Sürüş Karakteri" ve "Ölçümlü Hücresel Bağlantı". Bu işlem ayrıca kabul ettiğiniz şartları, tamamladığınız eğitimi ve dil seçiminizi temizler; böylece ilk kurulumu İngilizce olarak yeniden yaparsınız. Ayrıca kayıtlı anahtarlarınızı (Mapbox ve hava durumu), favori yerlerinizi, Discord adınızı, saat diliminizi, seçtiğiniz araç markasını ve modelini, SSH anahtarlarını ve harita ayarlarını siler; SSH'yi ve kişisel erişim noktasını kapatır, FrogPilot verilerinin paylaşılıp paylaşılmayacağını yeniden sorar ve bu cihazın FrogPilot.com hesabınızla bağlantısını kaldırır. Sıfırlama, cihaz yeniden başlatılırken gerçekleşir. Sürüşleriniz, yedekleriniz, indirilmiş temalarınız, öğrenilmiş sürüş verileriniz, Hız Sınırı Tamamlayıcı verileri, FrogPilot İstatistikleri, Toyota güvenlik anahtarları, "The Pond" eşleştirmesi, Tailscale oturumu, "Deneysel Mod" ve "openpilot Boyuna Kontrolü (Alfa)" olduğu gibi kalır; ayar yedekleri ise siz silene kadar anahtarlarınızı ve favori yerlerinizi tutmaya devam eder.</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Put every setting back to what plain openpilot uses, turning FrogPilot's own features off rather than back to FrogPilot's defaults.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This also clears your accepted terms, your completed training, and your language, so you go through first-time setup again in English the next time the device starts. It also erases your saved keys (Mapbox, weather, and Toyota security keys), favorite places, Discord name, timezone, map settings, FrogPilot driving stats, Speed Limit Filler data, saved car details, SSH keys, and the browsers paired with "The Pond" (making a new pairing code if pairing is on), turns SSH off, signs out of Tailscale, and asks again whether to share FrogPilot data, so the device is clean to sell or hand on. Your drives, backups, and downloaded themes are left alone, and settings backups still hold your keys and favorite places until you delete them.</source>
-        <translation type="unfinished"></translation>
+        <source>Reset all FrogPilot and some openpilot settings? This erases your saved keys, favorite places, Discord name, timezone, chosen car make and model, SSH keys, and map settings, turns SSH and tethering off, asks again whether to share FrogPilot data, and unlinks this device from your FrogPilot.com account. The device reboots into first-time setup. Learned driving data, Speed Limit Filler data, FrogPilot Stats, Toyota security keys, "The Pond" pairing, and Tailscale sign-in stay.</source>
+        <translation>Tüm FrogPilot ayarları ve bazı openpilot ayarları sıfırlansın mı? Bu işlem kayıtlı anahtarlarınızı, favori yerlerinizi, Discord adınızı, saat diliminizi, seçtiğiniz araç markasını ve modelini, SSH anahtarlarını ve harita ayarlarını siler; SSH'yi ve kişisel erişim noktasını kapatır, FrogPilot verilerinin paylaşılıp paylaşılmayacağını yeniden sorar ve bu cihazın FrogPilot.com hesabınızla bağlantısını kaldırır. Cihaz yeniden başlatılır ve ilk kuruluma geçer. Öğrenilmiş sürüş verileri, Hız Sınırı Tamamlayıcı verileri, FrogPilot İstatistikleri, Toyota güvenlik anahtarları, "The Pond" eşleştirmesi ve Tailscale oturumu korunur.</translation>
     </message>
     <message>
-        <source>Reset every setting to match stock openpilot? This also erases your saved keys, favorite places, Discord name, timezone, map settings, driving stats, Speed Limit Filler data, saved car details, SSH keys, and paired browsers, turns SSH off, signs out of Tailscale, and asks again whether to share FrogPilot data. You will have to accept the terms, redo the training, and set your language again.</source>
-        <translation type="unfinished"></translation>
+        <source>&lt;b&gt;Put every setting back to what plain openpilot uses, turning FrogPilot's own features off rather than back to FrogPilot's defaults.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This also clears your accepted terms, your completed training, and your language, so you go through first-time setup again in English. It also erases your saved keys (Mapbox and weather), favorite places, Discord name, timezone, chosen car make and model, SSH keys, and map settings, turns SSH and tethering off, asks again whether to share FrogPilot data, and unlinks this device from your FrogPilot.com account. The reset happens while the device reboots. Your drives, backups, downloaded themes, learned driving data, Speed Limit Filler data, FrogPilot Stats, Toyota security keys, "The Pond" pairing, Tailscale sign-in, "Experimental Mode", and "openpilot Longitudinal Control (Alpha)" are left alone, and settings backups still hold your keys and favorite places until you delete them.</source>
+        <translation>&lt;b&gt;Tüm ayarları standart openpilot'ın kullandığı değerlere döndürün; FrogPilot'ın kendi özellikleri FrogPilot varsayılanlarına dönmek yerine kapatılır.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Bu işlem ayrıca kabul ettiğiniz şartları, tamamladığınız eğitimi ve dil seçiminizi temizler; böylece ilk kurulumu İngilizce olarak yeniden yaparsınız. Ayrıca kayıtlı anahtarlarınızı (Mapbox ve hava durumu), favori yerlerinizi, Discord adınızı, saat diliminizi, seçtiğiniz araç markasını ve modelini, SSH anahtarlarını ve harita ayarlarını siler; SSH'yi ve kişisel erişim noktasını kapatır, FrogPilot verilerinin paylaşılıp paylaşılmayacağını yeniden sorar ve bu cihazın FrogPilot.com hesabınızla bağlantısını kaldırır. Sıfırlama, cihaz yeniden başlatılırken gerçekleşir. Sürüşleriniz, yedekleriniz, indirilmiş temalarınız, öğrenilmiş sürüş verileriniz, Hız Sınırı Tamamlayıcı verileri, FrogPilot İstatistikleri, Toyota güvenlik anahtarları, "The Pond" eşleştirmesi, Tailscale oturumu, "Deneysel Mod" ve "openpilot Boyuna Kontrolü (Alfa)" olduğu gibi kalır; ayar yedekleri ise siz silene kadar anahtarlarınızı ve favori yerlerinizi tutmaya devam eder.</translation>
+    </message>
+    <message>
+        <source>Reset every setting to match stock openpilot? This erases your saved keys, favorite places, Discord name, timezone, chosen car make and model, SSH keys, and map settings, turns SSH and tethering off, asks again whether to share FrogPilot data, and unlinks this device from your FrogPilot.com account. The device reboots into first-time setup. Learned driving data, Speed Limit Filler data, FrogPilot Stats, Toyota security keys, "The Pond" pairing, and Tailscale sign-in stay.</source>
+        <translation>Tüm ayarlar standart openpilot ile aynı olacak şekilde sıfırlansın mı? Bu işlem kayıtlı anahtarlarınızı, favori yerlerinizi, Discord adınızı, saat diliminizi, seçtiğiniz araç markasını ve modelini, SSH anahtarlarını ve harita ayarlarını siler; SSH'yi ve kişisel erişim noktasını kapatır, FrogPilot verilerinin paylaşılıp paylaşılmayacağını yeniden sorar ve bu cihazın FrogPilot.com hesabınızla bağlantısını kaldırır. Cihaz yeniden başlatılır ve ilk kuruluma geçer. Öğrenilmiş sürüş verileri, Hız Sınırı Tamamlayıcı verileri, FrogPilot İstatistikleri, Toyota güvenlik anahtarları, "The Pond" eşleştirmesi ve Tailscale oturumu korunur.</translation>
     </message>
 </context>
 <context>
@@ -4814,84 +4918,84 @@ Retry to avoid duplicates.</source>
         <translation>İlk sürüşe kadar bilinmiyor</translation>
     </message>
     <message>
-        <source>&lt;b&gt;The make of the car openpilot is using.&lt;/b&gt; To pick one yourself, turn on "Disable Automatic Fingerprint Detection" first ("Advanced" tuning level).</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;The model of the car openpilot is using.&lt;/b&gt; To pick one yourself, turn on "Disable Automatic Fingerprint Detection" first ("Advanced" tuning level).</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>&lt;b&gt;Settings that only work on Genesis, Hyundai, and Kia cars, covering a steering torque hack.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The steering hack only appears on cars using CAN-FD.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Yalnızca Genesis, Hyundai ve Kia araçlarda çalışan; bir direksiyon torku hilesini kapsayan ayarlar.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Direksiyon hilesi yalnızca CAN-FD kullanan araçlarda görünür.</translation>
     </message>
     <message>
         <source>Reset</source>
-        <translation type="unfinished">Sıfırla</translation>
+        <translation>Sıfırla</translation>
     </message>
     <message>
         <source>&lt;b&gt;Warning:&lt;/b&gt; openpilot can't tell whether your keys are still in the car, so keep a spare somewhere safe before you rely on this!</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Line up the speed openpilot shows on screen with the number on your dashboard, which most cars deliberately read a little high.&lt;/b&gt;&lt;br&gt;&lt;br&gt;With "Use Wheel Speed" off, raise it until openpilot's number matches your dashboard. This does not change how fast openpilot actually drives, with one exception: while it is following posted speed limits, a higher number here makes it drive slightly slower.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Uyarı:&lt;/b&gt; openpilot anahtarlarınızın hâlâ araçta olup olmadığını belirleyemez; bu nedenle bu özelliğe güvenmeden önce yedek anahtarı güvenli bir yerde tutun!</translation>
     </message>
     <message>
         <source>Acura/Honda Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Acura/Honda Ayarları</translation>
     </message>
     <message>
         <source>&lt;b&gt;Settings that only work on Acura and Honda cars with the older Nidec cruise control, covering how openpilot follows and brakes.&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Yalnızca eski Nidec hız sabitleyiciye sahip Acura ve Honda araçlarda çalışan; openpilot'ın takip ve frenleme biçimini kapsayan ayarlar.&lt;/b&gt;</translation>
     </message>
     <message>
         <source>Gentle Following</source>
-        <translation type="unfinished"></translation>
+        <translation>Yumuşak Takip</translation>
     </message>
     <message>
         <source>&lt;b&gt;Soften how hard openpilot corrects its speed behind the car ahead, for smoother following in stop-and-go traffic.&lt;/b&gt;&lt;br&gt;&lt;br&gt;openpilot settles small speed differences more slowly, so it can take a moment longer to close a gap after the car ahead pulls away.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Dur-kalk trafikte daha yumuşak bir takip için openpilot'ın öndeki aracın arkasında hızını düzeltme sertliğini azaltın.&lt;/b&gt;&lt;br&gt;&lt;br&gt;openpilot küçük hız farklarını daha yavaş giderir; bu nedenle öndeki araç uzaklaştıktan sonra aralığı kapatması biraz daha uzun sürebilir.</translation>
     </message>
     <message>
         <source>Increased Braking Force</source>
-        <translation type="unfinished"></translation>
+        <translation>Artırılmış Frenleme Kuvveti</translation>
     </message>
     <message>
         <source>&lt;b&gt;Let openpilot use your car's full braking force for its hardest stops.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Without it, openpilot's hardest stop only uses about four fifths of the brakes on these cars. With it on, every stop brakes a little firmer for the same request.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;openpilot'ın en sert duruşları için aracınızın tam fren gücünü kullanmasına izin verin.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Bu kapalıyken openpilot'ın en sert duruşu bu araçlarda frenlerin yalnızca yaklaşık beşte dördünü kullanır. Açıkken aynı istek için her duruşta biraz daha sıkı frenlenir.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Settings that only work on Buick, Cadillac, Chevrolet, GMC, and Holden cars, covering pedal response on hills and how openpilot stops and starts.&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Yalnızca Buick, Cadillac, Chevrolet, GMC ve Holden araçlarda çalışan; yokuşlardaki pedal tepkisini ve openpilot'ın duruş ve kalkış biçimini kapsayan ayarlar.&lt;/b&gt;</translation>
     </message>
     <message>
         <source>Smooth Pedal Response on Hills</source>
-        <translation type="unfinished"></translation>
+        <translation>Yokuşlarda Yumuşak Pedal Tepkisi</translation>
     </message>
     <message>
         <source>&lt;b&gt;Add gas going uphill and ease off going downhill, so openpilot holds a steady pace on hills instead of correcting after the car has already slowed down or sped up.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Slopes gentler than about 1% are ignored. The brakes get the same adjustment above about 22 mph, and it fades out as you slow to about 11 mph so stops feel the same as on flat ground.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Extra hardware openpilot has found fitted to your car, such as a comma pedal, an SDSU, or a ZSS.&lt;/b&gt;&lt;br&gt;&lt;br&gt;openpilot works these out from your car's wiring on its own. "None" is not proof nothing is fitted: a comma pedal is only reported on cars that support one.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;openpilot'ın, araç yavaşladıktan veya hızlandıktan sonra düzeltmek yerine yokuşlarda sabit bir tempo koruması için yokuş yukarı gaz ekleyin ve yokuş aşağı gazı azaltın.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Yaklaşık yüzde 1'den daha hafif eğimler yok sayılır. Frenler yaklaşık 22 mil/sa üzerinde aynı ayarlamayı alır ve hız yaklaşık 11 mil/sa seviyesine düşerken bu ayarlama azalarak kaybolur; böylece duruşlar düz zemindekiyle aynı hissettirir.</translation>
     </message>
     <message>
         <source>Responsive Pedal at Low Speeds</source>
-        <translation type="unfinished"></translation>
+        <translation>Düşük Hızlarda Tepkili Pedal</translation>
     </message>
     <message>
         <source>&lt;b&gt;Improves acceleration from a standstill for a more responsive throttle feel in city driving.&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Şehir içi sürüşte gaz tepkisinin daha canlı hissedilmesi için duruş hâlinden hızlanmayı iyileştirir.&lt;/b&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Swap in FrogsGoMoo's own settings for how openpilot comes to a stop.&lt;/b&gt;&lt;br&gt;&lt;br&gt;These are personal preferences rather than a fix for anything, and they are already on. They take over your stopping and starting values from "Driving Controls" and hide those rows while this is on, though on a Toyota the starting value has no effect. They also make openpilot's gas and brake control predict the car's acceleration further ahead at every speed, so they change how it drives while cruising as well.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;openpilot'ın duruş biçimi için FrogsGoMoo'nun kendi ayarlarını kullanın.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Bunlar bir sorunu düzelten değil, kişisel tercih olan ayarlardır ve zaten açıktır. Bu ayar açıkken "Sürüş Denetimleri" altındaki duruş ve kalkış değerlerinizin yerini alır ve o satırları gizler; ancak Toyota'da kalkış değerinin etkisi yoktur. Ayrıca openpilot'ın gaz ve fren kontrolünün her hızda aracın ivmesini daha ileriye dönük tahmin etmesini sağlar; dolayısıyla seyir sırasındaki sürüşünü de değiştirir.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Make the car pull away by itself after a full stop on a Lexus or Toyota that does not do this from the factory.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Without it you have to press the gas or the resume button every time traffic moves off. It works by telling the car openpilot is never fully stopped, so keep your foot near the brake the first few times. It also lets openpilot engage, and stay engaged, below about 19 mph (30 km/h), where it would otherwise refuse or turn itself off.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Fabrika çıkışında bunu yapmayan bir Lexus veya Toyota'nın tam duruştan sonra kendiliğinden kalkmasını sağlayın.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Bu özellik olmadan trafik her hareket ettiğinde gaza veya devam düğmesine basmanız gerekir. Araca openpilot'ın hiçbir zaman tamamen durmadığını bildirerek çalışır; bu nedenle ilk birkaç kullanımda ayağınızı frenin yakınında tutun. Ayrıca openpilot'ın, normalde devreye girmeyi reddedeceği veya kendini kapatacağı yaklaşık 19 mil/sa (30 km/sa) hızın altında devreye girmesine ve devrede kalmasına olanak tanır.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;The make of the car openpilot is using.&lt;/b&gt; If openpilot doesn't recognize your car, pick it here and openpilot uses it instead. To always use the car you pick, turn on "Disable Automatic Fingerprint Detection" ("Advanced" tuning level).</source>
+        <translation>&lt;b&gt;openpilot'ın kullandığı araç markası.&lt;/b&gt; openpilot aracınızı tanımıyorsa buradan seçin; openpilot bunun yerine seçtiğiniz aracı kullanır. Seçtiğiniz aracı her zaman kullanmak için "Otomatik Araç Tanımayı Devre Dışı Bırak" ayarını açın ("Gelişmiş" ayarlama seviyesi).</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;The model of the car openpilot is using.&lt;/b&gt; If openpilot doesn't recognize your car, pick it here and openpilot uses it instead. To always use the car you pick, turn on "Disable Automatic Fingerprint Detection" ("Advanced" tuning level).</source>
+        <translation>&lt;b&gt;openpilot'ın kullandığı araç modeli.&lt;/b&gt; openpilot aracınızı tanımıyorsa buradan seçin; openpilot bunun yerine seçtiğiniz aracı kullanır. Seçtiğiniz aracı her zaman kullanmak için "Otomatik Araç Tanımayı Devre Dışı Bırak" ayarını açın ("Gelişmiş" ayarlama seviyesi).</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Line up the speed openpilot shows on screen with the number on your dashboard, which most cars deliberately read a little high.&lt;/b&gt;&lt;br&gt;&lt;br&gt;With "Use Wheel Speed" off, raise it until openpilot's number matches your dashboard. This does not change how fast openpilot actually drives, except that while it is following posted speed limits, a higher number here makes it drive slightly slower.</source>
+        <translation>&lt;b&gt;openpilot'ın ekranda gösterdiği hızı, çoğu aracın bilerek biraz yüksek gösterdiği gösterge panelinizdeki değerle eşitleyin.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"Tekerlek Hızını Kullan" kapalıyken openpilot'ın gösterdiği değer gösterge panelinizle eşleşene kadar artırın. Bu, openpilot'ın gerçekte ne kadar hızlı sürdüğünü değiştirmez; ancak belirtilen hız sınırlarını izlerken buradaki daha yüksek bir değer biraz daha yavaş sürmesine neden olur.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Extra hardware openpilot has found fitted to your car, such as a comma pedal, an SDSU, or a ZSS.&lt;/b&gt;&lt;br&gt;&lt;br&gt;openpilot works these out from your car's wiring on its own. "None" is not proof nothing is fitted. A comma pedal is only reported on cars that support one.</source>
+        <translation>&lt;b&gt;openpilot'ın aracınızda takılı olduğunu belirlediği comma pedal, SDSU veya ZSS gibi ek donanımlar.&lt;/b&gt;&lt;br&gt;&lt;br&gt;openpilot bunları aracınızın kablo bağlantılarından kendisi belirler. "Yok" hiçbir donanım takılı olmadığının kanıtı değildir. comma pedal yalnızca bunu destekleyen araçlarda bildirilir.</translation>
     </message>
 </context>
 <context>
@@ -5098,7 +5202,7 @@ Retry to avoid duplicates.</source>
     </message>
     <message>
         <source>&lt;b&gt;Add extra things to the driving screen that stock openpilot does not show.&lt;/b&gt;&lt;br&gt;&lt;br&gt;One of these does change how the car drives: the "Driving Personality Button" switches your following distance.</source>
-        <translation>&lt;b&gt;Sürüş ekranına standart openpilot'ın göstermediği ek ögeler ekleyin.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Bunlardan biri aracın sürüşünü değiştirir: "Sürüş Karakteri Düğmesi" takip mesafenizi değiştirir.</translation>
+        <translation type="vanished">&lt;b&gt;Sürüş ekranına standart openpilot'ın göstermediği ek ögeler ekleyin.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Bunlardan biri aracın sürüşünü değiştirir: "Sürüş Karakteri Düğmesi" takip mesafenizi değiştirir.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Color the driving path green when openpilot is speeding up and red when it is slowing down.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Handy for seeing a slowdown coming before you feel it.</source>
@@ -5158,47 +5262,51 @@ Retry to avoid duplicates.</source>
     </message>
     <message>
         <source>&lt;b&gt;Add a compass to the driving screen showing which way you are heading.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Without a GPS fix it freezes on the last heading it knew rather than disappearing, so treat a compass that never moves as no reading at all.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Gittiğiniz yönü gösteren bir pusulayı sürüş ekranına ekleyin.&lt;/b&gt;&lt;br&gt;&lt;br&gt;GPS konumu alınamazsa kaybolmak yerine bildiği son yönde donar; bu nedenle hiç hareket etmeyen pusulayı geçersiz okuma olarak değerlendirin.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Change what navigation shows on the driving screen, from the road name to speed limit signs.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Some of these need map data downloaded under "Maps and Navigation" before they show anything.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Yol adından hız sınırı işaretlerine kadar navigasyonun sürüş ekranında neleri göstereceğini değiştirin.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Bazılarının görünmesi için önce "Haritalar ve Navigasyon" altında harita verisi indirilmelidir.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Show the posted speed limit as a sign in the top-left corner of the driving screen.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The limit comes from your downloaded map data first, then from your car's dashboard where it can read one, and from signs read by the camera otherwise.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Belirtilen hız sınırını sürüş ekranının sol üst köşesinde bir işaret olarak gösterin.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Sınır önce indirdiğiniz harita verilerinden, ardından okuyabildiği durumlarda aracınızın gösterge panelinden, aksi hâlde kameranın okuduğu levhalardan alınır.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Draw the paths of the lanes either side of you, so you can see where openpilot thinks they run.&lt;/b&gt;&lt;br&gt;&lt;br&gt;They only appear above your "Minimum Lane Change Speed" (20 mph or 32 km/h by default), and only where openpilot sees a lane between you and the road edge.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;openpilot'ın iki yanınızdaki şeritlerin nereden geçtiğini düşündüğünü görebilmek için yollarını çizin.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Yalnızca "Asgari Şerit Değiştirme Hızı"nın (varsayılan olarak 20 mil/sa veya 32 km/sa) üzerinde ve yalnızca openpilot sizinle yol kenarı arasında bir şerit gördüğünde görünürler.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Turn the lane beside you red whenever your car's sensors see something in that blind spot.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It only shows up above your "Minimum Lane Change Speed" (20 mph or 32 km/h by default), so it stays away in slow traffic and parking lots. Keep checking your mirrors regardless.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Aracınızın sensörleri kör noktada bir şey gördüğünde yanınızdaki şeridi kırmızıya çevirin.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Yalnızca "Asgari Şerit Değiştirme Hızı"nın (varsayılan olarak 20 mil/sa veya 32 km/sa) üzerinde görünür; düşük hızlı trafikte ve otoparklarda görünmez. Her durumda aynalarınızı kontrol etmeye devam edin.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Add a button to the driving screen that switches your following distance between Aggressive, Standard, and Relaxed without going into the menus.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It works as a second "Distance" button, so holding it, or changing what that button does under "WHEEL BUTTONS", gives you those actions instead. This changes how the car actually drives, not just what you see. It also shows which one is active.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Menülere girmeden takip mesafenizi Atak, Standart ve Rahat arasında değiştiren bir düğmeyi sürüş ekranına ekleyin.&lt;/b&gt;&lt;br&gt;&lt;br&gt;İkinci bir "Mesafe" düğmesi gibi çalışır; bu nedenle düğmeyi basılı tutmak veya "DİREKSİYON DÜĞMELERİ" altında o düğmenin işlevini değiştirmek size bunun yerine o işlemleri sunar. Bu yalnızca görünümü değil, aracın gerçek sürüşünü değiştirir. Ayrıca hangisinin etkin olduğunu gösterir.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Show gas and brake indicators on the driving screen that light up as the car speeds up or slows down, whether openpilot or you are driving.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"Dynamic" fades them in and out with how hard the car is accelerating or braking. "Static" shows them fully lit when active and dim when not.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Sürüşü openpilot veya siz yapıyor olun, araç hızlanırken ya da yavaşlarken yanan gaz ve fren göstergelerini sürüş ekranında gösterin.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"Dinamik", aracın ne kadar sert hızlandığına veya frenlediğine göre göstergeleri yumuşakça belirginleştirip soldurur. "Sabit", etkin olduklarında tam parlak, değilken soluk gösterir.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Make the driving path narrower when openpilot is doing less of the driving, so you can tell at a glance how much control it has.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Full width while openpilot is driving, three quarters while "Always On Lateral" is steering for you, and half the rest of the time.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;openpilot sürüşün daha azını yaparken sürüş yolunu daraltarak ne kadar kontrole sahip olduğunu bir bakışta görün.&lt;/b&gt;&lt;br&gt;&lt;br&gt;openpilot sürüşü yönetirken tam genişlik, "Her Zaman Açık Yanal Kontrol" sizin için yönlendirirken dörtte üç, diğer zamanlarda yarım genişlik kullanılır.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Set how thick the colored stripe down each side of the driving path is, which is what tells you which mode openpilot is in.&lt;/b&gt;&lt;br&gt;&lt;br&gt;By default the two stripes together take up a fifth of the path width. Set it to zero to hide the stripe entirely.&lt;br&gt;&lt;br&gt;Light blue means "Always On Lateral" is steering for you, green is normal driving, orange is Experimental Mode, red is Traffic Mode, and yellow means you have overridden Conditional Experimental Mode to keep Experimental Mode off.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Sürüş yolunun iki yanındaki, openpilot'ın hangi modda olduğunu gösteren renkli kenar çizgisinin kalınlığını ayarlayın.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Varsayılan olarak iki kenar çizgisi birlikte sürüş yolu genişliğinin beşte birini kaplar. Kenar çizgisini tamamen gizlemek için sıfıra ayarlayın.&lt;br&gt;&lt;br&gt;Açık mavi "Her Zaman Açık Yanal Kontrol"ün sizin için yönlendirdiğini, yeşil normal sürüşü, turuncu Deneysel Mod'u, kırmızı Trafik Modu'nu, sarı ise Deneysel Mod'u kapalı tutmak için Koşullu Deneysel Mod'u geçersiz kıldığınızı gösterir.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Replace your speed with a running timer once you come to a complete stop, so you can see how long you have been waiting.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It stays off for the first minute of a drive.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Tamamen durduğunuzda hızınızın yerine çalışan bir zamanlayıcı göstererek ne kadar beklediğinizi görün.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Sürüşün ilk dakikasında kapalı kalır.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Fall back to Mapbox for the speed limit when none of your downloaded maps, your dashboard, or signs read by the camera know one.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Needs your Public Mapbox Key set up under "Maps and Navigation" and a working internet connection. It sends your location to Mapbox to look up the limit.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;İndirdiğiniz haritalar, gösterge paneliniz ve kameranın okuduğu levhaların hiçbiri hız sınırını bilmiyorsa yedek olarak Mapbox'ı kullanın.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"Haritalar ve Navigasyon" altında Genel Mapbox Anahtarınızın ayarlanmış olması ve çalışan bir internet bağlantısı gerekir. Sınırı sorgulamak için konumunuzu Mapbox'a gönderir.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Add extra things to the driving screen that stock openpilot does not show.&lt;/b&gt;&lt;br&gt;&lt;br&gt;One of these does change how the car drives. The "Driving Personality Button" switches your following distance.</source>
+        <translation>&lt;b&gt;Sürüş ekranına standart openpilot'ın göstermediği ek ögeler ekleyin.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Bunlardan biri aracın sürüşünü değiştirir. "Sürüş Karakteri Düğmesi" takip mesafenizi değiştirir.</translation>
     </message>
 </context>
 <context>
@@ -5269,7 +5377,7 @@ Retry to avoid duplicates.</source>
     </message>
     <message>
         <source>&lt;b&gt;Action performed when the "Distance" button is pressed.&lt;/b&gt;&lt;br&gt;&lt;br&gt;On GM cars with adaptive cruise, changing the "Personality Profile" takes a second press within 3.5 seconds of the first.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;"Mesafe" düğmesine basıldığında gerçekleştirilecek işlem.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Uyarlanabilir hız sabitleyicili GM araçlarda "Sürüş Karakteri Profili"ni değiştirmek için ilk basıştan sonraki 3,5 saniye içinde ikinci kez basmak gerekir.</translation>
     </message>
 </context>
 <context>
@@ -5308,933 +5416,933 @@ Retry to avoid duplicates.</source>
     <name>InstantReplayButton</name>
     <message>
         <source>SAVING...</source>
-        <translation type="unfinished"></translation>
+        <translation>KAYDEDİLİYOR...</translation>
     </message>
     <message>
         <source>CAPTURE</source>
-        <translation type="unfinished"></translation>
+        <translation>KAYDET</translation>
     </message>
     <message>
         <source>BUFFERING...</source>
-        <translation type="unfinished"></translation>
+        <translation>HAZIRLANIYOR...</translation>
     </message>
 </context>
 <context>
     <name>MapSelectionControl</name>
     <message>
         <source>Algeria</source>
-        <translation type="unfinished"></translation>
+        <translation>Cezayir</translation>
     </message>
     <message>
         <source>Angola</source>
-        <translation type="unfinished"></translation>
+        <translation>Angola</translation>
     </message>
     <message>
         <source>Benin</source>
-        <translation type="unfinished"></translation>
+        <translation>Benin</translation>
     </message>
     <message>
         <source>Botswana</source>
-        <translation type="unfinished"></translation>
+        <translation>Botsvana</translation>
     </message>
     <message>
         <source>Burkina Faso</source>
-        <translation type="unfinished"></translation>
+        <translation>Burkina Faso</translation>
     </message>
     <message>
         <source>Burundi</source>
-        <translation type="unfinished"></translation>
+        <translation>Burundi</translation>
     </message>
     <message>
         <source>Cameroon</source>
-        <translation type="unfinished"></translation>
+        <translation>Kamerun</translation>
     </message>
     <message>
         <source>Central African Republic</source>
-        <translation type="unfinished"></translation>
+        <translation>Orta Afrika Cumhuriyeti</translation>
     </message>
     <message>
         <source>Chad</source>
-        <translation type="unfinished"></translation>
+        <translation>Çad</translation>
     </message>
     <message>
         <source>Congo (Brazzaville)</source>
-        <translation type="unfinished"></translation>
+        <translation>Kongo (Brazzaville)</translation>
     </message>
     <message>
         <source>Congo (Kinshasa)</source>
-        <translation type="unfinished"></translation>
+        <translation>Kongo (Kinşasa)</translation>
     </message>
     <message>
         <source>Djibouti</source>
-        <translation type="unfinished"></translation>
+        <translation>Cibuti</translation>
     </message>
     <message>
         <source>Egypt</source>
-        <translation type="unfinished"></translation>
+        <translation>Mısır</translation>
     </message>
     <message>
         <source>Equatorial Guinea</source>
-        <translation type="unfinished"></translation>
+        <translation>Ekvator Ginesi</translation>
     </message>
     <message>
         <source>Eritrea</source>
-        <translation type="unfinished"></translation>
+        <translation>Eritre</translation>
     </message>
     <message>
         <source>Eswatini</source>
-        <translation type="unfinished"></translation>
+        <translation>Esvatini</translation>
     </message>
     <message>
         <source>Ethiopia</source>
-        <translation type="unfinished"></translation>
+        <translation>Etiyopya</translation>
     </message>
     <message>
         <source>Gabon</source>
-        <translation type="unfinished"></translation>
+        <translation>Gabon</translation>
     </message>
     <message>
         <source>Gambia</source>
-        <translation type="unfinished"></translation>
+        <translation>Gambiya</translation>
     </message>
     <message>
         <source>Ghana</source>
-        <translation type="unfinished"></translation>
+        <translation>Gana</translation>
     </message>
     <message>
         <source>Guinea</source>
-        <translation type="unfinished"></translation>
+        <translation>Gine</translation>
     </message>
     <message>
         <source>Guinea-Bissau</source>
-        <translation type="unfinished"></translation>
+        <translation>Gine-Bissau</translation>
     </message>
     <message>
         <source>Ivory Coast</source>
-        <translation type="unfinished"></translation>
+        <translation>Fildişi Sahili</translation>
     </message>
     <message>
         <source>Kenya</source>
-        <translation type="unfinished"></translation>
+        <translation>Kenya</translation>
     </message>
     <message>
         <source>Lesotho</source>
-        <translation type="unfinished"></translation>
+        <translation>Lesotho</translation>
     </message>
     <message>
         <source>Liberia</source>
-        <translation type="unfinished"></translation>
+        <translation>Liberya</translation>
     </message>
     <message>
         <source>Libya</source>
-        <translation type="unfinished"></translation>
+        <translation>Libya</translation>
     </message>
     <message>
         <source>Madagascar</source>
-        <translation type="unfinished"></translation>
+        <translation>Madagaskar</translation>
     </message>
     <message>
         <source>Malawi</source>
-        <translation type="unfinished"></translation>
+        <translation>Malavi</translation>
     </message>
     <message>
         <source>Mali</source>
-        <translation type="unfinished"></translation>
+        <translation>Mali</translation>
     </message>
     <message>
         <source>Mauritania</source>
-        <translation type="unfinished"></translation>
+        <translation>Moritanya</translation>
     </message>
     <message>
         <source>Morocco</source>
-        <translation type="unfinished"></translation>
+        <translation>Fas</translation>
     </message>
     <message>
         <source>Mozambique</source>
-        <translation type="unfinished"></translation>
+        <translation>Mozambik</translation>
     </message>
     <message>
         <source>Namibia</source>
-        <translation type="unfinished"></translation>
+        <translation>Namibya</translation>
     </message>
     <message>
         <source>Niger</source>
-        <translation type="unfinished"></translation>
+        <translation>Nijer</translation>
     </message>
     <message>
         <source>Nigeria</source>
-        <translation type="unfinished"></translation>
+        <translation>Nijerya</translation>
     </message>
     <message>
         <source>Rwanda</source>
-        <translation type="unfinished"></translation>
+        <translation>Ruanda</translation>
     </message>
     <message>
         <source>Senegal</source>
-        <translation type="unfinished"></translation>
+        <translation>Senegal</translation>
     </message>
     <message>
         <source>Sierra Leone</source>
-        <translation type="unfinished"></translation>
+        <translation>Sierra Leone</translation>
     </message>
     <message>
         <source>Somalia</source>
-        <translation type="unfinished"></translation>
+        <translation>Somali</translation>
     </message>
     <message>
         <source>South Africa</source>
-        <translation type="unfinished"></translation>
+        <translation>Güney Afrika</translation>
     </message>
     <message>
         <source>South Sudan</source>
-        <translation type="unfinished"></translation>
+        <translation>Güney Sudan</translation>
     </message>
     <message>
         <source>Sudan</source>
-        <translation type="unfinished"></translation>
+        <translation>Sudan</translation>
     </message>
     <message>
         <source>Tanzania</source>
-        <translation type="unfinished"></translation>
+        <translation>Tanzanya</translation>
     </message>
     <message>
         <source>Togo</source>
-        <translation type="unfinished"></translation>
+        <translation>Togo</translation>
     </message>
     <message>
         <source>Tunisia</source>
-        <translation type="unfinished"></translation>
+        <translation>Tunus</translation>
     </message>
     <message>
         <source>Uganda</source>
-        <translation type="unfinished"></translation>
+        <translation>Uganda</translation>
     </message>
     <message>
         <source>Zambia</source>
-        <translation type="unfinished"></translation>
+        <translation>Zambiya</translation>
     </message>
     <message>
         <source>Zimbabwe</source>
-        <translation type="unfinished"></translation>
+        <translation>Zimbabve</translation>
     </message>
     <message>
         <source>Antarctica</source>
-        <translation type="unfinished">Antarktika</translation>
+        <translation>Antarktika</translation>
     </message>
     <message>
         <source>Afghanistan</source>
-        <translation type="unfinished"></translation>
+        <translation>Afganistan</translation>
     </message>
     <message>
         <source>Armenia</source>
-        <translation type="unfinished"></translation>
+        <translation>Ermenistan</translation>
     </message>
     <message>
         <source>Azerbaijan</source>
-        <translation type="unfinished"></translation>
+        <translation>Azerbaycan</translation>
     </message>
     <message>
         <source>Bangladesh</source>
-        <translation type="unfinished"></translation>
+        <translation>Bangladeş</translation>
     </message>
     <message>
         <source>Bhutan</source>
-        <translation type="unfinished"></translation>
+        <translation>Butan</translation>
     </message>
     <message>
         <source>Brunei</source>
-        <translation type="unfinished"></translation>
+        <translation>Brunei</translation>
     </message>
     <message>
         <source>Cambodia</source>
-        <translation type="unfinished"></translation>
+        <translation>Kamboçya</translation>
     </message>
     <message>
         <source>China</source>
-        <translation type="unfinished"></translation>
+        <translation>Çin</translation>
     </message>
     <message>
         <source>Cyprus</source>
-        <translation type="unfinished"></translation>
+        <translation>Kıbrıs</translation>
     </message>
     <message>
         <source>East Timor</source>
-        <translation type="unfinished"></translation>
+        <translation>Doğu Timor</translation>
     </message>
     <message>
         <source>India</source>
-        <translation type="unfinished"></translation>
+        <translation>Hindistan</translation>
     </message>
     <message>
         <source>Indonesia</source>
-        <translation type="unfinished"></translation>
+        <translation>Endonezya</translation>
     </message>
     <message>
         <source>Iran</source>
-        <translation type="unfinished"></translation>
+        <translation>İran</translation>
     </message>
     <message>
         <source>Iraq</source>
-        <translation type="unfinished"></translation>
+        <translation>Irak</translation>
     </message>
     <message>
         <source>Israel</source>
-        <translation type="unfinished"></translation>
+        <translation>İsrail</translation>
     </message>
     <message>
         <source>Japan</source>
-        <translation type="unfinished"></translation>
+        <translation>Japonya</translation>
     </message>
     <message>
         <source>Jordan</source>
-        <translation type="unfinished"></translation>
+        <translation>Ürdün</translation>
     </message>
     <message>
         <source>Kazakhstan</source>
-        <translation type="unfinished"></translation>
+        <translation>Kazakistan</translation>
     </message>
     <message>
         <source>Kuwait</source>
-        <translation type="unfinished"></translation>
+        <translation>Kuveyt</translation>
     </message>
     <message>
         <source>Kyrgyzstan</source>
-        <translation type="unfinished"></translation>
+        <translation>Kırgızistan</translation>
     </message>
     <message>
         <source>Laos</source>
-        <translation type="unfinished"></translation>
+        <translation>Laos</translation>
     </message>
     <message>
         <source>Lebanon</source>
-        <translation type="unfinished"></translation>
+        <translation>Lübnan</translation>
     </message>
     <message>
         <source>Malaysia</source>
-        <translation type="unfinished"></translation>
+        <translation>Malezya</translation>
     </message>
     <message>
         <source>Mongolia</source>
-        <translation type="unfinished"></translation>
+        <translation>Moğolistan</translation>
     </message>
     <message>
         <source>Myanmar</source>
-        <translation type="unfinished"></translation>
+        <translation>Myanmar</translation>
     </message>
     <message>
         <source>Nepal</source>
-        <translation type="unfinished"></translation>
+        <translation>Nepal</translation>
     </message>
     <message>
         <source>North Korea</source>
-        <translation type="unfinished"></translation>
+        <translation>Kuzey Kore</translation>
     </message>
     <message>
         <source>Oman</source>
-        <translation type="unfinished"></translation>
+        <translation>Umman</translation>
     </message>
     <message>
         <source>Pakistan</source>
-        <translation type="unfinished"></translation>
+        <translation>Pakistan</translation>
     </message>
     <message>
         <source>Palestine</source>
-        <translation type="unfinished"></translation>
+        <translation>Filistin</translation>
     </message>
     <message>
         <source>Philippines</source>
-        <translation type="unfinished"></translation>
+        <translation>Filipinler</translation>
     </message>
     <message>
         <source>Qatar</source>
-        <translation type="unfinished"></translation>
+        <translation>Katar</translation>
     </message>
     <message>
         <source>Russia</source>
-        <translation type="unfinished"></translation>
+        <translation>Rusya</translation>
     </message>
     <message>
         <source>Saudi Arabia</source>
-        <translation type="unfinished"></translation>
+        <translation>Suudi Arabistan</translation>
     </message>
     <message>
         <source>South Korea</source>
-        <translation type="unfinished"></translation>
+        <translation>Güney Kore</translation>
     </message>
     <message>
         <source>Sri Lanka</source>
-        <translation type="unfinished"></translation>
+        <translation>Sri Lanka</translation>
     </message>
     <message>
         <source>Syria</source>
-        <translation type="unfinished"></translation>
+        <translation>Suriye</translation>
     </message>
     <message>
         <source>Taiwan</source>
-        <translation type="unfinished"></translation>
+        <translation>Tayvan</translation>
     </message>
     <message>
         <source>Tajikistan</source>
-        <translation type="unfinished"></translation>
+        <translation>Tacikistan</translation>
     </message>
     <message>
         <source>Thailand</source>
-        <translation type="unfinished"></translation>
+        <translation>Tayland</translation>
     </message>
     <message>
         <source>Turkey</source>
-        <translation type="unfinished"></translation>
+        <translation>Türkiye</translation>
     </message>
     <message>
         <source>Turkmenistan</source>
-        <translation type="unfinished"></translation>
+        <translation>Türkmenistan</translation>
     </message>
     <message>
         <source>United Arab Emirates</source>
-        <translation type="unfinished"></translation>
+        <translation>Birleşik Arap Emirlikleri</translation>
     </message>
     <message>
         <source>Uzbekistan</source>
-        <translation type="unfinished"></translation>
+        <translation>Özbekistan</translation>
     </message>
     <message>
         <source>Vietnam</source>
-        <translation type="unfinished"></translation>
+        <translation>Vietnam</translation>
     </message>
     <message>
         <source>Yemen</source>
-        <translation type="unfinished"></translation>
+        <translation>Yemen</translation>
     </message>
     <message>
         <source>Albania</source>
-        <translation type="unfinished"></translation>
+        <translation>Arnavutluk</translation>
     </message>
     <message>
         <source>Austria</source>
-        <translation type="unfinished"></translation>
+        <translation>Avusturya</translation>
     </message>
     <message>
         <source>Belarus</source>
-        <translation type="unfinished"></translation>
+        <translation>Belarus</translation>
     </message>
     <message>
         <source>Belgium</source>
-        <translation type="unfinished"></translation>
+        <translation>Belçika</translation>
     </message>
     <message>
         <source>Bosnia and Herzegovina</source>
-        <translation type="unfinished"></translation>
+        <translation>Bosna-Hersek</translation>
     </message>
     <message>
         <source>Bulgaria</source>
-        <translation type="unfinished"></translation>
+        <translation>Bulgaristan</translation>
     </message>
     <message>
         <source>Croatia</source>
-        <translation type="unfinished"></translation>
+        <translation>Hırvatistan</translation>
     </message>
     <message>
         <source>Czech Republic</source>
-        <translation type="unfinished"></translation>
+        <translation>Çek Cumhuriyeti</translation>
     </message>
     <message>
         <source>Denmark</source>
-        <translation type="unfinished"></translation>
+        <translation>Danimarka</translation>
     </message>
     <message>
         <source>Estonia</source>
-        <translation type="unfinished"></translation>
+        <translation>Estonya</translation>
     </message>
     <message>
         <source>Finland</source>
-        <translation type="unfinished"></translation>
+        <translation>Finlandiya</translation>
     </message>
     <message>
         <source>France</source>
-        <translation type="unfinished"></translation>
+        <translation>Fransa</translation>
     </message>
     <message>
         <source>Georgia</source>
-        <translation type="unfinished"></translation>
+        <translation>Gürcistan</translation>
     </message>
     <message>
         <source>Germany</source>
-        <translation type="unfinished"></translation>
+        <translation>Almanya</translation>
     </message>
     <message>
         <source>Greece</source>
-        <translation type="unfinished"></translation>
+        <translation>Yunanistan</translation>
     </message>
     <message>
         <source>Hungary</source>
-        <translation type="unfinished"></translation>
+        <translation>Macaristan</translation>
     </message>
     <message>
         <source>Iceland</source>
-        <translation type="unfinished"></translation>
+        <translation>İzlanda</translation>
     </message>
     <message>
         <source>Ireland</source>
-        <translation type="unfinished"></translation>
+        <translation>İrlanda</translation>
     </message>
     <message>
         <source>Italy</source>
-        <translation type="unfinished"></translation>
+        <translation>İtalya</translation>
     </message>
     <message>
         <source>Latvia</source>
-        <translation type="unfinished"></translation>
+        <translation>Letonya</translation>
     </message>
     <message>
         <source>Lithuania</source>
-        <translation type="unfinished"></translation>
+        <translation>Litvanya</translation>
     </message>
     <message>
         <source>Luxembourg</source>
-        <translation type="unfinished"></translation>
+        <translation>Lüksemburg</translation>
     </message>
     <message>
         <source>Moldova</source>
-        <translation type="unfinished"></translation>
+        <translation>Moldova</translation>
     </message>
     <message>
         <source>Montenegro</source>
-        <translation type="unfinished"></translation>
+        <translation>Karadağ</translation>
     </message>
     <message>
         <source>Netherlands</source>
-        <translation type="unfinished"></translation>
+        <translation>Hollanda</translation>
     </message>
     <message>
         <source>North Macedonia</source>
-        <translation type="unfinished"></translation>
+        <translation>Kuzey Makedonya</translation>
     </message>
     <message>
         <source>Norway</source>
-        <translation type="unfinished"></translation>
+        <translation>Norveç</translation>
     </message>
     <message>
         <source>Poland</source>
-        <translation type="unfinished"></translation>
+        <translation>Polonya</translation>
     </message>
     <message>
         <source>Portugal</source>
-        <translation type="unfinished"></translation>
+        <translation>Portekiz</translation>
     </message>
     <message>
         <source>Romania</source>
-        <translation type="unfinished"></translation>
+        <translation>Romanya</translation>
     </message>
     <message>
         <source>Serbia</source>
-        <translation type="unfinished"></translation>
+        <translation>Sırbistan</translation>
     </message>
     <message>
         <source>Slovakia</source>
-        <translation type="unfinished"></translation>
+        <translation>Slovakya</translation>
     </message>
     <message>
         <source>Slovenia</source>
-        <translation type="unfinished"></translation>
+        <translation>Slovenya</translation>
     </message>
     <message>
         <source>Spain</source>
-        <translation type="unfinished"></translation>
+        <translation>İspanya</translation>
     </message>
     <message>
         <source>Sweden</source>
-        <translation type="unfinished"></translation>
+        <translation>İsveç</translation>
     </message>
     <message>
         <source>Switzerland</source>
-        <translation type="unfinished"></translation>
+        <translation>İsviçre</translation>
     </message>
     <message>
         <source>Ukraine</source>
-        <translation type="unfinished"></translation>
+        <translation>Ukrayna</translation>
     </message>
     <message>
         <source>United Kingdom</source>
-        <translation type="unfinished"></translation>
+        <translation>Birleşik Krallık</translation>
     </message>
     <message>
         <source>Bahamas</source>
-        <translation type="unfinished"></translation>
+        <translation>Bahamalar</translation>
     </message>
     <message>
         <source>Belize</source>
-        <translation type="unfinished"></translation>
+        <translation>Belize</translation>
     </message>
     <message>
         <source>Canada</source>
-        <translation type="unfinished"></translation>
+        <translation>Kanada</translation>
     </message>
     <message>
         <source>Costa Rica</source>
-        <translation type="unfinished"></translation>
+        <translation>Kosta Rika</translation>
     </message>
     <message>
         <source>Cuba</source>
-        <translation type="unfinished"></translation>
+        <translation>Küba</translation>
     </message>
     <message>
         <source>Dominican Republic</source>
-        <translation type="unfinished"></translation>
+        <translation>Dominik Cumhuriyeti</translation>
     </message>
     <message>
         <source>El Salvador</source>
-        <translation type="unfinished"></translation>
+        <translation>El Salvador</translation>
     </message>
     <message>
         <source>Greenland</source>
-        <translation type="unfinished"></translation>
+        <translation>Grönland</translation>
     </message>
     <message>
         <source>Guatemala</source>
-        <translation type="unfinished"></translation>
+        <translation>Guatemala</translation>
     </message>
     <message>
         <source>Haiti</source>
-        <translation type="unfinished"></translation>
+        <translation>Haiti</translation>
     </message>
     <message>
         <source>Honduras</source>
-        <translation type="unfinished"></translation>
+        <translation>Honduras</translation>
     </message>
     <message>
         <source>Jamaica</source>
-        <translation type="unfinished"></translation>
+        <translation>Jamaika</translation>
     </message>
     <message>
         <source>Mexico</source>
-        <translation type="unfinished"></translation>
+        <translation>Meksika</translation>
     </message>
     <message>
         <source>Nicaragua</source>
-        <translation type="unfinished"></translation>
+        <translation>Nikaragua</translation>
     </message>
     <message>
         <source>Panama</source>
-        <translation type="unfinished"></translation>
+        <translation>Panama</translation>
     </message>
     <message>
         <source>Trinidad and Tobago</source>
-        <translation type="unfinished"></translation>
+        <translation>Trinidad ve Tobago</translation>
     </message>
     <message>
         <source>United States</source>
-        <translation type="unfinished"></translation>
+        <translation>Amerika Birleşik Devletleri</translation>
     </message>
     <message>
         <source>Australia</source>
-        <translation type="unfinished"></translation>
+        <translation>Avustralya</translation>
     </message>
     <message>
         <source>Fiji</source>
-        <translation type="unfinished"></translation>
+        <translation>Fiji</translation>
     </message>
     <message>
         <source>French Southern Territories</source>
-        <translation type="unfinished"></translation>
+        <translation>Fransız Güney Toprakları</translation>
     </message>
     <message>
         <source>New Caledonia</source>
-        <translation type="unfinished"></translation>
+        <translation>Yeni Kaledonya</translation>
     </message>
     <message>
         <source>New Zealand</source>
-        <translation type="unfinished"></translation>
+        <translation>Yeni Zelanda</translation>
     </message>
     <message>
         <source>Papua New Guinea</source>
-        <translation type="unfinished"></translation>
+        <translation>Papua Yeni Gine</translation>
     </message>
     <message>
         <source>Solomon Islands</source>
-        <translation type="unfinished"></translation>
+        <translation>Solomon Adaları</translation>
     </message>
     <message>
         <source>Vanuatu</source>
-        <translation type="unfinished"></translation>
+        <translation>Vanuatu</translation>
     </message>
     <message>
         <source>Argentina</source>
-        <translation type="unfinished"></translation>
+        <translation>Arjantin</translation>
     </message>
     <message>
         <source>Bolivia</source>
-        <translation type="unfinished"></translation>
+        <translation>Bolivya</translation>
     </message>
     <message>
         <source>Brazil</source>
-        <translation type="unfinished"></translation>
+        <translation>Brezilya</translation>
     </message>
     <message>
         <source>Chile</source>
-        <translation type="unfinished"></translation>
+        <translation>Şili</translation>
     </message>
     <message>
         <source>Colombia</source>
-        <translation type="unfinished"></translation>
+        <translation>Kolombiya</translation>
     </message>
     <message>
         <source>Ecuador</source>
-        <translation type="unfinished"></translation>
+        <translation>Ekvador</translation>
     </message>
     <message>
         <source>Falkland Islands</source>
-        <translation type="unfinished"></translation>
+        <translation>Falkland Adaları</translation>
     </message>
     <message>
         <source>Guyana</source>
-        <translation type="unfinished"></translation>
+        <translation>Guyana</translation>
     </message>
     <message>
         <source>Paraguay</source>
-        <translation type="unfinished"></translation>
+        <translation>Paraguay</translation>
     </message>
     <message>
         <source>Peru</source>
-        <translation type="unfinished"></translation>
+        <translation>Peru</translation>
     </message>
     <message>
         <source>Suriname</source>
-        <translation type="unfinished"></translation>
+        <translation>Surinam</translation>
     </message>
     <message>
         <source>Uruguay</source>
-        <translation type="unfinished"></translation>
+        <translation>Uruguay</translation>
     </message>
     <message>
         <source>Venezuela</source>
-        <translation type="unfinished"></translation>
+        <translation>Venezuela</translation>
     </message>
 </context>
 <context>
     <name>MapSelectionControlStates</name>
     <message>
         <source>Illinois</source>
-        <translation type="unfinished"></translation>
+        <translation>Illinois</translation>
     </message>
     <message>
         <source>Indiana</source>
-        <translation type="unfinished"></translation>
+        <translation>Indiana</translation>
     </message>
     <message>
         <source>Iowa</source>
-        <translation type="unfinished"></translation>
+        <translation>Iowa</translation>
     </message>
     <message>
         <source>Kansas</source>
-        <translation type="unfinished"></translation>
+        <translation>Kansas</translation>
     </message>
     <message>
         <source>Michigan</source>
-        <translation type="unfinished"></translation>
+        <translation>Michigan</translation>
     </message>
     <message>
         <source>Minnesota</source>
-        <translation type="unfinished"></translation>
+        <translation>Minnesota</translation>
     </message>
     <message>
         <source>Missouri</source>
-        <translation type="unfinished"></translation>
+        <translation>Missouri</translation>
     </message>
     <message>
         <source>Nebraska</source>
-        <translation type="unfinished"></translation>
+        <translation>Nebraska</translation>
     </message>
     <message>
         <source>North Dakota</source>
-        <translation type="unfinished"></translation>
+        <translation>Kuzey Dakota</translation>
     </message>
     <message>
         <source>Ohio</source>
-        <translation type="unfinished"></translation>
+        <translation>Ohio</translation>
     </message>
     <message>
         <source>South Dakota</source>
-        <translation type="unfinished"></translation>
+        <translation>Güney Dakota</translation>
     </message>
     <message>
         <source>Wisconsin</source>
-        <translation type="unfinished"></translation>
+        <translation>Wisconsin</translation>
     </message>
     <message>
         <source>Connecticut</source>
-        <translation type="unfinished"></translation>
+        <translation>Connecticut</translation>
     </message>
     <message>
         <source>Maine</source>
-        <translation type="unfinished"></translation>
+        <translation>Maine</translation>
     </message>
     <message>
         <source>Massachusetts</source>
-        <translation type="unfinished"></translation>
+        <translation>Massachusetts</translation>
     </message>
     <message>
         <source>New Hampshire</source>
-        <translation type="unfinished"></translation>
+        <translation>New Hampshire</translation>
     </message>
     <message>
         <source>New Jersey</source>
-        <translation type="unfinished"></translation>
+        <translation>New Jersey</translation>
     </message>
     <message>
         <source>New York</source>
-        <translation type="unfinished"></translation>
+        <translation>New York</translation>
     </message>
     <message>
         <source>Pennsylvania</source>
-        <translation type="unfinished"></translation>
+        <translation>Pennsylvania</translation>
     </message>
     <message>
         <source>Rhode Island</source>
-        <translation type="unfinished"></translation>
+        <translation>Rhode Island</translation>
     </message>
     <message>
         <source>Vermont</source>
-        <translation type="unfinished"></translation>
+        <translation>Vermont</translation>
     </message>
     <message>
         <source>Alabama</source>
-        <translation type="unfinished"></translation>
+        <translation>Alabama</translation>
     </message>
     <message>
         <source>Arkansas</source>
-        <translation type="unfinished"></translation>
+        <translation>Arkansas</translation>
     </message>
     <message>
         <source>Delaware</source>
-        <translation type="unfinished"></translation>
+        <translation>Delaware</translation>
     </message>
     <message>
         <source>District of Columbia</source>
-        <translation type="unfinished"></translation>
+        <translation>Columbia Bölgesi</translation>
     </message>
     <message>
         <source>Florida</source>
-        <translation type="unfinished"></translation>
+        <translation>Florida</translation>
     </message>
     <message>
         <source>Georgia</source>
-        <translation type="unfinished"></translation>
+        <translation>Georgia</translation>
     </message>
     <message>
         <source>Kentucky</source>
-        <translation type="unfinished"></translation>
+        <translation>Kentucky</translation>
     </message>
     <message>
         <source>Louisiana</source>
-        <translation type="unfinished"></translation>
+        <translation>Louisiana</translation>
     </message>
     <message>
         <source>Maryland</source>
-        <translation type="unfinished"></translation>
+        <translation>Maryland</translation>
     </message>
     <message>
         <source>Mississippi</source>
-        <translation type="unfinished"></translation>
+        <translation>Mississippi</translation>
     </message>
     <message>
         <source>North Carolina</source>
-        <translation type="unfinished"></translation>
+        <translation>Kuzey Karolina</translation>
     </message>
     <message>
         <source>Oklahoma</source>
-        <translation type="unfinished"></translation>
+        <translation>Oklahoma</translation>
     </message>
     <message>
         <source>South Carolina</source>
-        <translation type="unfinished"></translation>
+        <translation>Güney Karolina</translation>
     </message>
     <message>
         <source>Tennessee</source>
-        <translation type="unfinished"></translation>
+        <translation>Tennessee</translation>
     </message>
     <message>
         <source>Texas</source>
-        <translation type="unfinished"></translation>
+        <translation>Teksas</translation>
     </message>
     <message>
         <source>Virginia</source>
-        <translation type="unfinished"></translation>
+        <translation>Virginia</translation>
     </message>
     <message>
         <source>West Virginia</source>
-        <translation type="unfinished"></translation>
+        <translation>Batı Virginia</translation>
     </message>
     <message>
         <source>Alaska</source>
-        <translation type="unfinished"></translation>
+        <translation>Alaska</translation>
     </message>
     <message>
         <source>Arizona</source>
-        <translation type="unfinished"></translation>
+        <translation>Arizona</translation>
     </message>
     <message>
         <source>California</source>
-        <translation type="unfinished"></translation>
+        <translation>Kaliforniya</translation>
     </message>
     <message>
         <source>Colorado</source>
-        <translation type="unfinished"></translation>
+        <translation>Colorado</translation>
     </message>
     <message>
         <source>Hawaii</source>
-        <translation type="unfinished"></translation>
+        <translation>Hawaii</translation>
     </message>
     <message>
         <source>Idaho</source>
-        <translation type="unfinished"></translation>
+        <translation>Idaho</translation>
     </message>
     <message>
         <source>Montana</source>
-        <translation type="unfinished"></translation>
+        <translation>Montana</translation>
     </message>
     <message>
         <source>Nevada</source>
-        <translation type="unfinished"></translation>
+        <translation>Nevada</translation>
     </message>
     <message>
         <source>New Mexico</source>
-        <translation type="unfinished"></translation>
+        <translation>New Mexico</translation>
     </message>
     <message>
         <source>Oregon</source>
-        <translation type="unfinished"></translation>
+        <translation>Oregon</translation>
     </message>
     <message>
         <source>Utah</source>
-        <translation type="unfinished"></translation>
+        <translation>Utah</translation>
     </message>
     <message>
         <source>Washington</source>
-        <translation type="unfinished"></translation>
+        <translation>Washington</translation>
     </message>
     <message>
         <source>Wyoming</source>
-        <translation type="unfinished"></translation>
+        <translation>Wyoming</translation>
     </message>
     <message>
         <source>American Samoa</source>
-        <translation type="unfinished"></translation>
+        <translation>Amerikan Samoası</translation>
     </message>
     <message>
         <source>Guam</source>
-        <translation type="unfinished"></translation>
+        <translation>Guam</translation>
     </message>
     <message>
         <source>Northern Mariana Islands</source>
-        <translation type="unfinished"></translation>
+        <translation>Kuzey Mariana Adaları</translation>
     </message>
     <message>
         <source>Puerto Rico</source>
-        <translation type="unfinished"></translation>
+        <translation>Porto Riko</translation>
     </message>
     <message>
         <source>Virgin Islands</source>
-        <translation type="unfinished"></translation>
+        <translation>ABD Virjin Adaları</translation>
     </message>
 </context>
 <context>
@@ -6271,37 +6379,37 @@ Retry to avoid duplicates.</source>
     <name>OffroadAlert</name>
     <message>
         <source>Device temperature too high. System cooling down before starting. Current internal component temperature: %1</source>
-        <translation>Cihaz sıcaklığı çok yüksek. Sistem başlamadan önce soğuyor. Dahili bileşenin mevcut sıcaklığı: %1</translation>
+        <translation type="vanished">Cihaz sıcaklığı çok yüksek. Sistem başlamadan önce soğuyor. Dahili bileşenin mevcut sıcaklığı: %1</translation>
     </message>
     <message>
         <source>Immediately connect to the internet to check for updates. If you do not connect to the internet, openpilot won't engage in %1</source>
-        <translation>Güncellemeleri denetlemek için hemen internete bağlanın. İnternete bağlanmazsanız openpilot %1 içinde devreye girmeyecek.</translation>
+        <translation type="vanished">Güncellemeleri denetlemek için hemen internete bağlanın. İnternete bağlanmazsanız openpilot %1 içinde devreye girmeyecek.</translation>
     </message>
     <message>
         <source>Connect to internet to check for updates. openpilot won't automatically start until it connects to internet to check for updates.</source>
-        <translation>Güncellemeleri denetlemek için internete bağlanın. Güncellemeler denetlenmek üzere internete bağlanılana kadar openpilot otomatik olarak başlamayacak.</translation>
+        <translation type="vanished">Güncellemeleri denetlemek için internete bağlanın. Güncellemeler denetlenmek üzere internete bağlanılana kadar openpilot otomatik olarak başlamayacak.</translation>
     </message>
     <message>
         <source>Unable to download updates
 %1</source>
-        <translation>Güncellemeler indirilemedi
+        <translation type="vanished">Güncellemeler indirilemedi
 %1</translation>
     </message>
     <message>
         <source>Taking camera snapshots. System won't start until finished.</source>
-        <translation>Kamera görüntüleri alınıyor. İşlem tamamlanana kadar sistem başlamayacak.</translation>
+        <translation type="vanished">Kamera görüntüleri alınıyor. İşlem tamamlanana kadar sistem başlamayacak.</translation>
     </message>
     <message>
         <source>An update to your device's operating system is downloading in the background. You will be prompted to update when it's ready to install.</source>
-        <translation>Cihazınızın işletim sistemi güncellemesi arka planda indiriliyor. Kuruluma hazır olduğunda güncellemeyi yüklemeniz istenecek.</translation>
+        <translation type="vanished">Cihazınızın işletim sistemi güncellemesi arka planda indiriliyor. Kuruluma hazır olduğunda güncellemeyi yüklemeniz istenecek.</translation>
     </message>
     <message>
         <source>openpilot was unable to identify your car. Your car is either unsupported or its ECUs are not recognized. Please submit a pull request to add the firmware versions to the proper vehicle. Need help? Join discord.comma.ai.</source>
-        <translation>openpilot aracınızı tanımlayamadı. Aracınız desteklenmiyor veya ECU'ları tanınmıyor. Donanım yazılımı sürümlerini doğru araca eklemek için lütfen bir pull request gönderin. Yardım mı gerekiyor? discord.comma.ai adresine katılın.</translation>
+        <translation type="vanished">openpilot aracınızı tanımlayamadı. Aracınız desteklenmiyor veya ECU'ları tanınmıyor. Donanım yazılımı sürümlerini doğru araca eklemek için lütfen bir pull request gönderin. Yardım mı gerekiyor? discord.comma.ai adresine katılın.</translation>
     </message>
     <message>
         <source>openpilot detected a change in the device's mounting position. Ensure the device is fully seated in the mount and the mount is firmly secured to the windshield.</source>
-        <translation>openpilot cihazın montaj konumunda bir değişiklik algıladı. Cihazın yuvaya tam oturduğundan ve yuvanın ön cama sıkıca sabitlendiğinden emin olun.</translation>
+        <translation type="vanished">openpilot cihazın montaj konumunda bir değişiklik algıladı. Cihazın yuvaya tam oturduğundan ve yuvanın ön cama sıkıca sabitlendiğinden emin olun.</translation>
     </message>
     <message>
         <source>Acknowledge Excessive Actuation</source>
@@ -6313,19 +6421,15 @@ Retry to avoid duplicates.</source>
     </message>
     <message>
         <source>Failed to register with comma.ai backend. It will not connect or upload to comma.ai servers, and receives no support from comma.ai. If this is a device purchased at comma.ai/shop, open a ticket at https://comma.ai/support.</source>
-        <translation>comma.ai arka ucuna kayıt yapılamadı. comma.ai sunucularına bağlanmayacak veya bu sunuculara yükleme yapmayacak ve comma.ai'den destek almayacak. Bu, comma.ai/shop adresinden satın alınan bir cihazsa https://comma.ai/support adresinden bir destek isteği oluşturun.</translation>
+        <translation type="vanished">comma.ai arka ucuna kayıt yapılamadı. comma.ai sunucularına bağlanmayacak veya bu sunuculara yükleme yapmayacak ve comma.ai'den destek almayacak. Bu, comma.ai/shop adresinden satın alınan bir cihazsa https://comma.ai/support adresinden bir destek isteği oluşturun.</translation>
     </message>
     <message>
         <source>Poor visibility detected for driver monitoring. Ensure the device has a clear view of the driver. This can be checked in the device settings. Extreme lighting conditions and/or unconventional mounting positions may also trigger this alert.</source>
-        <translation>Sürücü izleme için zayıf görüş algılandı. Aygıtın sürücüyü net bir şekilde görebildiğinden emin olun. Bu, cihaz ayarlarından kontrol edilebilir. Aşırı aydınlatma koşulları ve/veya alışılmadık montaj konumları da bu uyarıyı tetikleyebilir.</translation>
+        <translation type="vanished">Sürücü izleme için zayıf görüş algılandı. Aygıtın sürücüyü net bir şekilde görebildiğinden emin olun. Bu, cihaz ayarlarından kontrol edilebilir. Aşırı aydınlatma koşulları ve/veya alışılmadık montaj konumları da bu uyarıyı tetikleyebilir.</translation>
     </message>
     <message>
         <source>Excessive %1 actuation detected on your last drive. Please contact support at https://comma.ai/support and share your device's Dongle ID for troubleshooting.</source>
-        <translation>Son sürüşünüzde aşırı %1 etkinleştirmesi algılandı. Lütfen https://comma.ai/support adresinden destek ekibiyle iletişime geçin ve sorun giderme için cihazınızın Dongle kimliğini paylaşın.</translation>
-    </message>
-    <message>
-        <source>NVMe drive not mounted.</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Son sürüşünüzde aşırı %1 etkinleştirmesi algılandı. Lütfen https://comma.ai/support adresinden destek ekibiyle iletişime geçin ve sorun giderme için cihazınızın Dongle kimliğini paylaşın.</translation>
     </message>
 </context>
 <context>
@@ -6344,7 +6448,7 @@ Retry to avoid duplicates.</source>
     </message>
     <message>
         <source>Mystery Model 👻</source>
-        <translation type="unfinished"></translation>
+        <translation>Gizemli Model 👻</translation>
     </message>
 </context>
 <context>
@@ -6524,63 +6628,63 @@ Retry to avoid duplicates.</source>
     </message>
     <message>
         <source>April Fools</source>
-        <translation type="unfinished"></translation>
+        <translation>1 Nisan</translation>
     </message>
     <message>
         <source>Christmas</source>
-        <translation type="unfinished"></translation>
+        <translation>Noel</translation>
     </message>
     <message>
         <source>Cinco de Mayo</source>
-        <translation type="unfinished"></translation>
+        <translation>Cinco de Mayo</translation>
     </message>
     <message>
         <source>Easter</source>
-        <translation type="unfinished"></translation>
+        <translation>Paskalya</translation>
     </message>
     <message>
         <source>Fourth of July</source>
-        <translation type="unfinished"></translation>
+        <translation>4 Temmuz</translation>
     </message>
     <message>
         <source>Halloween</source>
-        <translation type="unfinished"></translation>
+        <translation>Cadılar Bayramı</translation>
     </message>
     <message>
         <source>May the Fourth</source>
-        <translation type="unfinished"></translation>
+        <translation>May the Fourth</translation>
     </message>
     <message>
         <source>New Year's</source>
-        <translation type="unfinished"></translation>
+        <translation>Yılbaşı</translation>
     </message>
     <message>
         <source>None</source>
-        <translation type="unfinished">Yok</translation>
+        <translation>Yok</translation>
     </message>
     <message>
         <source>St. Patrick's Day</source>
-        <translation type="unfinished"></translation>
+        <translation>Aziz Patrick Günü</translation>
     </message>
     <message>
         <source>Stitch Day</source>
-        <translation type="unfinished"></translation>
+        <translation>Stitch Günü</translation>
     </message>
     <message>
         <source>Stock</source>
-        <translation type="unfinished"></translation>
+        <translation>Standart</translation>
     </message>
     <message>
         <source>Thanksgiving</source>
-        <translation type="unfinished"></translation>
+        <translation>Şükran Günü</translation>
     </message>
     <message>
         <source>Valentine's Day</source>
-        <translation type="unfinished"></translation>
+        <translation>Sevgililer Günü</translation>
     </message>
     <message>
         <source>World Frog Day</source>
-        <translation type="unfinished"></translation>
+        <translation>Dünya Kurbağa Günü</translation>
     </message>
 </context>
 <context>
@@ -6871,15 +6975,15 @@ Retry to avoid duplicates.</source>
     </message>
     <message>
         <source>Share FrogPilot Data</source>
-        <translation type="unfinished"></translation>
+        <translation>FrogPilot Verilerini Paylaş</translation>
     </message>
     <message>
         <source>Automatically update FrogPilot when the car is off and the device is on an unmetered connection, such as Wi-Fi. Automatic updates turn off after a FrogPilot backup is restored until you update manually.</source>
-        <translation type="unfinished"></translation>
+        <translation>Araç kapalıyken ve cihaz Wi-Fi gibi kotasız bir bağlantıdayken FrogPilot'ı otomatik olarak güncelleyin. Bir FrogPilot yedeği geri yüklendikten sonra siz elle güncelleyene kadar otomatik güncellemeler kapanır.</translation>
     </message>
     <message>
         <source>No error log found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Hata günlüğü bulunamadı.</translation>
     </message>
 </context>
 <context>
@@ -7069,6 +7173,18 @@ Retry to avoid duplicates.</source>
         <source>An alpha version of openpilot longitudinal control can be tested, along with Experimental mode, on non-release branches.</source>
         <translation>openpilot boylamsal kontrolünün alfa sürümü, Deneysel mod ile birlikte, yayın dışı dallarda test edilebilir.</translation>
     </message>
+    <message>
+        <source>openpilot Longitudinal Control (Alpha)</source>
+        <translation>openpilot Boyuna Kontrolü (Alfa)</translation>
+    </message>
+    <message>
+        <source>WARNING: openpilot longitudinal control is in alpha for this car and will disable Automatic Emergency Braking (AEB).</source>
+        <translation>UYARI: openpilot boyuna kontrolü bu araç için alfa aşamasındadır ve Otomatik Acil Frenlemeyi (AEB) devre dışı bırakır.</translation>
+    </message>
+    <message>
+        <source>On this car, openpilot defaults to the car's built-in ACC instead of openpilot's longitudinal control. Enable this to switch to openpilot longitudinal control. Enabling Experimental mode is recommended when enabling openpilot longitudinal control alpha.</source>
+        <translation>Bu araçta openpilot, varsayılan olarak kendi boyuna kontrolü yerine aracın yerleşik ACC sistemini kullanır. openpilot boyuna kontrolüne geçmek için bunu etkinleştirin. openpilot boyuna kontrolü alfa sürümünü etkinleştirirken Deneysel Modun da etkinleştirilmesi önerilir.</translation>
+    </message>
 </context>
 <context>
     <name>WiFiPromptWidget</name>
@@ -7086,11 +7202,11 @@ Retry to avoid duplicates.</source>
     </message>
     <message>
         <source>Uploading disabled</source>
-        <translation type="unfinished"></translation>
+        <translation>Yükleme devre dışı</translation>
     </message>
     <message>
         <source>Turn off "Disable Uploads" to upload your drives again.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sürüşlerinizi yeniden yüklemek için "Yüklemeleri Devre Dışı Bırak" seçeneğini kapatın.</translation>
     </message>
 </context>
 <context>

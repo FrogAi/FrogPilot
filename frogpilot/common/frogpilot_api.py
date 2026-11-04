@@ -163,8 +163,12 @@ class FrogPilotAPI:
 
   def register_device(self):
     def register_thread():
+      build_details = dataclasses.asdict(get_build_metadata())
+      software = build_details["openpilot"]
+      software["release_notes_sha256"] = hashlib.sha256(software.pop("release_notes").encode()).hexdigest()
+
       profile = {
-        "build_metadata": dataclasses.asdict(get_build_metadata()),
+        "build_metadata": build_details,
         "device_type": HARDWARE.get_device_type(),
         "os_version": HARDWARE.get_os_version(),
       }

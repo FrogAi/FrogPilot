@@ -90,7 +90,10 @@ class FrogPilotEvents:
 
     if not sm["carState"].standstill:
       self.tracked_lead_distance = self.frogpilot_planner.lead_one.dRel if self.frogpilot_planner.lead_one.status else 0
-    elif self.frogpilot_planner.lead_one.status and self.tracked_lead_distance != 0 and sm["carState"].gearShifter not in frogpilot_variables.NON_DRIVING_GEARS:
+    elif self.frogpilot_planner.lead_one.status and sm["carState"].gearShifter not in frogpilot_variables.NON_DRIVING_GEARS:
+      if self.tracked_lead_distance == 0:
+        self.tracked_lead_distance = self.frogpilot_planner.lead_one.dRel
+
       lead_departing = self.frogpilot_planner.lead_one.dRel - self.tracked_lead_distance >= 1
       lead_departing &= self.frogpilot_planner.lead_one.vLead >= frogpilot_variables.LEAD_DEPARTURE_SPEED
 

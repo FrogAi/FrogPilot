@@ -6,6 +6,7 @@ import unittest # noqa: TID251
 from collections import defaultdict, Counter
 import hypothesis.strategies as st
 from hypothesis import Phase, given, settings
+import capnp
 from parameterized import parameterized_class
 
 from opendbc.car import DT_CTRL, gen_empty_fingerprint, structs
@@ -79,6 +80,12 @@ class TestCarModelBase(unittest.TestCase):
     cls.fingerprint = gen_empty_fingerprint()
     alpha_long = False
     for msg in lr:
+      # FrogPilot variables
+      try:
+        msg.which()
+      except capnp.KjException:
+        continue
+
       if msg.which() == "can":
         can = can_capnp_to_list((msg.as_builder().to_bytes(),))[0]
         can_msgs.append((can[0], [CanData(*can) for can in can[1]]))
@@ -388,7 +395,7 @@ class TestCarModelBase(unittest.TestCase):
 
     # warm up pass, as initial states may be different
     for can in self.can_msgs[:300]:
-      self.CI.update(can)
+      self.CI.update(can, TOGGLES)
       for msg in filter(lambda m: m.src < 64, can[1]):
         to_send = libsafety_py.make_CANPacket(msg.address, msg.src % 4, msg.dat)
         self.safety.safety_rx_hook(to_send)
@@ -398,7 +405,8 @@ class TestCarModelBase(unittest.TestCase):
     checks = defaultdict(int)
     vehicle_speed_seen = self.CP.steerControlType == SteerControlType.angle and not self.CP.notCar
     for idx, can in enumerate(self.can_msgs):
-      CS = self.CI.update(can).as_reader()
+      CS, _ = self.CI.update(can, TOGGLES)
+      CS = CS.as_reader()
       for msg in filter(lambda m: m.src < 64, can[1]):
         to_send = libsafety_py.make_CANPacket(msg.address, msg.src % 4, msg.dat)
         ret = self.safety.safety_rx_hook(to_send)

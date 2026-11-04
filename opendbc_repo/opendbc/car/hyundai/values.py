@@ -30,12 +30,12 @@ class CarControllerParams:
         self.STEER_MAX = 384
         self.STEER_DRIVER_ALLOWANCE = 350
         self.STEER_THRESHOLD = 350
-        self.STEER_DELTA_UP = 3
-        self.STEER_DELTA_DOWN = 6
+        self.STEER_DELTA_UP = 10
+        self.STEER_DELTA_DOWN = 10
       else:
         self.STEER_MAX = 330
-        self.STEER_DRIVER_ALLOWANCE = 250
-        self.STEER_THRESHOLD = 250
+        self.STEER_DRIVER_ALLOWANCE = 350
+        self.STEER_THRESHOLD = 350
         self.STEER_DELTA_UP = 2
         self.STEER_DELTA_DOWN = 3
     elif CP.flags & HyundaiFlags.CANFD:

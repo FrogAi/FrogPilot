@@ -120,6 +120,7 @@ async def get_models(request):
     "download": {"downloading": is_downloading(the_pond), "progress": process_state.modelDownloadProgress,
                  "request_time": process_state.modelDownloadRequestTime},
     "in_use": frogpilot_toggles.model,
+    "model_changeable": frogpilot_toggles.tuning_level >= the_pond.params.get_tuning_level("DrivingModel"),
     "models": models,
     "online": is_online(the_pond),
     "randomizer": randomizer_changeable and the_pond.params.get_bool("ModelRandomizer"),
@@ -164,6 +165,9 @@ async def set_randomizer(request):
 @routes.put("/api/models/selected")
 async def select_model(request):
   the_pond = request.app[utilities.THE_POND]
+
+  if frogpilot_variables.get_frogpilot_toggles(the_pond.sm).tuning_level < the_pond.params.get_tuning_level("DrivingModel"):
+    raise web.HTTPConflict(text="tuning_level")
 
   model_id = (await utilities.read_json(request)).get("id")
   if model_id != frogpilot_variables.DEFAULT_MODEL["id"] and model_id not in get_downloaded_models():

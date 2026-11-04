@@ -194,12 +194,14 @@ async def summarize_drive(the_pond, route, qlogs):
 
 async def summarize_drives(the_pond, drives):
   for route, qlogs in sorted(drives.items(), reverse=True):
-    if load_drive(route, qlogs) is None:
-      try:
+    try:
+      if load_drive(route, qlogs) is None:
         await summarize_drive(the_pond, route, qlogs)
-      except Exception as exception:
-        sentry.capture_exception(exception, crash_log=False)
-        save_drive(route, {"failed": True, "source": get_drive_source(qlogs)})
+    except FileNotFoundError:
+      continue
+    except Exception as exception:
+      sentry.capture_exception(exception, crash_log=False)
+      save_drive(route, {"failed": True, "source": get_drive_source(qlogs)})
 
 
 def remove_route_files(route):
@@ -311,7 +313,7 @@ async def prepare_preview(the_pond, route, sources):
       except (RuntimeError, ValueError):
         readable = [source for source in sources if await is_readable(source)]
         if not readable:
-          raise
+          return None
         await create_route_preview(the_pond, preview_path, readable)
   return preview_path
 
@@ -328,6 +330,9 @@ async def prepare_thumbnail(the_pond, route, sources):
           break
         except (RuntimeError, ValueError):
           if position == positions[-1]:
+            readable = [source for source in sources if await is_readable(source)]
+            if not readable:
+              return None
             raise
   return thumbnail_path
 
@@ -511,7 +516,10 @@ async def get_preview(request):
   if is_recording(the_pond, route):
     raise web.HTTPConflict(text="recording")
 
-  return web.FileResponse(await prepare_preview(the_pond, route, sources))
+  preview_path = await prepare_preview(the_pond, route, sources)
+  if preview_path is None:
+    raise web.HTTPNotFound(text="not_found")
+  return web.FileResponse(preview_path)
 
 
 @routes.get("/api/routes/{route}/thumbnail")
@@ -525,7 +533,10 @@ async def get_thumbnail(request):
   if not sources:
     raise web.HTTPNotFound(text="not_found")
 
-  return web.FileResponse(await prepare_thumbnail(the_pond, route, sources))
+  thumbnail_path = await prepare_thumbnail(the_pond, route, sources)
+  if thumbnail_path is None:
+    raise web.HTTPNotFound(text="not_found")
+  return web.FileResponse(thumbnail_path)
 
 
 @routes.get("/api/routes/{route}/{segment:\\d+}/{camera}")

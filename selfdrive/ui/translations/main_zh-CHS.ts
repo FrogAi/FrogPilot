@@ -120,7 +120,7 @@
     </message>
     <message>
         <source>Share your device's internet connection with other devices all the time, only while driving, or until the device reboots. Internet sharing only works on a paired device with comma prime lite or no comma prime.</source>
-        <translation type="unfinished"></translation>
+        <translation>将设备的互联网连接共享给其他设备，可选择始终共享、仅在行车时共享，或共享到设备重启为止。互联网共享仅适用于已配对且使用 comma prime lite 或没有 comma prime 的设备。</translation>
     </message>
 </context>
 <context>
@@ -169,15 +169,15 @@
     </message>
     <message>
         <source>openpilot Longitudinal Control (Alpha)</source>
-        <translation>openpilot 纵向控制（Alpha 版）</translation>
+        <translation type="vanished">openpilot 纵向控制（Alpha 版）</translation>
     </message>
     <message>
         <source>WARNING: openpilot longitudinal control is in alpha for this car and will disable Automatic Emergency Braking (AEB).</source>
-        <translation>警告：此车辆的 openpilot 纵向控制尚处于 Alpha 阶段，启用后将停用自动紧急制动（AEB）。</translation>
+        <translation type="vanished">警告：此车辆的 openpilot 纵向控制尚处于 Alpha 阶段，启用后将停用自动紧急制动（AEB）。</translation>
     </message>
     <message>
         <source>On this car, openpilot defaults to the car's built-in ACC instead of openpilot's longitudinal control. Enable this to switch to openpilot longitudinal control. Enabling Experimental mode is recommended when enabling openpilot longitudinal control alpha.</source>
-        <translation>在此车辆上，openpilot 默认使用车辆内置的自适应巡航控制（ACC），而不是 openpilot 纵向控制。开启此项可切换到 openpilot 纵向控制。启用 openpilot 纵向控制 Alpha 版时，建议同时启用实验模式。</translation>
+        <translation type="vanished">在此车辆上，openpilot 默认使用车辆内置的自适应巡航控制（ACC），而不是 openpilot 纵向控制。开启此项可切换到 openpilot 纵向控制。启用 openpilot 纵向控制 Alpha 版时，建议同时启用实验模式。</translation>
     </message>
     <message>
         <source>Developer UI</source>
@@ -449,19 +449,19 @@
     </message>
     <message>
         <source>&lt;b&gt;Color the edge of the driving screen to show what openpilot is reacting to.&lt;/b&gt;&lt;br&gt;&lt;br&gt;You can switch on the blind spot, steering effort, and turn signal borders separately. The blind spot one only appears on cars with factory blind spot monitoring, and the steering effort one only appears on cars where openpilot sends a steering effort rather than a steering angle.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;为行车界面边缘着色，以显示 openpilot 正在响应的情况。&lt;/b&gt;&lt;br&gt;&lt;br&gt;可分别开启盲区、转向力度和转向灯边框。盲区边框仅在配备原厂盲区监测的车辆上显示，转向力度边框仅在 openpilot 发送转向力度（而非转向角度）的车辆上显示。</translation>
     </message>
     <message>
         <source>&lt;b&gt;Print how far away the car ahead is and how fast it is going, underneath its marker.&lt;/b&gt;&lt;br&gt;&lt;br&gt;On cars where openpilot handles the gas and brake, it also shows the gap openpilot is aiming for, so you can see it closing in on the distance you asked for.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;在前车标记下方显示前车距离和速度。&lt;/b&gt;&lt;br&gt;&lt;br&gt;在由 openpilot 控制加速和制动的车辆上，还会显示 openpilot 的目标间距，以便查看车辆如何接近您要求的距离。</translation>
     </message>
     <message>
         <source>&lt;b&gt;Add a second sidebar down the right-hand side, holding up to seven readouts you pick yourself.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It makes the camera view narrower, so it is worth turning off when you are not using it. Setting all seven to "None" leaves the bar there but empty.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;在右侧添加第二个侧边栏，最多显示由您选择的七项数据。&lt;/b&gt;&lt;br&gt;&lt;br&gt;它会使摄像头画面变窄，因此不使用时建议关闭。将全部七项设为"无"会保留侧边栏，但其中不显示内容。</translation>
     </message>
     <message>
         <source>&lt;b&gt;Drop a stop sign on the road where openpilot is planning to come to a stop.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It only marks stops openpilot works out for itself, so it stays away when openpilot is slowing for a car ahead, and "Traffic Mode" switches it off entirely. "Show Distance" also prints how far away that stop is.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;在 openpilot 计划停车的路面位置显示停车标志。&lt;/b&gt;&lt;br&gt;&lt;br&gt;它只标记 openpilot 自行判断出的停车点，因此 openpilot 因前车减速时不会显示，"拥堵模式"会将其完全关闭。"显示距离"还会显示与该停车点的距离。</translation>
     </message>
 </context>
 <context>
@@ -715,15 +715,15 @@ Steering lag calibration is complete.</source>
     </message>
     <message>
         <source>Soft Reboot</source>
-        <translation type="unfinished"></translation>
+        <translation>软重启</translation>
     </message>
     <message>
         <source>Are you sure you want to soft reboot?</source>
-        <translation type="unfinished"></translation>
+        <translation>您确定要软重启吗？</translation>
     </message>
     <message>
         <source>Disengage to Soft Reboot</source>
-        <translation type="unfinished"></translation>
+        <translation>请先停用 openpilot 再软重启</translation>
     </message>
 </context>
 <context>
@@ -821,6 +821,41 @@ Firehose Mode allows you to maximize your training data uploads to improve openp
     </message>
 </context>
 <context>
+    <name>FrogPilotAccountPopup</name>
+    <message>
+        <source>Delete your FrogPilot data</source>
+        <translation>删除您的 FrogPilot 数据</translation>
+    </message>
+    <message>
+        <source>Check what will be deleted on FrogPilot.com</source>
+        <translation>在 FrogPilot.com 上查看将被删除的内容</translation>
+    </message>
+    <message>
+        <source>Confirm to delete it</source>
+        <translation>确认删除</translation>
+    </message>
+    <message>
+        <source>Link this device to your FrogPilot.com account</source>
+        <translation>将此设备关联到您的 FrogPilot.com 账户</translation>
+    </message>
+    <message>
+        <source>Sign in to FrogPilot.com if asked</source>
+        <translation>如有提示，请登录 FrogPilot.com</translation>
+    </message>
+    <message>
+        <source>Confirm to link this device</source>
+        <translation>确认关联此设备</translation>
+    </message>
+    <message>
+        <source>Scan the QR code on the right with your phone</source>
+        <translation>用手机扫描右侧二维码</translation>
+    </message>
+    <message>
+        <source>Connect to the internet to set the clock first</source>
+        <translation>请先连接互联网以同步时钟</translation>
+    </message>
+</context>
+<context>
     <name>FrogPilotAnnotatedCameraWidget</name>
     <message>
         <source> meters</source>
@@ -888,68 +923,68 @@ Firehose Mode allows you to maximize your training data uploads to improve openp
     </message>
     <message>
         <source>N</source>
-        <translation type="unfinished"></translation>
+        <translation>北</translation>
     </message>
     <message>
         <source>NE</source>
-        <translation type="unfinished"></translation>
+        <translation>东北</translation>
     </message>
     <message>
         <source>E</source>
-        <translation type="unfinished"></translation>
+        <translation>东</translation>
     </message>
     <message>
         <source>SE</source>
-        <translation type="unfinished"></translation>
+        <translation>东南</translation>
     </message>
     <message>
         <source>S</source>
-        <translation type="unfinished"></translation>
+        <translation>南</translation>
     </message>
     <message>
         <source>SW</source>
-        <translation type="unfinished"></translation>
+        <translation>西南</translation>
     </message>
     <message>
         <source>W</source>
-        <translation type="unfinished"></translation>
+        <translation>西</translation>
     </message>
     <message>
         <source>NW</source>
-        <translation type="unfinished"></translation>
+        <translation>西北</translation>
     </message>
     <message>
         <source>Training...</source>
-        <translation type="unfinished"></translation>
+        <translation>学习中...</translation>
     </message>
     <message>
         <source>N/A</source>
-        <translation type="unfinished">N/A</translation>
+        <translation>N/A</translation>
     </message>
     <message>
         <source>Camera</source>
-        <translation type="unfinished"></translation>
+        <translation>摄像头</translation>
     </message>
     <message>
         <source>Dashboard</source>
-        <translation type="unfinished">仪表盘</translation>
+        <translation>仪表盘</translation>
     </message>
     <message>
         <source>Map Data</source>
-        <translation type="unfinished">地图数据</translation>
+        <translation>地图数据</translation>
     </message>
     <message>
         <source>Mapbox</source>
-        <translation type="unfinished"></translation>
+        <translation>Mapbox</translation>
     </message>
     <message>
         <source>Upcoming</source>
-        <translation type="unfinished"></translation>
+        <translation>下一限速</translation>
     </message>
     <message>
         <source>LIMIT</source>
         <comment>speed limit sign, line under SPEED</comment>
-        <translation type="unfinished">限速</translation>
+        <translation>限制</translation>
     </message>
 </context>
 <context>
@@ -976,7 +1011,7 @@ Firehose Mode allows you to maximize your training data uploads to improve openp
     </message>
     <message>
         <source>The device can't reboot while openpilot is steering. Disengage, then reboot from the Device panel.</source>
-        <translation type="unfinished"></translation>
+        <translation>openpilot 正在转向时设备无法重启。请先停用，然后在"设备"面板中重启。</translation>
     </message>
 </context>
 <context>
@@ -1412,142 +1447,182 @@ Firehose Mode allows you to maximize your training data uploads to improve openp
     <message>
         <source>th</source>
         <comment>ordinal suffix</comment>
-        <translation type="unfinished"></translation>
+        <translation>日</translation>
     </message>
     <message>
         <source>st</source>
         <comment>ordinal suffix</comment>
-        <translation type="unfinished"></translation>
+        <translation>日</translation>
     </message>
     <message>
         <source>nd</source>
         <comment>ordinal suffix</comment>
-        <translation type="unfinished"></translation>
+        <translation>日</translation>
     </message>
     <message>
         <source>rd</source>
         <comment>ordinal suffix</comment>
-        <translation type="unfinished"></translation>
+        <translation>日</translation>
     </message>
     <message>
         <source>%1 %2%3, %4 (%5)</source>
-        <translation type="unfinished"></translation>
+        <translation>%4年%1%2%3（%5）</translation>
     </message>
     <message>
         <source> (Replay)</source>
-        <translation type="unfinished"></translation>
+        <translation> （回放）</translation>
     </message>
     <message>
         <source>Choose screen recordings to delete</source>
-        <translation type="unfinished"></translation>
+        <translation>选择要删除的屏幕录像</translation>
     </message>
     <message>
         <source>Delete the %1 selected screen recordings?</source>
-        <translation type="unfinished"></translation>
+        <translation>删除所选的 %1 个屏幕录像？</translation>
     </message>
     <message>
         <source>Choose backups to delete</source>
-        <translation type="unfinished"></translation>
+        <translation>选择要删除的备份</translation>
     </message>
     <message>
         <source>Delete the %1 selected backups?</source>
-        <translation type="unfinished"></translation>
+        <translation>删除所选的 %1 个备份？</translation>
     </message>
     <message>
         <source>&lt;b&gt;Save a copy of your current settings, restore a saved copy, or delete ones you no longer need.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Restoring applies most settings right away, but a few, such as "High-Quality Recording" and "Use Konik Server", need a reboot. FrogPilot also saves a copy automatically whenever you change a setting, but it only keeps the newest few and deletes the older ones. Those show up in the list by date and time.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;保存当前设置的副本、恢复已保存的副本，或删除不再需要的副本。&lt;/b&gt;&lt;br&gt;&lt;br&gt;恢复后大多数设置会立即生效，但少数设置（例如"高质量录像"和"使用 Konik 服务器"）需要重启。每次更改设置时，FrogPilot 还会自动保存一份副本，但只保留最新的几份，并删除较旧的副本。这些副本会按日期和时间显示在列表中。</translation>
     </message>
     <message>
         <source>Goat Screams</source>
-        <translation type="unfinished"></translation>
+        <translation>山羊尖叫次数</translation>
     </message>
     <message>
         <source>Collision Alerts</source>
-        <translation type="unfinished"></translation>
+        <translation>碰撞警报次数</translation>
     </message>
     <message>
         <source>Disengagements</source>
-        <translation type="unfinished"></translation>
+        <translation>停用次数</translation>
     </message>
     <message>
         <source>Engagements</source>
-        <translation type="unfinished"></translation>
+        <translation>启用次数</translation>
     </message>
     <message>
         <source>Frog Chirps</source>
-        <translation type="unfinished"></translation>
+        <translation>青蛙鸣叫次数</translation>
     </message>
     <message>
         <source>Frog Hops</source>
-        <translation type="unfinished"></translation>
+        <translation>青蛙跳跃次数</translation>
     </message>
     <message>
         <source>Drives</source>
-        <translation type="unfinished">行程</translation>
+        <translation>行程数</translation>
     </message>
     <message>
         <source>Frog Squeaks</source>
-        <translation type="unfinished"></translation>
+        <translation>青蛙吱叫次数</translation>
     </message>
     <message>
         <source>Overrides</source>
-        <translation type="unfinished"></translation>
+        <translation>人工干预次数</translation>
     </message>
     <message>
         <source>Aggressive</source>
-        <translation type="unfinished">积极</translation>
+        <translation>积极</translation>
     </message>
     <message>
         <source>Relaxed</source>
-        <translation type="unfinished">舒适</translation>
+        <translation>舒适</translation>
     </message>
     <message>
         <source>Standard</source>
-        <translation type="unfinished">标准</translation>
+        <translation>标准</translation>
     </message>
     <message>
         <source>Clear</source>
-        <translation type="unfinished"></translation>
+        <translation>晴天</translation>
     </message>
     <message>
         <source>Low Visibility</source>
-        <translation type="unfinished">低能见度</translation>
+        <translation>低能见度</translation>
     </message>
     <message>
         <source>Rain</source>
-        <translation type="unfinished">雨天</translation>
+        <translation>雨天</translation>
     </message>
     <message>
         <source>Rain Storm</source>
-        <translation type="unfinished"></translation>
+        <translation>暴雨</translation>
     </message>
     <message>
         <source>Snow</source>
-        <translation type="unfinished">雪天</translation>
+        <translation>雪天</translation>
     </message>
     <message>
         <source>% of %1</source>
-        <translation type="unfinished"></translation>
+        <translation>%1占比（%）</translation>
     </message>
     <message>
         <source>&lt;b&gt;Delete every recorded drive to free up space and clear personal footage off the device.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Only the one-minute chunk of footage containing the moment you flagged is kept, not the rest of that drive. Drives preserved in "The Pond" are kept whole.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;删除所有已记录的行程，以释放存储空间并清除设备上的个人视频。&lt;/b&gt;&lt;br&gt;&lt;br&gt;只会保留包含您所标记时刻的那一分钟视频片段，该行程的其余部分不会保留。在"The Pond"中保留的行程会完整保留。</translation>
     </message>
     <message>
         <source>Delete all driving footage and data? Only the flagged one-minute chunks and the drives preserved in "The Pond" will be kept.</source>
-        <translation type="unfinished"></translation>
+        <translation>删除所有行车视频和数据？只有已标记的一分钟片段和在"The Pond"中保留的行程会被保留。</translation>
     </message>
     <message>
         <source>An update check is running. Wait for it to finish and try again.</source>
-        <translation type="unfinished"></translation>
+        <translation>正在检查更新。请等待检查完成后重试。</translation>
     </message>
     <message>
         <source>Reboots when the car is off</source>
-        <translation type="unfinished"></translation>
+        <translation>车辆熄火后重启</translation>
     </message>
     <message>
         <source>Total Time Tracked</source>
-        <translation type="unfinished"></translation>
+        <translation>总计记录时间</translation>
+    </message>
+    <message>
+        <source>FrogPilot.com Account</source>
+        <translation>FrogPilot.com 账户</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Link this device to your FrogPilot.com account, or delete the data FrogPilot keeps about it.&lt;/b&gt;&lt;br&gt;&lt;br&gt;A linked device's stats and reports show in your account. Both show a code to scan with your phone.</source>
+        <translation>&lt;b&gt;将此设备关联到您的 FrogPilot.com 账户，或删除 FrogPilot 保存的有关此设备的数据。&lt;/b&gt;&lt;br&gt;&lt;br&gt;已关联设备的统计数据和报告会显示在您的账户中。两项操作都会显示一个二维码，供您用手机扫描。</translation>
+    </message>
+    <message>
+        <source>LINK</source>
+        <translation>关联</translation>
+    </message>
+    <message>
+        <source>UNLINK</source>
+        <translation>解除关联</translation>
+    </message>
+    <message>
+        <source>This shows a code to scan with your phone. On FrogPilot.com you'll see exactly what will be deleted before anything is.</source>
+        <translation>此操作会显示一个二维码，供您用手机扫描。在删除任何内容之前，您会先在 FrogPilot.com 上看到具体将删除哪些内容。</translation>
+    </message>
+    <message>
+        <source>Continue</source>
+        <translation>继续</translation>
+    </message>
+    <message>
+        <source>Unlink this device from your FrogPilot.com account?</source>
+        <translation>要解除此设备与您的 FrogPilot.com 账户的关联吗？</translation>
+    </message>
+    <message>
+        <source>Unlink</source>
+        <translation>解除关联</translation>
+    </message>
+    <message>
+        <source>Unlinking...</source>
+        <translation>正在解除关联...</translation>
+    </message>
+    <message>
+        <source>Linked as @%1</source>
+        <translation>已关联账户 @%1</translation>
     </message>
 </context>
 <context>
@@ -1689,56 +1764,56 @@ Firehose Mode allows you to maximize your training data uploads to improve openp
         <translation>&lt;b&gt;行车时关闭屏幕，并在出现警报或 openpilot 启用、停用时自动唤醒屏幕。&lt;/b&gt;&lt;br&gt;&lt;br&gt;点按屏幕也可将其唤醒。</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Let the device run about 6 degrees Celsius hotter than normal before openpilot disengages because of the heat.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Normally openpilot disengages and will not re-engage once the device gets hot, and drops back to the offroad screen if it keeps climbing. This only makes the first happen later: the device still drops back to the offroad screen at the normal temperature. Running the device that hot can shorten its life or damage it, so only use this if you understand the risk.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Capture Recent Footage</source>
-        <translation type="unfinished"></translation>
+        <translation>捕捉最近画面</translation>
     </message>
     <message>
         <source>&lt;b&gt;Save what just happened on your driving screen.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Choose how far back to keep, then tap "CAPTURE" to save a moment you want to review or share. There's no need to remember to start recording beforehand.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;保存行车界面上刚刚发生的画面。&lt;/b&gt;&lt;br&gt;&lt;br&gt;选择要保留的时长，然后点按"捕捉"，即可保存想要回看或分享的瞬间。无需事先记得开始录像。</translation>
     </message>
     <message>
         <source>Off</source>
-        <translation type="unfinished">关闭</translation>
+        <translation>关闭</translation>
     </message>
     <message>
         <source>30 seconds</source>
-        <translation type="unfinished"></translation>
+        <translation>30 秒</translation>
     </message>
     <message>
         <source>1 minute</source>
-        <translation type="unfinished"></translation>
+        <translation>1 分钟</translation>
     </message>
     <message>
         <source> minutes</source>
-        <translation type="unfinished"> 分钟</translation>
+        <translation> 分钟</translation>
     </message>
     <message>
         <source>Start Recording</source>
-        <translation type="unfinished"></translation>
+        <translation>开始录像</translation>
     </message>
     <message>
         <source>Stop Recording</source>
-        <translation type="unfinished"></translation>
+        <translation>停止录像</translation>
     </message>
     <message>
         <source>&lt;b&gt;Stop the device from recording your drives.&lt;/b&gt;&lt;br&gt;&lt;br&gt;No driving logs or camera footage are saved, so you won't be able to review your drives later or send a useful bug report, and FrogPilot driving logs are no longer shared. Screen recordings, speed limit sign photos, and the device's own system logs are still saved.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;禁止设备记录您的行程。&lt;/b&gt;&lt;br&gt;&lt;br&gt;不会保存驾驶日志或摄像头视频，因此您之后将无法回看行程，也无法发送有用的错误报告，并且不再共享 FrogPilot 驾驶日志。屏幕录像、限速标志照片和设备自身的系统日志仍会保存。</translation>
     </message>
     <message>
         <source>&lt;b&gt;Stop the device from uploading your drives to "comma connect" or Konik and from sharing FrogPilot driving logs, speed limit sign clips, and learned speed limits.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Your drives are still saved on the device. comma uses uploads for debugging and official support, so turning this on limits the help they can give. Files that comma connect or Konik asks the device to upload, usage stats, device registration, crash reports, and weather and Mapbox lookups are not affected. "Disable Onroad Only" pauses uploads while you drive and lets them finish once you park, but only while the device is on Wi-Fi or Ethernet.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;禁止设备将行程上传到"comma connect"或 Konik，并停止共享 FrogPilot 驾驶日志、限速标志短视频片段和学习到的限速。&lt;/b&gt;&lt;br&gt;&lt;br&gt;行程仍会保存在设备上。comma 使用上传的数据进行调试和提供官方支持，因此开启此项会限制他们能够提供的帮助。comma connect 或 Konik 要求设备上传的文件、使用统计数据、设备注册、崩溃报告，以及天气和 Mapbox 查询不受影响。"仅行车时禁用"会在行车时暂停上传，并在停车后完成上传，但仅限设备连接 Wi-Fi 或以太网时。</translation>
     </message>
     <message>
         <source>&lt;b&gt;Upload your drives to "stable.konik.ai" instead of "connect.comma.ai".&lt;/b&gt;&lt;br&gt;&lt;br&gt;Device registration and remote access go through Konik too. Registering with Konik sends the device's IMEI and serial number. The device needs to reboot for this to take effect.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;将行程上传到"stable.konik.ai"，而不是"connect.comma.ai"。&lt;/b&gt;&lt;br&gt;&lt;br&gt;设备注册和远程访问也会通过 Konik 进行。向 Konik 注册时会发送设备的 IMEI 和序列号。设备需要重启才能生效。</translation>
     </message>
     <message>
         <source>&lt;b&gt;How bright the screen is while you're driving.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"Auto" matches the light around you, and "Screen Off" keeps the display dark until you tap it, an alert shows, or openpilot engages or disengages. A tap or wake-up brightens anything below 5% to 5% until the screen times out.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;设置行车时的屏幕亮度。&lt;/b&gt;&lt;br&gt;&lt;br&gt;"自动"会根据环境光线调节亮度；"关闭屏幕"会使显示屏保持熄灭，直到您点按屏幕、出现提醒，或 openpilot 启用或停用。点按或唤醒屏幕后，低于 5% 的亮度会提高到 5%，直到屏幕超时。</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Let the device run about 6 degrees Celsius hotter than normal before openpilot disengages because of the heat.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Normally openpilot disengages and will not re-engage once the device gets hot, and drops back to the offroad screen if it keeps climbing. This only makes the first happen later. The device still drops back to the offroad screen at the normal temperature. Running the device that hot can shorten its life or damage it, so only use this if you understand the risk.</source>
+        <translation>&lt;b&gt;允许设备温度比正常情况高出约 6 摄氏度后，openpilot 才因过热而停用。&lt;/b&gt;&lt;br&gt;&lt;br&gt;通常情况下，设备变热后 openpilot 会停用且无法重新启用；如果温度继续升高，还会退回非行车界面。此设置只会推迟前者。设备退回非行车界面的温度仍与平时相同。设备在这样的高温下运行可能缩短其寿命或造成损坏，因此请仅在了解风险的情况下使用。</translation>
     </message>
 </context>
 <context>
@@ -2027,36 +2102,36 @@ Firehose Mode allows you to maximize your training data uploads to improve openp
         <translation>任何速度</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Use the LKAS button to arm steering, so openpilot keeps steering even when it is not engaged.&lt;/b&gt;&lt;br&gt;&lt;br&gt;openpilot does not read your car's LKAS status for this. It starts every drive disarmed and each press of the LKAS button flips it, so expect one press after starting the car. With this off, the LKAS button is free to reassign under "LKAS Button", and steering stops as soon as openpilot is no longer engaged, unless openpilot handles the gas and brake, in which case the cruise control button arms it instead.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Reset</source>
-        <translation type="unfinished">重置</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;openpilot keeps steering for you even when it isn't controlling the gas and brake, so it holds your lane when you press a pedal, cancel, or haven't engaged openpilot at all.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It steers from the moment your car's cruise control is switched on until you switch that back off or shift out of drive, and it pauses while you brake below the speed set in "Pause on Brake Press Below", except at a full stop. On the newer Hyundai, Kia, and Genesis cars, the LKAS button takes the place of cruise control while "Enable With LKAS" is on.</source>
-        <translation type="unfinished"></translation>
+        <translation>重置</translation>
     </message>
     <message>
         <source>&lt;b&gt;Pause "Always On Lateral" below the set speed while the brake pedal is pressed, except at a full stop.&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;在低于设定速度且踩下刹车踏板时，暂停"始终开启横向控制"，但完全停车时除外。&lt;/b&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Switch openpilot's steering over to a neural network for a smoother wheel on cars that support it, and have it steer into turns when you signal below your minimum lane change speed.&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;在支持的车辆上将 openpilot 的转向切换为神经网络控制，使方向盘操作更平顺；并在您低于最低变道速度打转向灯时转入弯道。&lt;/b&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Use the friction, lateral acceleration, and steer ratio you set instead of the values openpilot works out on its own.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Only offered on cars that normally tune themselves.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;使用您设置的摩擦系数、横向加速度和转向比，而不是 openpilot 自行计算的数值。&lt;/b&gt;&lt;br&gt;&lt;br&gt;仅在通常会自动调校的车辆上提供。</translation>
     </message>
     <message>
         <source>&lt;b&gt;openpilot steers using a model trained on real driving data from cars like yours, which usually holds the lane more steadily and tracks curves more closely.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It only appears when a trained model matches your car. While it's on, the "Friction" and "Lateral Acceleration" rows disappear, but some car models still use the friction value. Built by Twilsonco.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;openpilot 使用根据同类车辆真实驾驶数据训练的模型进行转向，通常能更稳定地保持车道，并更贴合弯道行驶。&lt;/b&gt;&lt;br&gt;&lt;br&gt;只有存在与您车辆匹配的已训练模型时才会显示此项。开启后，"摩擦系数"和"横向加速度"选项会隐藏，但部分车型仍会使用摩擦系数的数值。由 Twilsonco 开发。</translation>
     </message>
     <message>
         <source>&lt;b&gt;openpilot looks ahead at how sharply the road is about to bend and starts adjusting its steering early, which smooths how it enters and leaves curves.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Use this when the full "Neural Network Feedforward (NNFF)" setting isn't offered for your car. It borrows the look-ahead without the trained model, so the improvement is smaller. On cars that normally use openpilot's PID steering, this also switches them to the torque controller.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;openpilot 会预判前方道路的弯曲程度并提前调整转向，使进出弯道更平顺。&lt;/b&gt;&lt;br&gt;&lt;br&gt;当您的车辆未提供完整的"神经网络前馈（NNFF）"设置时使用此项。它只借用前瞻功能，不使用训练好的模型，因此改善幅度较小。对于通常使用 openpilot PID 转向的车辆，此项还会将其切换为扭矩控制器。</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;openpilot keeps steering for you even when it isn't controlling the gas and brake, so it holds your lane when you press a pedal, cancel, or haven't engaged openpilot at all.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It steers from the moment your car's cruise control is switched on until you switch that back off or shift out of drive, and it pauses while you brake below the speed set in "Pause on Brake Press Below", except at a full stop. If cruise control is already on when you start the car, it waits until you engage openpilot, switch cruise control off and on, or press your car's LKAS button if it has one (not on Mazda, Nissan, or Subaru). That press only starts steering and doesn't run anything assigned to the button. On Hyundai, Kia, and Genesis cars with CAN FD where your car handles the gas and brake, or with "Enable With LKAS" on, engaging openpilot or pressing the LKAS button takes the place of cruise control.</source>
+        <translation>&lt;b&gt;即使 openpilot 没有控制加速和制动，它也会继续为您转向，因此在您踩下踏板、取消控制或根本没有启用 openpilot 时仍会保持车道。&lt;/b&gt;&lt;br&gt;&lt;br&gt;从车辆巡航控制开启起，它会持续转向，直到您关闭巡航控制或挡位离开前进挡；当车速低于"低于以下速度踩刹车时暂停"的设定值且您踩下刹车时，转向会暂停，但完全停车时除外。如果启动车辆时巡航控制已开启，它会等到您启用 openpilot、将巡航控制关闭后重新开启，或按下车辆的 LKAS 按钮（如果有，Mazda、Nissan 和 Subaru 除外）。这次按下只会开始转向，不会执行按钮指定的功能。对于采用 CAN FD 的现代、起亚和捷尼赛思车辆，当车辆自身控制加速和制动，或"通过 LKAS 启用"开启时，启用 openpilot 或按下 LKAS 按钮会取代巡航控制。</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Use the LKAS button instead of cruise control to arm steering, so openpilot keeps steering even when it is not engaged.&lt;/b&gt;&lt;br&gt;&lt;br&gt;openpilot does not read your car's LKAS status for this. It starts every drive disarmed, engaging openpilot arms it, and each press of the LKAS button while openpilot isn't engaged flips it. Switching cruise control off doesn't stop it. With this off, cruise control arms steering and the LKAS button is free to reassign under "LKAS Button".</source>
+        <translation>&lt;b&gt;使用 LKAS 按钮（而不是巡航控制）启用转向待命，使 openpilot 即使未启用也能继续转向。&lt;/b&gt;&lt;br&gt;&lt;br&gt;此功能不会读取车辆自身的 LKAS 状态。每次行程开始时转向待命均为关闭；启用 openpilot 会开启转向待命；在 openpilot 未启用时，每按一次 LKAS 按钮便切换一次。关闭巡航控制不会使转向停止。关闭此项后，由巡航控制启用转向待命，LKAS 按钮可在"LKAS 按钮"中重新分配功能。</translation>
     </message>
 </context>
 <context>
@@ -2643,11 +2718,11 @@ Firehose Mode allows you to maximize your training data uploads to improve openp
     </message>
     <message>
         <source>&lt;b&gt;How hard openpilot pulls away in the first moment after a stop.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for quicker takeoffs. Lower it for gentler ones. Only some cars use a fixed launch push like this, so on most cars this row does nothing.</source>
-        <translation>&lt;b&gt;停车后刚起步时 openpilot 使用的加速力度。&lt;/b&gt;&lt;br&gt;&lt;br&gt;调高可更快起步，调低可更柔和起步。只有部分车辆使用这种固定起步力度，因此此设置在大多数车辆上不起作用。</translation>
+        <translation type="vanished">&lt;b&gt;停车后刚起步时 openpilot 使用的加速力度。&lt;/b&gt;&lt;br&gt;&lt;br&gt;调高可更快起步，调低可更柔和起步。只有部分车辆使用这种固定起步力度，因此此设置在大多数车辆上不起作用。</translation>
     </message>
     <message>
         <source>&lt;b&gt;The speed that marks the end of pulling away from a stop, which sets how long openpilot holds its takeoff acceleration.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it to keep that takeoff push going up to a higher speed. Lower it to hand back to normal gas and brake control almost as soon as the wheels turn, which makes the start softer. Only some cars have a separate takeoff stage at all, so on most cars this row does nothing.</source>
-        <translation>&lt;b&gt;标记停车起步阶段结束的速度，它决定 openpilot 将起步加速度保持多久。&lt;/b&gt;&lt;br&gt;&lt;br&gt;调高可让起步推力持续到更高速度；调低则几乎在车轮刚开始转动时就恢复正常的加速和制动控制，使起步更柔和。只有部分车辆具有独立起步阶段，因此此设置在大多数车辆上不起作用。</translation>
+        <translation type="vanished">&lt;b&gt;标记停车起步阶段结束的速度，它决定 openpilot 将起步加速度保持多久。&lt;/b&gt;&lt;br&gt;&lt;br&gt;调高可让起步推力持续到更高速度；调低则几乎在车轮刚开始转动时就恢复正常的加速和制动控制，使起步更柔和。只有部分车辆具有独立起步阶段，因此此设置在大多数车辆上不起作用。</translation>
     </message>
     <message>
         <source>&lt;b&gt;How hard openpilot holds the brakes as your car finishes stopping and while it sits still.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The number is negative because it is braking, so -2.00 holds harder than -0.50. Go more negative if your car creeps or rolls back on a hill, and closer to zero if the last moment of the stop feels too abrupt.</source>
@@ -2915,211 +2990,219 @@ Firehose Mode allows you to maximize your training data uploads to improve openp
     </message>
     <message>
         <source>Acceleration and Braking</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;openpilot follows the car ahead more naturally, reading where that car is headed so it eases off and starts braking earlier and softer instead of reacting late.&lt;/b&gt;&lt;br&gt;&lt;br&gt;On the default driving model this only works while openpilot can clearly see the car ahead.</source>
-        <translation type="unfinished"></translation>
+        <translation>加速与制动</translation>
     </message>
     <message>
         <source>&lt;b&gt;Switch to "Experimental Mode" when you need to brake for the car ahead.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"Slower Lead" covers a car that is slowing down or much slower than you, and "Stopped Lead" covers a car that is stopped or about to stop. Gently catching up to a slightly slower car stays in normal driving. Both start off, so pick at least one with the buttons on this row or nothing happens.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;需要为前车制动时切换到"实验模式"。&lt;/b&gt;&lt;br&gt;&lt;br&gt;"前车较慢"适用于正在减速或比您慢很多的前车，"前车已停"适用于已停止或即将停止的前车。缓慢接近略慢的前车时仍保持正常驾驶。两项默认均关闭，因此请使用此行按钮至少选择一项，否则不会有任何作用。</translation>
     </message>
     <message>
         <source>&lt;b&gt;Switch to "Experimental Mode" when you signal below the set speed. Turn on "Not For Detected Lanes" to suppress this when an adjacent lane is detected as you start signaling.&lt;/b&gt;&lt;br&gt;&lt;br&gt;With the button off, any signal below the set speed can trigger it. With it on, the space beside you must be narrower than the "Minimum Lane Width" under "Lane Changes" in the "STEERING" panel when you start signaling, or you must be below the "Minimum Lane Change Speed". That width starts at zero, so raise it to use lane detection. Lane estimates can miss an adjacent lane.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;在低于设定速度时打转向灯会切换到"实验模式"。开启"检测到车道时不启用"后，如果开始打灯时检测到相邻车道，则不会触发。&lt;/b&gt;&lt;br&gt;&lt;br&gt;按钮关闭时，低于设定速度的任何转向灯都可能触发。按钮开启时，开始打灯时侧方空间必须窄于"转向"面板"变道"中的"最小车道宽度"，或者车速必须低于"最低变道速度"。该宽度默认为零，因此需要调高才能使用车道检测。车道估计可能会漏检相邻车道。</translation>
     </message>
     <message>
         <source>&lt;b&gt;Use your own "OpenWeatherMap" key for weather requests every minute.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Requires a One Call API 4.0 subscription. Without a working personal key, FrogPilot tries shared weather with a 15-minute request interval. Your saved key is kept.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;使用您自己的"OpenWeatherMap"密钥，每分钟请求一次天气数据。&lt;/b&gt;&lt;br&gt;&lt;br&gt;需要订阅 One Call API 4.0。如果没有可用的个人密钥，FrogPilot 会尝试使用共享天气数据，请求间隔为 15 分钟。已保存的密钥会继续保留。</translation>
     </message>
     <message>
         <source>&lt;b&gt;Hold openpilot's max speed to the posted speed limit.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The limit comes from your downloaded maps, Mapbox, speed limit signs read by the road camera, or, on supported Ford, Genesis, Hyundai, Kia, Lexus, and Toyota models, your dashboard.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;将 openpilot 的最高速度限制在道路标示限速。&lt;/b&gt;&lt;br&gt;&lt;br&gt;限速来自已下载的地图、Mapbox、道路摄像头识别的限速标志，或受支持的福特、捷尼赛思、现代、起亚、雷克萨斯和丰田车型的仪表盘。</translation>
     </message>
     <message>
         <source>Speed Limit Changes</source>
-        <translation type="unfinished"></translation>
+        <translation>限速控制器微调</translation>
     </message>
     <message>
         <source>&lt;b&gt;Choose which sources openpilot checks for the speed limit and in what order, or have it always use the highest or lowest limit being reported.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Pick up to three sources and openpilot uses the first one that currently has a limit. "Camera" is openpilot reading speed limit signs with the road camera. "Highest" and "Lowest" ignore the order and take the fastest or slowest limit any source reports, so one wrong map entry can hold you well below the posted limit.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;选择 openpilot 查询限速的来源及其顺序，或让它始终使用所报告的最高或最低限速。&lt;/b&gt;&lt;br&gt;&lt;br&gt;最多可选择三个来源，openpilot 会使用其中第一个当前有限速数据的来源。"摄像头"是指 openpilot 通过道路摄像头识别限速标志。"最高值"和"最低值"会忽略顺序，采用任一来源报告的最高或最低限速，因此一条错误的地图数据就可能使车速远低于道路标示限速。</translation>
     </message>
     <message>
         <source>&lt;b&gt;How far above or below the posted limit openpilot drives on roads posted between 0 and 24 mph.&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;在标示限速为 0 至 24 英里/小时的道路上，openpilot 的行驶速度高于或低于标示限速的幅度。&lt;/b&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;How far above or below the posted limit openpilot drives on roads posted between 25 and 34 mph.&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;在标示限速为 25 至 34 英里/小时的道路上，openpilot 的行驶速度高于或低于标示限速的幅度。&lt;/b&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;How far above or below the posted limit openpilot drives on roads posted between 35 and 44 mph.&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;在标示限速为 35 至 44 英里/小时的道路上，openpilot 的行驶速度高于或低于标示限速的幅度。&lt;/b&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;How far above or below the posted limit openpilot drives on roads posted between 45 and 54 mph.&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;在标示限速为 45 至 54 英里/小时的道路上，openpilot 的行驶速度高于或低于标示限速的幅度。&lt;/b&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;How far above or below the posted limit openpilot drives on roads posted between 55 and 64 mph.&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;在标示限速为 55 至 64 英里/小时的道路上，openpilot 的行驶速度高于或低于标示限速的幅度。&lt;/b&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;How far above or below the posted limit openpilot drives on roads posted between 65 and 74 mph.&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;在标示限速为 65 至 74 英里/小时的道路上，openpilot 的行驶速度高于或低于标示限速的幅度。&lt;/b&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;How far above or below the posted limit openpilot drives on roads posted between 75 and 99 mph.&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;在标示限速为 75 至 99 英里/小时的道路上，openpilot 的行驶速度高于或低于标示限速的幅度。&lt;/b&gt;</translation>
     </message>
     <message>
         <source>Camera</source>
-        <translation type="unfinished"></translation>
+        <translation>摄像头</translation>
     </message>
     <message>
         <source>Select your tertiary priority</source>
-        <translation type="unfinished"></translation>
+        <translation>选择第三优先来源</translation>
     </message>
     <message>
         <source>Key is valid for OpenWeatherMap One Call API 4.0!</source>
-        <translation type="unfinished"></translation>
+        <translation>此密钥可用于 OpenWeatherMap One Call API 4.0！</translation>
     </message>
     <message>
         <source>OpenWeatherMap returned incomplete weather data. Try again later.</source>
-        <translation type="unfinished"></translation>
+        <translation>OpenWeatherMap 返回的天气数据不完整。请稍后重试。</translation>
     </message>
     <message>
         <source>OpenWeatherMap did not accept this key for One Call API 4.0. Check the key and make sure it has a One Call API 4.0 subscription. Until then, FrogPilot uses shared weather, updated every 15 minutes.</source>
-        <translation type="unfinished"></translation>
+        <translation>OpenWeatherMap 未接受此密钥用于 One Call API 4.0。请检查密钥，并确认其已订阅 One Call API 4.0。在此之前，FrogPilot 会使用每 15 分钟更新一次的共享天气数据。</translation>
     </message>
     <message>
         <source>OpenWeatherMap's request limit was reached. Try again later.</source>
-        <translation type="unfinished"></translation>
+        <translation>已达到 OpenWeatherMap 的请求上限。请稍后重试。</translation>
     </message>
     <message>
         <source>OpenWeatherMap request failed (HTTP %1).</source>
-        <translation type="unfinished"></translation>
+        <translation>OpenWeatherMap 请求失败（HTTP %1）。</translation>
     </message>
     <message>
         <source>Could not reach OpenWeatherMap. Check your connection and try again.</source>
-        <translation type="unfinished"></translation>
+        <translation>无法连接 OpenWeatherMap。请检查网络连接后重试。</translation>
     </message>
     <message>
         <source>&lt;b&gt;How far above or below the posted limit openpilot drives on roads posted between 0 and 29 km/h.&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;在标示限速为 0 至 29 公里/小时的道路上，openpilot 的行驶速度高于或低于标示限速的幅度。&lt;/b&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;How far above or below the posted limit openpilot drives on roads posted between 30 and 49 km/h.&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;在标示限速为 30 至 49 公里/小时的道路上，openpilot 的行驶速度高于或低于标示限速的幅度。&lt;/b&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;How far above or below the posted limit openpilot drives on roads posted between 50 and 59 km/h.&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;在标示限速为 50 至 59 公里/小时的道路上，openpilot 的行驶速度高于或低于标示限速的幅度。&lt;/b&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;How far above or below the posted limit openpilot drives on roads posted between 60 and 79 km/h.&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;在标示限速为 60 至 79 公里/小时的道路上，openpilot 的行驶速度高于或低于标示限速的幅度。&lt;/b&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;How far above or below the posted limit openpilot drives on roads posted between 80 and 99 km/h.&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;在标示限速为 80 至 99 公里/小时的道路上，openpilot 的行驶速度高于或低于标示限速的幅度。&lt;/b&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;How far above or below the posted limit openpilot drives on roads posted between 100 and 119 km/h.&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;在标示限速为 100 至 119 公里/小时的道路上，openpilot 的行驶速度高于或低于标示限速的幅度。&lt;/b&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;How far above or below the posted limit openpilot drives on roads posted between 120 and 140 km/h.&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;在标示限速为 120 至 140 公里/小时的道路上，openpilot 的行驶速度高于或低于标示限速的幅度。&lt;/b&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;openpilot watches the cars in the lane it is moving into and adjusts its speed for them during a lane change.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Without this it only reacts to the car directly ahead until the move is finished. It only takes over while openpilot is already tracking a car ahead, so with a clear lane in front of you nothing changes.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;变道期间，openpilot 会关注目标车道中的车辆，并根据它们调整车速。&lt;/b&gt;&lt;br&gt;&lt;br&gt;关闭此项后，在变道完成前它只会响应正前方的车辆。此功能仅在 openpilot 已在追踪前车时生效，因此前方车道畅通时不会有任何变化。</translation>
     </message>
     <message>
         <source>&lt;b&gt;When the speed openpilot plans to be doing over the next second drops below this, it treats your car as stopped and switches to holding the brakes.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it to settle into the stop earlier and more smoothly. Lower it to keep normal braking going longer, at the risk of rolling past your mark.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;当 openpilot 规划的未来一秒内车速低于此数值时，会将车辆视为已停止，并切换为保持制动。&lt;/b&gt;&lt;br&gt;&lt;br&gt;调高可更早、更平顺地进入停车状态。调低可让正常制动持续更久，但有可能滑过预定停车位置。</translation>
     </message>
     <message>
         <source>&lt;b&gt;How much your set speed moves with each tap of the + or - cruise button.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Set it to 1 to land on any speed exactly, or higher to get where you are going in fewer taps. When this is 5 or another multiple of 5, a tap from a set speed in between only goes as far as the next multiple of it, so with 5 a set speed of 63 becomes 65 or 60.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;每次短按巡航 + 或 - 按钮时设定速度变化的数值。&lt;/b&gt;&lt;br&gt;&lt;br&gt;设为 1 可精确设定任意速度；设为更高值则可用更少的按键次数达到目标速度。当此值为 5 或 5 的其他倍数，且设定速度不是此值的倍数时，短按一次只会调到该方向上此值的下一个倍数，因此设为 5 时，63 的设定速度会变为 65 或 60。</translation>
     </message>
     <message>
         <source>&lt;b&gt;How much your set speed moves while you hold the + or - cruise button down.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The default is 5, against 1 for a single tap. When this is 5 or another multiple of 5, the first step from a set speed in between only goes as far as the next multiple of it, so with 5 a set speed of 63 becomes 65 or 60.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;长按巡航 + 或 - 按钮时设定速度变化的数值。&lt;/b&gt;&lt;br&gt;&lt;br&gt;默认值为 5，而单击的默认值为 1。当此值为 5 或 5 的其他倍数，且设定速度不是此值的倍数时，第一步只会调到该方向上此值的下一个倍数，因此设为 5 时，63 的设定速度会变为 65 或 60。</translation>
     </message>
     <message>
         <source>&lt;b&gt;Adds an extra amount on top of the "Cruise Interval (Hold)" step, but only when you press and hold the + cruise button.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The - button does not mirror it. Holding - takes the normal hold step down and then moves down by one more "Cruise Interval (Hold)" amount minus this offset, so with a hold interval of 5 and 5 chosen here you just get the normal hold step down, as you also do with any offset above the hold interval. A quick tap is never affected, and 0 turns this off.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;仅在按住巡航 + 按钮时，在"巡航速度长按步长"的基础上额外增加一定数值。&lt;/b&gt;&lt;br&gt;&lt;br&gt;- 按钮不会对称生效。按住 - 时，会先按正常长按步长降低，然后再降低"巡航速度长按步长"减去此偏移量的数值；因此长按步长为 5 且此处选择 5 时，只会按正常长按步长降低，偏移量大于长按步长时也是如此。快速短按永远不受影响，设为 0 可关闭此功能。</translation>
     </message>
     <message>
         <source>&lt;b&gt;Adds extra room between you and the car ahead in low visibility, at every speed and not just when stopped.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This stacks on top of the same setting under "Quality of Life". "Traffic Mode" ignores both.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;在低能见度下增加您与前车之间的间距，在任何车速下都生效，而不只是停车时。&lt;/b&gt;&lt;br&gt;&lt;br&gt;此设置会与"便捷功能"中的同一设置叠加。"拥堵模式"会忽略这两项设置。</translation>
     </message>
     <message>
         <source>&lt;b&gt;Holds openpilot back from accelerating as hard in low visibility.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This does not apply while "Experimental Mode" is running.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;在低能见度下限制 openpilot 的加速力度。&lt;/b&gt;&lt;br&gt;&lt;br&gt;"实验模式"运行时不适用。</translation>
     </message>
     <message>
         <source>&lt;b&gt;Adds extra room between you and the car ahead in rain, at every speed and not just when stopped.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This stacks on top of the same setting under "Quality of Life". "Traffic Mode" ignores both.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;雨天时增加您与前车之间的间距，在任何车速下都生效，而不只是停车时。&lt;/b&gt;&lt;br&gt;&lt;br&gt;此设置会与"便捷功能"中的同一设置叠加。"拥堵模式"会忽略这两项设置。</translation>
     </message>
     <message>
         <source>&lt;b&gt;Holds openpilot back from accelerating as hard in rain.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for softer, more controlled pickup on a slippery road. This does not apply while "Experimental Mode" is running.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;雨天时限制 openpilot 的加速力度。&lt;/b&gt;&lt;br&gt;&lt;br&gt;调高可在湿滑路面上实现更柔和、更可控的提速。"实验模式"运行时不适用。</translation>
     </message>
     <message>
         <source>&lt;b&gt;Adds extra room between you and the car ahead in a rainstorm, at every speed and not just when stopped.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This stacks on top of the same setting under "Quality of Life". "Traffic Mode" ignores both.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;暴雨时增加您与前车之间的间距，在任何车速下都生效，而不只是停车时。&lt;/b&gt;&lt;br&gt;&lt;br&gt;此设置会与"便捷功能"中的同一设置叠加。"拥堵模式"会忽略这两项设置。</translation>
     </message>
     <message>
         <source>&lt;b&gt;Holds openpilot back from accelerating as hard in a rainstorm.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for softer, more controlled pickup on a slippery road. This does not apply while "Experimental Mode" is running.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;暴雨时限制 openpilot 的加速力度。&lt;/b&gt;&lt;br&gt;&lt;br&gt;调高可在湿滑路面上实现更柔和、更可控的提速。"实验模式"运行时不适用。</translation>
     </message>
     <message>
         <source>&lt;b&gt;Adds extra room between you and the car ahead in snow, at every speed and not just when stopped.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This stacks on top of the same setting under "Quality of Life". "Traffic Mode" ignores both.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;雪天时增加您与前车之间的间距，在任何车速下都生效，而不只是停车时。&lt;/b&gt;&lt;br&gt;&lt;br&gt;此设置会与"便捷功能"中的同一设置叠加。"拥堵模式"会忽略这两项设置。</translation>
     </message>
     <message>
         <source>&lt;b&gt;Holds openpilot back from accelerating as hard in snow.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for softer, more controlled pickup on a slippery road. This does not apply while "Experimental Mode" is running.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;雪天时限制 openpilot 的加速力度。&lt;/b&gt;&lt;br&gt;&lt;br&gt;调高可在湿滑路面上实现更柔和、更可控的提速。"实验模式"运行时不适用。</translation>
     </message>
     <message>
         <source>&lt;b&gt;Switch to "Experimental Mode" below this speed when openpilot is tracking a car ahead of you.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This replaces the "Below" value whenever there is a car ahead. It switches on once you are moving at walking pace or faster, and can then stay on as you crawl or stop behind that car.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;当 openpilot 正在跟踪前车且车速低于此速度时，切换到"实验模式"。&lt;/b&gt;&lt;br&gt;&lt;br&gt;只要前方有车，此数值就会取代"低于以下速度"的数值。车速达到步行速度或更快时才会开启，之后在您跟随该车缓行或停车时可继续保持开启。</translation>
     </message>
     <message>
         <source>"Taco Bell Run" Turn Speed Hack</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;openpilot slows down more for left and right turns, using the trick comma built for their 2022 "Taco Bell Run" drive.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It does nothing while "Curve Speed Controller" is on. Otherwise it never switches off, so it is still working on fast highway curves. What stops at about 45 mph is the ramp: openpilot allows more cornering force the faster you go, up to that speed, then holds it flat. That makes the slowdown most noticeable in slow, tight turns.</source>
-        <translation type="unfinished"></translation>
+        <translation>"Taco Bell Run"弯道速度优化</translation>
     </message>
     <message>
         <source>&lt;b&gt;How fast openpilot takes curves.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"Gentle" and "Standard" hold to a fixed, relaxed pace, "Sport" uses your car's maximum configured or learned cornering limit, and "Adaptive" learns how you prefer to take curves.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;openpilot 的过弯速度。&lt;/b&gt;&lt;br&gt;&lt;br&gt;"柔和"和"标准"保持固定、从容的速度；"运动"使用为您的车辆配置或学习到的最大过弯限度；"自适应"则会学习您偏好的过弯方式。</translation>
     </message>
     <message>
         <source>&lt;b&gt;How gently openpilot slows down when the road ahead is clear.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"Standard" is openpilot's normal braking, "Eco" brakes about half as hard so you coast more, and "Eco+" just lets off the gas and coasts, so it slows quicker uphill and barely slows on a steep downhill until the road levels out. Whenever there is a car ahead, or while "Experimental Mode" is running, openpilot goes back to full-strength braking so it can still stop in time.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;前方道路畅通时 openpilot 减速的柔和程度。&lt;/b&gt;&lt;br&gt;&lt;br&gt;"标准"采用 openpilot 的正常制动；"节能"的制动力度约为正常的一半，因此滑行更多；"节能+"只松开油门滑行，因此上坡时减速更快，而在陡峭下坡时几乎不减速，直到道路变平。只要前方有车，或"实验模式"正在运行，openpilot 就会恢复全力制动，以便仍能及时停车。</translation>
     </message>
     <message>
         <source>&lt;b&gt;Switch to "Experimental Mode" when openpilot plans to slow down a lot or stop soon, except while following a detected lead.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It keeps checking for a possible stop behind that lead and can trigger once the lead is no longer tracked. "Traffic Mode" turns this condition off.&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Disclaimer&lt;/b&gt;: openpilot does not explicitly detect traffic lights or stop signs. In "Experimental Mode", openpilot makes end-to-end driving decisions from camera input, which means it may stop even when there's no clear reason!&lt;/i&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;当 openpilot 计划大幅减速或即将停车时切换到"实验模式"，但跟随已检测到的前车时除外。&lt;/b&gt;&lt;br&gt;&lt;br&gt;它会持续检查是否可能需要在该前车后方停车，并可在不再跟踪该前车后触发。"拥堵模式"会关闭此条件。&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;免责声明&lt;/b&gt;：openpilot 不会明确检测交通信号灯或停车标志。在"实验模式"下，openpilot 根据摄像头输入做出端到端驾驶决策，这意味着即使没有明确原因，它也可能停车！&lt;/i&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;openpilot comes to a full stop whenever it thinks it sees a red light or stop sign, whether or not "Experimental Mode" is running.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It only kicks in when openpilot is not already tracking a car ahead, so behind a queue at a light your normal following does the stopping instead. Touching the gas or pressing RES/+ cancels a forced stop. "Traffic Mode" turns this off.&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Heads up&lt;/b&gt;: openpilot never actually reads traffic lights or stop signs. It decides from what the camera sees, so it can stop when there is no reason to.&lt;/i&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Lets your car's "Eco" and "Sport" gear modes take over how openpilot speeds up, how it slows down, or both.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Pick "Acceleration", "Deceleration" or both with the buttons on this row, since neither starts on and nothing changes until you do.&lt;br&gt;&lt;br&gt;"Eco" gear makes openpilot accelerate gently and "Sport" gear makes it accelerate firmly. For braking, "Eco" gear halves how hard openpilot can brake and "Sport" gear uses openpilot's normal braking. The braking change only applies when there is no car ahead.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;只要 openpilot 认为看到了红灯或停车标志，就会完全停车，无论"实验模式"是否正在运行。&lt;/b&gt;&lt;br&gt;&lt;br&gt;仅在 openpilot 尚未跟踪前车时才会生效，因此在信号灯前排队时，由正常跟车功能完成停车。触碰油门或按 RES/+ 可取消强制停车。"拥堵模式"会关闭此功能。&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;请注意&lt;/b&gt;：openpilot 实际上从不读取交通信号灯或停车标志。它根据摄像头画面做出判断，因此可能在没有理由时停车。&lt;/i&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Fall back to Mapbox for the speed limit when none of your chosen sources have one.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Needs your Public Mapbox Key and a working internet connection. It sends your location to Mapbox to look up the limit.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;当所选来源均没有限速数据时，改用 Mapbox 获取限速。&lt;/b&gt;&lt;br&gt;&lt;br&gt;需要您的 Mapbox 公钥和可用的互联网连接。它会将您的位置发送给 Mapbox 以查询限速。</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;openpilot follows the car ahead more naturally.&lt;/b&gt;&lt;br&gt;&lt;br&gt;With newer driving models like the default one, it reads where that car is headed so it eases off and starts braking earlier and softer instead of reacting late, as long as it can clearly see that car. On older driving models it needs radar, closing gaps behind faster cars for quicker takeoffs and braking more gently behind slower ones.</source>
+        <translation>&lt;b&gt;openpilot 能更自然地跟随前车。&lt;/b&gt;&lt;br&gt;&lt;br&gt;使用默认模型等较新的驾驶模型时，只要能清楚看到前车，它就会判断前车的行驶趋势，从而更早、更柔和地松开油门并开始制动，而不是反应过晚。使用较旧的驾驶模型时则需要雷达，在较快的前车后方会缩小间距以更快起步，在较慢的前车后方则会更柔和地制动。</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;openpilot slows down more for left and right turns, using the trick comma built for their 2022 "Taco Bell Run" drive.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It does nothing while "Curve Speed Controller" is on. Otherwise it never switches off, so it is still working on fast highway curves. What stops at about 45 mph is the ramp. openpilot allows more cornering force the faster you go, up to that speed, then holds it flat. That makes the slowdown most noticeable in slow, tight turns.</source>
+        <translation>&lt;b&gt;openpilot 在左转和右转时会减速更多，采用的是 comma 为其 2022 年"Taco Bell Run"行程开发的技巧。&lt;/b&gt;&lt;br&gt;&lt;br&gt;"弯道速度控制器"开启时此功能不起作用。否则它永远不会关闭，因此在高速公路的快速弯道上仍会工作。在约 45 英里/小时停止的，是其递增幅度。在达到该速度之前，车速越快，openpilot 允许的过弯力度越大，之后保持不变。因此在低速急弯中减速最为明显。</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;How hard openpilot pulls away in the first moment after a stop.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for quicker takeoffs. Lower it for gentler ones.</source>
+        <translation>&lt;b&gt;停车后刚起步时 openpilot 使用的加速力度。&lt;/b&gt;&lt;br&gt;&lt;br&gt;调高可更快起步，调低可更柔和起步。</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;The speed that marks the end of pulling away from a stop, which sets how long openpilot holds its takeoff acceleration.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it to keep that takeoff push going up to a higher speed. Lower it to hand back to normal gas and brake control almost as soon as the wheels turn, which makes the start softer.</source>
+        <translation>&lt;b&gt;标记停车起步阶段结束的速度，它决定 openpilot 将起步加速度保持多久。&lt;/b&gt;&lt;br&gt;&lt;br&gt;调高可让起步推力持续到更高速度；调低则几乎在车轮刚开始转动时就恢复正常的加速和制动控制，使起步更柔和。</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Lets your car's "Eco" and "Sport" gear modes take over how openpilot speeds up, how it slows down, or both.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Pick "Acceleration", "Deceleration", or both with the buttons on this row, since neither starts on and nothing changes until you do.&lt;br&gt;&lt;br&gt;"Eco" gear makes openpilot accelerate gently and "Sport" gear makes it accelerate firmly. For braking, "Eco" gear halves how hard openpilot can brake and "Sport" gear uses openpilot's normal braking. The braking change only applies when there is no car ahead.</source>
+        <translation>&lt;b&gt;让车辆的"节能"和"运动"挡位模式接管 openpilot 的加速方式、减速方式或两者。&lt;/b&gt;&lt;br&gt;&lt;br&gt;请使用此行的按钮选择"加速"、"减速"或两者；两者默认均未开启，选择之前不会有任何变化。&lt;br&gt;&lt;br&gt;"节能"挡位使 openpilot 柔和加速，"运动"挡位使其有力加速。制动方面，"节能"挡位会将 openpilot 可用的制动力度减半，"运动"挡位则使用 openpilot 的正常制动。制动调整仅在前方没有车辆时生效。</translation>
     </message>
 </context>
 <context>
@@ -3281,23 +3364,23 @@ Firehose Mode allows you to maximize your training data uploads to improve openp
     </message>
     <message>
         <source>&lt;b&gt;Pick the countries or U.S. states you drive in, so openpilot knows their speed limits.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Map data within about 60 miles (100 km) of where you park downloads on its own, so pick only what covers the rest of your driving.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;选择您驾车所在的国家/地区或美国各州，让 openpilot 获知当地限速。&lt;/b&gt;&lt;br&gt;&lt;br&gt;您停车地点周围约 60 英里（100 公里）范围内的地图数据会自动下载，因此只需选择能覆盖其余行驶范围的地区。</translation>
     </message>
     <message>
         <source>&lt;b&gt;Delete your downloaded map data and clear the places you picked under "Map Sources", to free up storage.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Only the map data around where you park comes back on its own, the next time the device is on Wi-Fi. Everywhere else, "Speed Limit Controller" has no map speed limits until you pick your places again and start a new download.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;删除已下载的地图数据并清除"地图来源"中选择的地区，以释放存储空间。&lt;/b&gt;&lt;br&gt;&lt;br&gt;只有您停车地点周围的地图数据会在设备下次连接 Wi-Fi 时自动恢复。在其他所有地方，"限速控制器"都没有地图限速可用，直到您重新选择地区并开始新的下载。</translation>
     </message>
     <message>
         <source>Removing...</source>
-        <translation type="unfinished"></translation>
+        <translation>正在删除...</translation>
     </message>
     <message>
         <source>Some map data could not be removed. Try again.</source>
-        <translation type="unfinished"></translation>
+        <translation>部分地图数据无法删除。请重试。</translation>
     </message>
     <message>
         <source>&lt;b&gt;How often openpilot re-downloads the speed limit map data for the places you picked under "Map Sources". "Weekly" runs every Sunday, "Monthly" runs on the 1st, and "Manually" waits until you press "DOWNLOAD" yourself.&lt;/b&gt;&lt;br&gt;&lt;br&gt;There is one exception. Whenever the map data is missing from the device, openpilot starts the download on its own, usually within the hour. Automatic downloads only start on an unmetered connection, such as Wi-Fi, and unlike "DOWNLOAD" they do not wait until you park.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;设置 openpilot 重新下载"地图来源"中所选地区限速地图数据的频率。"每周"在每周日运行，"每月"在每月 1 日运行，"手动"则会等待您亲自按下"下载"。&lt;/b&gt;&lt;br&gt;&lt;br&gt;有一种例外：只要设备中缺少地图数据，openpilot 就会自行开始下载，通常会在一小时内启动。自动下载只会在连接不按流量计费的网络（例如 Wi-Fi）时启动，而且与"下载"不同，不会等到车辆停放后才开始。</translation>
     </message>
 </context>
 <context>
@@ -3504,105 +3587,105 @@ Firehose Mode allows you to maximize your training data uploads to improve openp
     </message>
     <message>
         <source>Not parked</source>
-        <translation type="unfinished">车辆未停放</translation>
+        <translation>车辆未停放</translation>
     </message>
     <message>
         <source>&lt;b&gt;Download driving models onto the device so you can switch to them.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"DOWNLOAD" lets you pick which ones, "DOWNLOAD ALL" fetches everything. Your car has to be parked and online, and models are large, so this can take a while.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;将驾驶模型下载到设备，以便切换使用。&lt;/b&gt;&lt;br&gt;&lt;br&gt;"下载"可选择要下载的模型，"全部下载"会获取全部模型。车辆必须已停放并联网；模型文件较大，因此可能需要一些时间。</translation>
     </message>
     <message>
         <source>Choose driving models to delete</source>
-        <translation type="unfinished"></translation>
+        <translation>选择要删除的驾驶模型</translation>
     </message>
     <message>
         <source>Are you sure you want to delete these %1 models?</source>
-        <translation type="unfinished"></translation>
+        <translation>确定要删除这 %1 个模型吗？</translation>
     </message>
     <message>
         <source>Choose driving models to download</source>
-        <translation type="unfinished"></translation>
+        <translation>选择要下载的驾驶模型</translation>
     </message>
     <message>
         <source>Download</source>
-        <translation type="unfinished">下载</translation>
+        <translation>下载</translation>
     </message>
     <message>
         <source>&lt;b&gt;Download new driving models on their own as they are released, so they are ready when you want to try one.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This runs whenever the device is on Wi-Fi or another unmetered connection, including while you are driving. It also grabs every model that is not already on the device, not just newly released ones, so anything you removed with "Delete Driving Models" comes back.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;新驾驶模型发布后自动下载，以便随时试用。&lt;/b&gt;&lt;br&gt;&lt;br&gt;只要设备连接 Wi-Fi 或其他不按流量计费的网络就会运行，包括行车期间。它还会下载设备上尚未存在的所有模型，而不只是新发布的模型，因此使用"删除驾驶模型"移除的任何模型都会重新下载。</translation>
     </message>
     <message>
         <source>&lt;b&gt;Remove driving models you have downloaded to free up storage.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"DELETE" lets you pick which ones, "DELETE ALL" removes the rest. The model you are currently using and the one FrogPilot ships with are always kept. Turn "Automatically Download New Models" off first, or anything you delete is downloaded again within the hour whenever the device is on Wi-Fi or another unmetered connection.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;删除已下载的驾驶模型以释放存储空间。&lt;/b&gt;&lt;br&gt;&lt;br&gt;"删除"可选择要删除的模型，"全部删除"会删除其余所有模型。当前正在使用的模型以及 FrogPilot 随附的模型始终会保留。请先关闭"自动下载新模型"，否则只要设备连接 Wi-Fi 或其他不按流量计费的网络，删除的内容就会在一小时内重新下载。</translation>
     </message>
 </context>
 <context>
     <name>FrogPilotModelReview</name>
     <message>
         <source>How would you rate that drive?</source>
-        <translation type="unfinished"></translation>
+        <translation>您会如何评价刚才的行程？</translation>
     </message>
     <message>
         <source>Blacklist this model to remove it from rotation</source>
-        <translation type="unfinished"></translation>
+        <translation>将此模型加入黑名单并从随机轮换中移除</translation>
     </message>
     <message>
         <source>Blacklist Model</source>
-        <translation type="unfinished"></translation>
+        <translation>将模型加入黑名单</translation>
     </message>
     <message>
         <source>Model successfully blacklisted!</source>
-        <translation type="unfinished"></translation>
+        <translation>模型已成功加入黑名单！</translation>
     </message>
     <message>
         <source>Model used during that drive:</source>
-        <translation type="unfinished"></translation>
+        <translation>该行程使用的模型：</translation>
     </message>
     <message>
         <source>Model Rank</source>
-        <translation type="unfinished"></translation>
+        <translation>模型排名</translation>
     </message>
     <message>
         <source>Model Rating</source>
-        <translation type="unfinished"></translation>
+        <translation>模型评分</translation>
     </message>
     <message>
         <source>Model Drives</source>
-        <translation type="unfinished"></translation>
+        <translation>模型使用行程数</translation>
     </message>
     <message>
         <source>Total Drives</source>
-        <translation type="unfinished">总计行程数</translation>
+        <translation>总行程数</translation>
     </message>
     <message>
         <source>#%1</source>
-        <translation type="unfinished"></translation>
+        <translation>#%1</translation>
     </message>
     <message>
         <source>%1%</source>
-        <translation type="unfinished"></translation>
+        <translation>%1%</translation>
     </message>
     <message>
         <source>%1 Drive</source>
-        <translation type="unfinished">%1 次行程</translation>
+        <translation>%1 次行程</translation>
     </message>
     <message>
         <source>%1 Drives</source>
-        <translation type="unfinished">%1 次行程</translation>
+        <translation>%1 次行程</translation>
     </message>
     <message>
         <source>%1 Total Drive</source>
-        <translation type="unfinished"></translation>
+        <translation>共 %1 次行程</translation>
     </message>
     <message>
         <source>%1 Total Drives</source>
-        <translation type="unfinished"></translation>
+        <translation>共 %1 次行程</translation>
     </message>
 </context>
 <context>
     <name>FrogPilotMultiOptionDialog</name>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">取消</translation>
+        <translation>取消</translation>
     </message>
 </context>
 <context>
@@ -3697,38 +3780,38 @@ Firehose Mode allows you to maximize your training data uploads to improve openp
     </message>
     <message>
         <source>&lt;b&gt;Lets openpilot get speed limits from Mapbox.&lt;/b&gt;&lt;br&gt;&lt;br&gt;You make this key yourself on Mapbox's website. "Mapbox Setup Instructions" walks you through it.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;让 openpilot 能够从 Mapbox 获取限速。&lt;/b&gt;&lt;br&gt;&lt;br&gt;此密钥需要您自己在 Mapbox 网站上创建。"Mapbox 设置说明"会引导您完成操作。</translation>
     </message>
     <message>
         <source>&lt;b&gt;Walks you through getting your own free Mapbox keys.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The guide only shows the steps for where you are in setup, so it changes as you add each key. Tap the instructions to come back here.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;引导您获取自己的免费 Mapbox 密钥。&lt;/b&gt;&lt;br&gt;&lt;br&gt;指南只显示与当前设置进度对应的步骤，因此添加各个密钥后内容会变化。点按说明即可返回此页面。</translation>
     </message>
     <message>
         <source>&lt;b&gt;Open this address in a browser on the same Wi-Fi to reach "The Pond", where you manage your drives, recordings, themes, and more from a phone or computer.&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;在连接同一 Wi-Fi 的浏览器中打开此地址即可访问"The Pond"，您可以在手机或电脑上管理行程、录像、主题等内容。&lt;/b&gt;</translation>
     </message>
     <message>
         <source>Pairing Code</source>
-        <translation type="unfinished"></translation>
+        <translation>配对码</translation>
     </message>
     <message>
         <source>&lt;b&gt;Ask for a code before a browser can use "The Pond".&lt;/b&gt;&lt;br&gt;&lt;br&gt;Without a code, any device on the same Wi-Fi or Tailscale network can open your drives, camera footage, logs, location, and saved places, and can change your settings, unlock your doors, reboot the device, switch branches, run any command on the device from its shell, restore a backup that replaces its software, or sign the device into a Tailscale account. The code shows next to the address above. Turning this off signs every browser out, and turning it back on makes a new code.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;浏览器使用"The Pond"前需要输入配对码。&lt;/b&gt;&lt;br&gt;&lt;br&gt;如果没有配对码，同一 Wi-Fi 或 Tailscale 网络中的任何设备都可以打开您的行程、摄像头视频、日志、位置和已保存的地点，还可以更改您的设置、解锁车门、重启设备、切换分支、通过 shell 在设备上运行任意命令、恢复会替换设备软件的备份，或让设备登录 Tailscale 账户。配对码显示在上方地址旁边。关闭此功能会让所有浏览器退出登录，重新开启会生成新的配对码。</translation>
     </message>
     <message>
         <source>&lt;b&gt;Learns speed limits from the signs the camera reads on roads where your downloaded maps have no limit or the wrong one.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Each learned limit is saved for that road and direction and used in place of the map's limit the next time you drive there, and it is forgotten once the map matches the signs. It also keeps a cropped photo of the sign each learned limit came from. Roads with conditional limits, such as ones that change with the time of day or the weather, are skipped. Needs downloaded maps. With "Share FrogPilot Data" on, the learned limits, their sign photos, and the roads where the signs matched your map are sent to FrogPilot while parked on unmetered Wi-Fi or Ethernet and used to improve speed limits for everyone using FrogPilot.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;在已下载地图没有限速或限速有误的道路上，根据摄像头识别的标志学习限速。&lt;/b&gt;&lt;br&gt;&lt;br&gt;每个学习到的限速都会按该道路和行驶方向保存，下次在该处行驶时将取代地图限速；地图与标志一致后，该限速会被清除。它还会保留每个学习到的限速所对应标志的裁剪照片。具有条件限速的道路（例如随时段或天气变化的限速）会被跳过。需要已下载的地图。开启"共享 FrogPilot 数据"后，学习到的限速、相应的标志照片，以及标志与地图一致的道路，会在停车并连接不按流量计费的 Wi-Fi 或以太网时发送给 FrogPilot，用于改进所有 FrogPilot 用户的限速数据。</translation>
     </message>
     <message>
         <source> (Code %1)</source>
-        <translation type="unfinished"></translation>
+        <translation>（配对码 %1）</translation>
     </message>
 </context>
 <context>
     <name>FrogPilotOnroadWindow</name>
     <message>
         <source>FPS: %1 | Min: %2 | Max: %3 | Avg: %4</source>
-        <translation type="unfinished"></translation>
+        <translation>帧率：%1 | 最低：%2 | 最高：%3 | 平均：%4</translation>
     </message>
 </context>
 <context>
@@ -3831,7 +3914,7 @@ Firehose Mode allows you to maximize your training data uploads to improve openp
     </message>
     <message>
         <source>&lt;b&gt;Tell openpilot what car you drive, turn on features made for your brand, and change what your steering wheel buttons do.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Brand features include things like smoother stop-and-go and automatic door locks. "WHEEL BUTTONS" only appears once your "Tuning Level" is "Advanced" or higher.</source>
-        <translation>&lt;b&gt;告诉 openpilot 您驾驶的车型，开启针对相应品牌的功能，并更改方向盘按钮的作用。&lt;/b&gt;&lt;br&gt;&lt;br&gt;品牌功能包括更平顺的走停控制和自动门锁等。只有"调校级别"为"高级"或更高时才会显示"方向盘按钮"。</translation>
+        <translation type="vanished">&lt;b&gt;告诉 openpilot 您驾驶的车型，开启针对相应品牌的功能，并更改方向盘按钮的作用。&lt;/b&gt;&lt;br&gt;&lt;br&gt;品牌功能包括更平顺的走停控制和自动门锁等。只有"调校级别"为"高级"或更高时才会显示"方向盘按钮"。</translation>
     </message>
     <message>
         <source>&lt;b&gt;Choose how much control you want over FrogPilot's settings.&lt;/b&gt; Anything above your level is hidden and uses FrogPilot's recommended setting instead. Nothing you've set is lost, and it comes back when you move up.&lt;br&gt;&lt;br&gt;Minimal - FrogPilot decides nearly everything for you&lt;br&gt;Standard - Recommended for most drivers&lt;br&gt;Advanced - Extra fine-tuning once you know how your car drives&lt;br&gt;Developer - Everything, including settings that can drastically change how openpilot drives</source>
@@ -3859,19 +3942,23 @@ Only continue if you know what they do.</source>
     </message>
     <message>
         <source>SPEED LIMIT MAPS</source>
-        <translation type="unfinished"></translation>
+        <translation>限速地图</translation>
     </message>
     <message>
         <source>DRIVING VIEW</source>
-        <translation type="unfinished"></translation>
+        <translation>行车界面</translation>
     </message>
     <message>
         <source>&lt;b&gt;Adjust how openpilot accelerates, brakes, steers, and changes lanes.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"GAS / BRAKE" only appears on cars where openpilot handles the gas and brake.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;调整 openpilot 的加速、制动、转向和变道方式。&lt;/b&gt;&lt;br&gt;&lt;br&gt;只有在 openpilot 控制加速和制动的车辆上才会显示"加速 / 制动"。</translation>
     </message>
     <message>
         <source>&lt;b&gt;Download the speed limit data openpilot uses, and set up Mapbox as a fallback speed limit source.&lt;/b&gt; Speed limits come from offline map data for the states or countries you pick, so they work without cell signal.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;下载 openpilot 使用的限速数据，并将 Mapbox 设置为备用限速来源。&lt;/b&gt;限速来自您所选州或国家/地区的离线地图数据，因此没有蜂窝网络信号时仍可使用。</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Tell openpilot what car you drive, turn on features made for your brand, and change what your steering wheel buttons do.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Brand features include things like smoother stop-and-go and automatic door locks. "WHEEL BUTTONS" only appears on cars with a button it can use, once your "Tuning Level" is "Advanced" or higher.</source>
+        <translation>&lt;b&gt;告诉 openpilot 您驾驶的车型，开启针对相应品牌的功能，并更改方向盘按钮的作用。&lt;/b&gt;&lt;br&gt;&lt;br&gt;品牌功能包括更平顺的走停控制和自动门锁等。只有在车辆配备可供其使用的按钮，且"调校级别"为"高级"或更高时，才会显示"方向盘按钮"。</translation>
     </message>
 </context>
 <context>
@@ -3966,62 +4053,70 @@ Only continue if you know what they do.</source>
     </message>
     <message>
         <source>&lt;b&gt;Turn on extra alerts stock openpilot doesn't have, for things you would otherwise have to catch yourself.&lt;/b&gt;&lt;br&gt;&lt;br&gt;These cover the light turning green, the car ahead pulling away, and the speed limit changing. The blind spot one in here is not a new alert: openpilot already chimes when you signal for a lane change and there's a car beside you, and this only swaps that chime for a louder one.</source>
-        <translation>&lt;b&gt;打开标准 openpilot 没有的额外警报，提醒您注意原本需要自行留意的情况。&lt;/b&gt;&lt;br&gt;&lt;br&gt;这些警报包括信号灯转绿、前方车辆开始移动以及限速变化。这里的盲点并不是一个新的警报：当您发出变道信号并且您旁边有一辆车时，openpilot 已经响起，而这只会将铃声替换为更响亮的铃声。</translation>
+        <translation type="vanished">&lt;b&gt;打开标准 openpilot 没有的额外警报，提醒您注意原本需要自行留意的情况。&lt;/b&gt;&lt;br&gt;&lt;br&gt;这些警报包括信号灯转绿、前方车辆开始移动以及限速变化。这里的盲点并不是一个新的警报：当您发出变道信号并且您旁边有一辆车时，openpilot 已经响起，而这只会将铃声替换为更响亮的铃声。</translation>
     </message>
     <message>
         <source>&lt;b&gt;Set the volume for the quick chimes openpilot uses when it needs you to notice something.&lt;/b&gt;&lt;br&gt;&lt;br&gt;You hear these for things like a car sitting in your blind spot when you signal, or a turn too sharp for openpilot to steer through on its own. The "Goat Scream" alert plays at this volume as well. This one stops at 25% so it can always reach you.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;设置 openpilot 需要您注意某些情况时播放的短促提示音量。&lt;/b&gt;&lt;br&gt;&lt;br&gt;例如打转向灯时盲区内有车，或弯道过急、openpilot 无法自行完成转向时会听到此声音。"山羊尖叫"警报也以此音量播放。此音量最低只能调到 25%，确保始终能够提醒您。</translation>
     </message>
     <message>
         <source>Extra Alerts</source>
-        <translation type="unfinished"></translation>
+        <translation>额外提示</translation>
     </message>
     <message>
         <source>&lt;b&gt;Play a chime whenever the speed limit openpilot is reading changes.&lt;/b&gt;&lt;br&gt;&lt;br&gt;That limit comes from your car's dashboard, your downloaded map data, signs read by the camera, or Mapbox, depending on which of those you have set up. You hear it right as the limit changes, such as entering a school zone or coming off the highway.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;openpilot 读取到的限速发生变化时播放提示音。&lt;/b&gt;&lt;br&gt;&lt;br&gt;该限速来自车辆仪表盘、已下载的地图数据、摄像头识别的标志或 Mapbox，具体取决于您设置了哪些来源。限速变化时（例如进入学校区域或驶离高速公路时）会立即听到提示音。</translation>
     </message>
     <message>
         <source>&lt;b&gt;Play a chime when you're stopped at a light and openpilot sees the road ahead open up.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This only fires when nobody is stopped in front of you, and it stays quiet in "Traffic Mode". For a line of cars at a light you need "Lead Departing Alert" switched on as well, and that one starts off.&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Disclaimer&lt;/b&gt;: openpilot does not actually read traffic lights. It is going off what the camera sees, so it can chime when the light has not changed.&lt;/i&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;在信号灯前停车且 openpilot 发现前方道路变得畅通时播放提示音。&lt;/b&gt;&lt;br&gt;&lt;br&gt;只有前方没有停着的车辆时才会触发，并且在"拥堵模式"下不会播放。在信号灯前排队时，还需要开启默认关闭的"前车起步提示"。&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;免责声明&lt;/b&gt;：openpilot 实际上不会读取交通信号灯。它根据摄像头画面判断，因此信号灯尚未变化时也可能播放提示音。&lt;/i&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Upgrade "Car Detected in Blindspot" from openpilot's quiet prompt chime to its warning chime.&lt;/b&gt;&lt;br&gt;&lt;br&gt;You get this alert when you signal for a lane change while openpilot is steering and there is a car beside you where you cannot see it. It needs "Lane Changes" switched on and at least your "Minimum Lane Change Speed" (20 mph or 32 km/h by default), so signaling slower than that gets you nothing. Because it becomes a warning, its volume comes from "Soft Warning Volume" instead of "Prompt Volume".</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;将"Car Detected in Blindspot"（盲区内检测到车辆）提示从 openpilot 较轻的提示音升级为警告音。&lt;/b&gt;&lt;br&gt;&lt;br&gt;当 openpilot 正在转向、您打转向灯准备变道，并且侧方盲区内有车时会收到此警报。需要开启"变道"，且车速至少达到"最低变道速度"（默认 20 英里/小时或 32 公里/小时），因此低于该速度打转向灯不会有任何提示。升级为警告后，其音量来自"柔性警告音量"，而不是"提示音量"。</translation>
     </message>
     <message>
         <source>&lt;b&gt;Set the volume for the sound openpilot makes when the driver camera thinks you've stopped watching the road.&lt;/b&gt;&lt;br&gt;&lt;br&gt;You hear this if you look down at your phone, or if the camera cannot see your face and you go too long without touching the wheel. Ignore it long enough and it escalates into the "DISENGAGE IMMEDIATELY" warning, which plays at "Urgent Warning Volume" instead. openpilot will not hand the car back on its own, so taking over is on you. It never plays quieter than "Auto" would, so it can always reach you.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;设置驾驶员摄像头认为您不再注视道路时 openpilot 发出声音的音量。&lt;/b&gt;&lt;br&gt;&lt;br&gt;低头看手机，或摄像头看不到您的脸且您长时间未触碰方向盘时会听到此声音。长时间忽略后，它会升级为"DISENGAGE IMMEDIATELY"警告，并改用"紧急警告音量"播放。openpilot 不会自行将车辆控制权交还给您，您必须主动接管。播放音量绝不会低于"自动"，确保始终能够提醒您。</translation>
     </message>
     <message>
         <source>&lt;b&gt;Set the volume for openpilot's serious warnings, such as "BRAKE! Risk of Collision" when it thinks you're about to hit something.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The "Louder Blind Spot Alert" plays at this volume too. It never plays quieter than "Auto" would, so it can always reach you.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;设置 openpilot 严重警告的音量，例如它认为即将发生碰撞时发出的"BRAKE! Risk of Collision"警告。&lt;/b&gt;&lt;br&gt;&lt;br&gt;"增强盲区警报"也以此音量播放。播放音量绝不会低于"自动"，确保警告始终能够被听到。</translation>
     </message>
     <message>
         <source>&lt;b&gt;Set the volume for openpilot's most urgent warnings, the ones telling you to take the wheel right now.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"DISENGAGE IMMEDIATELY" plays at this volume, which is what you get once you've ignored the driver camera long enough that openpilot no longer trusts you're paying attention. It never plays quieter than "Auto" would, so it can always reach you.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;设置 openpilot 最紧急警告的音量，即要求您立即接管方向盘的警告。&lt;/b&gt;&lt;br&gt;&lt;br&gt;当您长时间忽略驾驶员摄像头警报，openpilot 不再认为您保持注意时，"DISENGAGE IMMEDIATELY"会以此音量播放。播放音量绝不会低于"自动"，确保警告始终能够被听到。</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Turn on extra alerts stock openpilot doesn't have, for things you would otherwise have to catch yourself.&lt;/b&gt;&lt;br&gt;&lt;br&gt;These cover the light turning green, the car ahead pulling away, and the speed limit changing. The blind spot one in here is not a new alert. openpilot already chimes when you signal for a lane change and there's a car beside you, and this only swaps that chime for a louder one.</source>
+        <translation>&lt;b&gt;打开标准 openpilot 没有的额外警报，提醒您注意原本需要自行留意的情况。&lt;/b&gt;&lt;br&gt;&lt;br&gt;这些警报包括信号灯转绿、前方车辆开始移动以及限速变化。这里的盲点并不是一个新的警报。当您发出变道信号并且您旁边有一辆车时，openpilot 已经响起，而这只会将铃声替换为更响亮的铃声。</translation>
     </message>
 </context>
 <context>
     <name>FrogPilotTelemetryPage</name>
     <message>
         <source>Help Improve FrogPilot?</source>
-        <translation type="unfinished"></translation>
+        <translation>帮助改进 FrogPilot？</translation>
     </message>
     <message>
         <source>No Thanks</source>
-        <translation type="unfinished"></translation>
+        <translation>不用了</translation>
     </message>
     <message>
         <source>Yes, Share Data</source>
-        <translation type="unfinished"></translation>
+        <translation>是，共享数据</translation>
     </message>
     <message>
         <source>Your FrogPilot device ID is &lt;b&gt;%1&lt;/b&gt;.</source>
-        <translation type="unfinished"></translation>
+        <translation>您的 FrogPilot 设备 ID 是 &lt;b&gt;%1&lt;/b&gt;。</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Help make FrogPilot better by sharing filtered driving logs, short speed limit sign clips, learned speed limits, and usage stats.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Your everyday drives help us improve steering, acceleration, and braking, fine-tune support for more cars, train the speed limit sign reader, and find and fix problems. Keeping sharing enabled gives us more real-world examples across cars, roads, and driving conditions.&lt;br&gt;&lt;br&gt;&lt;b&gt;Privacy protection starts on your device.&lt;/b&gt; Driving logs are filtered, and the location included in usage stats is generalized, before they are sent.&lt;br&gt;&lt;br&gt;&lt;b&gt;Driving logs&lt;/b&gt; record vehicle behavior and FrogPilot's driving decisions. Before upload, we remove camera footage, audio, driver face data, account details, SSH keys, navigation routes, and map road names and IDs. Exact GPS coordinates and recording date/time fields are cleared, and &lt;b&gt;the VIN field is removed entirely&lt;/b&gt;. Driver-monitoring data is limited to awareness level and whether your car is right-hand drive. We also discard CAN messages captured during startup vehicle identification. Each drive gets an ID that hides when it was recorded, and uploaded logs are linked to your FrogPilot device ID.&lt;br&gt;&lt;br&gt;Raw CAN data recorded during driving is kept to help improve car support. On some cars, these vehicle messages can still contain GPS, VIN, date/time, odometer, or seat occupancy information.&lt;br&gt;&lt;br&gt;&lt;b&gt;Usage stats&lt;/b&gt; cover your device, software, car and calibration details, FrogPilot settings, model usage and scores, and lifetime driving totals, including drives from before you turned sharing on. &lt;b&gt;Your location is generalized on your device.&lt;/b&gt; It reports the nearest city in your country or US state from a list filtered to populations of &lt;b&gt;50,000 or more&lt;/b&gt;. If that region has no qualifying city, it uses its capital instead. This helps protect location privacy in small communities. For location, these stats include only the resulting city, state, and country, never your exact GPS coordinates. The VIN is excluded from car details, and stats are linked to your FrogPilot device ID.&lt;br&gt;&lt;br&gt;&lt;b&gt;Speed limit sign clips&lt;/b&gt; are about 10 seconds of road camera video, recorded when a supported car's dashboard shows a new speed limit, when the speed limit sign reader sees a sign it isn't sure of, and for some of the limits it reads. No GPS coordinates or recording date/time are attached, and clip IDs hide the original recording time. Each clip includes the speed limit or the reader's reading, camera calibration, and basic device, camera, and software details, and is linked to your FrogPilot device ID. Video is uploaded as recorded and can show license plates, people, and identifiable places. Clips picked to train or test the reader may be kept for up to 2 years. Clips may be matched to driving logs.&lt;br&gt;&lt;br&gt;&lt;b&gt;Learned speed limits&lt;/b&gt; are the limits "Speed Limit Filler" learns from the signs the camera reads, when that setting is on. They are used to improve speed limits for everyone using FrogPilot. Each one includes the speed limit, the map ID of the road it was learned on, the direction of travel, the GPS location and heading where the sign was seen, the date, and how far the car drove with that limit, and they are linked to your FrogPilot device ID. Each one also includes a cropped photo of the sign it was read from, with the GPS location, heading, and time it was taken, and the photo can show part of the road around the sign. Roads where the sign matched your map's limit are sent too, with the limit and the date, to measure how accurate the sign reader is. Limits learned before you turned sharing on are included. The road IDs and locations show where the car has been driven.&lt;br&gt;&lt;br&gt;&lt;b&gt;Uploads&lt;/b&gt; of driving logs, clips, and learned speed limits happen only while your car is off, on unmetered Wi-Fi or Ethernet. Usage stats are sent at startup and after drives and may use other available internet connections.&lt;br&gt;&lt;br&gt;&lt;b&gt;Your choice.&lt;/b&gt; You can turn off "Share FrogPilot Data" anytime to stop sharing these logs, clips, learned speed limits, and usage stats. Basic device registration still sends device type, operating system and software build details, and a public authentication key. Startup and after-drive check-ins continue without your usage stats, settings, or location. Crash reports also continue, tagged with your comma device ID (or your Konik device ID when you use the Konik server) and software details. Python crash reports do not automatically collect local variable values.&lt;br&gt;&lt;br&gt;Read FrogPilot's full privacy policy at &lt;b&gt;frogpilot.com/privacy&lt;/b&gt;.</source>
-        <translation type="unfinished"></translation>
+        <source>Your drives make FrogPilot better for everyone, with better steering and braking, support for more cars, and smarter speed limits.&lt;br&gt;&lt;br&gt;Sharing sends filtered driving logs, short road camera clips, learned speed limits, and usage stats. Turn it off anytime in Settings. Learn more at &lt;b&gt;FrogPilot.com/privacy&lt;/b&gt;.</source>
+        <translation>您的行程能让 FrogPilot 对每个人都变得更好，带来更出色的转向和制动、对更多车辆的支持，以及更智能的限速。&lt;br&gt;&lt;br&gt;共享会发送过滤后的驾驶日志、道路摄像头短视频片段、学习到的限速和使用统计数据。您可以随时在设置中关闭。详情请访问 &lt;b&gt;FrogPilot.com/privacy&lt;/b&gt;。</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Help make FrogPilot better by sharing filtered driving logs, short speed limit sign clips, learned speed limits, and usage stats.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Your everyday drives help us improve steering, acceleration, and braking, fine-tune support for more cars, train the speed limit sign reader, and find and fix problems. Keeping sharing enabled gives us more real-world examples across cars, roads, and driving conditions.&lt;br&gt;&lt;br&gt;&lt;b&gt;Privacy protection starts on your device.&lt;/b&gt; Driving logs are filtered, and the location included in usage stats is generalized, before they are sent.&lt;br&gt;&lt;br&gt;&lt;b&gt;Driving logs&lt;/b&gt; record vehicle behavior and FrogPilot's driving decisions. Before upload, we remove camera footage, audio, driver face data, account details, SSH keys, navigation routes, and map road names and IDs. Exact GPS coordinates and recording date/time fields are cleared, and &lt;b&gt;the VIN field is removed entirely&lt;/b&gt;. Driver-monitoring data is removed. We also discard CAN messages captured during startup vehicle identification. Each drive gets an ID that hides when it was recorded, and uploaded logs are linked to your FrogPilot device ID.&lt;br&gt;&lt;br&gt;Raw CAN data recorded during driving is kept to help improve car support. Known GPS position and VIN messages are dropped on GM, Toyota, Ford, and Tesla. Other data, including clocks and odometers, can remain, and other cars may still carry GPS position or VIN messages. On some cars, these vehicle messages can still contain seat occupancy information.&lt;br&gt;&lt;br&gt;&lt;b&gt;Usage stats&lt;/b&gt; cover your device, software, car and calibration details, FrogPilot settings, model usage and scores, and lifetime driving totals, including drives from before you turned sharing on. &lt;b&gt;Your location is generalized on your device.&lt;/b&gt; It reports the nearest city in your country or US state from a list filtered to populations of &lt;b&gt;50,000 or more&lt;/b&gt;. If that region has no qualifying city, it uses its capital instead. This helps protect location privacy in small communities. For location, these stats include only the resulting city, state, and country, never your exact GPS coordinates. The VIN is excluded from car details, and stats are linked to your FrogPilot device ID.&lt;br&gt;&lt;br&gt;&lt;b&gt;Speed limit sign clips&lt;/b&gt; are about 10 seconds of road camera video, recorded when a supported car's dashboard shows a new speed limit, when the speed limit sign reader sees a sign it isn't sure of, and for some of the limits it reads. No GPS coordinates or recording date/time are attached, and clip IDs hide the original recording time. Each clip includes the speed limit or the reader's reading, camera calibration, and basic device, camera, and software details, and is linked to your FrogPilot device ID. Video is uploaded as recorded and can show license plates, people, and identifiable places. Clips picked to train or test the reader may be kept for up to 2 years. Clips may be matched to driving logs. Small crops showing only a speed-limit sign may be shown to signed-in FrogPilot.com users who help label them.&lt;br&gt;&lt;br&gt;&lt;b&gt;Learned speed limits&lt;/b&gt; are the limits "Speed Limit Filler" learns from the signs the camera reads, when that setting is on. They are used to improve speed limits for everyone using FrogPilot. Each one includes the speed limit, the map ID of the road it was learned on, the direction of travel, the GPS location and heading where the sign was seen, the date, and how far the car drove with that limit, and they are linked to your FrogPilot device ID. Each one also includes a cropped photo of the sign it was read from, with the GPS location, heading, and time it was taken, and the photo can show part of the road around the sign. Roads where the sign matched your map's limit are sent too, with the limit and the date, to measure how accurate the sign reader is. Limits learned before you turned sharing on are included. The road IDs and locations show where the car has been driven.&lt;br&gt;&lt;br&gt;&lt;b&gt;Uploads&lt;/b&gt; of driving logs, clips, and learned speed limits happen only while your car is off, on unmetered Wi-Fi or Ethernet. Usage stats are sent at startup and after drives and may use other available internet connections.&lt;br&gt;&lt;br&gt;&lt;b&gt;Your choice.&lt;/b&gt; You can turn off "Share FrogPilot Data" anytime to stop sharing these logs, clips, learned speed limits, and usage stats. Basic device registration still sends device type, operating system and software build details, and a public authentication key. Startup and after-drive check-ins continue without your usage stats, settings, or location. Crash reports also continue, tagged with your comma device ID (or your Konik device ID when you use the Konik server) and software details. Python crash reports do not automatically collect local variable values.&lt;br&gt;&lt;br&gt;Read FrogPilot's full privacy policy at &lt;b&gt;FrogPilot.com/privacy&lt;/b&gt;.</source>
+        <translation>&lt;b&gt;共享过滤后的驾驶日志、限速标志短视频片段、学习到的限速和使用统计数据，帮助改进 FrogPilot。&lt;/b&gt;&lt;br&gt;&lt;br&gt;您的日常行程可帮助我们改进转向、加速和制动，完善对更多车辆的支持，训练限速标志识别功能，并发现和修复问题。保持共享开启，可让我们获得更多涵盖不同车辆、道路和驾驶条件的真实案例。&lt;br&gt;&lt;br&gt;&lt;b&gt;隐私保护从您的设备开始。&lt;/b&gt;驾驶日志会先经过过滤，使用统计数据中的位置也会先进行模糊处理，然后才发送。&lt;br&gt;&lt;br&gt;&lt;b&gt;驾驶日志&lt;/b&gt;记录车辆行为和 FrogPilot 的驾驶决策。上传前，我们会移除摄像头视频、音频、驾驶员面部数据、账户信息、SSH 密钥、导航路线，以及地图道路名称和 ID。精确的 GPS 坐标和录制日期/时间字段会被清除，&lt;b&gt;VIN 字段会被完全移除&lt;/b&gt;。驾驶员监控数据也会被移除。我们还会丢弃启动时识别车辆期间捕获的 CAN 消息。每次行程都会获得一个隐藏其录制时间的 ID，上传的日志会与您的 FrogPilot 设备 ID 关联。&lt;br&gt;&lt;br&gt;行车期间记录的原始 CAN 数据会被保留，以帮助改进车辆支持。在通用汽车、丰田、福特和特斯拉车辆上，已知的 GPS 位置和 VIN 消息会被丢弃。其他数据（包括时钟和里程表）可能会保留，其他车辆也可能仍带有 GPS 位置或 VIN 消息。在某些车辆上，这些车辆消息仍可能包含座椅占用信息。&lt;br&gt;&lt;br&gt;&lt;b&gt;使用统计数据&lt;/b&gt;涵盖设备、软件、车辆和校准详情、FrogPilot 设置、模型使用情况和评分，以及累计驾驶总量，其中也包括您开启共享之前的行程。&lt;b&gt;您的位置会在设备上进行模糊处理。&lt;/b&gt;它会从仅保留人口 &lt;b&gt;50,000 或以上&lt;/b&gt;城市的列表中，上报您所在国家或美国州内最近的城市。如果该地区没有符合条件的城市，则改用其首都或首府。这有助于保护小型社区的位置隐私。就位置而言，这些统计数据只包含由此得出的城市、州和国家，绝不包含您的精确 GPS 坐标。车辆详情中不包含 VIN，统计数据会与您的 FrogPilot 设备 ID 关联。&lt;br&gt;&lt;br&gt;&lt;b&gt;限速标志短视频片段&lt;/b&gt;是约 10 秒的道路摄像头视频，在以下情况下录制：受支持车辆的仪表盘显示新的限速时、限速标志识别功能看到无法确定的标志时，以及它读取到部分限速时。片段不附带 GPS 坐标或录制日期/时间，片段 ID 也会隐藏原始录制时间。每个片段都包含限速或识别功能的读数、摄像头校准信息，以及基本的设备、摄像头和软件详情，并与您的 FrogPilot 设备 ID 关联。视频按录制原样上传，可能会显示车牌、人物和可识别的地点。被选中用于训练或测试识别功能的片段最多可保留 2 年。片段可能会与驾驶日志进行匹配。仅包含限速标志的小块裁剪图像可能会展示给已登录 FrogPilot.com 并协助标注这些图像的用户。&lt;br&gt;&lt;br&gt;&lt;b&gt;学习到的限速&lt;/b&gt;是"限速数据补全工具"开启时，根据摄像头识别的标志学习到的限速。它们用于改进所有 FrogPilot 用户的限速数据。每条数据都包含限速、学习该限速时所在道路的地图 ID、行驶方向、看到标志时的 GPS 位置和航向、日期，以及车辆在该限速下行驶的距离，并与您的 FrogPilot 设备 ID 关联。每条数据还包含读取该限速的标志的裁剪照片，并附有拍摄时的 GPS 位置、航向和时间；照片可能会显示标志周围的部分道路。标志与地图限速一致的道路也会连同限速和日期一起发送，用于衡量标志识别功能的准确度。您开启共享之前学习到的限速也包括在内。道路 ID 和位置会显示车辆曾经行驶过的地方。&lt;br&gt;&lt;br&gt;&lt;b&gt;上传&lt;/b&gt;：驾驶日志、片段和学习到的限速仅在车辆熄火且连接不按流量计费的 Wi-Fi 或以太网时上传。使用统计数据会在启动时和行程结束后发送，并可能使用其他可用的互联网连接。&lt;br&gt;&lt;br&gt;&lt;b&gt;选择权在您。&lt;/b&gt;您可以随时关闭"共享 FrogPilot 数据"，停止共享这些日志、片段、学习到的限速和使用统计数据。基本设备注册仍会发送设备类型、操作系统和软件构建详情，以及一个身份验证公钥。启动时和行程结束后的例行通信仍会继续，但不包含您的使用统计数据、设置或位置。崩溃报告也会继续发送，并标记您的 comma 设备 ID（使用 Konik 服务器时为 Konik 设备 ID）和软件详情。Python 崩溃报告不会自动收集局部变量的值。&lt;br&gt;&lt;br&gt;请访问 &lt;b&gt;FrogPilot.com/privacy&lt;/b&gt; 阅读 FrogPilot 的完整隐私政策。</translation>
     </message>
 </context>
 <context>
@@ -4196,7 +4291,7 @@ Only continue if you know what they do.</source>
     </message>
     <message>
         <source>&lt;b&gt;Change the icons on the driving personality button, the one you tap on the driving screen to switch between Aggressive, Standard, and Relaxed.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Each pack draws four icons: one each for Aggressive, Standard, and Relaxed, plus one that takes over while Traffic Mode is on. This row only appears while that button is switched on under "Driving Personality Button".</source>
-        <translation>&lt;b&gt;更改驾驶风格按钮上的图标；您可在行车界面点按该按钮，在积极、标准和舒适之间切换。&lt;/b&gt;&lt;br&gt;&lt;br&gt;每个包包含四个图标：积极、标准和舒适各一个，另一个在拥堵模式开启时使用。只有在"驾驶风格按钮"中开启该按钮后，才会显示此设置项。</translation>
+        <translation type="vanished">&lt;b&gt;更改驾驶风格按钮上的图标；您可在行车界面点按该按钮，在积极、标准和舒适之间切换。&lt;/b&gt;&lt;br&gt;&lt;br&gt;每个包包含四个图标：积极、标准和舒适各一个，另一个在拥堵模式开启时使用。只有在"驾驶风格按钮"中开启该按钮后，才会显示此设置项。</translation>
     </message>
     <message>
         <source>&lt;b&gt;Change the chimes openpilot plays for its alerts, like the sound when it starts driving or warns you about something.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"Stock" uses openpilot's normal chimes. A pack only replaces the sound files it actually ships and anything it leaves out stays stock, so the holiday packs mostly bring just their own engage and disengage chimes. How loud each one plays is set separately under "Alert Volumes" in "Alerts and Sounds".</source>
@@ -4232,115 +4327,119 @@ Only continue if you know what they do.</source>
     </message>
     <message>
         <source>Select color schemes to delete</source>
-        <translation type="unfinished"></translation>
+        <translation>选择要删除的配色方案</translation>
     </message>
     <message>
         <source>Delete the %1 selected color schemes?</source>
-        <translation type="unfinished"></translation>
+        <translation>删除所选的 %1 个配色方案？</translation>
     </message>
     <message>
         <source>Select color schemes to download</source>
-        <translation type="unfinished"></translation>
+        <translation>选择要下载的配色方案</translation>
     </message>
     <message>
         <source>Select personality button packs to delete</source>
-        <translation type="unfinished"></translation>
+        <translation>选择要删除的驾驶风格按钮包</translation>
     </message>
     <message>
         <source>Delete the "%1" personality button pack?</source>
-        <translation type="unfinished"></translation>
+        <translation>删除"%1"驾驶风格按钮包？</translation>
     </message>
     <message>
         <source>Delete the %1 selected personality button packs?</source>
-        <translation type="unfinished"></translation>
+        <translation>删除所选的 %1 个驾驶风格按钮包？</translation>
     </message>
     <message>
         <source>Select personality button packs to download</source>
-        <translation type="unfinished"></translation>
+        <translation>选择要下载的驾驶风格按钮包</translation>
     </message>
     <message>
         <source>Select a personality button pack</source>
-        <translation type="unfinished"></translation>
+        <translation>选择驾驶风格按钮包</translation>
     </message>
     <message>
         <source>Select icon packs to delete</source>
-        <translation type="unfinished"></translation>
+        <translation>选择要删除的图标包</translation>
     </message>
     <message>
         <source>Delete the %1 selected icon packs?</source>
-        <translation type="unfinished"></translation>
+        <translation>删除所选的 %1 个图标包？</translation>
     </message>
     <message>
         <source>Select icon packs to download</source>
-        <translation type="unfinished"></translation>
+        <translation>选择要下载的图标包</translation>
     </message>
     <message>
         <source>Select signal animations to delete</source>
-        <translation type="unfinished"></translation>
+        <translation>选择要删除的转向灯动画</translation>
     </message>
     <message>
         <source>Delete the %1 selected signal animations?</source>
-        <translation type="unfinished"></translation>
+        <translation>删除所选的 %1 个转向灯动画？</translation>
     </message>
     <message>
         <source>Select signal animations to download</source>
-        <translation type="unfinished"></translation>
+        <translation>选择要下载的转向灯动画</translation>
     </message>
     <message>
         <source>Select sound packs to delete</source>
-        <translation type="unfinished"></translation>
+        <translation>选择要删除的声音包</translation>
     </message>
     <message>
         <source>Delete the %1 selected sound packs?</source>
-        <translation type="unfinished"></translation>
+        <translation>删除所选的 %1 个声音包？</translation>
     </message>
     <message>
         <source>Select sound packs to download</source>
-        <translation type="unfinished"></translation>
+        <translation>选择要下载的声音包</translation>
     </message>
     <message>
         <source>Select steering wheels to delete</source>
-        <translation type="unfinished"></translation>
+        <translation>选择要删除的方向盘图案</translation>
     </message>
     <message>
         <source>Delete the %1 selected steering wheels?</source>
-        <translation type="unfinished"></translation>
+        <translation>删除所选的 %1 个方向盘图案？</translation>
     </message>
     <message>
         <source>Select steering wheels to download</source>
-        <translation type="unfinished"></translation>
+        <translation>选择要下载的方向盘图案</translation>
     </message>
     <message>
         <source>Personality Button</source>
-        <translation type="unfinished"></translation>
+        <translation>驾驶风格按钮</translation>
     </message>
     <message>
         <source>&lt;b&gt;Change the two lines of text openpilot shows on screen at the start of every drive.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"STOCK" is openpilot's usual safety reminder and "FROGPILOT" is the frog version. "CUSTOM" lets you write your own, up to 35 characters on the top line and 45 on the bottom.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;更改每次行程开始时 openpilot 在屏幕上显示的两行文字。&lt;/b&gt;&lt;br&gt;&lt;br&gt;"原版"是 openpilot 通常的安全提醒，"FROGPILOT"是青蛙版本。"自定义"可让您自行撰写，第一行最多 35 个字符，第二行最多 45 个字符。</translation>
     </message>
     <message>
         <source>Download</source>
-        <translation type="unfinished">下载</translation>
+        <translation>下载</translation>
     </message>
     <message>
         <source>"Random Themes" picks from the built-in Frog theme, the holiday themes when "Include Holiday Themes" is on, and themes you've already downloaded, so grab the ones you want it to use!</source>
-        <translation type="unfinished"></translation>
+        <translation>"随机主题"会从内置 Frog 主题、节日主题（开启"包含节日主题"时）以及已下载的主题中选择，因此请先下载您希望它使用的主题！</translation>
     </message>
     <message>
         <source>%1 of %2 downloaded, %3 failed</source>
-        <translation type="unfinished"></translation>
+        <translation>已下载 %1/%2，%3 个失败</translation>
     </message>
     <message>
         <source>Downloading %1 of %2 (%3)</source>
-        <translation type="unfinished"></translation>
+        <translation>正在下载第 %1 个，共 %2 个（%3）</translation>
     </message>
     <message>
         <source>Download invalid...</source>
-        <translation type="unfinished"></translation>
+        <translation>下载无效...</translation>
     </message>
     <message>
         <source>&lt;b&gt;Start every drive with a theme picked at random from the built-in Frog theme and the packs you have already downloaded.&lt;/b&gt;&lt;br&gt;&lt;br&gt;A downloaded pack only joins the mix once you have its colors, icons, and sounds, and the same theme can come up twice in a row. With "Include Holiday Themes" on, the holiday themes are in the mix too. While this is on, the rows inside "Custom Themes" stop offering "SELECT", and turning it back off gives you your own picks again.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;每次行程开始时，从内置 Frog 主题和已下载的主题包中随机选择一个主题。&lt;/b&gt;&lt;br&gt;&lt;br&gt;下载的主题包只有在其配色、图标和声音都已下载后才会加入随机范围，同一主题也可能连续出现两次。开启"包含节日主题"后，节日主题也会加入随机范围。此功能开启期间，"自定义主题"中的设置项不再提供"选择"，关闭后会恢复您自己的选择。</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Change the icons on the driving personality button, the one you tap on the driving screen to switch between Aggressive, Standard, and Relaxed.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Each pack draws four icons, one each for Aggressive, Standard, and Relaxed, plus one that takes over while Traffic Mode is on. This row only appears while that button is switched on under "Driving Personality Button".</source>
+        <translation>&lt;b&gt;更改驾驶风格按钮上的图标；您可在行车界面点按该按钮，在积极、标准和舒适之间切换。&lt;/b&gt;&lt;br&gt;&lt;br&gt;每个包包含四个图标，积极、标准和舒适各一个，另一个在拥堵模式开启时使用。只有在"驾驶风格按钮"中开启该按钮后，才会显示此设置项。</translation>
     </message>
 </context>
 <context>
@@ -4455,140 +4554,145 @@ Only continue if you know what they do.</source>
     </message>
     <message>
         <source>Reset!</source>
-        <translation>已重置！</translation>
+        <translation type="vanished">已重置！</translation>
     </message>
     <message>
         <source>&lt;b&gt;Make openpilot behave as though the car is running, or as though it is parked, without the car actually being either.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This is a testing tool. Forcing the running state ignores your "Screen Brightness (Onroad)" setting and stops openpilot warning you that its controls are unresponsive, so leave it on "OFF" unless you know why you need it. Forcing the running state ends when you turn the car on, and either state clears itself the next time the device restarts. While it is forced, the device still drops back to offroad if it overheats and still shuts down on its usual timer or a low car battery. With the car off, a forced running state runs on the car's battery until the device powers itself off.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;让 openpilot 表现得如同车辆正在运行或已停放，而车辆实际上并未处于这些状态。&lt;/b&gt;&lt;br&gt;&lt;br&gt;这是一个测试工具。强制行车状态会忽略您的"屏幕亮度（行车时）"设置，并使 openpilot 不再警告其控制无响应，因此除非您清楚自己为何需要，否则请保持为"关闭"。强制行车状态会在您启动车辆时结束，两种状态都会在设备下次重启时自动清除。强制期间，设备过热时仍会退回非行车状态，并仍会按通常的计时器或在车辆电瓶电量低时关机。车辆熄火时，强制行车状态会消耗车辆电瓶电量，直到设备自行关机。</translation>
     </message>
     <message>
         <source>The parked state can't be forced while openpilot is steering. Disengage and try again.</source>
-        <translation type="unfinished"></translation>
+        <translation>openpilot 正在转向时无法强制停放状态。请先停用再重试。</translation>
     </message>
     <message>
         <source>The running state can't be forced while the car is on. Turn the car off and try again.</source>
-        <translation type="unfinished"></translation>
+        <translation>车辆通电时无法强制行车状态。请将车辆熄火后重试。</translation>
     </message>
     <message>
         <source>Reflash the Panda</source>
-        <translation type="unfinished"></translation>
+        <translation>重新刷写 Panda</translation>
     </message>
     <message>
         <source>The Panda can't be reflashed while the car is on. Turn the car off and try again.</source>
-        <translation type="unfinished"></translation>
+        <translation>车辆通电时无法重新刷写 Panda。请将车辆熄火后重试。</translation>
     </message>
     <message>
         <source>Something else is already running. Wait for it to finish and try again.</source>
-        <translation type="unfinished"></translation>
+        <translation>已有其他操作正在运行。请等待其完成后重试。</translation>
     </message>
     <message>
         <source>Reflash the Panda? Your device reboots once it finishes.</source>
-        <translation type="unfinished"></translation>
+        <translation>重新刷写 Panda？完成后设备将重启。</translation>
     </message>
     <message>
         <source>Flash failed...</source>
-        <translation type="unfinished"></translation>
+        <translation>刷写失败...</translation>
     </message>
     <message>
         <source>Connect to Wi-Fi or a hotspot first, then send your report.</source>
-        <translation type="unfinished"></translation>
+        <translation>请先连接 Wi-Fi 或热点，再发送报告。</translation>
     </message>
     <message>
         <source>Retry previous report</source>
-        <translation type="unfinished"></translation>
+        <translation>重试上一份报告</translation>
     </message>
     <message>
         <source>Delivery wasn't confirmed.
 Retry to avoid duplicates.</source>
-        <translation type="unfinished"></translation>
+        <translation>未能确认报告已送达。
+请重试以避免重复提交。</translation>
     </message>
     <message>
         <source>Start a new report</source>
-        <translation type="unfinished"></translation>
+        <translation>新建报告</translation>
     </message>
     <message>
         <source>An alert was unclear and I didn't know what it meant</source>
-        <translation type="unfinished"></translation>
+        <translation>某条警报含义不清，我无法理解</translation>
     </message>
     <message>
         <source>My screen froze or is stuck loading something</source>
-        <translation type="unfinished"></translation>
+        <translation>屏幕冻结或一直卡在加载状态</translation>
     </message>
     <message>
         <source>openpilot doesn't react to stopped vehicles ahead</source>
-        <translation type="unfinished"></translation>
+        <translation>openpilot 不会对前方停止的车辆作出响应</translation>
     </message>
     <message>
         <source>openpilot doesn't resume from a stop</source>
-        <translation type="unfinished"></translation>
+        <translation>openpilot 停车后不会恢复行驶</translation>
     </message>
     <message>
         <source>Steering feels twitchy or unnatural</source>
-        <translation type="unfinished"></translation>
+        <translation>转向感觉过于敏感或不自然</translation>
     </message>
     <message>
         <source>The car doesn't follow curves well</source>
-        <translation type="unfinished"></translation>
+        <translation>车辆无法良好跟随弯道</translation>
     </message>
     <message>
         <source>The car isn't staying centered in its lane</source>
-        <translation type="unfinished"></translation>
+        <translation>车辆无法保持在车道中央</translation>
     </message>
     <message>
         <source>What went wrong?</source>
-        <translation type="unfinished"></translation>
+        <translation>出了什么问题？</translation>
     </message>
     <message>
         <source>Settings can't be reset while the car is on. Turn the car off and try again.</source>
-        <translation type="unfinished"></translation>
+        <translation>车辆通电时无法重置设置。请将车辆熄火后重试。</translation>
     </message>
     <message>
         <source>Reset Settings to Default</source>
-        <translation type="unfinished"></translation>
+        <translation>将设置重置为默认值</translation>
     </message>
     <message>
         <source>Reset Settings to Stock openpilot</source>
-        <translation type="unfinished"></translation>
+        <translation>将设置重置为原版 openpilot</translation>
     </message>
     <message>
         <source>Sending...</source>
-        <translation type="unfinished"></translation>
+        <translation>正在发送...</translation>
     </message>
     <message>
         <source>RETRY</source>
-        <translation type="unfinished"></translation>
+        <translation>重试</translation>
     </message>
     <message>
         <source>Sent</source>
-        <translation type="unfinished"></translation>
+        <translation>已发送</translation>
     </message>
     <message>
         <source>Failed</source>
-        <translation type="unfinished"></translation>
+        <translation>失败</translation>
     </message>
     <message>
         <source>&lt;b&gt;Show FrogPilot's developer readouts on the driving screen for your next drive, so a bug report can say what openpilot was actually doing.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It switches itself back off once you finish the drive. While it is on, the temperature reads in Celsius and the developer numbers read in scientific units, whatever you picked elsewhere. It also brings back anything you hid from the driving screen and uses the default "Model UI" sizes and "Camera View", with "Rainbow Path" off, until the drive ends. Your speedometer keeps its own units.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;在下一次行程的行车界面上显示 FrogPilot 开发者数据，以便错误报告记录 openpilot 当时的实际行为。&lt;/b&gt;&lt;br&gt;&lt;br&gt;行程结束后会自动关闭。启用期间，无论其他位置如何设置，温度都以摄氏度显示，开发者数据也会使用科学单位。在行程结束前，它还会恢复您在行车界面上隐藏的所有内容，并使用默认的"模型界面"尺寸和"摄像头视图"，同时关闭"彩虹路径"。车速表保持其自身的单位。</translation>
     </message>
     <message>
-        <source>Tailscale sign-out failed...</source>
-        <translation type="unfinished"></translation>
+        <source>openpilot hasn't learned your car yet, so it can't be forced onroad. Complete a drive first.</source>
+        <translation>openpilot 尚未学习您的车辆，因此无法强制进入行车状态。请先完成一次行程。</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Put every FrogPilot setting back to the value it shipped with, along with some of openpilot's own settings.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Those openpilot settings are "Enable openpilot", "Disengage on Accelerator Pedal", "Driving Personality", and "Cellular Metered". This also clears your accepted terms, your completed training, and your language, so you go through first-time setup again in English the next time the device starts. It also erases your saved keys (Mapbox, weather, and Toyota security keys), favorite places, Discord name, timezone, map settings, FrogPilot driving stats, Speed Limit Filler data, saved car details, SSH keys, and the browsers paired with "The Pond" (making a new pairing code if pairing is on), turns SSH off, signs out of Tailscale, and asks again whether to share FrogPilot data, so the device is clean to sell or hand on. Your drives, backups, and downloaded themes are left alone, and settings backups still hold your keys and favorite places until you delete them.</source>
-        <translation type="unfinished"></translation>
+        <source>Rebooting to reset...</source>
+        <translation>正在重启以执行重置...</translation>
     </message>
     <message>
-        <source>Reset all FrogPilot and some openpilot settings? This also erases your saved keys, favorite places, Discord name, timezone, map settings, driving stats, Speed Limit Filler data, saved car details, SSH keys, and paired browsers, turns SSH off, signs out of Tailscale, and asks again whether to share FrogPilot data. You will have to accept the terms, redo the training, and set your language again.</source>
-        <translation type="unfinished"></translation>
+        <source>&lt;b&gt;Put every FrogPilot setting back to the value it shipped with, along with some of openpilot's own settings.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Those openpilot settings are "Enable openpilot", "Disengage on Accelerator Pedal", "Driving Personality", and "Cellular Metered". This also clears your accepted terms, your completed training, and your language, so you go through first-time setup again in English. It also erases your saved keys (Mapbox and weather), favorite places, Discord name, timezone, chosen car make and model, SSH keys, and map settings, turns SSH and tethering off, asks again whether to share FrogPilot data, and unlinks this device from your FrogPilot.com account. The reset happens while the device reboots. Your drives, backups, downloaded themes, learned driving data, Speed Limit Filler data, FrogPilot Stats, Toyota security keys, "The Pond" pairing, Tailscale sign-in, "Experimental Mode", and "openpilot Longitudinal Control (Alpha)" are left alone, and settings backups still hold your keys and favorite places until you delete them.</source>
+        <translation>&lt;b&gt;将所有 FrogPilot 设置恢复为初始默认值，同时恢复 openpilot 自身的部分设置。&lt;/b&gt;&lt;br&gt;&lt;br&gt;这些 openpilot 设置是"启用 openpilot"、"踩油门时取消控制"、"驾驶风格"和"按流量计费的手机移动网络"。此操作还会清除您已接受的条款、已完成的新手指南和语言设置，因此您需要以英语重新完成首次设置。它还会清除您保存的密钥（Mapbox 和天气）、收藏的地点、Discord 用户名、时区、所选的车辆品牌和型号、SSH 密钥和地图设置，关闭 SSH 和 Wi-Fi 热点，再次询问是否共享 FrogPilot 数据，并解除此设备与您的 FrogPilot.com 账户的关联。重置会在设备重启期间进行。您的行程、备份、已下载的主题、学习到的驾驶数据、限速数据补全工具的数据、FrogPilot 统计数据、丰田安全密钥、"The Pond"配对、Tailscale 登录状态、"实验模式"和"openpilot 纵向控制（Alpha 版）"不会受到影响；在您删除设置备份之前，其中仍会保存您的密钥和收藏的地点。</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Put every setting back to what plain openpilot uses, turning FrogPilot's own features off rather than back to FrogPilot's defaults.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This also clears your accepted terms, your completed training, and your language, so you go through first-time setup again in English the next time the device starts. It also erases your saved keys (Mapbox, weather, and Toyota security keys), favorite places, Discord name, timezone, map settings, FrogPilot driving stats, Speed Limit Filler data, saved car details, SSH keys, and the browsers paired with "The Pond" (making a new pairing code if pairing is on), turns SSH off, signs out of Tailscale, and asks again whether to share FrogPilot data, so the device is clean to sell or hand on. Your drives, backups, and downloaded themes are left alone, and settings backups still hold your keys and favorite places until you delete them.</source>
-        <translation type="unfinished"></translation>
+        <source>Reset all FrogPilot and some openpilot settings? This erases your saved keys, favorite places, Discord name, timezone, chosen car make and model, SSH keys, and map settings, turns SSH and tethering off, asks again whether to share FrogPilot data, and unlinks this device from your FrogPilot.com account. The device reboots into first-time setup. Learned driving data, Speed Limit Filler data, FrogPilot Stats, Toyota security keys, "The Pond" pairing, and Tailscale sign-in stay.</source>
+        <translation>重置所有 FrogPilot 设置和部分 openpilot 设置？这会清除您保存的密钥、收藏的地点、Discord 用户名、时区、所选的车辆品牌和型号、SSH 密钥和地图设置，关闭 SSH 和 Wi-Fi 热点，再次询问是否共享 FrogPilot 数据，并解除此设备与您的 FrogPilot.com 账户的关联。设备重启后将进入首次设置。学习到的驾驶数据、限速数据补全工具的数据、FrogPilot 统计数据、丰田安全密钥、"The Pond"配对和 Tailscale 登录状态会保留。</translation>
     </message>
     <message>
-        <source>Reset every setting to match stock openpilot? This also erases your saved keys, favorite places, Discord name, timezone, map settings, driving stats, Speed Limit Filler data, saved car details, SSH keys, and paired browsers, turns SSH off, signs out of Tailscale, and asks again whether to share FrogPilot data. You will have to accept the terms, redo the training, and set your language again.</source>
-        <translation type="unfinished"></translation>
+        <source>&lt;b&gt;Put every setting back to what plain openpilot uses, turning FrogPilot's own features off rather than back to FrogPilot's defaults.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This also clears your accepted terms, your completed training, and your language, so you go through first-time setup again in English. It also erases your saved keys (Mapbox and weather), favorite places, Discord name, timezone, chosen car make and model, SSH keys, and map settings, turns SSH and tethering off, asks again whether to share FrogPilot data, and unlinks this device from your FrogPilot.com account. The reset happens while the device reboots. Your drives, backups, downloaded themes, learned driving data, Speed Limit Filler data, FrogPilot Stats, Toyota security keys, "The Pond" pairing, Tailscale sign-in, "Experimental Mode", and "openpilot Longitudinal Control (Alpha)" are left alone, and settings backups still hold your keys and favorite places until you delete them.</source>
+        <translation>&lt;b&gt;将所有设置恢复为原版 openpilot 使用的值，并关闭 FrogPilot 自身的功能，而不是恢复为 FrogPilot 的默认值。&lt;/b&gt;&lt;br&gt;&lt;br&gt;此操作还会清除您已接受的条款、已完成的新手指南和语言设置，因此您需要以英语重新完成首次设置。它还会清除您保存的密钥（Mapbox 和天气）、收藏的地点、Discord 用户名、时区、所选的车辆品牌和型号、SSH 密钥和地图设置，关闭 SSH 和 Wi-Fi 热点，再次询问是否共享 FrogPilot 数据，并解除此设备与您的 FrogPilot.com 账户的关联。重置会在设备重启期间进行。您的行程、备份、已下载的主题、学习到的驾驶数据、限速数据补全工具的数据、FrogPilot 统计数据、丰田安全密钥、"The Pond"配对、Tailscale 登录状态、"实验模式"和"openpilot 纵向控制（Alpha 版）"不会受到影响；在您删除设置备份之前，其中仍会保存您的密钥和收藏的地点。</translation>
+    </message>
+    <message>
+        <source>Reset every setting to match stock openpilot? This erases your saved keys, favorite places, Discord name, timezone, chosen car make and model, SSH keys, and map settings, turns SSH and tethering off, asks again whether to share FrogPilot data, and unlinks this device from your FrogPilot.com account. The device reboots into first-time setup. Learned driving data, Speed Limit Filler data, FrogPilot Stats, Toyota security keys, "The Pond" pairing, and Tailscale sign-in stay.</source>
+        <translation>将所有设置重置为与原版 openpilot 一致？这会清除您保存的密钥、收藏的地点、Discord 用户名、时区、所选的车辆品牌和型号、SSH 密钥和地图设置，关闭 SSH 和 Wi-Fi 热点，再次询问是否共享 FrogPilot 数据，并解除此设备与您的 FrogPilot.com 账户的关联。设备重启后将进入首次设置。学习到的驾驶数据、限速数据补全工具的数据、FrogPilot 统计数据、丰田安全密钥、"The Pond"配对和 Tailscale 登录状态会保留。</translation>
     </message>
 </context>
 <context>
@@ -4814,84 +4918,84 @@ Retry to avoid duplicates.</source>
         <translation>首次行程后方可确定</translation>
     </message>
     <message>
-        <source>&lt;b&gt;The make of the car openpilot is using.&lt;/b&gt; To pick one yourself, turn on "Disable Automatic Fingerprint Detection" first ("Advanced" tuning level).</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;The model of the car openpilot is using.&lt;/b&gt; To pick one yourself, turn on "Disable Automatic Fingerprint Detection" first ("Advanced" tuning level).</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>&lt;b&gt;Settings that only work on Genesis, Hyundai, and Kia cars, covering a steering torque hack.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The steering hack only appears on cars using CAN-FD.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;仅适用于捷尼赛思、现代和起亚车辆的设置，涉及转向扭矩增强。&lt;/b&gt;&lt;br&gt;&lt;br&gt;转向扭矩增强仅在使用 CAN-FD 的车辆上显示。</translation>
     </message>
     <message>
         <source>Reset</source>
-        <translation type="unfinished">重置</translation>
+        <translation>重置</translation>
     </message>
     <message>
         <source>&lt;b&gt;Warning:&lt;/b&gt; openpilot can't tell whether your keys are still in the car, so keep a spare somewhere safe before you rely on this!</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Line up the speed openpilot shows on screen with the number on your dashboard, which most cars deliberately read a little high.&lt;/b&gt;&lt;br&gt;&lt;br&gt;With "Use Wheel Speed" off, raise it until openpilot's number matches your dashboard. This does not change how fast openpilot actually drives, with one exception: while it is following posted speed limits, a higher number here makes it drive slightly slower.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;警告：&lt;/b&gt;openpilot 无法判断钥匙是否仍在车内，因此在依赖此功能前，请将备用钥匙放在安全位置！</translation>
     </message>
     <message>
         <source>Acura/Honda Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>讴歌/本田设置</translation>
     </message>
     <message>
         <source>&lt;b&gt;Settings that only work on Acura and Honda cars with the older Nidec cruise control, covering how openpilot follows and brakes.&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;仅适用于采用较旧 Nidec 巡航控制系统的讴歌和本田车辆的设置，涉及 openpilot 的跟车和制动方式。&lt;/b&gt;</translation>
     </message>
     <message>
         <source>Gentle Following</source>
-        <translation type="unfinished"></translation>
+        <translation>柔和跟车</translation>
     </message>
     <message>
         <source>&lt;b&gt;Soften how hard openpilot corrects its speed behind the car ahead, for smoother following in stop-and-go traffic.&lt;/b&gt;&lt;br&gt;&lt;br&gt;openpilot settles small speed differences more slowly, so it can take a moment longer to close a gap after the car ahead pulls away.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;减弱 openpilot 在前车后方修正车速的力度，使走走停停的车流中跟车更平顺。&lt;/b&gt;&lt;br&gt;&lt;br&gt;openpilot 消除微小速度差的过程会更慢，因此前车起步后，可能需要稍长时间才能缩小间距。</translation>
     </message>
     <message>
         <source>Increased Braking Force</source>
-        <translation type="unfinished"></translation>
+        <translation>增强制动力</translation>
     </message>
     <message>
         <source>&lt;b&gt;Let openpilot use your car's full braking force for its hardest stops.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Without it, openpilot's hardest stop only uses about four fifths of the brakes on these cars. With it on, every stop brakes a little firmer for the same request.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;允许 openpilot 在最强力的停车中使用车辆的全部制动力。&lt;/b&gt;&lt;br&gt;&lt;br&gt;未开启时，openpilot 最强力的停车在这些车辆上只会使用约五分之四的制动力。开启后，对于相同的制动请求，每次停车的制动都会稍微更有力。</translation>
     </message>
     <message>
         <source>&lt;b&gt;Settings that only work on Buick, Cadillac, Chevrolet, GMC, and Holden cars, covering pedal response on hills and how openpilot stops and starts.&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;仅适用于别克、凯迪拉克、雪佛兰、GMC 和霍顿车辆的设置，涉及坡道上的踏板响应以及 openpilot 的停车和起步方式。&lt;/b&gt;</translation>
     </message>
     <message>
         <source>Smooth Pedal Response on Hills</source>
-        <translation type="unfinished"></translation>
+        <translation>坡道踏板平顺响应</translation>
     </message>
     <message>
         <source>&lt;b&gt;Add gas going uphill and ease off going downhill, so openpilot holds a steady pace on hills instead of correcting after the car has already slowed down or sped up.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Slopes gentler than about 1% are ignored. The brakes get the same adjustment above about 22 mph, and it fades out as you slow to about 11 mph so stops feel the same as on flat ground.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Extra hardware openpilot has found fitted to your car, such as a comma pedal, an SDSU, or a ZSS.&lt;/b&gt;&lt;br&gt;&lt;br&gt;openpilot works these out from your car's wiring on its own. "None" is not proof nothing is fitted: a comma pedal is only reported on cars that support one.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;上坡时增加油门、下坡时减少油门，使 openpilot 在坡道上保持稳定车速，而不是等车辆已经减速或加速后才修正。&lt;/b&gt;&lt;br&gt;&lt;br&gt;坡度小于约 1% 时会被忽略。车速高于约 22 英里/小时时，制动也会进行相同的调整，并在车速降至约 11 英里/小时的过程中逐渐减弱，使停车感受与平路相同。</translation>
     </message>
     <message>
         <source>Responsive Pedal at Low Speeds</source>
-        <translation type="unfinished"></translation>
+        <translation>低速踏板快速响应</translation>
     </message>
     <message>
         <source>&lt;b&gt;Improves acceleration from a standstill for a more responsive throttle feel in city driving.&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;改善静止起步时的加速，使市区驾驶时的油门响应更灵敏。&lt;/b&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Swap in FrogsGoMoo's own settings for how openpilot comes to a stop.&lt;/b&gt;&lt;br&gt;&lt;br&gt;These are personal preferences rather than a fix for anything, and they are already on. They take over your stopping and starting values from "Driving Controls" and hide those rows while this is on, though on a Toyota the starting value has no effect. They also make openpilot's gas and brake control predict the car's acceleration further ahead at every speed, so they change how it drives while cruising as well.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;换用 FrogsGoMoo 自己的 openpilot 停车设置。&lt;/b&gt;&lt;br&gt;&lt;br&gt;这些只是个人偏好，并非用于修复任何问题，而且已经开启。开启期间，它们会取代"驾驶控制"中的停车和起步数值，并隐藏相应选项，不过在丰田车辆上，起步数值不起作用。它们还会使 openpilot 的加减速控制在所有车速下都对车辆加速度预测得更远，因此也会改变巡航时的驾驶方式。</translation>
     </message>
     <message>
         <source>&lt;b&gt;Make the car pull away by itself after a full stop on a Lexus or Toyota that does not do this from the factory.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Without it you have to press the gas or the resume button every time traffic moves off. It works by telling the car openpilot is never fully stopped, so keep your foot near the brake the first few times. It also lets openpilot engage, and stay engaged, below about 19 mph (30 km/h), where it would otherwise refuse or turn itself off.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;让原厂不具备此功能的雷克萨斯或丰田车辆在完全停车后自行起步。&lt;/b&gt;&lt;br&gt;&lt;br&gt;没有此功能时，每次车流起步您都必须踩油门或按恢复按钮。其原理是告诉车辆 openpilot 从未完全停车，因此最初几次请将脚放在刹车附近。它还能让 openpilot 在低于约 19 英里/小时（30 公里/小时）时启用并保持启用，否则 openpilot 在此速度以下会拒绝启用或自行关闭。</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;The make of the car openpilot is using.&lt;/b&gt; If openpilot doesn't recognize your car, pick it here and openpilot uses it instead. To always use the car you pick, turn on "Disable Automatic Fingerprint Detection" ("Advanced" tuning level).</source>
+        <translation>&lt;b&gt;openpilot 正在使用的车辆品牌。&lt;/b&gt;如果 openpilot 无法识别您的车辆，请在此处选择，openpilot 会改用您选择的车辆。如需始终使用您选择的车辆，请开启"禁用自动指纹识别"（"高级"调校级别）。</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;The model of the car openpilot is using.&lt;/b&gt; If openpilot doesn't recognize your car, pick it here and openpilot uses it instead. To always use the car you pick, turn on "Disable Automatic Fingerprint Detection" ("Advanced" tuning level).</source>
+        <translation>&lt;b&gt;openpilot 正在使用的车辆型号。&lt;/b&gt;如果 openpilot 无法识别您的车辆，请在此处选择，openpilot 会改用您选择的车辆。如需始终使用您选择的车辆，请开启"禁用自动指纹识别"（"高级"调校级别）。</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Line up the speed openpilot shows on screen with the number on your dashboard, which most cars deliberately read a little high.&lt;/b&gt;&lt;br&gt;&lt;br&gt;With "Use Wheel Speed" off, raise it until openpilot's number matches your dashboard. This does not change how fast openpilot actually drives, except that while it is following posted speed limits, a higher number here makes it drive slightly slower.</source>
+        <translation>&lt;b&gt;使 openpilot 在屏幕上显示的车速与仪表盘读数一致；大多数车辆的仪表盘读数都会有意偏高一些。&lt;/b&gt;&lt;br&gt;&lt;br&gt;在"使用轮速"关闭时，调高此数值，直到 openpilot 显示的数值与仪表盘一致。这不会改变 openpilot 的实际行驶速度，但遵循道路标示限速行驶时，调高此数值会使车速略微降低。</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Extra hardware openpilot has found fitted to your car, such as a comma pedal, an SDSU, or a ZSS.&lt;/b&gt;&lt;br&gt;&lt;br&gt;openpilot works these out from your car's wiring on its own. "None" is not proof nothing is fitted. A comma pedal is only reported on cars that support one.</source>
+        <translation>&lt;b&gt;openpilot 检测到车辆安装的额外硬件，例如 comma pedal、SDSU 或 ZSS。&lt;/b&gt;&lt;br&gt;&lt;br&gt;openpilot 会根据车辆线路自行判断。显示"无"并不能证明未安装任何硬件。只有在支持 comma pedal 的车辆上才会报告 comma pedal。</translation>
     </message>
 </context>
 <context>
@@ -5098,7 +5202,7 @@ Retry to avoid duplicates.</source>
     </message>
     <message>
         <source>&lt;b&gt;Add extra things to the driving screen that stock openpilot does not show.&lt;/b&gt;&lt;br&gt;&lt;br&gt;One of these does change how the car drives: the "Driving Personality Button" switches your following distance.</source>
-        <translation>&lt;b&gt;在行车界面上添加原版 openpilot 不显示的额外内容。&lt;/b&gt;&lt;br&gt;&lt;br&gt;其中一项确实会改变车辆驾驶方式："驾驶风格按钮"会切换跟车距离。</translation>
+        <translation type="vanished">&lt;b&gt;在行车界面上添加原版 openpilot 不显示的额外内容。&lt;/b&gt;&lt;br&gt;&lt;br&gt;其中一项确实会改变车辆驾驶方式："驾驶风格按钮"会切换跟车距离。</translation>
     </message>
     <message>
         <source>&lt;b&gt;Color the driving path green when openpilot is speeding up and red when it is slowing down.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Handy for seeing a slowdown coming before you feel it.</source>
@@ -5158,47 +5262,51 @@ Retry to avoid duplicates.</source>
     </message>
     <message>
         <source>&lt;b&gt;Add a compass to the driving screen showing which way you are heading.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Without a GPS fix it freezes on the last heading it knew rather than disappearing, so treat a compass that never moves as no reading at all.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;在行车界面添加显示行驶方向的指南针。&lt;/b&gt;&lt;br&gt;&lt;br&gt;没有 GPS 定位时，指南针不会消失，而是冻结在最后已知的方向；因此如果指南针始终不动，应视为完全没有有效读数。</translation>
     </message>
     <message>
         <source>&lt;b&gt;Change what navigation shows on the driving screen, from the road name to speed limit signs.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Some of these need map data downloaded under "Maps and Navigation" before they show anything.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;更改导航在行车界面上显示的内容，包括道路名称和限速标志。&lt;/b&gt;&lt;br&gt;&lt;br&gt;部分内容需要先在"地图与导航"中下载地图数据才能显示。</translation>
     </message>
     <message>
         <source>&lt;b&gt;Show the posted speed limit as a sign in the top-left corner of the driving screen.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The limit comes from your downloaded map data first, then from your car's dashboard where it can read one, and from signs read by the camera otherwise.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;在行车界面左上角以标志形式显示道路标示限速。&lt;/b&gt;&lt;br&gt;&lt;br&gt;限速优先来自已下载的地图数据，其次来自车辆仪表盘（如果能够读取），否则来自摄像头识别的标志。</translation>
     </message>
     <message>
         <source>&lt;b&gt;Draw the paths of the lanes either side of you, so you can see where openpilot thinks they run.&lt;/b&gt;&lt;br&gt;&lt;br&gt;They only appear above your "Minimum Lane Change Speed" (20 mph or 32 km/h by default), and only where openpilot sees a lane between you and the road edge.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;绘制两侧车道的路径，以显示 openpilot 认为车道延伸的位置。&lt;/b&gt;&lt;br&gt;&lt;br&gt;只有车速高于"最低变道速度"（默认 20 英里/小时或 32 公里/小时），且 openpilot 在您与道路边缘之间看到车道时才会显示。</translation>
     </message>
     <message>
         <source>&lt;b&gt;Turn the lane beside you red whenever your car's sensors see something in that blind spot.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It only shows up above your "Minimum Lane Change Speed" (20 mph or 32 km/h by default), so it stays away in slow traffic and parking lots. Keep checking your mirrors regardless.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;当车辆传感器在相邻盲区内检测到物体时，将该侧车道显示为红色。&lt;/b&gt;&lt;br&gt;&lt;br&gt;只有车速高于"最低变道速度"（默认 20 英里/小时或 32 公里/小时）时才会显示，因此在低速车流和停车场中不会出现。无论是否显示，都必须继续检查后视镜。</translation>
     </message>
     <message>
         <source>&lt;b&gt;Add a button to the driving screen that switches your following distance between Aggressive, Standard, and Relaxed without going into the menus.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It works as a second "Distance" button, so holding it, or changing what that button does under "WHEEL BUTTONS", gives you those actions instead. This changes how the car actually drives, not just what you see. It also shows which one is active.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;在行车界面添加按钮，无需进入菜单即可在积极、标准和舒适之间切换跟车距离。&lt;/b&gt;&lt;br&gt;&lt;br&gt;它相当于第二个"距离"按钮，因此长按它，或在"方向盘按钮"中更改该按钮的功能后，都会改为执行相应的操作。这会改变车辆的实际驾驶方式，而不只是显示内容。按钮还会显示当前启用的驾驶风格。</translation>
     </message>
     <message>
         <source>&lt;b&gt;Show gas and brake indicators on the driving screen that light up as the car speeds up or slows down, whether openpilot or you are driving.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"Dynamic" fades them in and out with how hard the car is accelerating or braking. "Static" shows them fully lit when active and dim when not.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;在行车界面显示加速和制动指示器，无论由 openpilot 还是您驾驶，车辆加速或减速时都会亮起。&lt;/b&gt;&lt;br&gt;&lt;br&gt;"动态"会根据车辆加速或制动的力度让指示器逐渐亮起或淡出；"静态"在启用时完全点亮，未启用时保持暗淡。</translation>
     </message>
     <message>
         <source>&lt;b&gt;Make the driving path narrower when openpilot is doing less of the driving, so you can tell at a glance how much control it has.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Full width while openpilot is driving, three quarters while "Always On Lateral" is steering for you, and half the rest of the time.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;当 openpilot 承担的驾驶控制较少时缩窄行驶路径，以便一眼判断它拥有多少控制权。&lt;/b&gt;&lt;br&gt;&lt;br&gt;openpilot 控制驾驶时显示完整宽度；"始终开启横向控制"为您转向时显示四分之三宽度；其余时间显示一半宽度。</translation>
     </message>
     <message>
         <source>&lt;b&gt;Set how thick the colored stripe down each side of the driving path is, which is what tells you which mode openpilot is in.&lt;/b&gt;&lt;br&gt;&lt;br&gt;By default the two stripes together take up a fifth of the path width. Set it to zero to hide the stripe entirely.&lt;br&gt;&lt;br&gt;Light blue means "Always On Lateral" is steering for you, green is normal driving, orange is Experimental Mode, red is Traffic Mode, and yellow means you have overridden Conditional Experimental Mode to keep Experimental Mode off.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;设置行驶路径两侧彩色条纹的粗细，这些条纹用于指示 openpilot 当前所处的模式。&lt;/b&gt;&lt;br&gt;&lt;br&gt;默认情况下，两条条纹合计占路径宽度的五分之一。设为零可完全隐藏条纹。&lt;br&gt;&lt;br&gt;浅蓝色表示"始终开启横向控制"正在为您转向，绿色表示正常驾驶，橙色表示实验模式，红色表示拥堵模式，黄色表示您已手动覆盖条件实验模式，使实验模式保持关闭。</translation>
     </message>
     <message>
         <source>&lt;b&gt;Replace your speed with a running timer once you come to a complete stop, so you can see how long you have been waiting.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It stays off for the first minute of a drive.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;车辆完全停车后，用持续计时器替代车速显示，以便查看已等待的时间。&lt;/b&gt;&lt;br&gt;&lt;br&gt;行程开始后的第一分钟内不会启用。</translation>
     </message>
     <message>
         <source>&lt;b&gt;Fall back to Mapbox for the speed limit when none of your downloaded maps, your dashboard, or signs read by the camera know one.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Needs your Public Mapbox Key set up under "Maps and Navigation" and a working internet connection. It sends your location to Mapbox to look up the limit.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;当已下载的地图、仪表盘和摄像头识别的标志都没有限速信息时，改用 Mapbox 获取限速。&lt;/b&gt;&lt;br&gt;&lt;br&gt;需要在"地图与导航"中设置 Mapbox 公钥，并有可用的互联网连接。它会将您的位置发送给 Mapbox 以查询限速。</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Add extra things to the driving screen that stock openpilot does not show.&lt;/b&gt;&lt;br&gt;&lt;br&gt;One of these does change how the car drives. The "Driving Personality Button" switches your following distance.</source>
+        <translation>&lt;b&gt;在行车界面上添加原版 openpilot 不显示的额外内容。&lt;/b&gt;&lt;br&gt;&lt;br&gt;其中一项确实会改变车辆驾驶方式。"驾驶风格按钮"会切换跟车距离。</translation>
     </message>
 </context>
 <context>
@@ -5269,7 +5377,7 @@ Retry to avoid duplicates.</source>
     </message>
     <message>
         <source>&lt;b&gt;Action performed when the "Distance" button is pressed.&lt;/b&gt;&lt;br&gt;&lt;br&gt;On GM cars with adaptive cruise, changing the "Personality Profile" takes a second press within 3.5 seconds of the first.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;按下"距离"按钮时执行的操作。&lt;/b&gt;&lt;br&gt;&lt;br&gt;在配备自适应巡航的通用汽车车辆上，切换"驾驶风格"需要在第一次按下后 3.5 秒内再按一次。</translation>
     </message>
 </context>
 <context>
@@ -5308,933 +5416,933 @@ Retry to avoid duplicates.</source>
     <name>InstantReplayButton</name>
     <message>
         <source>SAVING...</source>
-        <translation type="unfinished"></translation>
+        <translation>正在保存...</translation>
     </message>
     <message>
         <source>CAPTURE</source>
-        <translation type="unfinished"></translation>
+        <translation>捕捉</translation>
     </message>
     <message>
         <source>BUFFERING...</source>
-        <translation type="unfinished"></translation>
+        <translation>正在缓冲...</translation>
     </message>
 </context>
 <context>
     <name>MapSelectionControl</name>
     <message>
         <source>Algeria</source>
-        <translation type="unfinished"></translation>
+        <translation>阿尔及利亚</translation>
     </message>
     <message>
         <source>Angola</source>
-        <translation type="unfinished"></translation>
+        <translation>安哥拉</translation>
     </message>
     <message>
         <source>Benin</source>
-        <translation type="unfinished"></translation>
+        <translation>贝宁</translation>
     </message>
     <message>
         <source>Botswana</source>
-        <translation type="unfinished"></translation>
+        <translation>博茨瓦纳</translation>
     </message>
     <message>
         <source>Burkina Faso</source>
-        <translation type="unfinished"></translation>
+        <translation>布基纳法索</translation>
     </message>
     <message>
         <source>Burundi</source>
-        <translation type="unfinished"></translation>
+        <translation>布隆迪</translation>
     </message>
     <message>
         <source>Cameroon</source>
-        <translation type="unfinished"></translation>
+        <translation>喀麦隆</translation>
     </message>
     <message>
         <source>Central African Republic</source>
-        <translation type="unfinished"></translation>
+        <translation>中非共和国</translation>
     </message>
     <message>
         <source>Chad</source>
-        <translation type="unfinished"></translation>
+        <translation>乍得</translation>
     </message>
     <message>
         <source>Congo (Brazzaville)</source>
-        <translation type="unfinished"></translation>
+        <translation>刚果（布）</translation>
     </message>
     <message>
         <source>Congo (Kinshasa)</source>
-        <translation type="unfinished"></translation>
+        <translation>刚果（金）</translation>
     </message>
     <message>
         <source>Djibouti</source>
-        <translation type="unfinished"></translation>
+        <translation>吉布提</translation>
     </message>
     <message>
         <source>Egypt</source>
-        <translation type="unfinished"></translation>
+        <translation>埃及</translation>
     </message>
     <message>
         <source>Equatorial Guinea</source>
-        <translation type="unfinished"></translation>
+        <translation>赤道几内亚</translation>
     </message>
     <message>
         <source>Eritrea</source>
-        <translation type="unfinished"></translation>
+        <translation>厄立特里亚</translation>
     </message>
     <message>
         <source>Eswatini</source>
-        <translation type="unfinished"></translation>
+        <translation>斯威士兰</translation>
     </message>
     <message>
         <source>Ethiopia</source>
-        <translation type="unfinished"></translation>
+        <translation>埃塞俄比亚</translation>
     </message>
     <message>
         <source>Gabon</source>
-        <translation type="unfinished"></translation>
+        <translation>加蓬</translation>
     </message>
     <message>
         <source>Gambia</source>
-        <translation type="unfinished"></translation>
+        <translation>冈比亚</translation>
     </message>
     <message>
         <source>Ghana</source>
-        <translation type="unfinished"></translation>
+        <translation>加纳</translation>
     </message>
     <message>
         <source>Guinea</source>
-        <translation type="unfinished"></translation>
+        <translation>几内亚</translation>
     </message>
     <message>
         <source>Guinea-Bissau</source>
-        <translation type="unfinished"></translation>
+        <translation>几内亚比绍</translation>
     </message>
     <message>
         <source>Ivory Coast</source>
-        <translation type="unfinished"></translation>
+        <translation>科特迪瓦</translation>
     </message>
     <message>
         <source>Kenya</source>
-        <translation type="unfinished"></translation>
+        <translation>肯尼亚</translation>
     </message>
     <message>
         <source>Lesotho</source>
-        <translation type="unfinished"></translation>
+        <translation>莱索托</translation>
     </message>
     <message>
         <source>Liberia</source>
-        <translation type="unfinished"></translation>
+        <translation>利比里亚</translation>
     </message>
     <message>
         <source>Libya</source>
-        <translation type="unfinished"></translation>
+        <translation>利比亚</translation>
     </message>
     <message>
         <source>Madagascar</source>
-        <translation type="unfinished"></translation>
+        <translation>马达加斯加</translation>
     </message>
     <message>
         <source>Malawi</source>
-        <translation type="unfinished"></translation>
+        <translation>马拉维</translation>
     </message>
     <message>
         <source>Mali</source>
-        <translation type="unfinished"></translation>
+        <translation>马里</translation>
     </message>
     <message>
         <source>Mauritania</source>
-        <translation type="unfinished"></translation>
+        <translation>毛里塔尼亚</translation>
     </message>
     <message>
         <source>Morocco</source>
-        <translation type="unfinished"></translation>
+        <translation>摩洛哥</translation>
     </message>
     <message>
         <source>Mozambique</source>
-        <translation type="unfinished"></translation>
+        <translation>莫桑比克</translation>
     </message>
     <message>
         <source>Namibia</source>
-        <translation type="unfinished"></translation>
+        <translation>纳米比亚</translation>
     </message>
     <message>
         <source>Niger</source>
-        <translation type="unfinished"></translation>
+        <translation>尼日尔</translation>
     </message>
     <message>
         <source>Nigeria</source>
-        <translation type="unfinished"></translation>
+        <translation>尼日利亚</translation>
     </message>
     <message>
         <source>Rwanda</source>
-        <translation type="unfinished"></translation>
+        <translation>卢旺达</translation>
     </message>
     <message>
         <source>Senegal</source>
-        <translation type="unfinished"></translation>
+        <translation>塞内加尔</translation>
     </message>
     <message>
         <source>Sierra Leone</source>
-        <translation type="unfinished"></translation>
+        <translation>塞拉利昂</translation>
     </message>
     <message>
         <source>Somalia</source>
-        <translation type="unfinished"></translation>
+        <translation>索马里</translation>
     </message>
     <message>
         <source>South Africa</source>
-        <translation type="unfinished"></translation>
+        <translation>南非</translation>
     </message>
     <message>
         <source>South Sudan</source>
-        <translation type="unfinished"></translation>
+        <translation>南苏丹</translation>
     </message>
     <message>
         <source>Sudan</source>
-        <translation type="unfinished"></translation>
+        <translation>苏丹</translation>
     </message>
     <message>
         <source>Tanzania</source>
-        <translation type="unfinished"></translation>
+        <translation>坦桑尼亚</translation>
     </message>
     <message>
         <source>Togo</source>
-        <translation type="unfinished"></translation>
+        <translation>多哥</translation>
     </message>
     <message>
         <source>Tunisia</source>
-        <translation type="unfinished"></translation>
+        <translation>突尼斯</translation>
     </message>
     <message>
         <source>Uganda</source>
-        <translation type="unfinished"></translation>
+        <translation>乌干达</translation>
     </message>
     <message>
         <source>Zambia</source>
-        <translation type="unfinished"></translation>
+        <translation>赞比亚</translation>
     </message>
     <message>
         <source>Zimbabwe</source>
-        <translation type="unfinished"></translation>
+        <translation>津巴布韦</translation>
     </message>
     <message>
         <source>Antarctica</source>
-        <translation type="unfinished">南极洲</translation>
+        <translation>南极洲</translation>
     </message>
     <message>
         <source>Afghanistan</source>
-        <translation type="unfinished"></translation>
+        <translation>阿富汗</translation>
     </message>
     <message>
         <source>Armenia</source>
-        <translation type="unfinished"></translation>
+        <translation>亚美尼亚</translation>
     </message>
     <message>
         <source>Azerbaijan</source>
-        <translation type="unfinished"></translation>
+        <translation>阿塞拜疆</translation>
     </message>
     <message>
         <source>Bangladesh</source>
-        <translation type="unfinished"></translation>
+        <translation>孟加拉国</translation>
     </message>
     <message>
         <source>Bhutan</source>
-        <translation type="unfinished"></translation>
+        <translation>不丹</translation>
     </message>
     <message>
         <source>Brunei</source>
-        <translation type="unfinished"></translation>
+        <translation>文莱</translation>
     </message>
     <message>
         <source>Cambodia</source>
-        <translation type="unfinished"></translation>
+        <translation>柬埔寨</translation>
     </message>
     <message>
         <source>China</source>
-        <translation type="unfinished"></translation>
+        <translation>中国</translation>
     </message>
     <message>
         <source>Cyprus</source>
-        <translation type="unfinished"></translation>
+        <translation>塞浦路斯</translation>
     </message>
     <message>
         <source>East Timor</source>
-        <translation type="unfinished"></translation>
+        <translation>东帝汶</translation>
     </message>
     <message>
         <source>India</source>
-        <translation type="unfinished"></translation>
+        <translation>印度</translation>
     </message>
     <message>
         <source>Indonesia</source>
-        <translation type="unfinished"></translation>
+        <translation>印度尼西亚</translation>
     </message>
     <message>
         <source>Iran</source>
-        <translation type="unfinished"></translation>
+        <translation>伊朗</translation>
     </message>
     <message>
         <source>Iraq</source>
-        <translation type="unfinished"></translation>
+        <translation>伊拉克</translation>
     </message>
     <message>
         <source>Israel</source>
-        <translation type="unfinished"></translation>
+        <translation>以色列</translation>
     </message>
     <message>
         <source>Japan</source>
-        <translation type="unfinished"></translation>
+        <translation>日本</translation>
     </message>
     <message>
         <source>Jordan</source>
-        <translation type="unfinished"></translation>
+        <translation>约旦</translation>
     </message>
     <message>
         <source>Kazakhstan</source>
-        <translation type="unfinished"></translation>
+        <translation>哈萨克斯坦</translation>
     </message>
     <message>
         <source>Kuwait</source>
-        <translation type="unfinished"></translation>
+        <translation>科威特</translation>
     </message>
     <message>
         <source>Kyrgyzstan</source>
-        <translation type="unfinished"></translation>
+        <translation>吉尔吉斯斯坦</translation>
     </message>
     <message>
         <source>Laos</source>
-        <translation type="unfinished"></translation>
+        <translation>老挝</translation>
     </message>
     <message>
         <source>Lebanon</source>
-        <translation type="unfinished"></translation>
+        <translation>黎巴嫩</translation>
     </message>
     <message>
         <source>Malaysia</source>
-        <translation type="unfinished"></translation>
+        <translation>马来西亚</translation>
     </message>
     <message>
         <source>Mongolia</source>
-        <translation type="unfinished"></translation>
+        <translation>蒙古</translation>
     </message>
     <message>
         <source>Myanmar</source>
-        <translation type="unfinished"></translation>
+        <translation>缅甸</translation>
     </message>
     <message>
         <source>Nepal</source>
-        <translation type="unfinished"></translation>
+        <translation>尼泊尔</translation>
     </message>
     <message>
         <source>North Korea</source>
-        <translation type="unfinished"></translation>
+        <translation>朝鲜</translation>
     </message>
     <message>
         <source>Oman</source>
-        <translation type="unfinished"></translation>
+        <translation>阿曼</translation>
     </message>
     <message>
         <source>Pakistan</source>
-        <translation type="unfinished"></translation>
+        <translation>巴基斯坦</translation>
     </message>
     <message>
         <source>Palestine</source>
-        <translation type="unfinished"></translation>
+        <translation>巴勒斯坦</translation>
     </message>
     <message>
         <source>Philippines</source>
-        <translation type="unfinished"></translation>
+        <translation>菲律宾</translation>
     </message>
     <message>
         <source>Qatar</source>
-        <translation type="unfinished"></translation>
+        <translation>卡塔尔</translation>
     </message>
     <message>
         <source>Russia</source>
-        <translation type="unfinished"></translation>
+        <translation>俄罗斯</translation>
     </message>
     <message>
         <source>Saudi Arabia</source>
-        <translation type="unfinished"></translation>
+        <translation>沙特阿拉伯</translation>
     </message>
     <message>
         <source>South Korea</source>
-        <translation type="unfinished"></translation>
+        <translation>韩国</translation>
     </message>
     <message>
         <source>Sri Lanka</source>
-        <translation type="unfinished"></translation>
+        <translation>斯里兰卡</translation>
     </message>
     <message>
         <source>Syria</source>
-        <translation type="unfinished"></translation>
+        <translation>叙利亚</translation>
     </message>
     <message>
         <source>Taiwan</source>
-        <translation type="unfinished"></translation>
+        <translation>台湾</translation>
     </message>
     <message>
         <source>Tajikistan</source>
-        <translation type="unfinished"></translation>
+        <translation>塔吉克斯坦</translation>
     </message>
     <message>
         <source>Thailand</source>
-        <translation type="unfinished"></translation>
+        <translation>泰国</translation>
     </message>
     <message>
         <source>Turkey</source>
-        <translation type="unfinished"></translation>
+        <translation>土耳其</translation>
     </message>
     <message>
         <source>Turkmenistan</source>
-        <translation type="unfinished"></translation>
+        <translation>土库曼斯坦</translation>
     </message>
     <message>
         <source>United Arab Emirates</source>
-        <translation type="unfinished"></translation>
+        <translation>阿联酋</translation>
     </message>
     <message>
         <source>Uzbekistan</source>
-        <translation type="unfinished"></translation>
+        <translation>乌兹别克斯坦</translation>
     </message>
     <message>
         <source>Vietnam</source>
-        <translation type="unfinished"></translation>
+        <translation>越南</translation>
     </message>
     <message>
         <source>Yemen</source>
-        <translation type="unfinished"></translation>
+        <translation>也门</translation>
     </message>
     <message>
         <source>Albania</source>
-        <translation type="unfinished"></translation>
+        <translation>阿尔巴尼亚</translation>
     </message>
     <message>
         <source>Austria</source>
-        <translation type="unfinished"></translation>
+        <translation>奥地利</translation>
     </message>
     <message>
         <source>Belarus</source>
-        <translation type="unfinished"></translation>
+        <translation>白俄罗斯</translation>
     </message>
     <message>
         <source>Belgium</source>
-        <translation type="unfinished"></translation>
+        <translation>比利时</translation>
     </message>
     <message>
         <source>Bosnia and Herzegovina</source>
-        <translation type="unfinished"></translation>
+        <translation>波斯尼亚和黑塞哥维那</translation>
     </message>
     <message>
         <source>Bulgaria</source>
-        <translation type="unfinished"></translation>
+        <translation>保加利亚</translation>
     </message>
     <message>
         <source>Croatia</source>
-        <translation type="unfinished"></translation>
+        <translation>克罗地亚</translation>
     </message>
     <message>
         <source>Czech Republic</source>
-        <translation type="unfinished"></translation>
+        <translation>捷克</translation>
     </message>
     <message>
         <source>Denmark</source>
-        <translation type="unfinished"></translation>
+        <translation>丹麦</translation>
     </message>
     <message>
         <source>Estonia</source>
-        <translation type="unfinished"></translation>
+        <translation>爱沙尼亚</translation>
     </message>
     <message>
         <source>Finland</source>
-        <translation type="unfinished"></translation>
+        <translation>芬兰</translation>
     </message>
     <message>
         <source>France</source>
-        <translation type="unfinished"></translation>
+        <translation>法国</translation>
     </message>
     <message>
         <source>Georgia</source>
-        <translation type="unfinished"></translation>
+        <translation>格鲁吉亚</translation>
     </message>
     <message>
         <source>Germany</source>
-        <translation type="unfinished"></translation>
+        <translation>德国</translation>
     </message>
     <message>
         <source>Greece</source>
-        <translation type="unfinished"></translation>
+        <translation>希腊</translation>
     </message>
     <message>
         <source>Hungary</source>
-        <translation type="unfinished"></translation>
+        <translation>匈牙利</translation>
     </message>
     <message>
         <source>Iceland</source>
-        <translation type="unfinished"></translation>
+        <translation>冰岛</translation>
     </message>
     <message>
         <source>Ireland</source>
-        <translation type="unfinished"></translation>
+        <translation>爱尔兰</translation>
     </message>
     <message>
         <source>Italy</source>
-        <translation type="unfinished"></translation>
+        <translation>意大利</translation>
     </message>
     <message>
         <source>Latvia</source>
-        <translation type="unfinished"></translation>
+        <translation>拉脱维亚</translation>
     </message>
     <message>
         <source>Lithuania</source>
-        <translation type="unfinished"></translation>
+        <translation>立陶宛</translation>
     </message>
     <message>
         <source>Luxembourg</source>
-        <translation type="unfinished"></translation>
+        <translation>卢森堡</translation>
     </message>
     <message>
         <source>Moldova</source>
-        <translation type="unfinished"></translation>
+        <translation>摩尔多瓦</translation>
     </message>
     <message>
         <source>Montenegro</source>
-        <translation type="unfinished"></translation>
+        <translation>黑山</translation>
     </message>
     <message>
         <source>Netherlands</source>
-        <translation type="unfinished"></translation>
+        <translation>荷兰</translation>
     </message>
     <message>
         <source>North Macedonia</source>
-        <translation type="unfinished"></translation>
+        <translation>北马其顿</translation>
     </message>
     <message>
         <source>Norway</source>
-        <translation type="unfinished"></translation>
+        <translation>挪威</translation>
     </message>
     <message>
         <source>Poland</source>
-        <translation type="unfinished"></translation>
+        <translation>波兰</translation>
     </message>
     <message>
         <source>Portugal</source>
-        <translation type="unfinished"></translation>
+        <translation>葡萄牙</translation>
     </message>
     <message>
         <source>Romania</source>
-        <translation type="unfinished"></translation>
+        <translation>罗马尼亚</translation>
     </message>
     <message>
         <source>Serbia</source>
-        <translation type="unfinished"></translation>
+        <translation>塞尔维亚</translation>
     </message>
     <message>
         <source>Slovakia</source>
-        <translation type="unfinished"></translation>
+        <translation>斯洛伐克</translation>
     </message>
     <message>
         <source>Slovenia</source>
-        <translation type="unfinished"></translation>
+        <translation>斯洛文尼亚</translation>
     </message>
     <message>
         <source>Spain</source>
-        <translation type="unfinished"></translation>
+        <translation>西班牙</translation>
     </message>
     <message>
         <source>Sweden</source>
-        <translation type="unfinished"></translation>
+        <translation>瑞典</translation>
     </message>
     <message>
         <source>Switzerland</source>
-        <translation type="unfinished"></translation>
+        <translation>瑞士</translation>
     </message>
     <message>
         <source>Ukraine</source>
-        <translation type="unfinished"></translation>
+        <translation>乌克兰</translation>
     </message>
     <message>
         <source>United Kingdom</source>
-        <translation type="unfinished"></translation>
+        <translation>英国</translation>
     </message>
     <message>
         <source>Bahamas</source>
-        <translation type="unfinished"></translation>
+        <translation>巴哈马</translation>
     </message>
     <message>
         <source>Belize</source>
-        <translation type="unfinished"></translation>
+        <translation>伯利兹</translation>
     </message>
     <message>
         <source>Canada</source>
-        <translation type="unfinished"></translation>
+        <translation>加拿大</translation>
     </message>
     <message>
         <source>Costa Rica</source>
-        <translation type="unfinished"></translation>
+        <translation>哥斯达黎加</translation>
     </message>
     <message>
         <source>Cuba</source>
-        <translation type="unfinished"></translation>
+        <translation>古巴</translation>
     </message>
     <message>
         <source>Dominican Republic</source>
-        <translation type="unfinished"></translation>
+        <translation>多米尼加共和国</translation>
     </message>
     <message>
         <source>El Salvador</source>
-        <translation type="unfinished"></translation>
+        <translation>萨尔瓦多</translation>
     </message>
     <message>
         <source>Greenland</source>
-        <translation type="unfinished"></translation>
+        <translation>格陵兰</translation>
     </message>
     <message>
         <source>Guatemala</source>
-        <translation type="unfinished"></translation>
+        <translation>危地马拉</translation>
     </message>
     <message>
         <source>Haiti</source>
-        <translation type="unfinished"></translation>
+        <translation>海地</translation>
     </message>
     <message>
         <source>Honduras</source>
-        <translation type="unfinished"></translation>
+        <translation>洪都拉斯</translation>
     </message>
     <message>
         <source>Jamaica</source>
-        <translation type="unfinished"></translation>
+        <translation>牙买加</translation>
     </message>
     <message>
         <source>Mexico</source>
-        <translation type="unfinished"></translation>
+        <translation>墨西哥</translation>
     </message>
     <message>
         <source>Nicaragua</source>
-        <translation type="unfinished"></translation>
+        <translation>尼加拉瓜</translation>
     </message>
     <message>
         <source>Panama</source>
-        <translation type="unfinished"></translation>
+        <translation>巴拿马</translation>
     </message>
     <message>
         <source>Trinidad and Tobago</source>
-        <translation type="unfinished"></translation>
+        <translation>特立尼达和多巴哥</translation>
     </message>
     <message>
         <source>United States</source>
-        <translation type="unfinished"></translation>
+        <translation>美国</translation>
     </message>
     <message>
         <source>Australia</source>
-        <translation type="unfinished"></translation>
+        <translation>澳大利亚</translation>
     </message>
     <message>
         <source>Fiji</source>
-        <translation type="unfinished"></translation>
+        <translation>斐济</translation>
     </message>
     <message>
         <source>French Southern Territories</source>
-        <translation type="unfinished"></translation>
+        <translation>法属南部领地</translation>
     </message>
     <message>
         <source>New Caledonia</source>
-        <translation type="unfinished"></translation>
+        <translation>新喀里多尼亚</translation>
     </message>
     <message>
         <source>New Zealand</source>
-        <translation type="unfinished"></translation>
+        <translation>新西兰</translation>
     </message>
     <message>
         <source>Papua New Guinea</source>
-        <translation type="unfinished"></translation>
+        <translation>巴布亚新几内亚</translation>
     </message>
     <message>
         <source>Solomon Islands</source>
-        <translation type="unfinished"></translation>
+        <translation>所罗门群岛</translation>
     </message>
     <message>
         <source>Vanuatu</source>
-        <translation type="unfinished"></translation>
+        <translation>瓦努阿图</translation>
     </message>
     <message>
         <source>Argentina</source>
-        <translation type="unfinished"></translation>
+        <translation>阿根廷</translation>
     </message>
     <message>
         <source>Bolivia</source>
-        <translation type="unfinished"></translation>
+        <translation>玻利维亚</translation>
     </message>
     <message>
         <source>Brazil</source>
-        <translation type="unfinished"></translation>
+        <translation>巴西</translation>
     </message>
     <message>
         <source>Chile</source>
-        <translation type="unfinished"></translation>
+        <translation>智利</translation>
     </message>
     <message>
         <source>Colombia</source>
-        <translation type="unfinished"></translation>
+        <translation>哥伦比亚</translation>
     </message>
     <message>
         <source>Ecuador</source>
-        <translation type="unfinished"></translation>
+        <translation>厄瓜多尔</translation>
     </message>
     <message>
         <source>Falkland Islands</source>
-        <translation type="unfinished"></translation>
+        <translation>福克兰群岛</translation>
     </message>
     <message>
         <source>Guyana</source>
-        <translation type="unfinished"></translation>
+        <translation>圭亚那</translation>
     </message>
     <message>
         <source>Paraguay</source>
-        <translation type="unfinished"></translation>
+        <translation>巴拉圭</translation>
     </message>
     <message>
         <source>Peru</source>
-        <translation type="unfinished"></translation>
+        <translation>秘鲁</translation>
     </message>
     <message>
         <source>Suriname</source>
-        <translation type="unfinished"></translation>
+        <translation>苏里南</translation>
     </message>
     <message>
         <source>Uruguay</source>
-        <translation type="unfinished"></translation>
+        <translation>乌拉圭</translation>
     </message>
     <message>
         <source>Venezuela</source>
-        <translation type="unfinished"></translation>
+        <translation>委内瑞拉</translation>
     </message>
 </context>
 <context>
     <name>MapSelectionControlStates</name>
     <message>
         <source>Illinois</source>
-        <translation type="unfinished"></translation>
+        <translation>伊利诺伊州</translation>
     </message>
     <message>
         <source>Indiana</source>
-        <translation type="unfinished"></translation>
+        <translation>印第安纳州</translation>
     </message>
     <message>
         <source>Iowa</source>
-        <translation type="unfinished"></translation>
+        <translation>艾奥瓦州</translation>
     </message>
     <message>
         <source>Kansas</source>
-        <translation type="unfinished"></translation>
+        <translation>堪萨斯州</translation>
     </message>
     <message>
         <source>Michigan</source>
-        <translation type="unfinished"></translation>
+        <translation>密歇根州</translation>
     </message>
     <message>
         <source>Minnesota</source>
-        <translation type="unfinished"></translation>
+        <translation>明尼苏达州</translation>
     </message>
     <message>
         <source>Missouri</source>
-        <translation type="unfinished"></translation>
+        <translation>密苏里州</translation>
     </message>
     <message>
         <source>Nebraska</source>
-        <translation type="unfinished"></translation>
+        <translation>内布拉斯加州</translation>
     </message>
     <message>
         <source>North Dakota</source>
-        <translation type="unfinished"></translation>
+        <translation>北达科他州</translation>
     </message>
     <message>
         <source>Ohio</source>
-        <translation type="unfinished"></translation>
+        <translation>俄亥俄州</translation>
     </message>
     <message>
         <source>South Dakota</source>
-        <translation type="unfinished"></translation>
+        <translation>南达科他州</translation>
     </message>
     <message>
         <source>Wisconsin</source>
-        <translation type="unfinished"></translation>
+        <translation>威斯康星州</translation>
     </message>
     <message>
         <source>Connecticut</source>
-        <translation type="unfinished"></translation>
+        <translation>康涅狄格州</translation>
     </message>
     <message>
         <source>Maine</source>
-        <translation type="unfinished"></translation>
+        <translation>缅因州</translation>
     </message>
     <message>
         <source>Massachusetts</source>
-        <translation type="unfinished"></translation>
+        <translation>马萨诸塞州</translation>
     </message>
     <message>
         <source>New Hampshire</source>
-        <translation type="unfinished"></translation>
+        <translation>新罕布什尔州</translation>
     </message>
     <message>
         <source>New Jersey</source>
-        <translation type="unfinished"></translation>
+        <translation>新泽西州</translation>
     </message>
     <message>
         <source>New York</source>
-        <translation type="unfinished"></translation>
+        <translation>纽约州</translation>
     </message>
     <message>
         <source>Pennsylvania</source>
-        <translation type="unfinished"></translation>
+        <translation>宾夕法尼亚州</translation>
     </message>
     <message>
         <source>Rhode Island</source>
-        <translation type="unfinished"></translation>
+        <translation>罗得岛州</translation>
     </message>
     <message>
         <source>Vermont</source>
-        <translation type="unfinished"></translation>
+        <translation>佛蒙特州</translation>
     </message>
     <message>
         <source>Alabama</source>
-        <translation type="unfinished"></translation>
+        <translation>亚拉巴马州</translation>
     </message>
     <message>
         <source>Arkansas</source>
-        <translation type="unfinished"></translation>
+        <translation>阿肯色州</translation>
     </message>
     <message>
         <source>Delaware</source>
-        <translation type="unfinished"></translation>
+        <translation>特拉华州</translation>
     </message>
     <message>
         <source>District of Columbia</source>
-        <translation type="unfinished"></translation>
+        <translation>哥伦比亚特区</translation>
     </message>
     <message>
         <source>Florida</source>
-        <translation type="unfinished"></translation>
+        <translation>佛罗里达州</translation>
     </message>
     <message>
         <source>Georgia</source>
-        <translation type="unfinished"></translation>
+        <translation>佐治亚州</translation>
     </message>
     <message>
         <source>Kentucky</source>
-        <translation type="unfinished"></translation>
+        <translation>肯塔基州</translation>
     </message>
     <message>
         <source>Louisiana</source>
-        <translation type="unfinished"></translation>
+        <translation>路易斯安那州</translation>
     </message>
     <message>
         <source>Maryland</source>
-        <translation type="unfinished"></translation>
+        <translation>马里兰州</translation>
     </message>
     <message>
         <source>Mississippi</source>
-        <translation type="unfinished"></translation>
+        <translation>密西西比州</translation>
     </message>
     <message>
         <source>North Carolina</source>
-        <translation type="unfinished"></translation>
+        <translation>北卡罗来纳州</translation>
     </message>
     <message>
         <source>Oklahoma</source>
-        <translation type="unfinished"></translation>
+        <translation>俄克拉何马州</translation>
     </message>
     <message>
         <source>South Carolina</source>
-        <translation type="unfinished"></translation>
+        <translation>南卡罗来纳州</translation>
     </message>
     <message>
         <source>Tennessee</source>
-        <translation type="unfinished"></translation>
+        <translation>田纳西州</translation>
     </message>
     <message>
         <source>Texas</source>
-        <translation type="unfinished"></translation>
+        <translation>得克萨斯州</translation>
     </message>
     <message>
         <source>Virginia</source>
-        <translation type="unfinished"></translation>
+        <translation>弗吉尼亚州</translation>
     </message>
     <message>
         <source>West Virginia</source>
-        <translation type="unfinished"></translation>
+        <translation>西弗吉尼亚州</translation>
     </message>
     <message>
         <source>Alaska</source>
-        <translation type="unfinished"></translation>
+        <translation>阿拉斯加州</translation>
     </message>
     <message>
         <source>Arizona</source>
-        <translation type="unfinished"></translation>
+        <translation>亚利桑那州</translation>
     </message>
     <message>
         <source>California</source>
-        <translation type="unfinished"></translation>
+        <translation>加利福尼亚州</translation>
     </message>
     <message>
         <source>Colorado</source>
-        <translation type="unfinished"></translation>
+        <translation>科罗拉多州</translation>
     </message>
     <message>
         <source>Hawaii</source>
-        <translation type="unfinished"></translation>
+        <translation>夏威夷州</translation>
     </message>
     <message>
         <source>Idaho</source>
-        <translation type="unfinished"></translation>
+        <translation>爱达荷州</translation>
     </message>
     <message>
         <source>Montana</source>
-        <translation type="unfinished"></translation>
+        <translation>蒙大拿州</translation>
     </message>
     <message>
         <source>Nevada</source>
-        <translation type="unfinished"></translation>
+        <translation>内华达州</translation>
     </message>
     <message>
         <source>New Mexico</source>
-        <translation type="unfinished"></translation>
+        <translation>新墨西哥州</translation>
     </message>
     <message>
         <source>Oregon</source>
-        <translation type="unfinished"></translation>
+        <translation>俄勒冈州</translation>
     </message>
     <message>
         <source>Utah</source>
-        <translation type="unfinished"></translation>
+        <translation>犹他州</translation>
     </message>
     <message>
         <source>Washington</source>
-        <translation type="unfinished"></translation>
+        <translation>华盛顿州</translation>
     </message>
     <message>
         <source>Wyoming</source>
-        <translation type="unfinished"></translation>
+        <translation>怀俄明州</translation>
     </message>
     <message>
         <source>American Samoa</source>
-        <translation type="unfinished"></translation>
+        <translation>美属萨摩亚</translation>
     </message>
     <message>
         <source>Guam</source>
-        <translation type="unfinished"></translation>
+        <translation>关岛</translation>
     </message>
     <message>
         <source>Northern Mariana Islands</source>
-        <translation type="unfinished"></translation>
+        <translation>北马里亚纳群岛</translation>
     </message>
     <message>
         <source>Puerto Rico</source>
-        <translation type="unfinished"></translation>
+        <translation>波多黎各</translation>
     </message>
     <message>
         <source>Virgin Islands</source>
-        <translation type="unfinished"></translation>
+        <translation>美属维尔京群岛</translation>
     </message>
 </context>
 <context>
@@ -6271,37 +6379,37 @@ Retry to avoid duplicates.</source>
     <name>OffroadAlert</name>
     <message>
         <source>Immediately connect to the internet to check for updates. If you do not connect to the internet, openpilot won't engage in %1</source>
-        <translation>请立即连接互联网以检查更新。如果不连接互联网，openpilot 将在 %1 后无法启用</translation>
+        <translation type="vanished">请立即连接互联网以检查更新。如果不连接互联网，openpilot 将在 %1 后无法启用</translation>
     </message>
     <message>
         <source>Connect to internet to check for updates. openpilot won't automatically start until it connects to internet to check for updates.</source>
-        <translation>请连接至互联网以检查更新。在连接至互联网并完成更新检查之前，openpilot 将不会自动启动。</translation>
+        <translation type="vanished">请连接至互联网以检查更新。在连接至互联网并完成更新检查之前，openpilot 将不会自动启动。</translation>
     </message>
     <message>
         <source>Unable to download updates
 %1</source>
-        <translation>无法下载更新
+        <translation type="vanished">无法下载更新
 %1</translation>
     </message>
     <message>
         <source>Taking camera snapshots. System won't start until finished.</source>
-        <translation>正在拍摄摄像头快照。完成前系统无法启动。</translation>
+        <translation type="vanished">正在拍摄摄像头快照。完成前系统无法启动。</translation>
     </message>
     <message>
         <source>An update to your device's operating system is downloading in the background. You will be prompted to update when it's ready to install.</source>
-        <translation>一个针对您设备的操作系统更新正在后台下载中。当更新准备好安装时，您将收到提示进行更新。</translation>
+        <translation type="vanished">一个针对您设备的操作系统更新正在后台下载中。当更新准备好安装时，您将收到提示进行更新。</translation>
     </message>
     <message>
         <source>openpilot was unable to identify your car. Your car is either unsupported or its ECUs are not recognized. Please submit a pull request to add the firmware versions to the proper vehicle. Need help? Join discord.comma.ai.</source>
-        <translation>openpilot 无法识别您的车辆。您的车辆可能未被支持，或是其电控单元 (ECU) 未被识别。请提交一个 Pull Request 为您的车辆添加正确的固件版本。需要帮助吗？请加入 discord.comma.ai。</translation>
+        <translation type="vanished">openpilot 无法识别您的车辆。您的车辆可能未被支持，或是其电控单元 (ECU) 未被识别。请提交一个 Pull Request 为您的车辆添加正确的固件版本。需要帮助吗？请加入 discord.comma.ai。</translation>
     </message>
     <message>
         <source>openpilot detected a change in the device's mounting position. Ensure the device is fully seated in the mount and the mount is firmly secured to the windshield.</source>
-        <translation>openpilot 检测到设备的安装位置发生变化。请确保设备完全安装在支架上，并确保支架牢固地固定在挡风玻璃上。</translation>
+        <translation type="vanished">openpilot 检测到设备的安装位置发生变化。请确保设备完全安装在支架上，并确保支架牢固地固定在挡风玻璃上。</translation>
     </message>
     <message>
         <source>Device temperature too high. System cooling down before starting. Current internal component temperature: %1</source>
-        <translation>设备温度过高。系统正在冷却中，等冷却完毕后才会启动。目前内部组件温度：%1</translation>
+        <translation type="vanished">设备温度过高。系统正在冷却中，等冷却完毕后才会启动。目前内部组件温度：%1</translation>
     </message>
     <message>
         <source>Acknowledge Excessive Actuation</source>
@@ -6313,19 +6421,15 @@ Retry to avoid duplicates.</source>
     </message>
     <message>
         <source>Failed to register with comma.ai backend. It will not connect or upload to comma.ai servers, and receives no support from comma.ai. If this is a device purchased at comma.ai/shop, open a ticket at https://comma.ai/support.</source>
-        <translation>无法向 comma.ai 后端注册。它不会连接或上传到 comma.ai 服务器，并且不会收到 comma.ai 的支持。如果这是在 comma.ai/shop 购买的设备，请在 https://comma.ai/support 创建支持请求。</translation>
+        <translation type="vanished">无法向 comma.ai 后端注册。它不会连接或上传到 comma.ai 服务器，并且不会收到 comma.ai 的支持。如果这是在 comma.ai/shop 购买的设备，请在 https://comma.ai/support 创建支持请求。</translation>
     </message>
     <message>
         <source>Poor visibility detected for driver monitoring. Ensure the device has a clear view of the driver. This can be checked in the device settings. Extreme lighting conditions and/or unconventional mounting positions may also trigger this alert.</source>
-        <translation>检测到驾驶员监控视野不佳。确保设备能够清晰地看到驾驶员。这可以在设备设置中进行检查。极端的照明条件和/或非常规的安装位置也可能触发此警报。</translation>
+        <translation type="vanished">检测到驾驶员监控视野不佳。确保设备能够清晰地看到驾驶员。这可以在设备设置中进行检查。极端的照明条件和/或非常规的安装位置也可能触发此警报。</translation>
     </message>
     <message>
         <source>Excessive %1 actuation detected on your last drive. Please contact support at https://comma.ai/support and share your device's Dongle ID for troubleshooting.</source>
-        <translation>在您上次行驶期间检测到 %1 过度驱动。请通过 https://comma.ai/support 联系支持人员并分享您设备的加密狗 ID 以进行故障排除。</translation>
-    </message>
-    <message>
-        <source>NVMe drive not mounted.</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">在您上次行驶期间检测到 %1 过度驱动。请通过 https://comma.ai/support 联系支持人员并分享您设备的加密狗 ID 以进行故障排除。</translation>
     </message>
 </context>
 <context>
@@ -6344,7 +6448,7 @@ Retry to avoid duplicates.</source>
     </message>
     <message>
         <source>Mystery Model 👻</source>
-        <translation type="unfinished"></translation>
+        <translation>神秘模型 👻</translation>
     </message>
 </context>
 <context>
@@ -6524,63 +6628,63 @@ Retry to avoid duplicates.</source>
     </message>
     <message>
         <source>April Fools</source>
-        <translation type="unfinished"></translation>
+        <translation>愚人节</translation>
     </message>
     <message>
         <source>Christmas</source>
-        <translation type="unfinished"></translation>
+        <translation>圣诞节</translation>
     </message>
     <message>
         <source>Cinco de Mayo</source>
-        <translation type="unfinished"></translation>
+        <translation>五月五日节</translation>
     </message>
     <message>
         <source>Easter</source>
-        <translation type="unfinished"></translation>
+        <translation>复活节</translation>
     </message>
     <message>
         <source>Fourth of July</source>
-        <translation type="unfinished"></translation>
+        <translation>美国独立日</translation>
     </message>
     <message>
         <source>Halloween</source>
-        <translation type="unfinished"></translation>
+        <translation>万圣节</translation>
     </message>
     <message>
         <source>May the Fourth</source>
-        <translation type="unfinished"></translation>
+        <translation>星战日</translation>
     </message>
     <message>
         <source>New Year's</source>
-        <translation type="unfinished"></translation>
+        <translation>新年</translation>
     </message>
     <message>
         <source>None</source>
-        <translation type="unfinished">无</translation>
+        <translation>无</translation>
     </message>
     <message>
         <source>St. Patrick's Day</source>
-        <translation type="unfinished"></translation>
+        <translation>圣帕特里克节</translation>
     </message>
     <message>
         <source>Stitch Day</source>
-        <translation type="unfinished"></translation>
+        <translation>史迪奇日</translation>
     </message>
     <message>
         <source>Stock</source>
-        <translation type="unfinished"></translation>
+        <translation>原版</translation>
     </message>
     <message>
         <source>Thanksgiving</source>
-        <translation type="unfinished"></translation>
+        <translation>感恩节</translation>
     </message>
     <message>
         <source>Valentine's Day</source>
-        <translation type="unfinished"></translation>
+        <translation>情人节</translation>
     </message>
     <message>
         <source>World Frog Day</source>
-        <translation type="unfinished"></translation>
+        <translation>世界青蛙日</translation>
     </message>
 </context>
 <context>
@@ -6871,15 +6975,15 @@ Retry to avoid duplicates.</source>
     </message>
     <message>
         <source>Share FrogPilot Data</source>
-        <translation type="unfinished"></translation>
+        <translation>共享 FrogPilot 数据</translation>
     </message>
     <message>
         <source>Automatically update FrogPilot when the car is off and the device is on an unmetered connection, such as Wi-Fi. Automatic updates turn off after a FrogPilot backup is restored until you update manually.</source>
-        <translation type="unfinished"></translation>
+        <translation>车辆熄火且设备连接不按流量计费的网络（例如 Wi-Fi）时，自动更新 FrogPilot。恢复 FrogPilot 备份后，自动更新将关闭，直到您手动更新。</translation>
     </message>
     <message>
         <source>No error log found.</source>
-        <translation type="unfinished"></translation>
+        <translation>未找到错误日志。</translation>
     </message>
 </context>
 <context>
@@ -7069,6 +7173,18 @@ Retry to avoid duplicates.</source>
         <source>An alpha version of openpilot longitudinal control can be tested, along with Experimental mode, on non-release branches.</source>
         <translation>在正式（release）版本以外的分支上，可以测试 openpilot 纵向控制的 Alpha 版本以及实验模式。</translation>
     </message>
+    <message>
+        <source>openpilot Longitudinal Control (Alpha)</source>
+        <translation>openpilot 纵向控制（Alpha 版）</translation>
+    </message>
+    <message>
+        <source>WARNING: openpilot longitudinal control is in alpha for this car and will disable Automatic Emergency Braking (AEB).</source>
+        <translation>警告：此车辆的 openpilot 纵向控制尚处于 Alpha 阶段，启用后将停用自动紧急制动（AEB）。</translation>
+    </message>
+    <message>
+        <source>On this car, openpilot defaults to the car's built-in ACC instead of openpilot's longitudinal control. Enable this to switch to openpilot longitudinal control. Enabling Experimental mode is recommended when enabling openpilot longitudinal control alpha.</source>
+        <translation>在此车辆上，openpilot 默认使用车辆内置的自适应巡航控制（ACC），而不是 openpilot 纵向控制。开启此项可切换到 openpilot 纵向控制。启用 openpilot 纵向控制 Alpha 版时，建议同时启用实验模式。</translation>
+    </message>
 </context>
 <context>
     <name>WiFiPromptWidget</name>
@@ -7086,11 +7202,11 @@ Retry to avoid duplicates.</source>
     </message>
     <message>
         <source>Uploading disabled</source>
-        <translation type="unfinished"></translation>
+        <translation>上传已禁用</translation>
     </message>
     <message>
         <source>Turn off "Disable Uploads" to upload your drives again.</source>
-        <translation type="unfinished"></translation>
+        <translation>关闭"禁用上传"以重新上传您的行程。</translation>
     </message>
 </context>
 <context>

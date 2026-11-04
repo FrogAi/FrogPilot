@@ -44,9 +44,9 @@ public:
 
   QPixmap currentPixmap();
 
-  QSize scaledSize() const;
+  const QSize size;
 
-  QString fileName() const;
+  const QString path;
 
 signals:
   void frameChanged();
@@ -62,10 +62,6 @@ private:
   QDomNode framesParent;
 
   QMovie *gif = nullptr;
-
-  QSize size;
-
-  QString path;
 
   QTimer timer;
 

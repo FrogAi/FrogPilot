@@ -55,7 +55,7 @@ async def get_device(request):
     "temperature": device_state.maxTempC,
     "thermal_status": str(device_state.thermalStatus),
     "version": params.get("Version"),
-    "voltage": HARDWARE.get_voltage() / 1000,
+    "voltage": the_pond.sm["peripheralState"].voltage / 1000,
   })
 
 

@@ -208,9 +208,10 @@ const ERRORS = {
 };
 
 class PondError extends Error {
-  constructor(status, code) {
+  constructor(status, code, path = "") {
     super(ERRORS[code] || ERRORS.unknown);
     this.code = code;
+    this.detail = ERRORS[code] ? "" : [path, status, code].filter(Boolean).join(" · ");
     this.handled = status === 401 || status === 423;
     this.status = status;
   }
@@ -231,7 +232,7 @@ async function send(path, init) {
     if (response.status === 401 || response.status === 423) {
       checkState();
     }
-    throw new PondError(response.status, (await response.text()).trim());
+    throw new PondError(response.status, (await response.text()).trim(), `${init.method} ${path}`);
   }
   return response;
 }
@@ -268,7 +269,7 @@ function fail(error, title = "That didn't work", messages = {}) {
   if (error.handled) {
     return;
   }
-  return toast(title, esc(messages[error.code] || error.message), "alert");
+  return toast(title, esc([messages[error.code] || error.message, error.detail].filter(Boolean).join(" — ")), "alert");
 }
 
 function poll(check, interval = POLL_INTERVAL) {
@@ -1076,7 +1077,7 @@ async function render(resetScroll = true) {
     }
     out = {
       title: page.title,
-      body: error.handled ? "" : `<div class="empty"><h3>This page didn't load</h3><p>${esc(error.message)}</p><button class="btn btn-quiet btn-small" data-act="retry">Try again</button></div>`
+      body: error.handled ? "" : `<div class="empty"><h3>This page didn't load</h3><p>${esc(error.message)}</p>${error.detail ? `<p class="detail mono">${esc(error.detail)}</p>` : ""}<button class="btn btn-quiet btn-small" data-act="retry">Try again</button></div>`
     };
   }
   if (token !== renderToken) {
@@ -1453,6 +1454,26 @@ document.addEventListener("focusout", e => {
     closeMenus();
   }
 });
+
+function reportFailure(error, location) {
+  if (error instanceof PondError ? error.handled || error.code === "connection_lost" : error?.name === "AbortError") {
+    return;
+  }
+
+  const parts = error instanceof PondError ? [error.message, error.detail] : [error?.message || String(error), location || /[\w.-]+\.js:\d+:\d+/.exec(error?.stack)?.[0]];
+  const text = parts.filter(Boolean).join(" — ");
+  if (!document.getElementById("toasts").textContent.includes(text)) {
+    toast("Something broke in the page", esc(text), "alert");
+  }
+}
+
+window.addEventListener("error", e => {
+  if (e.filename) {
+    reportFailure(e.error || new Error(e.message), `${e.filename.split("/").pop()}:${e.lineno}:${e.colno}`);
+  }
+});
+
+window.addEventListener("unhandledrejection", e => reportFailure(e.reason));
 
 window.Pond = {
   MAP_STYLE,

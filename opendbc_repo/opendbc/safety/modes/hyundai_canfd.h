@@ -46,9 +46,9 @@
   {.msg = {{0x1a0, (scc_bus), 32, 50U, .max_counter = 0xffU, .ignore_quality_flag = true}, { 0 }, { 0 }}},  \
 
 // FrogPilot variables
-#define HYUNDAI_CANFD_TACO_TUNE_HACK_LIMITS(steer, rate_up, allowance) { \
+#define HYUNDAI_CANFD_TACO_TUNE_HACK_LIMITS(steer, rt_delta, rate_up, allowance) { \
   .max_torque = (steer), \
-  .max_rt_delta = 112, \
+  .max_rt_delta = (rt_delta), \
   .max_rate_up = (rate_up), \
   .max_rate_down = 3, \
   .driver_torque_allowance = (allowance), \
@@ -181,8 +181,8 @@ static bool hyundai_canfd_tx_hook(const CANPacket_t *msg) {
   };
 
   // FrogPilot variables
-  const TorqueSteeringLimits HYUNDAI_CANFD_TACO_TUNE_HACK_STEERING_LIMITS = HYUNDAI_CANFD_TACO_TUNE_HACK_LIMITS(330, 2, 250);
-  const TorqueSteeringLimits HYUNDAI_CANFD_TACO_TUNE_HACK_LOW_SPEED_STEERING_LIMITS = HYUNDAI_CANFD_TACO_TUNE_HACK_LIMITS(384, 3, 350);
+  const TorqueSteeringLimits HYUNDAI_CANFD_TACO_TUNE_HACK_STEERING_LIMITS = HYUNDAI_CANFD_TACO_TUNE_HACK_LIMITS(330, 112, 2, 350);
+  const TorqueSteeringLimits HYUNDAI_CANFD_TACO_TUNE_HACK_LOW_SPEED_STEERING_LIMITS = HYUNDAI_CANFD_TACO_TUNE_HACK_LIMITS(384, 375, 10, 350);
 
   bool tx = true;
 

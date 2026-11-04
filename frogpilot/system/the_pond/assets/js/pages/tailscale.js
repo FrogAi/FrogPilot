@@ -438,6 +438,11 @@ P.page("tailscale", {
       guideButton = `<button class="btn btn-text btn-small ts-guide" data-act="tailscale-guide">${P.ic("info")}How to open The Pond over Tailscale</button>`;
     }
 
+    let loginError = "";
+    if (!running && data.job && data.job.kind === "login" && data.job.state === "failed") {
+      loginError = `<p role="alert">Sign-in didn't finish. Try signing in again.</p>`;
+    }
+
     const name = running ? `<section class="panel"><div class="panel-head"><h2>Device name</h2></div>
       <div class="panel-body"><form class="form-grid" data-ts-name>
         <p class="muted">The name in this device's short address. Use letters, numbers, and dashes. Signing out of Tailscale sets it back to the default.</p>
@@ -458,7 +463,7 @@ P.page("tailscale", {
       <div class="two-col">
         <div class="stack">
           <section class="panel"><div class="panel-head"><h2>Status</h2><span class="aside state-line"><span class="dot ${running ? "" : ts ? "idle" : "off"}"></span>${P.esc(label)}</span></div>
-            <div class="panel-body">${statusBody(ts, signingIn, data.port)}${guideButton}</div>
+            <div class="panel-body">${loginError}${statusBody(ts, signingIn, data.port)}${guideButton}</div>
             <div class="panel-foot">${foot}${uninstall}</div></section>
           ${showGuide ? name : ""}
         </div>

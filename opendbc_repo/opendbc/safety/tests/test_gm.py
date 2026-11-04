@@ -337,6 +337,23 @@ class TestGmCcLongitudinalSafety(TestGmCameraSafety):
         self._rx(self._pcm_status_msg(enabled))
         self.assertEqual(enabled, self._tx(self._button_msg(btn)))
 
+  # FrogPilot variables
+  def test_pcm_status_rx_check(self):
+    for pcm_status_alive in (True, False):
+      with self.subTest(pcm_status_alive=pcm_status_alive):
+        self.setUp()
+        self._rx(self._pcm_status_msg(True))
+        for t in range(1, 4):
+          self.safety.set_timer(int(t * 1e6))
+          for msg in ("EBCMWheelSpdRear", "PSCMStatus", "ASCMSteeringButton", "AcceleratorPedal2", "ECMEngineStatus"):
+            self._rx(self.packer.make_can_msg_safety(msg, 0, {}))
+          if pcm_status_alive:
+            self._rx(self._pcm_status_msg(True))
+          self.safety.safety_tick_current_safety_config()
+        self.assertEqual(pcm_status_alive, self.safety.safety_config_valid())
+        self.assertEqual(pcm_status_alive, self.safety.get_controls_allowed())
+        self.assertEqual(pcm_status_alive, self._tx(self._button_msg(Buttons.RES_ACCEL)))
+
 
 if __name__ == "__main__":
   unittest.main()

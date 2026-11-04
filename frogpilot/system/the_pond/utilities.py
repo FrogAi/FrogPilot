@@ -33,7 +33,7 @@ class ThePond:
 
     self.pm = messaging.PubMaster(["thePondRequest"])
     self.sm = messaging.SubMaster(["deviceState", "frogpilotAccountState", "frogpilotCarState", "frogpilotDeviceState", "frogpilotProcessState",
-                                   "managerState", "mapdExtendedOut", "navInstruction", "navRoute", "pandaStates", "selfdriveState"])
+                                   "managerState", "mapdExtendedOut", "navInstruction", "navRoute", "pandaStates", "peripheralState", "selfdriveState"])
 
     self.connections = weakref.WeakSet()
     self.file_locks = {}

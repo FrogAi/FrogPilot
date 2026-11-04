@@ -25,7 +25,7 @@ class CarState(CarStateBase):
     self.distance_button = 0
 
     # FrogPilot variables
-    self.lkas_button = 0
+    self.lkas_button = None
 
   def update(self, can_parsers) -> structs.CarState:
     cp = can_parsers[Bus.pt]
@@ -117,8 +117,14 @@ class CarState(CarStateBase):
     # TODO: is this needed?
     if self.CP.carFingerprint == CAR.NISSAN_ALTIMA:
       ret.invalidLkasSetting = bool(cp.vl["LKAS_SETTINGS"]["LKAS_ENABLED"])
+
+      # FrogPilot variables
+      lkas_settings_seen = cp.ts_nanos["LKAS_SETTINGS"]["LKAS_ENABLED"] > 0
     else:
       ret.invalidLkasSetting = bool(cp_adas.vl["LKAS_SETTINGS"]["LKAS_ENABLED"])
+
+      # FrogPilot variables
+      lkas_settings_seen = cp_adas.ts_nanos["LKAS_SETTINGS"]["LKAS_ENABLED"] > 0
 
     self.cruise_throttle_msg = copy.copy(cp.vl["CRUISE_THROTTLE"])
 
@@ -132,11 +138,12 @@ class CarState(CarStateBase):
     ret.buttonEvents = create_button_events(self.distance_button, prev_distance_button, {1: ButtonType.gapAdjustCruise})
 
     # FrogPilot variables
-    prev_lkas_button = self.lkas_button
-    self.lkas_button = ret.invalidLkasSetting
+    if lkas_settings_seen:
+      prev_lkas_button = self.lkas_button
+      self.lkas_button = ret.invalidLkasSetting
 
-    if self.lkas_button != prev_lkas_button:
-      ret.buttonEvents = [*ret.buttonEvents, *create_button_events(1, 0, {1: ButtonType.lkas}), *create_button_events(0, 1, {1: ButtonType.lkas})]
+      if prev_lkas_button is not None and self.lkas_button != prev_lkas_button:
+        ret.buttonEvents = [*ret.buttonEvents, *create_button_events(1, 0, {1: ButtonType.lkas}), *create_button_events(0, 1, {1: ButtonType.lkas})]
 
     return ret
 

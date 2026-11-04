@@ -1,5 +1,6 @@
 import json
 import math
+import zlib
 
 from cereal import car, custom
 
@@ -138,7 +139,13 @@ def send_stats(params, frogpilot_toggles, api):
   else:
     params.remove("SpeedLimitFillerUploadedHash")
 
-  response = api.post_gzip("/v1/stats", json.dumps(payload, separators=(",", ":")).encode(), timeout=30)
+  data = json.dumps(payload, separators=(",", ":"), sort_keys=True).encode()
+
+  compressor = zlib.compressobj(level=9, wbits=-15, zdict=frogpilot_paths.STATS_DICTIONARY_PATH.read_bytes())
+  body = compressor.compress(data) + compressor.flush()
+
+  headers = {"Content-Encoding": "frogpilot-stats-1", "Content-Type": "application/json"}
+  response = api.post("/v1/stats", data=body, headers=headers, timeout=30)
   if not api.succeeded(response):
     status = "no_response" if response is None else response.status_code
     print(f"Error sending stats (status={status})")

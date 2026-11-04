@@ -7,7 +7,8 @@ const DOWNLOAD_CANCELED = "Download cancelled...";
 const FINISHED = ["All models downloaded!", "Downloaded!"];
 const MESSAGES = {
   invalid_model: "That model isn't on the device",
-  invalid_models: "That model can't be changed right now"
+  invalid_models: "That model can't be changed right now",
+  tuning_level: "Choose Standard or a higher tuning level to switch driving models"
 };
 
 let following = false;
@@ -110,7 +111,7 @@ function modelRow(m, data) {
   const acts = [];
   if (inUse) {
     acts.push(`<span class="btn btn-small btn-in-use">${P.ic("check")}In use</span>`);
-  } else if (m.available && m.id !== data.selected && !(data.randomizer && data.randomizer_changeable)) {
+  } else if (m.available && m.id !== data.selected && !(data.randomizer && data.randomizer_changeable) && data.model_changeable) {
     acts.push(`<button class="btn btn-quiet btn-small" data-act="models-use" data-id="${P.esc(m.id)}" data-name="${P.esc(m.name)}">Use</button>`);
   }
   if (data.randomizer && (m.available || blacklisted)) {
@@ -287,11 +288,17 @@ P.page("models", {
       downloadAll = "disabled";
     }
 
+    let modelNotice = "";
+    if (!data.model_changeable) {
+      modelNotice = `<div class="notice">${P.ic("info")}<span>Choose Standard or a higher tuning level in Toggles to switch driving models.</span></div>`;
+    }
+
     return {
       body: `
       <section class="panel">
         <div class="panel-head"><h2>Models</h2>${data.randomizer_changeable ? `<label class="switch aside"><input type="checkbox" data-random ${data.randomizer ? "checked" : ""} ${randomizerTarget === null ? "" : "disabled"}><span class="track"></span><span class="models-random">Pick a random model each drive</span></label>` : ""}</div>
         ${offline}
+        ${modelNotice}
         <div class="models-list">${models.map(m => modelRow(m, data)).join("")}</div>
         ${missing || rated ? `<div class="panel-foot" ${missing || data.randomizer ? "" : "hidden"}>
           ${missing ? `<button class="btn btn-quiet btn-small" data-act="models-download-picked" disabled>${P.ic("download")}<span data-pick-label>Download selected</span></button>

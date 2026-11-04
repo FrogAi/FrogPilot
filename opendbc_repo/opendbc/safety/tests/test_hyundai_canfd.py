@@ -313,7 +313,8 @@ class TestHyundaiCanfdLFASteeringLongAltButtons(TestHyundaiCanfdLFASteeringLongB
 class TestHyundaiCanfdLKASteeringEVTacoTuneHack(TestHyundaiCanfdLKASteeringEV):
   # The tests run at standstill, so these are the low speed limits
 
-  MAX_RATE_UP = 3
+  MAX_RATE_UP = 10
+  MAX_RT_DELTA = 375
   MAX_TORQUE_LOOKUP = [0], [384]
 
   DRIVER_TORQUE_ALLOWANCE = 350
@@ -331,7 +332,7 @@ class TestHyundaiCanfdLKASteeringEVTacoTuneHack(TestHyundaiCanfdLKASteeringEV):
   def test_speed_threshold(self):
     self.safety.set_controls_allowed(True)
 
-    for speed, max_torque, max_rate_up, driver_torque_allowance in ((self.HIGH_SPEED - 1, 384, 3, 350), (self.HIGH_SPEED, 330, 2, 250)):
+    for speed, max_torque, max_rate_up, driver_torque_allowance in ((self.HIGH_SPEED - 1, 384, 10, 350), (self.HIGH_SPEED, 330, 2, 350)):
       self._reset_speed_measurement(speed)
       self._reset_torque_driver_measurement(0)
 

@@ -283,12 +283,9 @@ class FrogPilotTelemetry:
       endpoint = "/v1/captures"
       upload_kind = "capture"
     else:
-      try:
-        raw_data = self.decompressor.decompress((path / "rlog.zst").read_bytes(), max_output_size=MAX_LOG_SIZE)
-        git_commit = next(log.Event.read_multiple_bytes(raw_data)).initData.gitCommit
-        schema = self.schema(git_commit)
-      except (OSError, StopIteration, capnp.KjException, zstandard.ZstdError):
-        return True
+      raw_data = self.decompressor.decompress((path / "rlog.zst").read_bytes(), max_output_size=MAX_LOG_SIZE)
+      git_commit = next(log.Event.read_multiple_bytes(raw_data)).initData.gitCommit
+      schema = self.schema(git_commit)
 
       car_fingerprint, filtered_data = filter_log(raw_data, schema)
       data = zstandard.ZstdCompressor(level=LOG_COMPRESSION_LEVEL).compress(filtered_data)
@@ -347,10 +344,6 @@ class FrogPilotTelemetry:
           setxattr(path, frogpilot_variables.UPLOAD_ATTR_NAME, frogpilot_variables.UPLOAD_DONE)
         except FileNotFoundError:
           pass
-
-    for schema_path in frogpilot_paths.TELEMETRY_SCHEMAS_PATH.iterdir():
-      if schema_path.name != self.git_commit:
-        shutil.rmtree(schema_path)
 
     self.schemas = {self.git_commit: log}
 

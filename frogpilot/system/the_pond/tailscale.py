@@ -118,7 +118,10 @@ async def login(the_pond):
   process = await asyncio.create_subprocess_exec(*get_command("up", "--accept-dns=false", f"--hostname={hostname}", f"--timeout={LOGIN_TIMEOUT}"),
                                                  stdout=asyncio.subprocess.DEVNULL, stderr=asyncio.subprocess.DEVNULL)
   try:
-    await process.wait()
+    return_code = await process.wait()
+
+    if return_code != 0:
+      raise RuntimeError(f"Tailscale sign-in failed ({return_code})")
   finally:
     await utilities.stop_process(process)
 

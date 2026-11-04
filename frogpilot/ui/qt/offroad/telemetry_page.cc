@@ -21,7 +21,10 @@ void FrogPilotTelemetryPage::showEvent(QShowEvent *event) {
 
   vlayout->addSpacing(90);
 
-  QLabel *text = new QLabel(description());
+  QLabel *text = new QLabel(tr("Your drives make FrogPilot better for everyone, with better steering and braking, support for more cars, "
+                               "and smarter speed limits.<br><br>"
+                               "Sharing sends filtered driving logs, short road camera clips, learned speed limits, and usage stats. "
+                               "Turn it off anytime in Settings. Learn more at <b>FrogPilot.com/privacy</b>."));
   text->setStyleSheet("font-size: 50px; font-weight: 300; color: white; background-color: black;");
   text->setWordWrap(true);
   vlayout->addWidget(new ScrollView(text, this), 1);

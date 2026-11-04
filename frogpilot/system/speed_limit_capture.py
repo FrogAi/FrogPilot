@@ -15,11 +15,13 @@ from openpilot.system.version import get_build_metadata
 
 from openpilot.frogpilot.common import frogpilot_paths, frogpilot_utilities, frogpilot_variables
 
-BUFFER_DURATION = 10
+BUFFER_DURATION = 15
 
 MAX_CAPTURES = 100
 
 MIN_FREE_SPACE = 5 * 1024 * 1024 * 1024
+
+POST_TRIGGER_DURATION = 5
 
 
 def capture_details(sm, device_details):
@@ -58,14 +60,16 @@ def save_clip(frames, trigger):
 
     setxattr(capture_path.with_suffix(".hevc"), frogpilot_variables.UPLOAD_ATTR_NAME, frogpilot_variables.UPLOAD_PENDING)
 
-    frames.clear()
-
     for capture in sorted(frogpilot_paths.SPEED_LIMIT_CAPTURES_PATH.glob("*.hevc"))[:-MAX_CAPTURES]:
       capture.unlink()
       capture.with_suffix(".json").unlink(missing_ok=True)
 
   except OSError:
     cloudlog.exception("Failed to save speed limit capture")
+
+
+def queue_clip(frames, pending_clips, trigger):
+  pending_clips.append((frames[-1].idx.timestampEof + POST_TRIGGER_DURATION * 1_000_000_000, trigger))
 
 
 def main():
@@ -87,6 +91,7 @@ def main():
   }
 
   frames = deque()
+  pending_clips = deque()
 
   road_encode_sock = messaging.sub_sock("roadEncodeData")
 
@@ -113,7 +118,7 @@ def main():
 
       if unsure:
         trigger = {"trigger": "unsure", "sign_speed_limit": unsure_speed_limit, "sign_agreement": unsure_agreement}
-        save_clip(frames, {**trigger, **capture_details(sm, device_details)})
+        queue_clip(frames, pending_clips, {**trigger, **capture_details(sm, device_details)})
 
       unsure_agreement = 0
       unsure_speed_limit = sign_reading.signSpeedLimit
@@ -122,15 +127,20 @@ def main():
       unsure_agreement = max(unsure_agreement, sign_reading.signAgreement)
 
     if speed_limit != previous_speed_limit and speed_limit > 0:
-      save_clip(frames, {"trigger": "dashboard", "speed_limit": speed_limit, **capture_details(sm, device_details)})
+      queue_clip(frames, pending_clips, {"trigger": "dashboard", "speed_limit": speed_limit, **capture_details(sm, device_details)})
     elif sign_reading.speedLimit != previous_reader_speed_limit and sign_reading.speedLimit > 0 and random() < frogpilot_variables.READER_CLIP_SHARE:
-      save_clip(frames, {"trigger": "reader", "speed_limit": sign_reading.speedLimit, **capture_details(sm, device_details)})
+      queue_clip(frames, pending_clips, {"trigger": "reader", "speed_limit": sign_reading.speedLimit, **capture_details(sm, device_details)})
     elif development_build and lkas_button_press_count > previous_lkas_button_press_count:
-      save_clip(frames, {"trigger": "lkas", **capture_details(sm, device_details)})
+      queue_clip(frames, pending_clips, {"trigger": "lkas", **capture_details(sm, device_details)})
 
     previous_speed_limit = speed_limit
     previous_lkas_button_press_count = lkas_button_press_count
     previous_reader_speed_limit = sign_reading.speedLimit
+
+    while pending_clips and frames[-1].idx.timestampEof >= pending_clips[0][0]:
+      _, trigger = pending_clips.popleft()
+
+      save_clip(frames, trigger)
 
 
 if __name__ == "__main__":

@@ -52,7 +52,7 @@ async def get_tmux_session(the_pond, name):
     process = await asyncio.create_subprocess_exec("tmux", "has-session", "-t", f"={session}", stderr=asyncio.subprocess.DEVNULL)
     if await process.wait() != 0:
       pythonpath = f"{BASEDIR}/frogpilot/third_party:{BASEDIR}"
-      await utilities.run_process(["tmux", "new-session", "-d", "-s", session, "-c", BASEDIR, "-e", f"PYTHONPATH={pythonpath}"])
+      await utilities.run_process(["tmux", "new-session", "-d", "-s", session, "-c", BASEDIR, f"bash -lc 'export PYTHONPATH={pythonpath}; exec bash'"])
 
   return session
 
