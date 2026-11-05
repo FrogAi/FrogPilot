@@ -73,7 +73,7 @@ def allow_uploads(started: bool, params: Params, CP: car.CarParams, frogpilot_to
   return not frogpilot_toggles.uploads_disabled
 
 def run_frogpilot_telemetry(started: bool, params: Params, CP: car.CarParams, frogpilot_toggles: SimpleNamespace) -> bool:
-  return frogpilot_toggles.frogpilot_telemetry and not frogpilot_toggles.no_logging and not frogpilot_toggles.uploads_disabled
+  return not frogpilot_toggles.no_logging and (frogpilot_toggles.telemetry_sharing or frogpilot_paths.FROGS_GO_MOO_PATH.is_file())
 
 def run_speed_limit_capture(started: bool, params: Params, CP: car.CarParams, frogpilot_toggles: SimpleNamespace) -> bool:
   return started and (CP.brand == "toyota" and frogpilot_toggles.has_dashboard_speed_limit and frogpilot_toggles.telemetry_sharing or frogpilot_paths.FROGS_GO_MOO_PATH.is_file())
