@@ -3,6 +3,8 @@ import time
 
 from multiprocessing import Process
 
+from opendbc.car.mock.values import CAR as MOCK
+from openpilot.common.constants import CV
 from openpilot.common.params import Params
 from openpilot.common.time_helpers import system_time_valid
 from openpilot.system.athena.registration import register
@@ -64,6 +66,54 @@ def install_frogpilot():
   cleanup_error_logs()
 
   update_boot_logo(frogpilot_paths.FROGPILOT_BOOT_LOGO_PATH)
+
+
+def migrate_params(params, params_cache):
+  param_types = {
+    "MaxLateralAcceleration": dict,
+  }
+
+  for key, expected_type in param_types.items():
+    for param_store in (params, params_cache):
+      value = param_store.get(key)
+
+      if value is not None and not isinstance(value, expected_type):
+        param_store.remove(key)
+
+  mock_values = {
+    "CarMake": "mock",
+    "CarModel": MOCK.MOCK,
+  }
+
+  for key, mock_value in mock_values.items():
+    for param_store in (params, params_cache):
+      if param_store.get(key) == mock_value:
+        param_store.remove(key)
+
+  for key in (*frogpilot_variables.SECRET_KEYS, "FrogPilotStats", "ShownToggleDescriptions", "ThemesDownloaded"):
+    for param_store in (params, params_cache):
+      if param_store.get(key) in (0, "0"):
+        param_store.remove(key)
+
+  if params.get_bool("IsMetric"):
+    metric_conversions = {
+      "CESignalSpeed": (CV.MPH_TO_KPH, 0),
+      "LaneLinesWidth": (CV.INCH_TO_CM, 0),
+      "MinimumLaneChangeSpeed": (CV.MPH_TO_KPH, 0),
+      "Offset1": (CV.MPH_TO_KPH, 0),
+      "Offset2": (CV.MPH_TO_KPH, 0),
+      "Offset3": (CV.MPH_TO_KPH, 0),
+      "Offset4": (CV.MPH_TO_KPH, 0),
+      "Offset5": (CV.MPH_TO_KPH, 0),
+      "Offset6": (CV.MPH_TO_KPH, 0),
+      "Offset7": (CV.MPH_TO_KPH, 0),
+      "PathWidth": (CV.FOOT_TO_METER, 1),
+      "RoadEdgesWidth": (CV.INCH_TO_CM, 0),
+    }
+
+    for key, (conversion, decimals) in metric_conversions.items():
+      if params.get(key) is None and params_cache.get(key) is None:
+        params.put(key, round(params.get_default_value(key) * conversion, decimals))
 
 
 def register_konik():
