@@ -493,7 +493,6 @@ def migrate_frogpilotCarState(msgs):
   return [], add_ops, []
 
 
-# FrogPilot variables
 @migration(inputs=["carState", "selfdriveState"], product="frogpilotPlan")
 def migrate_frogpilotPlan(msgs):
   add_ops = []

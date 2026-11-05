@@ -18,8 +18,6 @@ from openpilot.system.updated.updated import FINALIZED
 from openpilot.frogpilot.common import frogpilot_backups, frogpilot_paths, frogpilot_utilities, frogpilot_variables
 from openpilot.frogpilot.system.the_pond import maps, utilities
 
-BACKUP_EXTENSION = ".tar.zst"
-
 MAX_SETTING_SIZE = 1024 * 1024
 
 OPENPILOT_FILES = ("launch_chffrplus.sh", "launch_openpilot.sh")
@@ -59,7 +57,7 @@ def get_settings_backup(name):
 
 
 def get_frogpilot_backup(name):
-  path = frogpilot_paths.FROGPILOT_BACKUPS / f"{name}{BACKUP_EXTENSION}"
+  path = frogpilot_paths.FROGPILOT_BACKUPS / f"{name}{frogpilot_variables.BACKUP_EXTENSION}"
 
   if not path.is_file():
     path = frogpilot_paths.FROGPILOT_BACKUPS / name
@@ -94,7 +92,7 @@ def list_backups(directory):
       backups.append({
         "automatic": frogpilot_variables.AUTOMATIC_BACKUP_SUFFIX in path.name,
         "modified": int(path.stat().st_mtime),
-        "name": path.name.removesuffix(BACKUP_EXTENSION),
+        "name": path.name.removesuffix(frogpilot_variables.BACKUP_EXTENSION),
         "size": get_backup_size(path),
       })
   return sorted(backups, key=lambda backup: backup["modified"], reverse=True)
@@ -268,8 +266,8 @@ def is_frogpilot_backup(path):
 
 
 async def create_frogpilot_backup(the_pond, name):
-  destination = frogpilot_paths.FROGPILOT_BACKUPS / f"{name}{BACKUP_EXTENSION}"
-  in_progress_destination = frogpilot_paths.FROGPILOT_BACKUPS / f"{name}{frogpilot_variables.IN_PROGRESS_BACKUP_SUFFIX}{BACKUP_EXTENSION}"
+  destination = frogpilot_paths.FROGPILOT_BACKUPS / f"{name}{frogpilot_variables.BACKUP_EXTENSION}"
+  in_progress_destination = frogpilot_paths.FROGPILOT_BACKUPS / f"{name}{frogpilot_variables.IN_PROGRESS_BACKUP_SUFFIX}{frogpilot_variables.BACKUP_EXTENSION}"
 
   try:
     await utilities.run_heavy_process(the_pond, ["tar", "--use-compress-program=zstd", "-cf", str(in_progress_destination),
@@ -335,7 +333,7 @@ async def receive_frogpilot_backup(the_pond, reader):
     raise web.HTTPBadRequest(text="invalid_name")
 
   name = get_backup_name(await field.text())
-  destination = frogpilot_paths.FROGPILOT_BACKUPS / f"{name}{BACKUP_EXTENSION}"
+  destination = frogpilot_paths.FROGPILOT_BACKUPS / f"{name}{frogpilot_variables.BACKUP_EXTENSION}"
   if destination.exists():
     raise web.HTTPConflict(text="name_in_use")
 
@@ -344,7 +342,7 @@ async def receive_frogpilot_backup(the_pond, reader):
     raise web.HTTPBadRequest(text="invalid_file")
 
   frogpilot_paths.FROGPILOT_BACKUPS.mkdir(parents=True, exist_ok=True)
-  in_progress_destination = frogpilot_paths.FROGPILOT_BACKUPS / f"{name}{frogpilot_variables.IN_PROGRESS_BACKUP_SUFFIX}{BACKUP_EXTENSION}"
+  in_progress_destination = frogpilot_paths.FROGPILOT_BACKUPS / f"{name}{frogpilot_variables.IN_PROGRESS_BACKUP_SUFFIX}{frogpilot_variables.BACKUP_EXTENSION}"
   try:
     with open(in_progress_destination, "wb") as file:
       while chunk := await field.read_chunk(utilities.STREAM_CHUNK_SIZE):
@@ -364,7 +362,7 @@ async def receive_frogpilot_backup(the_pond, reader):
 async def create_frogpilot_backup_route(request):
   the_pond = request.app[utilities.THE_POND]
   name = get_backup_name((await utilities.read_json(request)).get("name"))
-  if (frogpilot_paths.FROGPILOT_BACKUPS / f"{name}{BACKUP_EXTENSION}").exists():
+  if (frogpilot_paths.FROGPILOT_BACKUPS / f"{name}{frogpilot_variables.BACKUP_EXTENSION}").exists():
     raise web.HTTPConflict(text="name_in_use")
 
   frogpilot_paths.FROGPILOT_BACKUPS.mkdir(parents=True, exist_ok=True)
@@ -400,7 +398,7 @@ async def download_frogpilot_backup(request):
 
   if path.is_dir():
     command = ["tar", "--use-compress-program=zstd", "-cf", "-", "-C", str(path.parent), path.name]
-    return await utilities.stream_process(request, command, f"{path.name}{BACKUP_EXTENSION}")
+    return await utilities.stream_process(request, command, f"{path.name}{frogpilot_variables.BACKUP_EXTENSION}")
 
   return web.FileResponse(path, headers={"Content-Disposition": f'attachment; filename="{path.name}"'})
 

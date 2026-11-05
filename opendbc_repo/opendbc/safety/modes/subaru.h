@@ -90,7 +90,6 @@ static bool subaru_raised_steer_limit = false;
 static SubaruSngTx subaru_brake_pedal_tx = {.active = false, .ts_last = 0U};
 static SubaruSngTx subaru_throttle_tx = {.active = false, .ts_last = 0U};
 
-// FrogPilot variables
 static bool subaru_sng_tx_active(SubaruSngTx *sng_tx) {
   const uint32_t SUBARU_SNG_TX_TIMEOUT = 100000U;
 

@@ -193,6 +193,7 @@ class SelfdriveD:
         self.frogpilot_events.add(self.startup_event)
       else:
         self.events.add(self.startup_event)
+
       self.startup_event = None
 
     # Don't add any more events if not initialized
@@ -379,7 +380,6 @@ class SelfdriveD:
       self.events.add(EventName.canError)
 
     # generic catch-all. ideally, a more specific event should be added above instead
-    # FrogPilot variables
     has_disable_events = frogpilot_utilities.contains_event_type(self.events, self.frogpilot_events, ET.NO_ENTRY) and \
                          frogpilot_utilities.contains_event_type(self.events, self.frogpilot_events, ET.SOFT_DISABLE, ET.IMMEDIATE_DISABLE)
     no_system_errors = (not has_disable_events) or (len(self.events) == num_events)

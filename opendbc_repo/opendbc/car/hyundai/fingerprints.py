@@ -21,6 +21,8 @@ FW_VERSIONS = {
       b'\xf1\x00IG  MFC  AT MES LHD 1.00 1.05 99211-G8100 210409',
     ],
   },
+
+  # FrogPilot variables
   CAR.HYUNDAI_AZERA_DIESEL_6TH_GEN: {
     (Ecu.fwdRadar, 0x7d0, None): [
       b'\xf1\x00IG__ SCC FHCUP      1.00 1.01 96400-G8500         ',
@@ -32,6 +34,7 @@ FW_VERSIONS = {
       b'\xf1\x00IG  MFC  AT KOR LHD 1.00 1.00 95740-M9200 170919',
     ],
   },
+
   CAR.HYUNDAI_AZERA_HEV_6TH_GEN: {
     (Ecu.fwdCamera, 0x7c4, None): [
       b'\xf1\x00IGH MFC  AT KOR LHD 1.00 1.00 99211-G8000 180903',

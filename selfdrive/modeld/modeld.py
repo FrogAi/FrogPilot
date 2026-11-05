@@ -277,6 +277,7 @@ def main(demo=False):
     model = frogpilot_model_utilities.LegacyModelState(cl_context, model_path)
   else:
     model = ModelState(cl_context, model_path)
+
   cloudlog.warning(f"models loaded in {time.monotonic() - st:.1f}s, modeld starting")
 
   # visionipc clients

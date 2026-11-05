@@ -279,6 +279,7 @@ def main(demo=False):
         msg.liveTorqueParameters.latAccelFactorFiltered = float(frogpilot_toggles.latAccelFactor)
       if frogpilot_toggles.use_custom_friction:
         msg.liveTorqueParameters.frictionCoefficientFiltered = float(frogpilot_toggles.friction)
+
       pm.send('liveTorqueParameters', msg)
 
     # Cache points every 60 seconds while onroad

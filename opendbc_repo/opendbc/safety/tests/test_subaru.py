@@ -189,7 +189,6 @@ class TestSubaruGen1TorqueRaisedSteerLimitStockLongitudinalSafety(TestSubaruGen1
   MAX_TORQUE_LOOKUP = [0], [3071]
 
 
-# FrogPilot variables
 class TestSubaruSngForwarding(unittest.TestCase):
   TX_MSGS = None
   SNG_MSGS = {CarParams.SafetyModel.subaru: (0x40, 0x139), CarParams.SafetyModel.subaruPreglobal: (0x140,)}

@@ -5,7 +5,6 @@ import subprocess
 import time
 
 from multiprocessing import Process
-from pathlib import Path
 
 from cereal import messaging
 from opendbc.car.mock.values import CAR as MOCK
@@ -132,9 +131,9 @@ def frogpilot_boot_functions(build_metadata, params):
       if isinstance(data, dict):
         new_items = []
         for nation in data.get("nations", []):
-          new_items.append(f"nation.{nation}")
+          new_items.append(f"{frogpilot_variables.MAP_COUNTRY_PREFIX}{nation}")
         for state in data.get("states", []):
-          new_items.append(f"us_state.{state.replace('GU', 'GM')}")
+          new_items.append(f"{frogpilot_variables.MAP_STATE_PREFIX}{state.replace('GU', 'GM')}")
         new_items.sort()
         params.put("MapsSelected", ",".join(new_items))
     except json.JSONDecodeError:
@@ -276,7 +275,7 @@ def run_frogsgomoo(build_metadata):
 
 
 def soft_reboot():
-  Path("/tmp/booted").touch()
+  frogpilot_paths.BOOTED_PATH.touch()
 
   subprocess.check_call(["sudo", "systemctl", "restart", "--no-block", "comma"])
 
@@ -362,7 +361,7 @@ def update_maps(now, params, cancel_download, sm, manual_update=False):
 def update_openpilot(thread_manager, params):
   def signal_updater(signal, fail_message):
     last_run = params.get("UpdaterLastRunTime")
-    if frogpilot_utilities.run_cmd(["pkill", signal, "-f", "system.updated.updated"], fail_message, report=False) is None:
+    if frogpilot_utilities.run_cmd(["pkill", signal, "-f", frogpilot_variables.UPDATER_PROCESS], fail_message, report=False) is None:
       return False
 
     while params.get("UpdaterLastRunTime") == last_run:

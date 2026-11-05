@@ -97,6 +97,7 @@ public slots:
 
   // FrogPilot variables
   void refreshMetric(bool isMetric);
+
   void scrollToToggle(const QString &param);
 
 private slots:

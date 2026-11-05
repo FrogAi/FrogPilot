@@ -25,6 +25,7 @@ QMap<int, QString> DeveloperPanel::developerMetricOptions() {
 }
 
 DeveloperPanel::DeveloperPanel(SettingsWindow *parent) : QFrame(parent) {
+  // FrogPilot variables
   mainLayout = new QStackedLayout(this);
 
   mainWidget = new QWidget(this);

@@ -133,6 +133,7 @@ void ModelRenderer::update_model(const cereal::ModelDataV2::Reader &model, const
     }
   }
   float inner_path_width = path_width * (1 - frogpilot_toggles.value(QLatin1String("path_edge_width")).toDouble() / 100.0f);
+
   mapLineToPolygon(model_position, frogpilot_toggles.value(QLatin1String("model_ui")).toBool() ? inner_path_width : 0.9, path_offset_z, &track_vertices, max_idx, false);
 
   // FrogPilot variables
@@ -172,6 +173,7 @@ void ModelRenderer::drawLaneLines(QPainter &painter) {
       lane_color.setAlphaF(lane_color.alphaF() * std::clamp<float>(lane_line_probs[i], 0.0, 0.7));
       painter.setBrush(lane_color);
     }
+
     painter.drawPolygon(lane_line_vertices[i]);
   }
 

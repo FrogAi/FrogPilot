@@ -221,7 +221,7 @@ class LateralLagEstimator:
 
     # FrogPilot variables
     if self.frogpilot_toggles.use_custom_steerActuatorDelay:
-      liveDelay.lateralDelay = self.frogpilot_toggles.steerActuatorDelay + frogpilot_variables.LATERAL_DELAY_OFFSET
+      liveDelay.lateralDelay = self.frogpilot_toggles.steerActuatorDelay
     elif liveDelay.status == log.LiveDelayData.Status.estimated:
       liveDelay.lateralDelay = valid_mean_lag
     else:

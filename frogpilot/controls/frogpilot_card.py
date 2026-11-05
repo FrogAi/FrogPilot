@@ -27,6 +27,7 @@ class FrogPilotCard:
     self.onroad_distance_button = False
     self.pause_lateral = False
     self.pause_longitudinal = False
+    self.steering_disengaged = False
     self.traffic_mode_enabled = False
 
     self.accel_press_count = 0
@@ -87,6 +88,8 @@ class FrogPilotCard:
           self.always_on_lateral_allowed = not self.always_on_lateral_allowed
 
         self.always_on_lateral_allowed |= any(panda_state.controlsAllowed for panda_state in sm["pandaStates"])
+    elif frogpilot_toggles.always_on_lateral_main and self.CP.brand == "tesla":
+      self.always_on_lateral_allowed = True
     elif frogpilot_toggles.always_on_lateral_main:
       self.always_on_lateral_allowed |= sm["carControl"].enabled or not self.cruise_available_previously
       self.always_on_lateral_allowed &= carState.cruiseState.available
@@ -103,6 +106,11 @@ class FrogPilotCard:
       self.lkas_press_used = not any(not be.pressed and be.type == ButtonType.lkas for be in carState.buttonEvents)
       carState.buttonEvents = [be.copy() for be in carState.buttonEvents if be.type != ButtonType.lkas]
 
+    if carState.steeringDisengage:
+      self.steering_disengaged = True
+    elif not carState.steeringPressed:
+      self.steering_disengaged = False
+
     self.always_on_lateral_enabled = self.always_on_lateral_allowed and self.always_on_lateral_set and frogpilot_toggles.always_on_lateral
     self.always_on_lateral_enabled &= carState.gearShifter not in frogpilot_variables.NON_DRIVING_GEARS
     self.always_on_lateral_enabled &= sm["frogpilotPlan"].lateralCheck
@@ -111,6 +119,7 @@ class FrogPilotCard:
     self.always_on_lateral_enabled &= not any(event.name == EventName.tooDistracted for event in sm["onroadEvents"])
     self.always_on_lateral_enabled &= not (carState.brakePressed and carState.vEgo < frogpilot_toggles.always_on_lateral_pause_speed) or carState.standstill
     self.always_on_lateral_enabled &= not frogpilot_paths.ERROR_LOG_PATH.is_file() or self.frogs_go_moo
+    self.always_on_lateral_enabled &= not self.steering_disengaged
 
     if any(be.pressed and be.type in (ButtonType.accelCruise, ButtonType.resumeCruise) for be in carState.buttonEvents):
       self.accel_press_count += 1

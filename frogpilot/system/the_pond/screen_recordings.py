@@ -69,6 +69,9 @@ async def prepare_preview(the_pond, path):
   preview_path = get_cache_path(path, "timelapse.mp4")
   async with the_pond.file_locks.setdefault(preview_path, asyncio.Lock()):
     if not preview_path.is_file():
+      if not await dashcam.is_readable(path):
+        return None
+
       duration = await dashcam.get_duration(path)
       await dashcam.create_timelapse(the_pond, preview_path, str(path), duration, PREVIEW_KEYFRAME_SPACING, f",scale={dashcam.THUMBNAIL_WIDTH}:-2")
   return preview_path
@@ -76,9 +79,6 @@ async def prepare_preview(the_pond, path):
 
 async def prepare_recordings(the_pond, previous_recordings):
   for path in get_recording_paths() - previous_recordings:
-    if not await dashcam.is_readable(path):
-      continue
-
     await utilities.run_and_report(prepare_thumbnail(the_pond, path))
     await utilities.run_and_report(prepare_preview(the_pond, path))
 
@@ -87,6 +87,9 @@ async def prepare_thumbnail(the_pond, path):
   thumbnail_path = get_cache_path(path, "thumbnail.jpg")
   async with the_pond.file_locks.setdefault(thumbnail_path, asyncio.Lock()):
     if not thumbnail_path.is_file():
+      if not await dashcam.is_readable(path):
+        return None
+
       await dashcam.create_thumbnail(the_pond, thumbnail_path, path, ["-vf", f"scale={dashcam.THUMBNAIL_WIDTH}:-2"])
   return thumbnail_path
 
@@ -136,13 +139,21 @@ async def get_video(request):
 async def get_preview(request):
   the_pond = request.app[utilities.THE_POND]
   path = get_recording(request)
-  return web.FileResponse(await prepare_preview(the_pond, path))
+
+  preview_path = await prepare_preview(the_pond, path)
+  if preview_path is None:
+    raise web.HTTPNotFound(text="not_found")
+  return web.FileResponse(preview_path)
 
 
 @routes.get("/api/screen_recordings/{name}/thumbnail")
 async def get_thumbnail(request):
   path = get_recording(request)
-  return web.FileResponse(await prepare_thumbnail(request.app[utilities.THE_POND], path))
+
+  thumbnail_path = await prepare_thumbnail(request.app[utilities.THE_POND], path)
+  if thumbnail_path is None:
+    raise web.HTTPNotFound(text="not_found")
+  return web.FileResponse(thumbnail_path)
 
 
 @routes.put("/api/screen_recordings/{name}/name")

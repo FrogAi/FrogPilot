@@ -25,7 +25,6 @@ PITCH_DEADZONE = 0.01
 PITCH_FILTER_TIME_CONSTANT = 0.09 * LONGITUDINAL_STEP
 
 
-# FrogPilot variables
 def apply_deadzone(error, deadzone):
   if error > deadzone:
     error -= deadzone

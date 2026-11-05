@@ -81,7 +81,7 @@ def extract_binaries(archive_path):
     path.rename(frogpilot_paths.TAILSCALE_PATH / binary)
 
 
-async def install(the_pond, progress):
+async def install(progress):
   frogpilot_paths.TAILSCALE_PATH.mkdir(parents=True, exist_ok=True)
   archive_path = frogpilot_paths.TAILSCALE_PATH / ".download.tgz"
 
@@ -110,7 +110,6 @@ async def install(the_pond, progress):
     archive_path.unlink(missing_ok=True)
 
   frogpilot_paths.TAILSCALE_STATE_PATH.mkdir(exist_ok=True)
-  the_pond.send_request("updateToggles")
 
 
 async def login(the_pond):
@@ -129,7 +128,6 @@ async def login(the_pond):
 async def uninstall(the_pond):
   for binary in TAILSCALE_BINARIES:
     (frogpilot_paths.TAILSCALE_PATH / binary).unlink(missing_ok=True)
-  the_pond.send_request("updateToggles")
 
   for _ in range(STOP_TIMEOUT):
     if not any(process.name == "tailscaled" and process.running for process in the_pond.sm["managerState"].processes):
@@ -168,7 +166,7 @@ async def install_tailscale(request):
     raise web.HTTPConflict(text="offline")
 
   progress = {"downloaded": 0, "kind": "install", "total": 0}
-  utilities.start_job(the_pond, "tailscale", install(the_pond, progress), progress)
+  utilities.start_job(the_pond, "tailscale", install(progress), progress)
   return web.Response(status=202)
 
 

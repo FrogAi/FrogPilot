@@ -35,7 +35,6 @@ def calculate_speed_limit(CP, cp, cp_cam):
   return speed_limit if speed_limit not in (0, 255) else 0
 
 
-# FrogPilot variables
 def create_sampled_button_events(button_samples, prev_button, buttons_dict):
   events = []
   for button in button_samples:

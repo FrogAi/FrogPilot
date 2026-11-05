@@ -66,6 +66,7 @@ FROGPILOT_EVENT_NAME = {v: k for k, v in FrogPilotEventName.schema.enumerants.it
 
 class Events:
   def __init__(self, frogpilot=False):
+    # FrogPilot variables
     self.event_names = FROGPILOT_EVENT_NAME if frogpilot else EVENT_NAME
     self.event_struct = custom.FrogPilotOnroadEvent if frogpilot else log.OnroadEvent
     self.event_table = FROGPILOT_EVENTS if frogpilot else EVENTS

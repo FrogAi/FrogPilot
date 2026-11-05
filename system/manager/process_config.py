@@ -82,7 +82,7 @@ def run_speed_limit_reader(started: bool, params: Params, CP: car.CarParams, fro
   return started and (frogpilot_toggles.show_speed_limits or frogpilot_toggles.speed_limit_controller or frogpilot_toggles.speed_limit_filler)
 
 def run_tailscale(started: bool, params: Params, CP: car.CarParams, frogpilot_toggles: SimpleNamespace) -> bool:
-  return frogpilot_toggles.tailscale_installed
+  return frogpilot_paths.TAILSCALED_PATH.is_file()
 
 procs = [
   DaemonProcess("manage_athenad", "system.athena.manage_athenad", "AthenadPid"),

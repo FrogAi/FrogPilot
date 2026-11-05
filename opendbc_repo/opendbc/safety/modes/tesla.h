@@ -161,7 +161,7 @@ static void tesla_rx_hook(const CANPacket_t *msg) {
       pcm_cruise_check(cruise_engaged);
 
       // FrogPilot variables
-      acc_main_on = ((cruise_state == 1) || cruise_engaged) && !tesla_autopark;
+      acc_main_on = !tesla_autopark;
     }
 
     if (msg->addr == 0x155U) {
@@ -228,14 +228,14 @@ static bool tesla_tx_hook(const CANPacket_t *msg) {
     int raw_angle_can = ((msg->data[0] & 0x7FU) << 8) | msg->data[1];
     int desired_angle = raw_angle_can - 16384;
     int steer_control_type = msg->data[2] >> 5;  // DAS_steeringControlType
-    bool steer_control_enabled = steer_control_type == 1;  // ANGLE_CONTROL
+    bool steer_control_enabled = steer_control_type == 2;  // LANE_KEEP_ASSIST
 
     if (steer_angle_cmd_checks_vm(desired_angle, steer_control_enabled, TESLA_STEERING_LIMITS, TESLA_STEERING_PARAMS)) {
       violation = true;
     }
 
     bool valid_steer_control_type = (steer_control_type == 0) ||  // NONE
-                                    (steer_control_type == 1);    // ANGLE_CONTROL
+                                    (steer_control_type == 2);    // LANE_KEEP_ASSIST
     if (!valid_steer_control_type) {
       violation = true;
     }

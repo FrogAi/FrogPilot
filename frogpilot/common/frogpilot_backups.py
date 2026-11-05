@@ -18,7 +18,8 @@ def backup_frogpilot(build_metadata, params):
   cleanup_backups(frogpilot_paths.FROGPILOT_BACKUPS, maximum_backups)
 
   today = datetime.datetime.now().date()
-  for backup in frogpilot_paths.FROGPILOT_BACKUPS.glob(f"*_{build_metadata.channel}{frogpilot_variables.AUTOMATIC_BACKUP_SUFFIX}.tar.zst"):
+  backup_pattern = f"*_{build_metadata.channel}{frogpilot_variables.AUTOMATIC_BACKUP_SUFFIX}{frogpilot_variables.BACKUP_EXTENSION}"
+  for backup in frogpilot_paths.FROGPILOT_BACKUPS.glob(backup_pattern):
     made_today = datetime.datetime.fromtimestamp(backup.stat().st_mtime).date() == today
     same_commit = backup.name.startswith(f"{build_metadata.openpilot.git_commit}_")
     if made_today and not same_commit:
@@ -30,12 +31,13 @@ def backup_frogpilot(build_metadata, params):
     return
 
   backup_name = f"{build_metadata.openpilot.git_commit}_{build_metadata.channel}{frogpilot_variables.AUTOMATIC_BACKUP_SUFFIX}"
-  destination = frogpilot_paths.FROGPILOT_BACKUPS / f"{backup_name}.tar.zst"
+  destination = frogpilot_paths.FROGPILOT_BACKUPS / f"{backup_name}{frogpilot_variables.BACKUP_EXTENSION}"
   if destination.exists():
     print("Backup already exists. Aborting...")
     return
 
-  in_progress_destination = frogpilot_paths.FROGPILOT_BACKUPS / f"{backup_name}{frogpilot_variables.IN_PROGRESS_BACKUP_SUFFIX}.tar.zst"
+  in_progress_name = f"{backup_name}{frogpilot_variables.IN_PROGRESS_BACKUP_SUFFIX}{frogpilot_variables.BACKUP_EXTENSION}"
+  in_progress_destination = frogpilot_paths.FROGPILOT_BACKUPS / in_progress_name
   with open(in_progress_destination, "wb") as backup_file:
     compressor = zstd.ZstdCompressor()
     with compressor.stream_writer(backup_file) as stream:
@@ -62,7 +64,7 @@ def backup_frogpilot(build_metadata, params):
 
 
 def backup_toggles(params, boot_run=False):
-  params_backup = Params("/dev/shm/params_backup", return_defaults=True)
+  params_backup = Params(str(frogpilot_paths.PARAMS_BACKUP_PATH), return_defaults=True)
 
   changes_found = False
   for key in frogpilot_variables.SETTINGS_BACKUP_KEYS:

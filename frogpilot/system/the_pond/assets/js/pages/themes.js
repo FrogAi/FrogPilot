@@ -247,13 +247,14 @@ P.page("themes", {
   title: "Themes",
   async render(params) {
     const data = await P.get("/api/themes");
-    const shown = partFor(params.get("part")) || PARTS[0];
+    const parts = PARTS.filter(part => part.component !== "distance_icons" || !P.state.comma_four);
+    const shown = parts.find(part => part.component === params.get("part")) || parts[0];
     return {
       body: `
       <div class="themes">
         ${notices(data)}
-        <div class="seg" role="group" aria-label="Part of the theme">${PARTS.map(part => `<button type="button" data-act="themes-show" data-component="${part.component}" aria-pressed="${part === shown}">${part.title}</button>`).join("")}</div>
-        ${PARTS.map(part => partHTML(part, data, part === shown)).join("")}
+        <div class="seg" role="group" aria-label="Part of the theme">${parts.map(part => `<button type="button" data-act="themes-show" data-component="${part.component}" aria-pressed="${part === shown}">${part.title}</button>`).join("")}</div>
+        ${parts.map(part => partHTML(part, data, part === shown)).join("")}
       </div>`,
       mount: root => {
         root.querySelectorAll("[data-part]").forEach(part => part.addEventListener("change", () => updatePicked(part)));

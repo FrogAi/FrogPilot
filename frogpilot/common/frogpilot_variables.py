@@ -153,6 +153,7 @@ UPLOAD_PENDING = b"pending"
 VALID_NAME_PATTERN = re.compile(r"[A-Za-z0-9._-]+")
 
 AUTOMATIC_BACKUP_SUFFIX = "_auto"
+BACKUP_EXTENSION = ".tar.zst"
 IN_PROGRESS_BACKUP_SUFFIX = "_in_progress"
 SCREEN_RECORDING_COMPANION_SUFFIXES = (".gif", ".png")
 
@@ -1790,9 +1791,6 @@ class FrogPilotVariables:
     toggle.subaru_sng = self.get_value("SubaruSNG")
 
     toggle.taco_tune_hacks = self.get_value("TacoTuneHacks")
-
-    toggle.tailscale_installed = (frogpilot_paths.TAILSCALE_PATH / "tailscaled").is_file()
-
 
     toggle.can_use_dsu_bypass = toggle.car_make == "toyota" and not toggle.has_sdsu and not CP.flags & (ToyotaFlags.NO_DSU | ToyotaFlags.UNSUPPORTED_DSU)
     toggle.toyota_dsu_bypass = self.get_value("ToyotaDSUBypass")

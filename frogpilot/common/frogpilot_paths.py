@@ -25,9 +25,12 @@ THEME_SIZES_PATH = THEME_SAVE_PATH / "theme_sizes.json"
 
 BACKUP_PATH = Path("/cache/on_backup")
 FROGPILOT_BACKUPS = Path("/data/backups")
+PARAMS_BACKUP_PATH = Path("/dev/shm/params_backup")
 PARAMS_CACHE_PATH = Path("/cache/params")
 RESTORE_TEMP_PATH = Path("/data/restore_temp")
 TOGGLE_BACKUPS = Path("/data/toggle_backups")
+
+BOOTED_PATH = Path("/tmp/booted")
 
 BOOT_LOGO_PATH = Path("/usr/comma/bg.jpg")
 FROGPILOT_BOOT_LOGO_PATH = Path(BASEDIR) / "frogpilot/assets/other_images/frogpilot_boot_logo.jpg"
@@ -80,6 +83,7 @@ SPEED_LIMIT_READER_MODEL_PATH = Path("/data/speed_limit_reader_model")
 SPEED_LIMIT_READER_MANIFEST_PATH = SPEED_LIMIT_READER_MODEL_PATH / "manifest.json"
 
 TAILSCALE_PATH = Path("/data/tailscale")
+TAILSCALED_PATH = TAILSCALE_PATH / "tailscaled"
 TAILSCALE_SOCKET_PATH = TAILSCALE_PATH / "tailscaled.sock"
 TAILSCALE_STATE_PATH = TAILSCALE_PATH / "state"
 

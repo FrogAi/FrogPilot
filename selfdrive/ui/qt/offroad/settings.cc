@@ -627,6 +627,8 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QFrame(parent) {
     {tr("Toggles"), toggles},
     {tr("Software"), new SoftwarePanel(this)},
     {tr("Developer"), developerPanel},
+
+    // FrogPilot variables
     {tr("FrogPilot"), frogpilotSettingsWindow},
   };
 
@@ -669,6 +671,7 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QFrame(parent) {
       if (panelOpen || subPanelOpen) {
         closeAllPanels();
       }
+
       btn->setChecked(true);
       panel_widget->setCurrentWidget(w);
     });

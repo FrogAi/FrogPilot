@@ -94,7 +94,9 @@ class CarInterface(CarInterfaceBase):
       ret.longitudinalTuning.kiBP = [0., 5., 35.]
       ret.longitudinalTuning.kiV = [1.2, 0.8, 0.5]
 
+    # FrogPilot variables
     eps_modified = False
+
     for fw in car_fw:
       if fw.ecu == "eps" and b"," in fw.fwVersion:
         eps_modified = True

@@ -134,6 +134,7 @@ def manager_thread() -> None:
 
   # FrogPilot variables
   dongle_id = params.get("DongleId")
+
   if dongle_id in (None, UNREGISTERED_DONGLE_ID) or not all(c in string.hexdigits for c in dongle_id):
     ignore += ["manage_athenad", "uploader"]
   if os.getenv("NOBOARD") is not None:

@@ -247,6 +247,7 @@ void Device::updateWakefulness(const UIState &s) {
   const bool standby_mode = frogpilot_toggles.value(QLatin1String("standby_mode")).toBool();
 
   bool ignition_just_turned_on = s.scene.ignition && !ignition_on;
+
   bool ignition_just_turned_off = !s.scene.ignition && ignition_on;
   ignition_on = s.scene.ignition;
 

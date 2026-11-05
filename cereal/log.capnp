@@ -1257,6 +1257,7 @@ struct LongitudinalPlan @0xe00b5b3eba12876c {
 
   solverExecutionTime @35 :Float32;
 
+  # FrogPilot variables
   leadTrajectoryX0 @40 :List(Float32);
   leadTrajectoryV0 @41 :List(Float32);
   leadTrajectoryX1 @42 :List(Float32);
