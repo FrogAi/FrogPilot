@@ -44,6 +44,7 @@ def manager_init() -> None:
   # FrogPilot variables
   params_cache = Params(str(frogpilot_paths.PARAMS_CACHE_PATH))
 
+  frogpilot_functions.migrate_params(params, params_cache)
   frogpilot_functions.sync_params_cache(params, params_cache)
 
   # set unset params to their default value
