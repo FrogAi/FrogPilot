@@ -1,10 +1,11 @@
 import numpy as np
+import random
 from opendbc.can import CANPacker
-from opendbc.car import Bus
+from opendbc.car import Bus, DT_CTRL
 from opendbc.car.lateral import apply_steer_angle_limits_vm
 from opendbc.car.interfaces import CarControllerBase
 from opendbc.car.tesla.teslacan import TeslaCAN
-from opendbc.car.tesla.values import CarControllerParams
+from opendbc.car.tesla.values import CarControllerParams, STEER_THRESHOLD
 from opendbc.car.vehicle_model import VehicleModel
 
 
@@ -25,6 +26,12 @@ class CarController(CarControllerBase):
     # Vehicle model used for lateral limiting
     self.VM = VehicleModel(get_safety_CP())
 
+    # FrogPilot variables
+    self.wheel_share = 1.0
+
+    # Temporary: compares follow_driver against no change across the tester's drives
+    self.follow_driver_enabled = random.random() < 0.5
+
   def update(self, CC, CS, now_nanos):
     actuators = CC.actuators
     can_sends = []
@@ -34,9 +41,12 @@ class CarController(CarControllerBase):
     # Canceling is done on rising edge and is handled generically with CC.cruiseControl.cancel
     lat_active = CC.latActive and CS.hands_on_level < 3
 
+    # FrogPilot variables
+    steering_angle = self.follow_driver(actuators.steeringAngleDeg, lat_active and not CC.enabled and self.follow_driver_enabled, CS)
+
     if self.frame % 2 == 0:
       # Angular rate limit based on speed
-      self.apply_angle_last = apply_steer_angle_limits_vm(actuators.steeringAngleDeg, self.apply_angle_last, CS.out.vEgoRaw, CS.out.steeringAngleDeg,
+      self.apply_angle_last = apply_steer_angle_limits_vm(steering_angle, self.apply_angle_last, CS.out.vEgoRaw, CS.out.steeringAngleDeg,
                                                           lat_active, CarControllerParams, self.VM)
 
       can_sends.append(self.tesla_can.create_steering_control(self.apply_angle_last, lat_active))
@@ -64,3 +74,16 @@ class CarController(CarControllerBase):
 
     self.frame += 1
     return new_actuators, can_sends
+
+  # FrogPilot variables
+  def follow_driver(self, steering_angle, following, CS):
+    if not following:
+      self.wheel_share = 1.0
+      return steering_angle
+
+    torque_range = CarControllerParams.ALWAYS_ON_LATERAL_GIVE_UP_TORQUE - STEER_THRESHOLD
+    driver_share = (abs(CS.out.steeringTorque) - STEER_THRESHOLD) / torque_range
+    returning_share = self.wheel_share - DT_CTRL / CarControllerParams.ALWAYS_ON_LATERAL_RETURN_TIME
+    self.wheel_share = np.clip(max(driver_share, returning_share), 0, 1)
+
+    return steering_angle + (CS.out.steeringAngleDeg - steering_angle) * self.wheel_share

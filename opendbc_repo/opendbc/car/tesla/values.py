@@ -116,6 +116,10 @@ class CarControllerParams:
   JERK_LIMIT_MAX = 4.9  # m/s^3, ACC faults at 5.0
   JERK_LIMIT_MIN = -4.9  # m/s^3, ACC faults at 5.0
 
+  # FrogPilot variables
+  ALWAYS_ON_LATERAL_GIVE_UP_TORQUE = 2.5  # Nm
+  ALWAYS_ON_LATERAL_RETURN_TIME = 0.5  # s
+
 
 class TeslaSafetyFlags(IntFlag):
   LONG_CONTROL = 1
