@@ -424,7 +424,7 @@ def is_unmetered_network(device_state):
 
 
 def is_unset_secret(key, value):
-  return key in frogpilot_variables.SECRET_KEYS and value in (b"", b"[]")
+  return key in frogpilot_variables.SECRET_KEYS and value in (b"", b"[]", b"0")
 
 
 def is_url_pingable(url, session=requests):

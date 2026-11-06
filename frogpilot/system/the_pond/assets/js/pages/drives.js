@@ -53,6 +53,7 @@ const THUMB_MAP_HEIGHT = 200;
 const THUMB_MAP_WIDTH = 320;
 const THUMB_RETRIES = 3;
 const THUMB_RETRY_DELAY = 2000;
+const UNKNOWN_DATE = "Unknown date";
 
 const hiddenKinds = new Set(["gear"]);
 const lengths = new Map();
@@ -75,14 +76,28 @@ function dayValue(t) {
 function latestDay(items) {
   let latest = 0;
   for (const item of items) {
-    latest = Math.max(latest, item.date);
+    if (item.date !== null) {
+      latest = Math.max(latest, item.date);
+    }
+  }
+
+  if (!latest) {
+    return dayValue(P.now());
   }
 
   return dayValue(latest);
 }
 
 function itemTitle(item) {
-  return item.name || `${P.dayLabel(item.date)}, ${P.timeLabel(item.date)}`;
+  if (item.name) {
+    return item.name;
+  }
+
+  if (item.date === null) {
+    return UNKNOWN_DATE;
+  }
+
+  return `${P.dayLabel(item.date)}, ${P.timeLabel(item.date)}`;
 }
 
 function flag(icon, label) {
@@ -98,7 +113,7 @@ function byName(a, b) {
     return 1;
   }
 
-  return a.name.localeCompare(b.name) || b.date - a.date;
+  return a.name.localeCompare(b.name);
 }
 
 function filtered(state) {
@@ -107,7 +122,12 @@ function filtered(state) {
   const today = P.dayIndex(P.now());
   const shown = state.items.filter(item => {
     if (q) {
-      const hay = `${kind.search(item)} ${P.dayLabel(item.date)} ${P.fmt(item.date, { weekday: "long", month: "long", day: "numeric" })} ${P.timeLabel(item.date)}`.toLowerCase();
+      let when = UNKNOWN_DATE;
+      if (item.date !== null) {
+        when = `${P.dayLabel(item.date)} ${P.fmt(item.date, { weekday: "long", month: "long", day: "numeric" })} ${P.timeLabel(item.date)}`;
+      }
+
+      const hay = `${kind.search(item)} ${when}`.toLowerCase();
       if (!hay.includes(q)) {
         return false;
       }
@@ -117,6 +137,11 @@ function filtered(state) {
         return false;
       }
     }
+
+    if (item.date === null) {
+      return true;
+    }
+
     const age = today - P.dayIndex(item.date);
     if (f.date === "today" && age !== 0) {
       return false;
@@ -138,9 +163,13 @@ function filtered(state) {
   const sorters = {
     largest: (a, b) => b.size - a.size,
     longest: (a, b) => b.duration - a.duration,
-    name: byName,
-    newest: (a, b) => b.date - a.date,
-    oldest: (a, b) => a.date - b.date
+    name: (a, b) => {
+      return byName(a, b) || kind.newer(a, b);
+    },
+    newest: kind.newer,
+    oldest: (a, b) => {
+      return kind.newer(b, a);
+    }
   };
   return shown.sort(sorters[f.sort]);
 }
@@ -254,16 +283,27 @@ function favoriteButton(item, cls) {
 
 function clipCard(state, item) {
   const { kind, selected, selecting } = state;
-  const title = item.name || P.timeLabel(item.date);
   const seconds = kind.length(item);
   const busy = kind.busy(item);
   const route = kind.routeMap && !busy ? `data-route="${P.esc(item.id)}"` : "";
   const thumbnail = kind.routeMap && !item.video ? "" : kind.thumbnail(item.id);
   const fullTitle = P.esc(itemTitle(item));
 
-  const meta = [P.fmt(item.date, { weekday: "short", month: "short", day: "numeric" })];
-  if (item.name) {
-    meta.push(P.timeLabel(item.date));
+  let title = item.name;
+  const meta = [];
+  if (item.date === null) {
+    if (item.name) {
+      meta.push(UNKNOWN_DATE);
+    } else {
+      title = UNKNOWN_DATE;
+    }
+  } else {
+    meta.push(P.fmt(item.date, { weekday: "short", month: "short", day: "numeric" }));
+    if (item.name) {
+      meta.push(P.timeLabel(item.date));
+    } else {
+      title = P.timeLabel(item.date);
+    }
   }
 
   meta.push(kind.meta(item));
@@ -326,9 +366,15 @@ function clipsHTML(state) {
   const groups = [];
   if (grouped) {
     for (const item of shown) {
-      const day = P.dayIndex(item.date);
+      let day = null;
+      let label = UNKNOWN_DATE;
+      if (item.date !== null) {
+        day = P.dayIndex(item.date);
+        label = P.dayLabel(item.date);
+      }
+
       if (groups.at(-1)?.day !== day) {
-        groups.push({ date: item.date, day, items: [], label: P.dayLabel(item.date) });
+        groups.push({ date: item.date, day, items: [], label });
       }
       groups.at(-1).items.push(item);
     }
@@ -336,7 +382,7 @@ function clipsHTML(state) {
     groups.push({ items: shown, label: GROUP_LABELS[f.sort] });
   }
   return groups.map(group => {
-    const recent = grouped && P.dayIndex(P.now()) - group.day < 7;
+    const recent = grouped && group.day !== null && P.dayIndex(P.now()) - group.day < 7;
     const bytes = group.items.reduce((sum, item) => sum + item.size, 0);
     return `<section class="clip-day">
       <div class="day-head"><h2>${group.label}</h2>${recent ? `<span>${P.fmt(group.date, { month: "short", day: "numeric" })}</span>` : ""}<span>· ${P.plural(group.items.length, kind.noun)} · ${P.size(bytes)}</span></div>
@@ -635,7 +681,7 @@ function scaleHTML(isDrive, date, duration) {
   for (const quarter of [0, 1, 2, 3, 4]) {
     const seconds = (duration * quarter) / 4;
     let label = P.clock(seconds);
-    if (isDrive) {
+    if (isDrive && date !== null) {
       label = P.timeLabel(date + seconds);
     }
 
@@ -664,10 +710,15 @@ function playerHTML({ audio = false, camera, cameras, date, duration, noun, part
     legend = `<p class="tl-legend"><span data-engaged-key hidden><span class="sw"></span>openpilot engaged</span><span>Each tick is one minute</span></p>`;
   }
 
+  let osdClock = "";
+  if (date !== null) {
+    osdClock = `<span data-osd-clock>${P.timeLabel(date)}</span>`;
+  }
+
   return `
     <div class="${viewClass}" id="player" tabindex="-1">
       <video class="frame on" playsinline preload="metadata" poster="${poster}"></video>
-      ${isDrive ? `<div class="osd"><span data-osd-cam>${CAMERAS.find(c => c.id === camera).label} camera</span><span data-osd-clock>${P.timeLabel(date)}</span></div>` : ""}
+      ${isDrive ? `<div class="osd"><span data-osd-cam>${CAMERAS.find(c => c.id === camera).label} camera</span>${osdClock}</div>` : ""}
       <button class="big-play" data-act="clips-play" aria-label="Play">${P.ic("play")}</button>
       <button class="icon-btn view-full" type="button" data-act="clips-fullscreen" aria-label="Full screen" aria-pressed="false"
         title="Full screen (f)">${P.ic("full")}</button>
@@ -1238,7 +1289,13 @@ function showTimeline(root, drive, date, duration) {
   let moments = "";
   for (const moment of drive.events) {
     const icon = EVENT_KINDS[moment.kind].icon;
-    const row = `<span class="t">${P.timeLabel(date + moment.time)}</span>${P.ic(icon, `ev-${moment.kind}`)}<span>${momentLabel(moment)}</span>`;
+
+    let time = P.clock(moment.time);
+    if (date !== null) {
+      time = P.timeLabel(date + moment.time);
+    }
+
+    const row = `<span class="t">${time}</span>${P.ic(icon, `ev-${moment.kind}`)}<span>${momentLabel(moment)}</span>`;
 
     if (timeline) {
       markers += `<button class="tl-ev ${moment.kind}" data-act="drives-jump" data-kind="${moment.kind}" data-seconds="${moment.time}" tabindex="-1" aria-hidden="true">${P.ic(icon)}</button>`;
@@ -1369,6 +1426,9 @@ const DRIVES = {
   },
   meta: item => (item.distance === undefined ? P.size(item.size) : P.distance(item.distance)),
   nameErrors: { invalid_name: "Use up to 64 characters" },
+  newer: (a, b) => {
+    return b.id.localeCompare(a.id);
+  },
   none: `<h3>No drives yet</h3><p>Drives show up here after the car has been driven.</p>`,
   noun: "drive",
   only: [["named", "Named", item => Boolean(item.name)], ["bookmarked", "Flagged", item => item.bookmarked], ["preserved", "Favorites", item => item.preserved]],
@@ -1442,6 +1502,14 @@ async function drivePage(params) {
 
   const complete = uploads.filter(([, count]) => count >= detail.segments).length;
   const title = itemTitle(item);
+
+  let day = "Unknown";
+  let time = "Unknown";
+  if (item.date !== null) {
+    day = P.fmt(item.date, { weekday: "short", month: "short", day: "numeric" });
+    time = `${P.timeLabel(item.date).replace(" ", P.NB)} to ${P.timeLabel(item.date + duration).replace(" ", P.NB)}`;
+  }
+
   let minuteScope = "";
   let playerColumn = `<div class="empty"><h3>No video from this drive</h3><p>Its camera files aren't on the device.</p></div>`;
   let videoMenu = "";
@@ -1492,8 +1560,8 @@ async function drivePage(params) {
       <div class="drive-side">
         <div class="map" data-map></div>
         <dl class="kv">
-          <dt>Date</dt><dd>${P.fmt(item.date, { weekday: "short", month: "short", day: "numeric" })}</dd>
-          <dt>Time</dt><dd>${P.timeLabel(item.date).replace(" ", P.NB)} to ${P.timeLabel(item.date + duration).replace(" ", P.NB)}</dd>
+          <dt>Date</dt><dd>${day}</dd>
+          <dt>Time</dt><dd>${time}</dd>
           <dt>Distance</dt><dd data-distance>…</dd>
           <dt>Driving time</dt><dd>${P.duration(duration)}</dd>
           <dt>openpilot engaged</dt><dd data-engaged>…</dd>

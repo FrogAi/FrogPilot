@@ -106,6 +106,9 @@ const RECORDINGS = {
   meta: item => (item.replay ? "Capture" : ""),
   nameErrors: { empty_name: "Enter a name", invalid_name: "That name has characters that can't be used" },
   nameRule: "Use letters, numbers, spaces, dots, dashes, and underscores",
+  newer: (a, b) => {
+    return b.date - a.date;
+  },
   none: `<h3>No screen recordings</h3><p>Tap Record on the car's screen to save a clip of it.</p>`,
   noun: "recording",
   only: [["replay", "Captures", item => item.replay], ["named", "Named", item => Boolean(item.name)]],

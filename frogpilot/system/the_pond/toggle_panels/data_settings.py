@@ -22,7 +22,7 @@ TELEMETRY_DESCRIPTION = ("<b>Help make FrogPilot better by sharing filtered driv
                          "<b>50,000 or more</b>. If that region has no qualifying city, it uses its capital instead. This helps protect location privacy " +
                          "in small communities. For location, these stats include only the resulting city, state, and country, never your exact GPS " +
                          "coordinates. The VIN is excluded from car details, and stats are linked to your FrogPilot device ID.<br><br><b>Speed limit sign " +
-                         "clips</b> are about 10 seconds of road camera video, recorded when a supported car's dashboard shows a new speed limit, when the " +
+                         "clips</b> are about 15 seconds of road camera video, recorded when a supported car's dashboard shows a new speed limit, when the " +
                          "speed limit sign reader sees a sign it isn't sure of, and for some of the limits it reads. No GPS coordinates or recording " +
                          "date/time are attached, and clip IDs hide the original recording time. Each clip includes the speed limit or the reader's " +
                          "reading, camera calibration, and basic device, camera, and software details, and is linked to your FrogPilot device ID. Video is " +

@@ -5,6 +5,7 @@ import gc
 import hashlib
 import hmac
 import json
+import os
 import requests
 import shutil
 import time
@@ -111,6 +112,8 @@ WHITELIST_FIELDS = {
   "initData": ("gitCommit", "version"),
 }
 
+WHITELIST_PARAMS = ("DrivingModel", "ModelRandomizer", "RandomizedModel")
+
 
 def get_car_make(data, schema):
   try:
@@ -194,6 +197,9 @@ def filter_log(data, schema):
         for field in WHITELIST_FIELDS[which]:
           setattr(kept, field, getattr(source, field))
 
+        if which == "initData":
+          kept.params.entries = [{"key": entry.key, "value": entry.value} for entry in source.params.entries if entry.key in WHITELIST_PARAMS]
+
       filtered_data.extend(builder.to_bytes())
   except capnp.KjException:
     pass
@@ -229,15 +235,9 @@ class FrogPilotTelemetry:
 
     self.session = requests.Session()
 
-    self.sm = messaging.SubMaster(["deviceState"])
+    self.sm = messaging.SubMaster(["deviceState", "frogpilotProcessState"])
 
-    self.route = self.params.get("CurrentRoute")
-    self.first_segment = None
-
-    if self.route is not None:
-      for log_root in frogpilot_paths.LOG_ROOTS:
-        for lock_path in log_root.glob(f"{self.route}--*/rlog.lock"):
-          self.first_segment = int(lock_path.parent.name.rpartition("--")[2]) + 1
+    self.share_from_next_segment()
 
   def mark_shared_logs(self):
     if self.route is not None and self.first_segment is not None:
@@ -258,19 +258,57 @@ class FrogPilotTelemetry:
       self.route = route
       self.first_segment = 0
 
-  def pending(self):
-    paths = [Path(log_root, segment) for log_root in frogpilot_paths.LOG_ROOTS for segment in listdir_by_creation(log_root)]
-    paths += sorted(frogpilot_paths.SPEED_LIMIT_CAPTURES_PATH.glob("*.hevc"))
+  def pending(self, sharing):
+    paths = sorted(frogpilot_paths.SPEED_LIMIT_CAPTURES_PATH.glob("*.hevc"))
+    if sharing:
+      paths = [Path(log_root, segment) for log_root in frogpilot_paths.LOG_ROOTS for segment in listdir_by_creation(log_root)] + paths
 
     for path in paths:
       if frogpilot_utilities.has_pending_telemetry(path):
         yield path
+
+  def pending_archive(self):
+    for log_root in frogpilot_paths.LOG_ROOTS:
+      for segment in listdir_by_creation(log_root):
+        route, _, number = segment.rpartition("--")
+        if not route or not number.isdigit():
+          continue
+
+        try:
+          names = os.listdir(Path(log_root, segment))
+        except FileNotFoundError:
+          continue
+
+        if any(name.endswith(".lock") for name in names):
+          continue
+
+        for name in frogpilot_variables.DRIVE_ARCHIVE_FILES:
+          path = Path(log_root, segment, name)
+          if name not in names:
+            continue
+
+          try:
+            archived = getxattr(path, frogpilot_variables.DRIVE_ARCHIVE_ATTR_NAME)
+          except FileNotFoundError:
+            continue
+
+          if archived is None:
+            yield route, int(number), path
 
   def schema(self, git_commit):
     if git_commit not in self.schemas:
       schema_path = frogpilot_paths.TELEMETRY_SCHEMAS_PATH / git_commit / "log.capnp"
       self.schemas[git_commit] = capnp.SchemaParser().load(str(schema_path), imports=[str(schema_path.parent)])
     return self.schemas[git_commit]
+
+  def share_from_next_segment(self):
+    self.route = self.params.get("CurrentRoute")
+    self.first_segment = None
+
+    if self.route is not None:
+      for log_root in frogpilot_paths.LOG_ROOTS:
+        for lock_path in log_root.glob(f"{self.route}--*/rlog.lock"):
+          self.first_segment = int(lock_path.parent.name.rpartition("--")[2]) + 1
 
   def upload_id(self, name):
     return hmac.new(self.private_key, name.encode(), "sha256").hexdigest()[:32]
@@ -310,6 +348,22 @@ class FrogPilotTelemetry:
 
     return True
 
+  def upload_archive(self, route, segment, path):
+    with open(path, "rb") as file:
+      sha256 = hashlib.file_digest(file, "sha256").hexdigest()
+
+    descriptor = {"file": path.name, "route": route, "segment": segment, "sha256": sha256, "size_bytes": path.stat().st_size}
+    result = self.frogpilot_api.post_json("/v1/drive-archive", descriptor, self.session)
+
+    if result:
+      if not self.can_upload():
+        return False
+
+      with open(path, "rb") as file:
+        self.frogpilot_api.put_upload(result["upload"], file, path.name, "drive_archive", self.session)
+
+    return True
+
   def can_upload(self):
     self.sm.update(0)
 
@@ -319,33 +373,59 @@ class FrogPilotTelemetry:
     return frogpilot_utilities.is_unmetered_network(self.sm["deviceState"])
 
   def update(self):
-    self.mark_shared_logs()
+    self.sm.update(0)
+
+    frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles(self.sm)
+    sharing = frogpilot_toggles.telemetry_sharing
+
+    if sharing:
+      self.mark_shared_logs()
+    else:
+      self.share_from_next_segment()
 
     if time.monotonic() < self.retry_at or not self.can_upload():
       return
 
-    for path in self.pending():
-      if not self.can_upload():
-        return
-
-      try:
-        if not self.upload(path):
+    if sharing or frogpilot_utilities.is_FrogsGoMoo():
+      for path in self.pending(sharing):
+        if not self.can_upload():
           return
-      except (frogpilot_api.FrogPilotAPIError, requests.exceptions.RequestException) as error:
-        self.retry_at = time.monotonic() + 60 * 60
-        print(f"Error uploading telemetry ({error})")
-        return
 
-      if path.suffix == ".hevc" and not frogpilot_utilities.is_FrogsGoMoo():
-        path.unlink()
-        path.with_suffix(".json").unlink()
-      else:
         try:
-          setxattr(path, frogpilot_variables.UPLOAD_ATTR_NAME, frogpilot_variables.UPLOAD_DONE)
-        except FileNotFoundError:
-          pass
+          if not self.upload(path):
+            return
+        except (frogpilot_api.FrogPilotAPIError, requests.exceptions.RequestException) as error:
+          self.retry_at = time.monotonic() + 60 * 60
+          print(f"Error uploading telemetry ({error})")
+          return
 
-    self.schemas = {self.git_commit: log}
+        if path.suffix == ".hevc" and not frogpilot_utilities.is_FrogsGoMoo():
+          path.unlink()
+          path.with_suffix(".json").unlink()
+        else:
+          try:
+            setxattr(path, frogpilot_variables.UPLOAD_ATTR_NAME, frogpilot_variables.UPLOAD_DONE)
+          except FileNotFoundError:
+            pass
+
+      self.schemas = {self.git_commit: log}
+
+    if frogpilot_utilities.is_FrogsGoMoo():
+      for route, segment, path in self.pending_archive():
+        if not self.can_upload():
+          return
+
+        try:
+          if not self.upload_archive(route, segment, path):
+            return
+
+          setxattr(path, frogpilot_variables.DRIVE_ARCHIVE_ATTR_NAME, frogpilot_variables.UPLOAD_DONE)
+        except FileNotFoundError:
+          continue
+        except (frogpilot_api.FrogPilotAPIError, requests.exceptions.RequestException) as error:
+          self.retry_at = time.monotonic() + 60 * 60
+          print(f"Error archiving drive ({error})")
+          return
 
 
 def main():

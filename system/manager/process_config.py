@@ -73,10 +73,12 @@ def allow_uploads(started: bool, params: Params, CP: car.CarParams, frogpilot_to
   return not frogpilot_toggles.uploads_disabled
 
 def run_frogpilot_telemetry(started: bool, params: Params, CP: car.CarParams, frogpilot_toggles: SimpleNamespace) -> bool:
-  return frogpilot_toggles.frogpilot_telemetry and not frogpilot_toggles.no_logging and not frogpilot_toggles.uploads_disabled
+  return not frogpilot_toggles.no_logging and (frogpilot_toggles.telemetry_sharing or frogpilot_paths.FROGS_GO_MOO_PATH.is_file())
 
 def run_speed_limit_capture(started: bool, params: Params, CP: car.CarParams, frogpilot_toggles: SimpleNamespace) -> bool:
-  return started and (CP.brand == "toyota" and frogpilot_toggles.has_dashboard_speed_limit or frogpilot_toggles.speed_limit_controller or frogpilot_toggles.speed_limit_filler) and frogpilot_toggles.frogpilot_telemetry and not frogpilot_toggles.uploads_disabled
+  dashboard_speed_limit = CP.brand == "toyota" and frogpilot_toggles.has_dashboard_speed_limit
+  speed_limits = dashboard_speed_limit or frogpilot_toggles.speed_limit_controller or frogpilot_toggles.speed_limit_filler
+  return started and (speed_limits and frogpilot_toggles.telemetry_sharing or frogpilot_paths.FROGS_GO_MOO_PATH.is_file())
 
 def run_speed_limit_reader(started: bool, params: Params, CP: car.CarParams, frogpilot_toggles: SimpleNamespace) -> bool:
   return started and (frogpilot_toggles.show_speed_limits or frogpilot_toggles.speed_limit_controller or frogpilot_toggles.speed_limit_filler)

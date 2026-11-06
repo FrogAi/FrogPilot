@@ -443,7 +443,7 @@ def frogpilot_thread():
     started_previously = started
 
     if share_speed_limits and not started and frogpilot_utilities.is_unmetered_network(sm["deviceState"]):
-      if frogpilot_toggles.speed_limit_filler and frogpilot_toggles.frogpilot_telemetry and not frogpilot_toggles.uploads_disabled:
+      if frogpilot_toggles.speed_limit_filler and frogpilot_toggles.telemetry_sharing:
         thread_manager.run_in_thread(upload_speed_limits, (params, api))
 
       share_speed_limits = False

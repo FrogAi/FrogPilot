@@ -8,6 +8,7 @@ import xattr
 
 from aiohttp import web
 
+from openpilot.common.time_helpers import min_date
 from openpilot.system import sentry
 from openpilot.system.loggerd.config import SEGMENT_LENGTH
 from openpilot.system.loggerd.deleter import PRESERVE_ATTR_NAME, PRESERVE_ATTR_VALUE
@@ -69,18 +70,32 @@ def get_route(request):
 def get_route_info(route, segments, recording):
   first_segment = next(iter(segments.values()))
   name = get_xattr(first_segment, NAME_ATTR_NAME)
+  valid_time = min_date().timestamp()
 
+  date = None
   size = 0
   file_names = set()
-  for path in segments.values():
+  for number, path in segments.items():
+    last_write = 0
     for file in path.iterdir():
-      size += file.stat().st_size
+      stat = file.stat()
+      size += stat.st_size
       file_names.add(file.name)
+      last_write = max(last_write, stat.st_mtime)
+
+    if date is None and last_write > valid_time:
+      date = int(last_write) - (number + 1) * SEGMENT_LENGTH
+
+  drive = frogpilot_utilities.load_json_file(frogpilot_paths.THE_POND_DRIVES_PATH / f"{route}.json")
+  if "date" in drive:
+    date = drive["date"]
+  elif date is not None and not recording:
+    save_drive(route, {**drive, "date": date})
 
   return {
     "bookmarked": any(is_bookmarked(path) for path in segments.values()),
     "cameras": [camera for camera, file_name in CAMERA_FILES.items() if file_name in file_names],
-    "date": int(first_segment.stat().st_mtime),
+    "date": date,
     "logs": [kind for kind, file_name in LOG_FILES.items() if file_name in file_names],
     "name": name.decode() if name is not None else "",
     "preserved": frogpilot_utilities.is_route_preserved(first_segment),
@@ -170,6 +185,10 @@ def load_drive(route, qlogs):
 
 def save_drive(route, drive):
   drive_path = frogpilot_paths.THE_POND_DRIVES_PATH / f"{route}.json"
+  saved_drive = frogpilot_utilities.load_json_file(drive_path)
+  if "date" in saved_drive:
+    drive = {**drive, "date": saved_drive["date"]}
+
   drive_path.parent.mkdir(parents=True, exist_ok=True)
   frogpilot_utilities.update_json_file(drive_path, drive)
 

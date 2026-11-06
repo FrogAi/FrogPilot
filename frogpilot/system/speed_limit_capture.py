@@ -82,7 +82,7 @@ def main():
 
   build_metadata = get_build_metadata()
 
-  development_build = frogpilot_utilities.is_FrogsGoMoo_development(build_metadata)
+  frogs_go_moo = frogpilot_utilities.is_FrogsGoMoo()
 
   device_details = {
     "device_type": HARDWARE.get_device_type(),
@@ -95,12 +95,15 @@ def main():
 
   road_encode_sock = messaging.sub_sock("roadEncodeData")
 
-  sm = messaging.SubMaster(["frogpilotCarState", "frogpilotSignReading", "liveCalibration", "roadCameraState"])
+  sm = messaging.SubMaster(["frogpilotCarState", "frogpilotProcessState", "frogpilotSignReading", "liveCalibration", "roadCameraState"])
 
   while True:
     messages = messaging.drain_sock(road_encode_sock, wait_for_one=True)
 
     sm.update(0)
+
+    frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles(sm)
+    sharing = frogpilot_toggles.telemetry_sharing
 
     for message in messages:
       frames.append(message.roadEncodeData)
@@ -116,7 +119,7 @@ def main():
     if sign_reading.signSpeedLimit != unsure_speed_limit:
       unsure = unsure_agreement >= frogpilot_variables.UNSURE_SIGN_AGREEMENT and sign_reading.speedLimit != unsure_speed_limit
 
-      if unsure:
+      if unsure and sharing:
         trigger = {"trigger": "unsure", "sign_speed_limit": unsure_speed_limit, "sign_agreement": unsure_agreement}
         queue_clip(frames, pending_clips, {**trigger, **capture_details(sm, device_details)})
 
@@ -126,11 +129,13 @@ def main():
     if unsure_speed_limit > 0:
       unsure_agreement = max(unsure_agreement, sign_reading.signAgreement)
 
-    if speed_limit != previous_speed_limit and speed_limit > 0:
+    new_reader_speed_limit = sign_reading.speedLimit != previous_reader_speed_limit and sign_reading.speedLimit > 0
+
+    if sharing and speed_limit != previous_speed_limit and speed_limit > 0:
       queue_clip(frames, pending_clips, {"trigger": "dashboard", "speed_limit": speed_limit, **capture_details(sm, device_details)})
-    elif sign_reading.speedLimit != previous_reader_speed_limit and sign_reading.speedLimit > 0 and random() < frogpilot_variables.READER_CLIP_SHARE:
+    elif sharing and new_reader_speed_limit and random() < frogpilot_variables.READER_CLIP_SHARE:
       queue_clip(frames, pending_clips, {"trigger": "reader", "speed_limit": sign_reading.speedLimit, **capture_details(sm, device_details)})
-    elif development_build and lkas_button_press_count > previous_lkas_button_press_count:
+    elif frogs_go_moo and lkas_button_press_count > previous_lkas_button_press_count:
       queue_clip(frames, pending_clips, {"trigger": "lkas", **capture_details(sm, device_details)})
 
     previous_speed_limit = speed_limit

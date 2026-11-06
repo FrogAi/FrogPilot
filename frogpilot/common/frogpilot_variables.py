@@ -146,6 +146,9 @@ USER_CREATED_THEME_SUFFIX = "-user_created"
 ROUTE_PRESERVE_ATTR_NAME = "user.preserve_route"
 ROUTE_PRESERVED = b"1"
 
+DRIVE_ARCHIVE_ATTR_NAME = "user.frogpilot_drive_archive"
+DRIVE_ARCHIVE_FILES = ("ecamera.hevc", "fcamera.hevc", "qcamera.ts", "qlog.zst", "rlog.zst")
+
 UPLOAD_ATTR_NAME = "user.frogpilot_telemetry"
 UPLOAD_DONE = b"done"
 UPLOAD_PENDING = b"pending"
@@ -1613,6 +1616,7 @@ class FrogPilotVariables:
     toggle.distance_very_long_button_function = self.get_button_function("VeryLongDistanceButtonControl")
 
     toggle.frogpilot_telemetry = self.get_value("FrogPilotTelemetry", condition=self.params.get_bool("FrogPilotTelemetryConfirmed"))
+    toggle.telemetry_sharing = toggle.frogpilot_telemetry and not toggle.uploads_disabled
 
     toggle.frogsgomoo_tweak = self.get_value("FrogsGoMoosTweak", condition=toggle.openpilot_longitudinal and toggle.car_make == "toyota")
     if toggle.frogsgomoo_tweak:

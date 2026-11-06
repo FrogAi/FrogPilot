@@ -207,6 +207,11 @@ def migrate_params(params, params_cache):
       if param_store.get(key) == mock_value:
         param_store.remove(key)
 
+  for key in (*frogpilot_variables.SECRET_KEYS, "FrogPilotStats", "ShownToggleDescriptions", "ThemesDownloaded"):
+    for param_store in (params, params_cache):
+      if param_store.get(key) in (0, "0"):
+        param_store.remove(key)
+
   if params.get_bool("IsMetric"):
     metric_conversions = {
       "CESignalSpeed": (CV.MPH_TO_KPH, 0),

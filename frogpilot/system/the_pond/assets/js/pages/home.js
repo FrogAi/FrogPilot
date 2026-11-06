@@ -60,7 +60,9 @@ function storageHTML(storage) {
 
 function lastDriveMeta(last, distance) {
   let html = "";
-  if (last.name) {
+  if (last.name && last.date === null) {
+    html += "<span>Unknown date</span>";
+  } else if (last.name) {
     html += `<span>${P.whenLabel(last.date)}</span>`;
   }
 
