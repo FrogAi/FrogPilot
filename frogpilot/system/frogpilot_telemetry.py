@@ -254,7 +254,7 @@ class FrogPilotTelemetry:
 
     self.frogpilot_api = frogpilot_api.FrogPilotAPI(self.params)
 
-    self.private_key = get_key_pair()[1].encode()
+    self.private_key = get_key_pair()[1]
 
     self.git_commit = self.params.get("GitCommit", encoding="utf-8")
     self.schemas = {self.git_commit: log}
@@ -399,7 +399,7 @@ class FrogPilotTelemetry:
       self.frogpilot_api.put_upload(upload, data, capture_path.name, "capture", self.session)
 
   def upload_id(self, name):
-    return hmac.new(self.private_key, name.encode(), "sha256").hexdigest()[:32]
+    return hmac.new(self.private_key.encode(), name.encode(), "sha256").hexdigest()[:32]
 
   def can_upload(self):
     self.sm.update(0)
@@ -431,6 +431,9 @@ class FrogPilotTelemetry:
         return
 
     self.schemas = {self.git_commit: log}
+
+    if not self.private_key:
+      return
 
     for capture_path in self.pending_captures():
       try:
