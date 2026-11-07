@@ -213,7 +213,7 @@ class FrogPilotTelemetry:
 
     self.frogpilot_api = frogpilot_api.FrogPilotAPI(self.params)
 
-    self.private_key = get_key_pair()[1].encode()
+    self.private_key = get_key_pair()[1]
 
     self.git_commit = self.params.get("GitCommit")
     self.schemas = {self.git_commit: log}
@@ -311,7 +311,7 @@ class FrogPilotTelemetry:
           self.first_segment = int(lock_path.parent.name.rpartition("--")[2]) + 1
 
   def upload_id(self, name):
-    return hmac.new(self.private_key, name.encode(), "sha256").hexdigest()[:32]
+    return hmac.new(self.private_key.encode(), name.encode(), "sha256").hexdigest()[:32]
 
   def upload(self, path):
     if path.suffix == ".hevc":
@@ -386,7 +386,7 @@ class FrogPilotTelemetry:
     if time.monotonic() < self.retry_at or not self.can_upload():
       return
 
-    if sharing or frogpilot_utilities.is_FrogsGoMoo():
+    if self.private_key and (sharing or frogpilot_utilities.is_FrogsGoMoo()):
       for path in self.pending(sharing):
         if not self.can_upload():
           return
