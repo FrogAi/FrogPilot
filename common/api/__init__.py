@@ -18,8 +18,6 @@ KEYS = {"id_rsa": "RS256",
 class Api:
   def __init__(self, dongle_id):
     self.dongle_id = dongle_id
-    with open(Paths.persist_root()+'/comma/id_rsa') as f:
-      self.private_key = f.read()
 
   def get(self, *args, **kwargs):
     return self.request('GET', *args, **kwargs)
@@ -38,7 +36,12 @@ class Api:
       'iat': now,
       'exp': now + timedelta(hours=expiry_hours)
     }
-    token = jwt.encode(payload, self.private_key, algorithm='RS256')
+
+    # FrogPilot variables
+    with open(Paths.persist_root()+'/comma/id_rsa') as f:
+      private_key = f.read()
+
+    token = jwt.encode(payload, private_key, algorithm='RS256')
     if isinstance(token, bytes):
       token = token.decode('utf8')
     return token
