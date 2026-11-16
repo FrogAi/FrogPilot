@@ -7,6 +7,7 @@ from opendbc.car.mazda.values import DBC, LKAS_LIMITS
 ButtonType = structs.CarState.ButtonEvent.Type
 
 # FrogPilot variables
+STANDSTILL_LOCKOUT_TIME = 3.5
 
 
 class CarState(CarStateBase):
@@ -24,8 +25,10 @@ class CarState(CarStateBase):
 
     # FrogPilot variables
     self.main_on_at_start = True
+    self.standstill_lockout = False
 
     self.lkas_button = 0
+    self.standstill_nanos = 0
 
   def update(self, can_parsers) -> structs.CarState:
     cp = can_parsers[Bus.pt]
@@ -88,6 +91,11 @@ class CarState(CarStateBase):
       self.lkas_allowed_speed = True
 
       # FrogPilot variables
+      if cp.ts_nanos["ENGINE_DATA"]["SPEED"] > 0 and ret.standstill:
+        self.standstill_lockout = True
+        self.standstill_nanos = cp.ts_nanos["ENGINE_DATA"]["SPEED"]
+      elif cp.ts_nanos["ENGINE_DATA"]["SPEED"] - self.standstill_nanos > STANDSTILL_LOCKOUT_TIME * 1e9 or not lkas_blocked:
+        self.standstill_lockout = False
 
     # TODO: the signal used for available seems to be the adaptive cruise signal, instead of the main on
     #       it should be used for carState.cruiseState.nonAdaptive instead
@@ -110,7 +118,7 @@ class CarState(CarStateBase):
     # Check if LKAS is disabled due to lack of driver torque when all other states indicate
     # it should be enabled (steer lockout). Don't warn until we actually get lkas active
     # and lose it again, i.e, after initial lkas activation
-    ret.steerFaultTemporary = self.lkas_allowed_speed and lkas_blocked
+    ret.steerFaultTemporary = self.lkas_allowed_speed and lkas_blocked and not self.standstill_lockout
 
     self.acc_active_last = ret.cruiseState.enabled
 
