@@ -425,6 +425,7 @@ inline static std::unordered_map<std::string, ParamKeyAttributes> keys = {
     {"StartupMessageBottom", {PERSISTENT, STRING, "Human-tested, frog-approved 🐸", "Always keep hands on wheel and eyes on road", 0}},
     {"StartupMessageTop", {PERSISTENT, STRING, "Hop in and buckle up!", "Be ready to take over at any time", 0}},
     {"StaticPedalsOnUI", {PERSISTENT, BOOL, "0", "0", 1}},
+    {"StatsMoveAckedId", {PERSISTENT | DONT_LOG, STRING, "", ""}},
     {"SteerDelay", {PERSISTENT, FLOAT, "0.0", "0.0", 3}},
     {"SteerDelayStock", {PERSISTENT, FLOAT, "0.0", "0.0", 3}},
     {"SteerFriction", {PERSISTENT, FLOAT, "0.0", "0.0", 3}},

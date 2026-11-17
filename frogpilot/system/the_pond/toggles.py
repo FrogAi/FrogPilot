@@ -223,8 +223,10 @@ class Context:
     else:
       self.level, _ = frogpilot_settings.first_open(params)
 
+    self.always_on_lateral_lkas_button_forced = False
     self.can_disable_openpilot_long = True
     self.can_map_gears = True
+    self.can_use_always_on_lateral_lkas_button = True
     self.can_use_dsu_bypass = False
     self.can_use_pedal = False
     self.can_use_sdsu = False
@@ -232,6 +234,7 @@ class Context:
     self.car_fingerprint = ""
     self.has_auto_tune = True
     self.has_bsm = True
+    self.has_cruise_switch = True
     self.has_dash_speed_limits = True
     self.has_distance_button = True
     self.has_lkas_button = True
@@ -254,7 +257,6 @@ class Context:
     self.is_torque_car = False
     self.is_toyota = True
     self.is_volt = True
-    self.lkas_allowed_for_aol = False
     self.openpilot_longitudinal_control_disabled = False
 
     self.friction = 0.0
@@ -294,11 +296,14 @@ class Context:
     self.car_fingerprint = car_params["carFingerprint"]
     self.is_torque_car = torque is not None
 
+    self.always_on_lateral_lkas_button_forced = frogpilot_toggles.always_on_lateral_lkas_button_forced
     self.can_disable_openpilot_long = frogpilot_toggles.can_disable_openpilot_long
     self.can_map_gears = frogpilot_toggles.can_map_gears
+    self.can_use_always_on_lateral_lkas_button = frogpilot_toggles.can_use_always_on_lateral_lkas_button
     self.can_use_dsu_bypass = frogpilot_toggles.can_use_dsu_bypass
     self.has_auto_tune = frogpilot_toggles.has_auto_tune
     self.has_bsm = car_params["enableBsm"]
+    self.has_cruise_switch = car_make not in frogpilot_variables.NO_CRUISE_SWITCH_BRANDS
     self.has_dash_speed_limits = False
     self.has_lkas_button = frogpilot_toggles.has_lkas_button
     self.has_nnff_log = frogpilot_toggles.has_nnff
@@ -320,7 +325,6 @@ class Context:
     self.is_subaru = car_make == "subaru"
     self.is_toyota = car_make == "toyota"
     self.is_volt = car_params["carFingerprint"] == "CHEVROLET_VOLT"
-    self.lkas_allowed_for_aol = frogpilot_toggles.lkas_allowed_for_aol
 
     if self.is_torque_car:
       self.friction = torque["friction"]
@@ -388,7 +392,7 @@ class Context:
   def row_reason(self, row):
     identifier = row_id(row)
     if identifier not in self.reasons:
-      if utilities.IS_COMMA_FOUR and identifier in COMMA_FOUR_HIDDEN_ROWS:
+      if frogpilot_variables.IS_COMMA_FOUR and identifier in COMMA_FOUR_HIDDEN_ROWS:
         self.reasons[identifier] = {"kind": "device"}
       elif "pair" in row:
         self.reasons[identifier] = self.row_reason(ROW_IDS[row["pair"]])

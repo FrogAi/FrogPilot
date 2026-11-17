@@ -7,7 +7,6 @@ import hmac
 import json
 import os
 import requests
-import shutil
 import time
 import zstandard
 
@@ -15,7 +14,7 @@ from pathlib import Path
 
 import cereal.messaging as messaging
 
-from cereal import CEREAL_PATH, log
+from cereal import log
 from openpilot.common.api import get_key_pair
 from openpilot.common.params import Params
 from openpilot.common.utils import LOG_COMPRESSION_LEVEL
@@ -27,19 +26,27 @@ from openpilot.frogpilot.common import frogpilot_api, frogpilot_paths, frogpilot
 
 MAX_LOG_SIZE = 256 * 1024 * 1024
 
-SCHEMA_FILES = ("car.capnp", "custom.capnp", "include/c++.capnp", "legacy.capnp", "log.capnp")
-
 EXCLUDED_CAN_ADDRESSES = {
-  "ford": frozenset((0x462, 0x465)),
-  "gm": frozenset((0x32A, 0x4E1, 0x514)),
-  "tesla": frozenset((0x3D8,)),
-  "toyota": frozenset((0x580, 0x581, 0x582)),
+  "chrysler": frozenset((0x3E0, 0x4D3)),
+  "ford": frozenset((0x5, 0x6, 0x84, 0x21E, 0x306, 0x3F3, 0x3F4, 0x40A, 0x454, 0x462, 0x463, 0x464, 0x465, 0x466, 0x467, 0x473, 0x47E)),
+  "gm": frozenset((0x137, 0x260, 0x261, 0x262, 0x264, 0x32A, 0x4E1, 0x514, 0x741, 0x743)),
+  "honda": frozenset((0x40C, 0x651)),
+  "hyundai": frozenset((0x2D2, 0x332, 0x333, 0x374)),
+  "mazda": frozenset((0x40A, 0x439)),
+  "psa": frozenset((0x492, 0x4B2)),
+  "rivian": frozenset((0x342, 0x349)),
+  "subaru": frozenset((0x6A1, 0x6BC)),
+  "tesla": frozenset((0x4F, 0x309, 0x324, 0x3B9, 0x3D8, 0x405, 0x528, 0x718)),
+  "toyota": frozenset((0x3D2, 0x413, 0x580, 0x581, 0x582, 0x675, 0x676)),
+  "volkswagen": frozenset((0x36F, 0x374, 0x378, 0x37B, 0x486, 0x5D2, 0x6B2, 0x6B4, 0x7D0, 0x1A5555B8, 0x1A555628)),
 }
 
 EXCLUDED_MESSAGE_TYPES = frozenset((
+  "accelerometer2",
   "androidLog",
   "audioFeedback",
   "bookmarkButton",
+  "boot",
   "cameraOdometry",
   "clocks",
   "customReservedRawData0",
@@ -47,6 +54,7 @@ EXCLUDED_MESSAGE_TYPES = frozenset((
   "customReservedRawData2",
   "deviceState",
   "driverCameraState",
+  "driverEncodeData",
   "driverEncodeIdx",
   "driverStateV2",
   "drivingModelData",
@@ -60,26 +68,41 @@ EXCLUDED_MESSAGE_TYPES = frozenset((
   "gpsLocation",
   "gpsLocationExternal",
   "gpsNMEA",
+  "gyroscope2",
   "lightSensor",
+  "liveLocationKalman",
   "livePose",
   "liveTracks",
+  "livestreamDriverEncodeData",
+  "livestreamDriverEncodeIdx",
+  "livestreamRoadEncodeData",
+  "livestreamRoadEncodeIdx",
+  "livestreamWideRoadEncodeData",
+  "livestreamWideRoadEncodeIdx",
   "logMessage",
   "magnetometer",
   "managerState",
+  "mapRenderState",
   "mapdExtendedOut",
   "mapdIn",
+  "microphone",
+  "model",
   "navInstruction",
+  "navModel",
   "navRoute",
   "navThumbnail",
   "peripheralState",
   "procLog",
+  "qRoadEncodeData",
   "qRoadEncodeIdx",
   "qcomGnss",
   "rawAudioData",
   "roadCameraState",
+  "roadEncodeData",
   "roadEncodeIdx",
   "soundPressure",
   "temperatureSensor",
+  "temperatureSensor2",
   "testJoystick",
   "thePondRequest",
   "thumbnail",
@@ -87,9 +110,12 @@ EXCLUDED_MESSAGE_TYPES = frozenset((
   "ubloxGnss",
   "ubloxRaw",
   "uiDebug",
+  "uiPlan",
   "uploaderState",
   "userBookmark",
+  "userFlag",
   "wideRoadCameraState",
+  "wideRoadEncodeData",
   "wideRoadEncodeIdx",
 ))
 
@@ -99,6 +125,8 @@ REMOVED_FIELDS = {
 
 REPLACEMENT_FIELDS = {
   "carControl": {"orientationNED.2": 0},
+  "controlsState": {"alertText1": "", "alertText2": ""},
+  "frogpilotControlsState": {"alertText1": "", "alertText2": ""},
   "frogpilotPlan": {"frogpilotToggles": "", "gpsBearing": 0, "themeUpdateCount": 0, "weatherDaytime": False, "wheelImageUpdateCount": 0},
   "frogpilotSelfdriveState": {"alertText1": "", "alertText2": ""},
   "longitudinalPlan": {"processingDelay": 0},
@@ -120,7 +148,12 @@ def get_car_make(data, schema):
     for event in schema.Event.read_multiple_bytes(data):
       try:
         if event.which() == "carParams":
-          return event.carParams.brand
+          car_params = event.carParams
+
+          if hasattr(car_params, "brand"):
+            return car_params.brand
+
+          return car_params.carName
       except capnp.KjException:
         continue
   except capnp.KjException:
@@ -218,14 +251,6 @@ class FrogPilotTelemetry:
     self.git_commit = self.params.get("GitCommit")
     self.schemas = {self.git_commit: log}
 
-    schema_path = frogpilot_paths.TELEMETRY_SCHEMAS_PATH / self.git_commit
-    if not schema_path.is_dir():
-      staging_path = frogpilot_paths.TELEMETRY_SCHEMAS_PATH / f".{self.git_commit}"
-      for name in SCHEMA_FILES:
-        (staging_path / name).parent.mkdir(parents=True, exist_ok=True)
-        shutil.copy(Path(CEREAL_PATH, name), staging_path / name)
-      staging_path.rename(schema_path)
-
     self.retry_at = 0
 
     self.car_fingerprint = None
@@ -238,6 +263,16 @@ class FrogPilotTelemetry:
     self.sm = messaging.SubMaster(["deviceState", "frogpilotProcessState"])
 
     self.share_from_next_segment()
+
+  def finish_upload(self, path):
+    if path.suffix == ".hevc" and not frogpilot_utilities.is_FrogsGoMoo():
+      path.unlink()
+      path.with_suffix(".json").unlink()
+    else:
+      try:
+        setxattr(path, frogpilot_variables.UPLOAD_ATTR_NAME, frogpilot_variables.UPLOAD_DONE)
+      except FileNotFoundError:
+        pass
 
   def mark_shared_logs(self):
     if self.route is not None and self.first_segment is not None:
@@ -297,8 +332,7 @@ class FrogPilotTelemetry:
 
   def schema(self, git_commit):
     if git_commit not in self.schemas:
-      schema_path = frogpilot_paths.TELEMETRY_SCHEMAS_PATH / git_commit / "log.capnp"
-      self.schemas[git_commit] = capnp.SchemaParser().load(str(schema_path), imports=[str(schema_path.parent)])
+      self.schemas[git_commit] = frogpilot_utilities.load_log_schema(git_commit)
     return self.schemas[git_commit]
 
   def share_from_next_segment(self):
@@ -394,19 +428,22 @@ class FrogPilotTelemetry:
         try:
           if not self.upload(path):
             return
+        except frogpilot_api.FrogPilotAPIRejection as error:
+          self.retry_at = time.monotonic() + 60 * 60
+          print(f"Telemetry upload refused ({error})")
+
+          self.finish_upload(path)
+          return
         except (frogpilot_api.FrogPilotAPIError, requests.exceptions.RequestException) as error:
           self.retry_at = time.monotonic() + 60 * 60
           print(f"Error uploading telemetry ({error})")
           return
+        except FileNotFoundError:
+          continue
+        except Exception as error:
+          sentry.capture_exception(error, crash_log=False)
 
-        if path.suffix == ".hevc" and not frogpilot_utilities.is_FrogsGoMoo():
-          path.unlink()
-          path.with_suffix(".json").unlink()
-        else:
-          try:
-            setxattr(path, frogpilot_variables.UPLOAD_ATTR_NAME, frogpilot_variables.UPLOAD_DONE)
-          except FileNotFoundError:
-            pass
+        self.finish_upload(path)
 
       self.schemas = {self.git_commit: log}
 

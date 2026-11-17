@@ -171,6 +171,9 @@ testpaths = [
   "tools/replay",
   "tools/cabana",
   "cereal/messaging/tests",
+
+  # FrogPilot variables
+  "frogpilot",
 ]
 
 [tool.codespell]

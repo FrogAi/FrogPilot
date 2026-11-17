@@ -19,7 +19,7 @@ from openpilot.frogpilot.system.the_pond import utilities
 
 CAMERA_FILES = {"driver": "dcamera.hevc", "forward": "fcamera.hevc", "low": "qcamera.ts", "wide": "ecamera.hevc"}
 CAMERA_FPS = 20
-DRIVE_SUMMARY_VERSION = 6
+DRIVE_SUMMARY_VERSION = 8
 LOG_FILES = {"qlog": "qlog.zst", "rlog": "rlog.zst"}
 
 MAX_NAME_LENGTH = 64

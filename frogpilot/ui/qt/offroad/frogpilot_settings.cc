@@ -332,8 +332,10 @@ void FrogPilotSettingsWindow::updateVariables() {
     std::string carMake = CP.getBrand();
     isTorqueCar = CP.getLateralTuning().which() == cereal::CarParams::LateralTuning::TORQUE;
 
+    alwaysOnLateralLKASButtonForced = frogpilot_toggles.value("always_on_lateral_lkas_button_forced").toBool();
     canDisableOpenpilotLong = frogpilot_toggles.value("can_disable_openpilot_long").toBool();
     canMapGears = frogpilot_toggles.value("can_map_gears").toBool();
+    canUseAlwaysOnLateralLKASButton = frogpilot_toggles.value("can_use_always_on_lateral_lkas_button").toBool();
     canUseDSUBypass = frogpilot_toggles.value("can_use_dsu_bypass").toBool();
     friction = isTorqueCar ? CP.getLateralTuning().getTorque().getFriction() : 0.0f;
     hasAutoTune = frogpilot_toggles.value("has_auto_tune").toBool();
@@ -356,11 +358,12 @@ void FrogPilotSettingsWindow::updateVariables() {
     isHKG = carMake == "hyundai";
     isHKGCanFd = isHKG && safetyConfigs.size() > 0 && safetyConfigs[safetyConfigs.size() - 1].getSafetyModel() == cereal::CarParams::SafetyModel::HYUNDAI_CANFD;
     isHondaNidec = frogpilot_toggles.value("is_honda_nidec").toBool();
+    isRivian = carMake == "rivian";
     isSubaru = carMake == "subaru";
+    isTesla = carMake == "tesla";
     isToyota = carMake == "toyota";
     isVolt = carFingerprint == "CHEVROLET_VOLT";
     latAccelFactor = isTorqueCar ? CP.getLateralTuning().getTorque().getLatAccelFactor() : 0.0f;
-    lkasAllowedForAOL = frogpilot_toggles.value("lkas_allowed_for_aol").toBool();
     longitudinalActuatorDelay = CP.getLongitudinalActuatorDelay();
     startAccel = CP.getStartAccel();
     steerActuatorDelay = CP.getSteerActuatorDelay();
@@ -383,6 +386,10 @@ void FrogPilotSettingsWindow::updateVariables() {
     hasDashSpeedLimits = FPCP.getHasDashboardSpeedLimit();
   }
 
+  bool alwaysOnLateralLKASButtonSelected = tuningLevel >= frogpilotToggleLevels.value("AlwaysOnLateralLKASButton").toDouble() && params.getBool("AlwaysOnLateralLKASButton");
+  alwaysOnLateralLKASButtonSelected &= canUseAlwaysOnLateralLKASButton;
+  alwaysOnLateralLKASButton = (alwaysOnLateralLKASButtonForced || alwaysOnLateralLKASButtonSelected) && params.getBool("AlwaysOnLateral");
+
   drivingPanelButtons->setVisibleButton(0, tuningLevel >= frogpilotToggleLevels.value("DrivingModel").toDouble());
   drivingPanelButtons->setVisibleButton(1, hasOpenpilotLongitudinal);
 
@@ -390,7 +397,7 @@ void FrogPilotSettingsWindow::updateVariables() {
 
   themePanelButtons->setVisibleButton(0, hasOpenpilotLongitudinal || tuningLevel >= frogpilotToggleLevels.value("Compass").toDouble());
 
-  vehiclePanelButtons->setVisibleButton(1, (hasDistanceButton || hasLKASButton) && tuningLevel >= frogpilotToggleLevels.value("WheelControls").toDouble());
+  vehiclePanelButtons->setVisibleButton(1, (hasDistanceButton || (hasLKASButton && !alwaysOnLateralLKASButton)) && tuningLevel >= frogpilotToggleLevels.value("WheelControls").toDouble());
 
   update();
 }

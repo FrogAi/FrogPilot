@@ -10,13 +10,10 @@ from aiohttp import web
 from cereal import messaging
 from openpilot.common.params import Params
 from openpilot.system import sentry
-from openpilot.system.hardware import HARDWARE
 
 from openpilot.frogpilot.common import frogpilot_utilities, frogpilot_variables
 
 ACCOUNT_CHECK_INTERVAL = 1
-
-IS_COMMA_FOUR = HARDWARE.get_device_type() == "mici"
 
 PAIRING_COOKIE = "the_pond"
 PAIRING_COOKIE_AGE = 10 * 365 * 24 * 60 * 60

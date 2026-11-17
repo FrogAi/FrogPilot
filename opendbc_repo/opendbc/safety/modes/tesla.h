@@ -93,6 +93,11 @@ static bool tesla_get_quality_flag_valid(const CANPacket_t *msg) {
 
 static void tesla_rx_hook(const CANPacket_t *msg) {
 
+  // FrogPilot variables
+  if (controls_allowed) {
+    acc_main_on = true;
+  }
+
   if (msg->bus == 0U) {
     // Steering angle: (0.1 * val) - 819.2 in deg.
     if (msg->addr == 0x370U) {
@@ -159,9 +164,6 @@ static void tesla_rx_hook(const CANPacket_t *msg) {
       cruise_engaged = cruise_engaged && !tesla_autopark;
 
       pcm_cruise_check(cruise_engaged);
-
-      // FrogPilot variables
-      acc_main_on = !tesla_autopark;
     }
 
     if (msg->addr == 0x155U) {
@@ -182,7 +184,7 @@ static void tesla_rx_hook(const CANPacket_t *msg) {
       bool tesla_stock_lkas_now = steering_control_type == 2;  // "LANE_KEEP_ASSIST"
 
       // Only consider rising edges while controls are not allowed
-      if (tesla_stock_lkas_now && !tesla_stock_lkas_prev && !controls_allowed) {
+      if (tesla_stock_lkas_now && !tesla_stock_lkas_prev && !get_lateral_allowed()) {
         tesla_stock_lkas = true;
       }
       if (!tesla_stock_lkas_now) {
@@ -190,6 +192,11 @@ static void tesla_rx_hook(const CANPacket_t *msg) {
       }
       tesla_stock_lkas_prev = tesla_stock_lkas_now;
     }
+  }
+
+  // FrogPilot variables
+  if ((brake_pressed && !brake_pressed_prev) || (steering_disengage && !steering_disengage_prev)) {
+    acc_main_on = false;
   }
 }
 

@@ -11,17 +11,19 @@ import cereal.messaging as messaging
 from cereal import car, custom, log
 from opendbc.car import gen_empty_fingerprint
 from opendbc.car.car_helpers import interfaces
+from opendbc.car.ford.values import CAR as FORD
 from opendbc.car.gm.values import CC_ONLY_CAR
 from opendbc.car.honda.values import HONDA_BOSCH
-from opendbc.car.hyundai.values import HyundaiFlags
+from opendbc.car.hyundai.values import CANFD_CAR, HyundaiFlags
 from opendbc.car.interfaces import GearShifter
 from opendbc.car.mock.values import CAR as MOCK
-from opendbc.car.toyota.values import ToyotaFlags, ToyotaFrogPilotFlags
+from opendbc.car.toyota.values import CAR as TOYOTA, UNSUPPORTED_DSU_CAR, ToyotaFlags, ToyotaFrogPilotFlags
 from openpilot.common.constants import CV
 from openpilot.common.params import Params
 from openpilot.selfdrive.controls.lib.drive_helpers import MAX_LATERAL_ACCEL_NO_ROLL
 from openpilot.selfdrive.locationd import torqued
 from openpilot.selfdrive.modeld.constants import ModelConstants
+from openpilot.system.hardware import HARDWARE
 from openpilot.system.hardware.power_monitoring import VBATT_PAUSE_CHARGING
 from openpilot.system.version import get_build_metadata
 
@@ -58,12 +60,18 @@ UPDATE_COPY_AVERAGE_WEIGHT = 0.3          # Share of the way each update's copy 
 UPDATE_COPY_SECONDS = 22                  # Seconds an update's copy takes until a device's first update measures its own, measured on a C3
 UPDATE_PROGRESS_INTERVAL = 0.1            # Seconds between update progress checks; the shown percent climbs at most 1% per check so it counts up smoothly
 
+IS_COMMA_FOUR = HARDWARE.get_device_type() == "mici"
+
+ALWAYS_ON_LATERAL_LKAS_BUTTON_BRANDS = {"chrysler", "ford", "toyota"}
+CRUISE_MAIN_OFF_AT_START_BRANDS = {"chrysler"}
+CRUISE_MAIN_OFF_AT_START_CAR = set(CANFD_CAR) | (set(TOYOTA) - UNSUPPORTED_DSU_CAR)
 DISABLE_OPENPILOT_LONG_BRANDS = {"ford", "toyota"}
 DISTANCE_BUTTON_BRANDS = {"chrysler", "ford", "gm", "honda", "hyundai", "mazda", "nissan", "volkswagen"}
-LKAS_BUTTON_BRANDS = {"chrysler", "ford", "gm", "honda", "mazda", "nissan", "subaru"}
-LKAS_STATUS_BRANDS = {"mazda", "nissan", "subaru"}
+LKAS_BUTTON_BRANDS = {"chrysler", "ford", "honda", "mazda", "nissan"}
 MAP_GEARS_BRANDS = {"gm", "toyota"}
+NO_CRUISE_SWITCH_BRANDS = {"rivian", "tesla"}
 NO_STATS_BRANDS = {"body", "mock"}
+UNVERIFIED_LKAS_BUTTON_CAR = {FORD.FORD_BRONCO_SPORT_MK1}
 
 NON_DRIVING_GEARS = [GearShifter.neutral, GearShifter.park, GearShifter.reverse, GearShifter.unknown]
 
@@ -393,6 +401,7 @@ EXCLUDED_KEYS = {
   "SecOCKey",
   "SecOCKeys",
   "SpeedLimitFillerUploadedHash",
+  "StatsMoveAckedId",
   "StockDongleId",
   "ThemesDownloaded",
   "ThePondPairedBrowsers",
@@ -1374,10 +1383,11 @@ class FrogPilotVariables:
     toggle.is_honda_nidec = toggle.car_make == "honda" and CP.carFingerprint not in HONDA_BOSCH
     learned_lateral_profile = self.params.get("MaxLateralAcceleration")
     learned_lateral_acceleration = learned_lateral_profile.get("value", 0.0) if learned_lateral_profile.get("car_fingerprint") == toggle.car_model else 0.0
-    toggle.lkas_allowed_for_aol = toggle.car_make == "hyundai" and bool(CP.flags & HyundaiFlags.CANFD or CP.flags & HyundaiFlags.HAS_LDA_BUTTON)
-    toggle.has_lkas_button = toggle.car_make in LKAS_BUTTON_BRANDS or toggle.lkas_allowed_for_aol
-    toggle.has_lkas_button |= toggle.car_make == "toyota" and bool(CP.flags & ToyotaFlags.TSS2)
-    toggle.has_lkas_button |= toggle.has_sdsu and not FPCP.flags & ToyotaFrogPilotFlags.RADAR_CAN_FILTER.value
+    toggle.can_use_always_on_lateral_lkas_button = toggle.car_make == "hyundai" and bool(CP.flags & HyundaiFlags.CANFD or CP.flags & HyundaiFlags.HAS_LDA_BUTTON)
+    toggle.has_lkas_button = toggle.car_make in LKAS_BUTTON_BRANDS or toggle.can_use_always_on_lateral_lkas_button
+    toggle.has_lkas_button |= toggle.car_make == "toyota" and CP.carFingerprint != TOYOTA.TOYOTA_PRIUS_V
+    toggle.can_use_always_on_lateral_lkas_button |= toggle.car_make in ALWAYS_ON_LATERAL_LKAS_BUTTON_BRANDS and toggle.has_lkas_button
+    toggle.can_use_always_on_lateral_lkas_button &= CP.carFingerprint not in UNVERIFIED_LKAS_BUTTON_CAR
     toggle.has_distance_button = toggle.car_make in DISTANCE_BUTTON_BRANDS
     toggle.has_distance_button |= (toggle.car_make == "toyota" and bool(CP.flags & ToyotaFlags.TSS2) and
                                    not CP.flags & (ToyotaFlags.RADAR_ACC | ToyotaFlags.SECOC))
@@ -1385,7 +1395,6 @@ class FrogPilotVariables:
     longitudinalActuatorDelay = CP.longitudinalActuatorDelay
     toggle.openpilot_longitudinal = CP.openpilotLongitudinalControl and (started or not toggle.disable_openpilot_long)
     pcm_cruise = CP.pcmCruise
-    lkas_required_for_aol = not toggle.openpilot_longitudinal and toggle.car_make == "hyundai" and bool(CP.flags & HyundaiFlags.CANFD)
     startAccel = CP.startAccel
     stopAccel = CP.stopAccel
     steerActuatorDelay = CP.steerActuatorDelay
@@ -1472,10 +1481,10 @@ class FrogPilotVariables:
     toggle.warning_immediate_volume = self.get_value("WarningImmediateVolume", cast=float, condition=toggle.alert_volume_controller, minimum=25)
 
     toggle.always_on_lateral = self.get_value("AlwaysOnLateral")
-    toggle.always_on_lateral_lkas_selected = self.get_value("AlwaysOnLateralLKASButton")
-    toggle.always_on_lateral_lkas = toggle.always_on_lateral and toggle.lkas_allowed_for_aol and (toggle.always_on_lateral_lkas_selected or lkas_required_for_aol)
-    toggle.always_on_lateral_main = toggle.always_on_lateral and not toggle.always_on_lateral_lkas
-    toggle.always_on_lateral_pause_speed = self.get_value("PauseAOLOnBrake", cast=float, condition=toggle.always_on_lateral, conversion=speed_conversion)
+    toggle.always_on_lateral_lkas_button = self.get_value("AlwaysOnLateralLKASButton", condition=toggle.can_use_always_on_lateral_lkas_button and toggle.always_on_lateral)
+    toggle.always_on_lateral_lkas_button_forced = FPCP.alwaysOnLateralLKASButton and toggle.has_lkas_button
+    toggle.always_on_lateral_lkas_button |= toggle.always_on_lateral_lkas_button_forced and toggle.always_on_lateral
+    toggle.always_on_lateral_pause_on_brake_speed = self.get_value("PauseAOLOnBrake", cast=float, condition=toggle.always_on_lateral, conversion=speed_conversion)
 
     toggle.automatic_updates = self.get_value("AutomaticUpdates", condition=self.release_branch or self.vetting_branch or self.frogs_go_moo, default=True) and not frogpilot_paths.BACKUP_PATH.is_file()
 
@@ -1653,7 +1662,7 @@ class FrogPilotVariables:
     toggle.nnff_lite = not is_angle_car and not toggle.nnff and toggle.nnff_lite_selected
     toggle.use_turn_desires = self.get_value("TurnDesires", condition=lateral_tuning)
 
-    if toggle.has_lkas_button and not toggle.always_on_lateral_lkas:
+    if toggle.has_lkas_button and not toggle.always_on_lateral_lkas_button:
       toggle.lkas_button_function = self.get_button_function("LKASButtonControl")
     else:
       toggle.lkas_button_function = BUTTON_FUNCTIONS["NOTHING"]

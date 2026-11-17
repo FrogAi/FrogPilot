@@ -41,6 +41,7 @@ public:
   void reportIssue(const QString &report);
   void requestAccountLink();
   void requestAccountUrl(const QString &purpose);
+  void resetStats();
   void restoreSettingsBackup(const QString &name);
   void retryIssueReport();
   void runUpdateChecks();

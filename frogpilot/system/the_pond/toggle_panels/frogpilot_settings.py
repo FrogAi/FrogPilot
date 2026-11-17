@@ -150,7 +150,7 @@ ROWS = [
     "options": (
       {"children": ("Vehicle Settings", "VEHICLE SETTINGS"), "label": "VEHICLE SETTINGS", "value": 0},
       {"children": ("Vehicle Settings", "WHEEL BUTTONS"), "label": "WHEEL BUTTONS", "value": 1,
-       "visible": lambda context: context.level_reason("WheelControls") or context.car_reason(context.has_distance_button or context.has_lkas_button)}
+       "visible": lambda context: context.level_reason("WheelControls") or context.panel_reason(("Vehicle Settings", "WHEEL BUTTONS"))}
     ),
     "order": 6,
     "path": (),

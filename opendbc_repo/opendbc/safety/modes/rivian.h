@@ -63,6 +63,11 @@ static bool rivian_get_quality_flag_valid(const CANPacket_t *msg) {
 
 static void rivian_rx_hook(const CANPacket_t *msg) {
 
+  // FrogPilot variables
+  if (controls_allowed) {
+    acc_main_on = true;
+  }
+
   if (msg->bus == 0U)  {
     // Vehicle speed
     if (msg->addr == 0x208U) {
@@ -97,10 +102,12 @@ static void rivian_rx_hook(const CANPacket_t *msg) {
     if (msg->addr == 0x100U) {
       const int feature_status = msg->data[2] >> 5U;
       pcm_cruise_check(feature_status == 1);
-
-      // FrogPilot variables
-      acc_main_on = (feature_status == 0) || (feature_status == 1);
     }
+  }
+
+  // FrogPilot variables
+  if (brake_pressed && !brake_pressed_prev) {
+    acc_main_on = false;
   }
 }
 

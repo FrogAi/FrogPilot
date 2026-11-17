@@ -9,6 +9,7 @@ from openpilot.system.hardware.hw import Paths
 from openpilot.system.loggerd.deleter import MIN_BYTES, MIN_PERCENT
 
 from openpilot.frogpilot.common import frogpilot_utilities, frogpilot_variables
+from openpilot.frogpilot.system.frogpilot_stats import reset_stats
 from openpilot.frogpilot.system.the_pond import dashcam, utilities
 
 routes = web.RouteTableDef()
@@ -81,7 +82,7 @@ async def reset_frogpilot_stats(request):
   if the_pond.sm["deviceState"].started:
     raise web.HTTPConflict(text="car_on")
 
-  the_pond.params.remove("FrogPilotStats")
+  reset_stats(the_pond.params)
   return web.Response(status=204)
 
 

@@ -2,6 +2,7 @@
 import unittest
 
 from opendbc.car.structs import CarParams
+from opendbc.safety import ALTERNATIVE_EXPERIENCE
 from opendbc.safety.tests.libsafety import libsafety_py
 import opendbc.safety.tests.common as common
 from opendbc.safety.tests.common import CANPackerSafety
@@ -75,6 +76,24 @@ class TestPsaSafetyBase(common.CarSafetyTest, common.AngleSteeringSafetyTest):
     # write to unused payload byte
     msg[0].data[6] = 0xAB
     self.assertTrue(self._rx(msg))
+
+  # FrogPilot variables
+  def _toggle_aol(self, toggle_on):
+    if toggle_on:
+      regulation_type = 3
+    else:
+      regulation_type = 0
+    return self.packer.make_can_msg_safety("HS2_DAT_MDD_CMD_452", self.ADAS_BUS, {"LONGITUDINAL_REGULATION_TYPE": regulation_type})
+
+  def test_acc_status_not_main(self):
+    self.safety.set_alternative_experience(ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL)
+
+    for regulation_type in (0, 1, 2):
+      self._rx(self.packer.make_can_msg_safety("HS2_DAT_MDD_CMD_452", self.ADAS_BUS, {"LONGITUDINAL_REGULATION_TYPE": regulation_type}))
+
+      for acc_status in (3, 4):
+        self._rx(self.packer.make_can_msg_safety("HS2_DYN1_MDD_ETAT_2B6", self.ADAS_BUS, {"ACC_STATUS": acc_status}))
+        self.assertFalse(self.safety.get_lateral_allowed(), (regulation_type, acc_status))
 
 
 class TestPsaStockSafety(TestPsaSafetyBase):

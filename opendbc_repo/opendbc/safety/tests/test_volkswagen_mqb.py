@@ -2,6 +2,7 @@
 import unittest
 import numpy as np
 from opendbc.car.structs import CarParams
+from opendbc.safety import ALTERNATIVE_EXPERIENCE
 from opendbc.safety.tests.libsafety import libsafety_py
 import opendbc.safety.tests.common as common
 from opendbc.safety.tests.common import CANPackerSafety
@@ -150,6 +151,23 @@ class TestVolkswagenMqbStockSafety(TestVolkswagenMqbSafetyBase):
     # do not block resume if we are engaged already
     self.safety.set_controls_allowed(1)
     self.assertTrue(self._tx(self._gra_acc_01_msg(resume=1)))
+
+  # FrogPilot variables
+  def test_main_press(self):
+    for alternative_experience in (0, ALTERNATIVE_EXPERIENCE.DISABLE_STOCK_AEB, ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL):
+      self.safety.set_alternative_experience(alternative_experience)
+      always_on_lateral = alternative_experience == ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL
+
+      for main_on in (False, True):
+        self._rx(self._tsk_status_msg(False, main_switch=main_on))
+
+        for bus in (0, 2):
+          for main_press in (0, 1):
+            # Two frames in a row, so the counter that shares the main switch's byte takes both parities
+            for _ in range(2):
+              sent = self._tx(self.packer.make_can_msg_safety("GRA_ACC_01", bus, {"GRA_Hauptschalter": main_press}))
+
+              self.assertEqual(main_on or not always_on_lateral or not main_press, sent)
 
 
 class TestVolkswagenMqbLongSafety(TestVolkswagenMqbSafetyBase):

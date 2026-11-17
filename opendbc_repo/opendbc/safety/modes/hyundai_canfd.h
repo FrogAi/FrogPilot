@@ -108,13 +108,13 @@ static void hyundai_canfd_rx_hook(const CANPacket_t *msg) {
         main_button = GET_BIT(msg, 19U);
 
         // FrogPilot variables
-        hyundai_lkas_button_check(GET_BIT(msg, 23U));
+        lkas_button_pressed = GET_BIT(msg, 23U);
       } else {
         cruise_button = (msg->data[4] >> 4) & 0x7U;
         main_button = GET_BIT(msg, 34U);
 
         // FrogPilot variables
-        hyundai_lkas_button_check(GET_BIT(msg, 39U));
+        lkas_button_pressed = GET_BIT(msg, 39U);
       }
       hyundai_common_cruise_buttons_check(cruise_button, main_button);
     }
@@ -132,6 +132,12 @@ static void hyundai_canfd_rx_hook(const CANPacket_t *msg) {
     // brake press
     if (msg->addr == 0x175U) {
       brake_pressed = GET_BIT(msg, 81U);
+
+      // FrogPilot variables
+      if (hyundai_longitudinal) {
+        hyundai_acc_enabled = ((msg->data[8] >> 2U) & 0x3U) == 0U;
+        acc_main_on = hyundai_main_cruise_on && hyundai_acc_enabled;
+      }
     }
 
     // vehicle moving

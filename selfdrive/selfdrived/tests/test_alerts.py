@@ -4,11 +4,11 @@ import os
 import random
 from PIL import Image, ImageDraw, ImageFont
 
-from cereal import log, car
+from cereal import log, car, custom
 from cereal.messaging import SubMaster
 from openpilot.common.basedir import BASEDIR
 from openpilot.common.params import Params
-from openpilot.selfdrive.selfdrived.events import Alert, EVENTS, ET
+from openpilot.selfdrive.selfdrived.events import Alert, EVENTS, ET, FROGPILOT_EVENTS
 from openpilot.selfdrive.selfdrived.alertmanager import set_offroad_alert
 from openpilot.selfdrive.test.process_replay.process_replay import CONFIGS
 
@@ -128,3 +128,12 @@ class TestAlerts:
       written_alert = params.get(a)
       assert "a"*i == written_alert['extra']
       assert alert["text"] == written_alert['text']
+
+  # FrogPilot variables
+  def test_frogpilot_events_defined(self):
+    # Ensure all events in capnp schema are defined in events.py
+    events = custom.FrogPilotOnroadEvent.EventName.schema.enumerants
+
+    for name, e in events.items():
+      fail_msg = f"{name} @{e} not in FROGPILOT_EVENTS"
+      assert e in FROGPILOT_EVENTS.keys(), fail_msg

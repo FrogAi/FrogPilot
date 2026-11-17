@@ -250,7 +250,7 @@ def get_settings():
 
 
 def shown_setting(setting):
-  return not (utilities.IS_COMMA_FOUR and setting["key"] in toggles.COMMA_FOUR_HIDDEN_KEYS)
+  return not (frogpilot_variables.IS_COMMA_FOUR and setting["key"] in toggles.COMMA_FOUR_HIDDEN_KEYS)
 
 
 @routes.get("/api/search")

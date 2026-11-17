@@ -322,4 +322,7 @@ FW_QUERY_CONFIG = FwQueryConfig(
   match_fw_to_car_fuzzy=match_fw_to_car_fuzzy,
 )
 
+# FrogPilot variables
+NO_CRUISE_STANDBY_CAR = {CAR.FORD_F_150_LIGHTNING_MK1, CAR.FORD_F_150_MK14, CAR.FORD_MUSTANG_MACH_E_MK1, CAR.FORD_RANGER_MK2}
+
 DBC = CAR.create_dbc_map()

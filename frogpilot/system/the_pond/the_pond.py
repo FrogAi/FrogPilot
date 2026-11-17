@@ -155,7 +155,7 @@ async def get_state(request):
   paired = is_paired(the_pond, request)
   state = {
     "api_version": API_VERSION,
-    "comma_four": utilities.IS_COMMA_FOUR,
+    "comma_four": frogpilot_variables.IS_COMMA_FOUR,
     "is_metric": the_pond.params.get_bool("IsMetric"),
     "language": the_pond.params.get("LanguageSetting"),
     "locked": the_pond.locked,

@@ -38,7 +38,7 @@ class CarState(CarStateBase):
     self.single_pedal_mode = False
 
     # FrogPilot variables
-    self.lkas_button = 0
+    self.cruise_main_off_seen = False
 
   def update_button_enable(self, buttonEvents: list[structs.CarState.ButtonEvent]):
     if not self.CP.pcmCruise:
@@ -187,9 +187,8 @@ class CarState(CarStateBase):
       self.single_pedal_mode |= ret.regenBraking and ret.gearShifter == GearShifter.manumatic
       self.fp_ret.pedalInterceptorNoBrake = bool(self.CP.flags & GMFlags.PEDAL_LONG.value) and self.CP.openpilotLongitudinalControl and not self.single_pedal_mode
 
-    prev_lkas_button = self.lkas_button
-    self.lkas_button = pt_cp.vl["ASCMSteeringButton"]["LKAButton"]
-    ret.buttonEvents = [*ret.buttonEvents, *create_button_events(self.lkas_button, prev_lkas_button, {1: ButtonType.lkas})]
+    if pt_cp.can_valid and not ret.cruiseState.available:
+      self.cruise_main_off_seen = True
 
     self.fp_ret.sportGear = pt_cp.vl["SportMode"]["SportMode"] == 1
 

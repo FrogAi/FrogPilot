@@ -98,6 +98,10 @@ bool get_lkas_on(void){
   return lkas_on;
 }
 
+void set_acc_main_on(bool c){
+  acc_main_on = c;
+}
+
 float get_vehicle_speed_min(void){
   return vehicle_speed.min / VEHICLE_SPEED_FACTOR;
 }

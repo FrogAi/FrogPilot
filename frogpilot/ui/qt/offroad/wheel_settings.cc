@@ -64,9 +64,7 @@ void FrogPilotWheelPanel::updateToggles() {
     bool setVisible = parent->tuningLevel >= parent->frogpilotToggleLevels.value(key).toDouble();
 
     if (key == "LKASButtonControl") {
-      setVisible &= parent->hasLKASButton;
-      bool lkasRequiredForLateral = parent->isHKGCanFd && !parent->hasOpenpilotLongitudinal;
-      setVisible &= !parent->lkasAllowedForAOL || !(params.getBool("AlwaysOnLateral") && (lkasRequiredForLateral || params.getBool("AlwaysOnLateralLKASButton")));
+      setVisible &= parent->hasLKASButton && !parent->alwaysOnLateralLKASButton;
     } else {
       setVisible &= parent->hasDistanceButton;
     }

@@ -132,6 +132,13 @@ static void honda_rx_hook(const CANPacket_t *msg) {
       controls_allowed = false;
     }
     cruise_button_prev = button;
+
+    // FrogPilot variables
+    if (msg->addr == 0x1A6U) {
+      lkas_button_pressed = ((msg->data[5] & 0x0CU) >> 2) == 1U;
+    } else {
+      lkas_button_pressed = ((msg->data[0] & 0x0CU) >> 2) == 1U;
+    }
   }
 
   // user brake signal on 0x17C reports applied brake from computer brake on accord
@@ -276,7 +283,7 @@ static bool honda_tx_hook(const CANPacket_t *msg) {
 
   // STEER: safety check
   if ((msg->addr == 0xE4U) || (msg->addr == 0x194U)) {
-    if (!(aol_allowed || controls_allowed)) {
+    if (!get_lateral_allowed()) {
       bool steer_applied = msg->data[0] | msg->data[1];
       if (steer_applied) {
         tx = false;

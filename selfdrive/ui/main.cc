@@ -8,6 +8,7 @@
 #include "selfdrive/ui/qt/util.h"
 #include "selfdrive/ui/qt/window.h"
 
+#include "frogpilot/ui/qt/egl_wayland_patch.h"
 #include "frogpilot/ui/qt/onroad/screen_recorder.h"
 
 int main(int argc, char *argv[]) {
@@ -30,6 +31,7 @@ int main(int argc, char *argv[]) {
   a.installEventFilter(&w);
 
   // FrogPilot variables
+  patchEglWayland();
   ScreenRecorder::attach();
 
   return a.exec();

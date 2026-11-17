@@ -4,6 +4,7 @@ from opendbc.car import Bus, structs
 from opendbc.car.common.conversions import Conversions as CV
 from opendbc.car.interfaces import CarStateBase
 from opendbc.car.tesla.values import DBC, CANBUS, GEAR_MAP, STEER_THRESHOLD, CAR
+from opendbc.safety import MAX_SPEED_DELTA
 
 ButtonType = structs.CarState.ButtonEvent.Type
 
@@ -116,6 +117,9 @@ class CarState(CarStateBase):
 
     # Messages needed by carcontroller
     self.das_control = copy.copy(cp_ap_party.vl["DAS_control"])
+
+    # FrogPilot variables
+    self.fp_ret.speedSensorsDisagree = abs(cp_party.vl["ESP_B"]["ESP_vehicleSpeed"] * CV.KPH_TO_MS - ret.vEgoRaw) > MAX_SPEED_DELTA
 
     return ret
 

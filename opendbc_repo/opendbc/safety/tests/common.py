@@ -139,6 +139,9 @@ class SafetyTestBase(unittest.TestCase):
   def _aol_steer_msg(self):
     pass
 
+  def _lkas_press_msg(self, pressed):
+    pass
+
 
 class LongitudinalAccelSafetyTest(SafetyTestBase, abc.ABC):
 
@@ -906,14 +909,16 @@ class SafetyTest(SafetyTestBase):
               continue
             if {attr, current_test}.issubset({'TestGmCameraSafety', 'TestGmCameraLongitudinalSafety', 'TestGmAscmSafety',
                                               'TestGmCameraEVSafety', 'TestGmCameraLongitudinalEVSafety', 'TestGmAscmEVSafety',
-                                              'TestGmInterceptorSafety', 'TestGmCcLongitudinalSafety'}):
+                                              'TestGmInterceptorSafety', 'TestGmCcLongitudinalSafety', 'TestGmInterceptorGasSafety',
+                                              'TestGmCcLongitudinalEVSafety'}):
               continue
             if attr.startswith('TestFord') and current_test.startswith('TestFord'):
               continue
             if attr.startswith('TestHyundaiCanfd') and current_test.startswith('TestHyundaiCanfd'):
               continue
             if {attr, current_test}.issubset({'TestHyundaiLongitudinalSafety', 'TestHyundaiLongitudinalSafetyCameraSCC',
-                                               'TestHyundaiLongitudinalSafetyLdaButton', 'TestHyundaiSafetyFCEVLong'}):
+                                               'TestHyundaiLongitudinalSafetyLdaButton', 'TestHyundaiSafetyFCEVLong',
+                                               'TestHyundaiSafetyFCEVLongLdaButton'}):
               continue
             volkswagen_shared = ('TestVolkswagenMqb', 'TestVolkswagenMlb')
             if attr.startswith(volkswagen_shared) and current_test.startswith(volkswagen_shared):
@@ -1148,15 +1153,21 @@ class CarSafetyTest(SafetyTest):
     self.assertFalse(self.safety.safety_config_valid())
 
   # FrogPilot variables
+  def _press_lkas_button(self):
+    self._rx(self._lkas_press_msg(True))
+    self._rx(self._lkas_press_msg(False))
+
   def test_always_on_lateral(self):
     if self._toggle_aol(True) is None or self._aol_steer_msg() is None:
       raise unittest.SkipTest("AOL message not implemented for this safety mode")
 
     self.safety.set_controls_allowed(False)
 
-    # Without alt exp, make sure steering is blocked
-    self.safety.set_alternative_experience(0)
-    self.assertFalse(self._tx(self._aol_steer_msg()))
+    # Without alt exp, make sure steering is blocked even with main on
+    for mode in (ALTERNATIVE_EXPERIENCE.DEFAULT, ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL_LKAS_BUTTON):
+      self.safety.set_alternative_experience(mode)
+      self._rx(self._toggle_aol(True))
+      self.assertFalse(self._tx(self._aol_steer_msg()), mode)
 
     # With alt exp, but without main on, steering should be blocked
     self.safety.set_alternative_experience(ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL)
@@ -1172,6 +1183,87 @@ class CarSafetyTest(SafetyTest):
     # Turn off main, steering should be blocked again
     self._rx(self._toggle_aol(False))
     self.assertFalse(self._tx(self._aol_steer_msg()))
+
+  def test_always_on_lateral_lkas_button(self):
+    if self._toggle_aol(True) is None or self._lkas_press_msg(True) is None:
+      raise unittest.SkipTest("LKAS button message not implemented for this safety mode")
+
+    lkas_button = ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL | ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL_LKAS_BUTTON
+    for mode in (ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL, ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL_LKAS_BUTTON, lkas_button):
+      self._reset_safety_hooks()
+      self.safety.set_alternative_experience(mode)
+
+      self._rx(self._toggle_aol(False))
+      self._press_lkas_button()
+
+      self.assertEqual(mode == lkas_button, self.safety.get_lateral_allowed(), mode)
+
+  def test_always_on_lateral_lkas_button_cleared(self):
+    if self._toggle_aol(True) is None or self._lkas_press_msg(True) is None:
+      raise unittest.SkipTest("LKAS button message not implemented for this safety mode")
+
+    self.safety.set_alternative_experience(ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL | ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL_LKAS_BUTTON)
+
+    self._rx(self._toggle_aol(True))
+    self._press_lkas_button()
+    self._rx(self._toggle_aol(False))
+    self.assertFalse(self.safety.get_lateral_allowed())
+
+    self._press_lkas_button()
+    self._rx(self._toggle_aol(True))
+    self._rx(self._toggle_aol(False))
+    self.assertFalse(self.safety.get_lateral_allowed())
+
+    self._press_lkas_button()
+    self._reset_safety_hooks()
+    self.assertFalse(self.safety.get_lateral_allowed())
+
+  def test_always_on_lateral_lkas_button_on_press(self):
+    if self._toggle_aol(True) is None or self._lkas_press_msg(True) is None:
+      raise unittest.SkipTest("LKAS button message not implemented for this safety mode")
+
+    self.safety.set_alternative_experience(ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL | ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL_LKAS_BUTTON)
+
+    self._rx(self._toggle_aol(False))
+    self._rx(self._lkas_press_msg(False))
+    self.assertFalse(self.safety.get_lateral_allowed())
+
+    self._rx(self._lkas_press_msg(True))
+    self.assertTrue(self.safety.get_lateral_allowed())
+
+    self._rx(self._lkas_press_msg(False))
+    self.assertTrue(self.safety.get_lateral_allowed())
+
+  def test_always_on_lateral_rx_checks_invalid(self):
+    if self._toggle_aol(True) is None:
+      raise unittest.SkipTest("AOL message not implemented for this safety mode")
+
+    self.safety.set_alternative_experience(ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL)
+    self._rx(self._toggle_aol(True))
+    self.assertTrue(self.safety.get_lateral_allowed())
+
+    self.safety.set_timer(int(2e6))
+    self.safety.safety_tick_current_safety_config()
+
+    self.assertFalse(self.safety.get_lateral_allowed())
+
+  def test_always_on_lateral_speed_mismatch(self):
+    if self._speed_msg_2(0) is None:
+      raise unittest.SkipTest("No second speed message for this safety mode")
+
+    self.safety.set_alternative_experience(ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL)
+    self.safety.set_acc_main_on(True)
+
+    for speed_2 in (MAX_SPEED_DELTA + 1, 0, MAX_SPEED_DELTA + 1):
+      self._rx(self._speed_msg(0))
+      self._rx(self._speed_msg_2(speed_2))
+
+      self.assertEqual(speed_2 == 0, self.safety.get_lateral_allowed(), speed_2)
+
+    self._reset_safety_hooks()
+    self.safety.set_acc_main_on(True)
+
+    self.assertTrue(self.safety.get_lateral_allowed())
 
 
 # OPGM variables

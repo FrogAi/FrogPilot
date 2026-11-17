@@ -184,11 +184,17 @@ static void hyundai_rx_hook(const CANPacket_t *msg) {
 
     if (msg->addr == 0x394U) {
       brake_pressed = ((msg->data[5] >> 5U) & 0x3U) == 0x2U;
+
+      // FrogPilot variables
+      if (hyundai_longitudinal) {
+        hyundai_acc_enabled = ((msg->data[5] >> 3U) & 0x3U) == 0U;
+        acc_main_on = hyundai_main_cruise_on && hyundai_acc_enabled;
+      }
     }
 
     // FrogPilot variables
     if (msg->addr == 0x391U) {
-      hyundai_lkas_button_check(GET_BIT(msg, 4U));
+      lkas_button_pressed = GET_BIT(msg, 4U);
     }
   }
 }
@@ -330,25 +336,25 @@ static safety_config hyundai_init(uint16_t param) {
     }
 
   } else if (hyundai_camera_scc) {
-    static RxCheck hyundai_cam_scc_rx_checks[] = {
-      HYUNDAI_COMMON_RX_CHECKS(false)
-      HYUNDAI_SCC12_ADDR_CHECK(2)
-
-      // FrogPilot variables
-      HYUNDAI_SCC11_ADDR_CHECK(2)
-    };
-
     // FrogPilot variables
-    static RxCheck hyundai_cam_scc_rx_checks_lda[] = {
-      HYUNDAI_COMMON_RX_CHECKS(false)
-      HYUNDAI_SCC12_ADDR_CHECK(2)
-      HYUNDAI_SCC11_ADDR_CHECK(2)
-      HYUNDAI_LDA_BUTTON_ADDR_CHECK
-    };
-
     if (hyundai_has_lda_button) {
+      static RxCheck hyundai_cam_scc_rx_checks_lda[] = {
+        HYUNDAI_COMMON_RX_CHECKS(false)
+        HYUNDAI_SCC12_ADDR_CHECK(2)
+        HYUNDAI_SCC11_ADDR_CHECK(2)
+        HYUNDAI_LDA_BUTTON_ADDR_CHECK
+      };
+
       ret = BUILD_SAFETY_CFG(hyundai_cam_scc_rx_checks_lda, HYUNDAI_CAMERA_SCC_TX_MSGS);
     } else {
+      static RxCheck hyundai_cam_scc_rx_checks[] = {
+        HYUNDAI_COMMON_RX_CHECKS(false)
+        HYUNDAI_SCC12_ADDR_CHECK(2)
+
+        // FrogPilot variables
+        HYUNDAI_SCC11_ADDR_CHECK(2)
+      };
+
       ret = BUILD_SAFETY_CFG(hyundai_cam_scc_rx_checks, HYUNDAI_CAMERA_SCC_TX_MSGS);
     }
   } else {

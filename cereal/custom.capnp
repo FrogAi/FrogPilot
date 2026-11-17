@@ -18,35 +18,39 @@ struct FrogPilotAccountState @0xcb9fd56c7057593a {
 }
 
 struct FrogPilotCarParams @0xaedffd8f31e7b55d {
-  canUsePedal @0 :Bool;
-  canUseSDSU @1 :Bool;
-  flags @2 :UInt32;
-  hasDashboardSpeedLimit @3 :Bool;
-  openpilotLongitudinalControlDisabled @4 :Bool;
+  alwaysOnLateralLKASButton @0 :Bool;
+  canUsePedal @1 :Bool;
+  canUseSDSU @2 :Bool;
+  flags @3 :UInt32;
+  hasDashboardSpeedLimit @4 :Bool;
+  openpilotLongitudinalControlDisabled @5 :Bool;
 }
 
 struct FrogPilotCarState @0xf35cc4560bbf6ec2 {
   accelPressCount @0 :UInt64;
   alwaysOnLateralAllowed @1 :Bool;
   alwaysOnLateralEnabled @2 :Bool;
-  brakeLights @3 :Bool;
-  dashboardSpeedLimit @4 :Float32;
-  decelPressCount @5 :UInt64;
-  distancePressed @6 :Bool;
-  distanceLongPressed @7 :Bool;
-  distanceVeryLongPressed @8 :Bool;
-  doorLockStatus @9 :DoorLockStatus;
-  ecoGear @10 :Bool;
-  experimentalModePressCount @11 :UInt64;
-  forceCoast @12 :Bool;
-  lkasButtonPressCount @13 :UInt64;
-  pauseLateral @14 :Bool;
-  pauseLongitudinal @15 :Bool;
-  pedalInterceptorNoBrake @16 :Bool;
-  sportGear @17 :Bool;
-  trafficModeEnabled @18 :Bool;
-  parked @19 :Bool;
-  vEgo @20 :Float32;
+  alwaysOnLateralSteeringOff @3 :Bool;
+  alwaysOnLateralWaiting @4 :Bool;
+  brakeLights @5 :Bool;
+  dashboardSpeedLimit @6 :Float32;
+  decelPressCount @7 :UInt64;
+  distancePressed @8 :Bool;
+  distanceLongPressed @9 :Bool;
+  distanceVeryLongPressed @10 :Bool;
+  doorLockStatus @11 :DoorLockStatus;
+  ecoGear @12 :Bool;
+  experimentalModePressCount @13 :UInt64;
+  forceCoast @14 :Bool;
+  lkasButtonPressCount @15 :UInt64;
+  pauseLateral @16 :Bool;
+  pauseLongitudinal @17 :Bool;
+  pedalInterceptorNoBrake @18 :Bool;
+  sportGear @19 :Bool;
+  speedSensorsDisagree @20 :Bool;
+  trafficModeEnabled @21 :Bool;
+  parked @22 :Bool;
+  vEgo @23 :Float32;
 
   enum DoorLockStatus {
     unavailable @0;
@@ -87,44 +91,47 @@ struct FrogPilotOnroadEvent @0xa5cd762cd951a455 {
   overrideLongitudinal @9 :Bool;
 
   enum EventName {
-    blockUser @0;
-    customStartupAlert @1;
-    forcingStop @2;
-    goatSteerSaturated @3;
-    greenLight @4;
-    holidayActive @5;
-    laneChangeBlockedLoud @6;
-    leadDeparting @7;
-    nnffLoaded @8;
-    noLaneAvailable @9;
-    openpilotCrashed @10;
-    pedalInterceptorNoBrake @11;
-    pedalInterceptorNoBrakeNoEntry @12;
-    recordingFailed @13;
-    recordingSaved @14;
-    recordingStarted @15;
-    recordingStartFailed @16;
-    replayFailed @17;
-    replaySaved @18;
-    speedLimitChanged @19;
-    trafficModeActive @20;
-    trafficModeInactive @21;
-    turningLeft @22;
-    turningRight @23;
+    alwaysOnLateralSteeringOff @0;
+    alwaysOnLateralWaiting @1;
+    blockUser @2;
+    customStartupAlert @3;
+    forcingStop @4;
+    goatSteerSaturated @5;
+    greenLight @6;
+    holidayActive @7;
+    laneChangeBlockedLoud @8;
+    leadDeparting @9;
+    nnffLoaded @10;
+    noLaneAvailable @11;
+    openpilotCrashed @12;
+    pedalInterceptorNoBrake @13;
+    pedalInterceptorNoBrakeNoEntry @14;
+    recordingFailed @15;
+    recordingSaved @16;
+    recordingStarted @17;
+    recordingStartFailed @18;
+    replayFailed @19;
+    replaySaved @20;
+    speedLimitChanged @21;
+    speedSensorsDisagree @22;
+    trafficModeActive @23;
+    trafficModeInactive @24;
+    turningLeft @25;
+    turningRight @26;
 
     # Random Events
-    accel30 @24;
-    accel35 @25;
-    accel40 @26;
-    dejaVuCurve @27;
-    firefoxSteerSaturated @28;
-    hal9000 @29;
-    openpilotCrashedRandomEvent @30;
-    thisIsFineSteerSaturated @31;
-    toBeContinued @32;
-    vCruise69 @33;
-    yourFrogTriedToKillMe @34;
-    youveGotMail @35;
+    accel30 @27;
+    accel35 @28;
+    accel40 @29;
+    dejaVuCurve @30;
+    firefoxSteerSaturated @31;
+    hal9000 @32;
+    openpilotCrashedRandomEvent @33;
+    thisIsFineSteerSaturated @34;
+    toBeContinued @35;
+    vCruise69 @36;
+    yourFrogTriedToKillMe @37;
+    youveGotMail @38;
   }
 }
 
@@ -309,15 +316,16 @@ struct FrogPilotUIRequest @0xcd96dafb67a082d0 {
     issueReport @11 :Text;
     lockDoors @12 :Bool;
     refreshTheme @13 :Void;
-    restoreSettingsBackup @14 :Text;
-    retryIssueReport @15 :Void;
-    testAlert @16 :Text;
-    unlinkAccount @17 :Void;
-    updateChecks @18 :Void;
-    updateToggles @19 :Void;
+    resetStats @14 :Void;
+    restoreSettingsBackup @15 :Text;
+    retryIssueReport @16 :Void;
+    testAlert @17 :Text;
+    unlinkAccount @18 :Void;
+    updateChecks @19 :Void;
+    updateToggles @20 :Void;
   }
 
-  testAlertVolume @20 :Float32;
+  testAlertVolume @21 :Float32;
 
   struct ThemeDownload {
     component @0 :Text;

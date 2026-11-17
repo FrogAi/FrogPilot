@@ -736,7 +736,7 @@ FrogPilotDataPanel::FrogPilotDataPanel(FrogPilotSettingsWindow *parent, bool for
       }
 
       if (ConfirmationDialog::confirm(tr("Are you sure you want to reset all of your FrogPilot stats?"), tr("Reset"), this)) {
-        params.remove("FrogPilotStats");
+        frogpilotUIState()->resetStats();
       }
     } else if (id == 1) {
       updateStatsLabels(statsLabelsList);

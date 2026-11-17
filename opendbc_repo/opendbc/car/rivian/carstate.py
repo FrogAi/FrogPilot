@@ -4,6 +4,7 @@ from opendbc.car import Bus, structs
 from opendbc.car.interfaces import CarStateBase
 from opendbc.car.rivian.values import DBC, GEAR_MAP
 from opendbc.car.common.conversions import Conversions as CV
+from opendbc.safety import MAX_SPEED_DELTA
 
 GearShifter = structs.CarState.GearShifter
 
@@ -53,7 +54,7 @@ class CarState(CarStateBase):
     ret.cruiseState.speed = self.last_speed * CV.MPH_TO_MS  # detected speed limit
     if not self.CP.openpilotLongitudinalControl:
       ret.cruiseState.speed = -1
-    ret.cruiseState.available = cp.vl["VDM_AdasSts"]["VDM_AdasInterfaceStatus"] in (1, 2)
+    ret.cruiseState.available = True  # cp.vl["VDM_AdasSts"]["VDM_AdasInterfaceStatus"] == 1
     ret.cruiseState.standstill = cp.vl["VDM_AdasSts"]["VDM_AdasVehicleHoldStatus"] == 1
 
     # ACM_Status->ACM_FaultSupervisorState normally 1, appears to go to 3 when either:
@@ -91,6 +92,9 @@ class CarState(CarStateBase):
     self.acm_lka_hba_cmd = copy.copy(cp_cam.vl["ACM_lkaHbaCmd"])
     self.sccm_wheel_touch = copy.copy(cp.vl["SCCM_WheelTouch"])
     self.vdm_adas_status = copy.copy(cp.vl["VDM_AdasSts"])
+
+    # FrogPilot variables
+    self.fp_ret.speedSensorsDisagree = abs(cp.vl["VDM_PropStatus"]["VDM_VehicleSpeed"] * CV.KPH_TO_MS - ret.vEgoRaw) > MAX_SPEED_DELTA
 
     return ret
 

@@ -88,6 +88,8 @@ class CarState(CarStateBase):
     # FrogPilot variables
     self.car_safety_mode_set = False
     self.main_enabled = False
+    self.rx_checks_invalid = False
+    self.rx_checks_invalid_prev = False
 
     self.drive_mode = 0
 
@@ -153,7 +155,7 @@ class CarState(CarStateBase):
 
       # FrogPilot variables
       if self.CP.alternativeExperience & ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL:
-        ret.cruiseState.available = self.main_enabled
+        ret.cruiseState.available &= self.main_enabled
 
       ret.cruiseState.enabled = cp.vl["TCS13"]["ACC_REQ"] == 1
       ret.cruiseState.standstill = False
@@ -316,7 +318,7 @@ class CarState(CarStateBase):
 
       # FrogPilot variables
       if self.CP.alternativeExperience & ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL:
-        ret.cruiseState.available = self.main_enabled
+        ret.cruiseState.available &= self.main_enabled
 
       ret.cruiseState.standstill = False
     else:
@@ -325,6 +327,10 @@ class CarState(CarStateBase):
       ret.cruiseState.standstill = cp_cruise_info.vl["SCC_CONTROL"]["CRUISE_STANDSTILL"] == 1
       ret.cruiseState.speed = cp_cruise_info.vl["SCC_CONTROL"]["VSetDis"] * speed_factor
       self.cruise_info = copy.copy(cp_cruise_info.vl["SCC_CONTROL"])
+
+      # FrogPilot variables
+      if self.CP.alternativeExperience & ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL:
+        ret.cruiseState.available = cp_cruise_info.vl["SCC_CONTROL"]["MainMode_ACC"] == 1
 
     # Manual Speed Limit Assist is a feature that replaces non-adaptive cruise control on EV CAN FD platforms.
     # It limits the vehicle speed, overridable by pressing the accelerator past a certain point.
@@ -399,6 +405,11 @@ class CarState(CarStateBase):
 
   # FrogPilot variables
   def update_main_button(self, main_samples, prev_main_buttons):
+    if self.rx_checks_invalid and not self.rx_checks_invalid_prev:
+      self.main_enabled = False
+
+    self.rx_checks_invalid_prev = self.rx_checks_invalid
+
     if not self.car_safety_mode_set:
       self.main_enabled = False
       return

@@ -15,7 +15,7 @@ from openpilot.frogpilot.assets.theme_manager import ThemeManager
 from openpilot.frogpilot.common import frogpilot_api, frogpilot_backups, frogpilot_functions, frogpilot_paths, frogpilot_utilities, frogpilot_variables
 from openpilot.frogpilot.controls.frogpilot_planner import FrogPilotPlanner
 from openpilot.frogpilot.controls.lib.speed_limit_filler import upload_speed_limits
-from openpilot.frogpilot.system.frogpilot_stats import send_stats
+from openpilot.frogpilot.system.frogpilot_stats import reset_stats, send_stats
 from openpilot.frogpilot.system.frogpilot_tracking import FrogPilotTracking
 from openpilot.frogpilot.system.model_manager import ModelManager
 from openpilot.frogpilot.system.reporting import capture_report
@@ -209,6 +209,9 @@ class FrogPilotRequests:
       self.theme_manager.theme_update_count += 1
       self.theme_manager.theme_updated = True
 
+    if self.take("resetStats") is not None:
+      reset_stats(params)
+
     return self.take("updateToggles") is not None, self.take("updateChecks") is not None
 
   def publish(self, pm, stats_saved_count, toggles_json):
@@ -251,7 +254,7 @@ class FrogPilotRequests:
 
     pm.send("frogpilotProcessState", frogpilot_process_state_send)
 
-def transition_offroad(frogpilot_planner, theme_manager, thread_manager, time_validated, params, frogpilot_toggles, api):
+def transition_offroad(frogpilot_planner, theme_manager, thread_manager, time_validated, params, frogpilot_toggles, api, stats_lock):
   frogpilot_planner.frogpilot_vcruise.slc.close()
   frogpilot_planner.frogpilot_weather.close()
 
@@ -269,7 +272,7 @@ def transition_offroad(frogpilot_planner, theme_manager, thread_manager, time_va
     theme_manager.update_active_theme(time_validated, frogpilot_toggles, randomize_theme=True)
 
   if time_validated:
-    thread_manager.run_in_thread(send_stats, (params, frogpilot_toggles, api))
+    thread_manager.run_in_thread(send_stats, (params, frogpilot_toggles, api, stats_lock))
 
 def transition_onroad():
   if not PC:
@@ -383,6 +386,7 @@ def frogpilot_thread():
   thread_manager = frogpilot_utilities.ThreadManager()
 
   cancel_maps_download = threading.Event()
+  stats_lock = threading.Lock()
   frogpilot_requests = FrogPilotRequests(cancel_maps_download, model_manager, theme_manager, thread_manager)
 
   frogpilot_toggles = variables.frogpilot_toggles
@@ -409,18 +413,21 @@ def frogpilot_thread():
 
     if not started and started_previously:
       frogpilot_tracking.save_stats(blocking=True)
+      stats_lock.release()
       stats_saved_count += 1
 
       if frogpilot_toggles.model_randomizer:
         model_manager.randomize_model(new_drive=True)
 
       update_toggles(variables, started, model_manager, theme_manager, thread_manager, time_validated, params)
-      transition_offroad(frogpilot_planner, theme_manager, thread_manager, time_validated, params, frogpilot_toggles, api)
+      transition_offroad(frogpilot_planner, theme_manager, thread_manager, time_validated, params, frogpilot_toggles, api, stats_lock)
 
       run_update_checks = True
       share_speed_limits = True
     elif started and not started_previously:
       frogpilot_planner = FrogPilotPlanner(theme_manager, api)
+
+      stats_lock.acquire()
       frogpilot_tracking = FrogPilotTracking(frogpilot_planner, frogpilot_toggles)
 
       transition_onroad()
@@ -484,7 +491,7 @@ def frogpilot_thread():
         theme_manager.update_active_theme(time_validated, frogpilot_toggles)
 
         thread_manager.run_in_thread(frogpilot_backups.backup_toggles, (params, True))
-        thread_manager.run_in_thread(send_stats, (params, frogpilot_toggles, api))
+        thread_manager.run_in_thread(send_stats, (params, frogpilot_toggles, api, stats_lock))
         thread_manager.run_in_thread(update_checks, (now, model_manager, speed_limit_reader_models, theme_manager, thread_manager, sm, params, cancel_maps_download, frogpilot_toggles, True))
 
 def main():

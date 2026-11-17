@@ -8,6 +8,8 @@ from openpilot.frogpilot.common import frogpilot_paths, frogpilot_utilities, fro
 
 SEA_LIMIT = 0.3
 
+STATS_MOVE_ROUND_TRIPS = 4
+
 
 def coast_distance(points, latitude, longitude):
   scale = math.cos(math.radians(latitude))
@@ -42,6 +44,13 @@ def get_frogpilot_car_params(params):
 
   with custom.FrogPilotCarParams.from_bytes(msg_bytes) as FPCP:
     return FPCP.to_dict()
+
+
+def get_frogpilot_stats(params):
+  frogpilot_stats = params.get("FrogPilotStats")
+  frogpilot_stats.pop("StatsMoveId", None)
+
+  return frogpilot_stats
 
 
 def get_location(last_gps_position):
@@ -108,7 +117,98 @@ def get_model_scores(params):
   return model_scores
 
 
-def send_stats(params, frogpilot_toggles, api):
+def merge_stats(frogpilot_stats, added_stats):
+  if "Month" in added_stats and "Month" not in frogpilot_stats:
+    frogpilot_stats.pop("CurrentMonthsMeters", None)
+    frogpilot_stats["Month"] = added_stats["Month"]
+
+  for key, value in added_stats.items():
+    if isinstance(value, dict):
+      totals = frogpilot_stats.setdefault(key, {})
+      for name, amount in value.items():
+        totals[name] = totals.get(name, 0) + amount
+    elif type(value) in (float, int) and key != "Month":
+      if key.startswith(("Highest", "Longest", "Max")):
+        frogpilot_stats[key] = max(frogpilot_stats.get(key, 0), value)
+      elif key != "CurrentMonthsMeters" or added_stats.get("Month") == frogpilot_stats.get("Month"):
+        frogpilot_stats[key] = frogpilot_stats.get(key, 0) + value
+
+
+def move_stats(params, api, stats_lock):
+  payload = {}
+
+  for _ in range(STATS_MOVE_ROUND_TRIPS):
+    body = json.dumps(payload, separators=(",", ":"), sort_keys=True).encode()
+    response = api.post_gzip("/v1/stats-move", body, timeout=30)
+
+    if response is None:
+      print("Error moving stats (status=no_response)")
+
+      return
+
+    if response.status_code not in (200, 204):
+      print(f"Error moving stats (status={response.status_code})")
+
+      return
+
+    if response.status_code == 204 or payload.keys() == {"id"}:
+      move_id = params.get("FrogPilotStats").get("StatsMoveId", "")
+
+      if params.put("StatsMoveAckedId", move_id) != 0:
+        raise RuntimeError("Unable to save StatsMoveAckedId")
+
+    if response.status_code == 204:
+      return
+
+    instruction = response.json()
+    payload = {"id": instruction["id"]}
+
+    if instruction["id"] == params.get("FrogPilotStats").get("StatsMoveId"):
+      continue
+
+    if instruction["action"] == "send":
+      if stats_lock.locked():
+        return
+
+      payload["stats"] = get_frogpilot_stats(params)
+      continue
+
+    if not stats_lock.acquire(blocking=False):
+      return
+
+    try:
+      if instruction["action"] == "wipe":
+        frogpilot_stats = {}
+      else:
+        frogpilot_stats = params.get("FrogPilotStats")
+        merge_stats(frogpilot_stats, instruction["stats"])
+
+      frogpilot_stats["StatsMoveId"] = instruction["id"]
+
+      if params.put("FrogPilotStats", dict(sorted(frogpilot_stats.items()))) != 0:
+        raise RuntimeError("Unable to save FrogPilotStats")
+    finally:
+      stats_lock.release()
+
+
+def reset_stats(params):
+  move_id = params.get("FrogPilotStats").get("StatsMoveId")
+
+  if move_id is None:
+    params.remove("FrogPilotStats")
+
+    return
+
+  if params.put("FrogPilotStats", {"StatsMoveId": move_id}) != 0:
+    raise RuntimeError("Unable to save FrogPilotStats")
+
+
+def send_stats(params, frogpilot_toggles, api, stats_lock):
+  move_stats(params, api, stats_lock)
+
+  if params.get("FrogPilotStats").get("StatsMoveId", "") != params.get("StatsMoveAckedId"):
+    return
+
   if not params.get_bool("FrogPilotTelemetryConfirmed"):
     return
 
@@ -131,7 +231,7 @@ def send_stats(params, frogpilot_toggles, api):
       "city": city,
       "country": country,
       "frogpilot_car_params": get_frogpilot_car_params(params),
-      "frogpilot_stats": params.get("FrogPilotStats"),
+      "frogpilot_stats": get_frogpilot_stats(params),
       "state": state,
       "toggles": vars(frogpilot_toggles),
       "using_default_model": frogpilot_toggles.model == frogpilot_variables.DEFAULT_MODEL["id"],

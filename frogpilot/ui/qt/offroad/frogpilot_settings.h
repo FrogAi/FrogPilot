@@ -13,8 +13,11 @@ public:
   void updateTuningLevel();
   void updateVariables();
 
+  bool alwaysOnLateralLKASButton = false;
+  bool alwaysOnLateralLKASButtonForced = false;
   bool canDisableOpenpilotLong = true;
   bool canMapGears = true;
+  bool canUseAlwaysOnLateralLKASButton = true;
   bool canUseDSUBypass = false;
   bool canUsePedal = false;
   bool canUseSDSU = false;
@@ -39,12 +42,13 @@ public:
   bool isHKG = true;
   bool isHKGCanFd = true;
   bool isHondaNidec = false;
+  bool isRivian = false;
   bool isSubaru = false;
+  bool isTesla = false;
   bool isTorqueCar = false;
   bool isToyota = true;
   bool isVolt = true;
   bool keepScreenOn = false;
-  bool lkasAllowedForAOL = false;
 
   float friction = 0.0f;
   float latAccelFactor = 0.0f;

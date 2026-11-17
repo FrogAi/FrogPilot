@@ -5,6 +5,13 @@ def advanced_lateral_tune_changed(context, old_value, new_value):
   return context.started and not context.is_angle_car and context.params.get_bool("ForceTorqueController")
 
 
+def always_on_lateral_lkas_button_visible(context):
+  if context.always_on_lateral_lkas_button_forced:
+    return {"kind": "state", "text": "Always on for this car"}
+
+  return context.level_reason("AlwaysOnLateralLKASButton") or context.car_reason(context.can_use_always_on_lateral_lkas_button)
+
+
 def auto_tune_reason(context):
   if context.has_auto_tune:
     return context.setting_reason(context.params.get_bool("ForceAutoTuneOff"), "ForceAutoTuneOff")
@@ -82,11 +89,6 @@ def steer_torque_visible(context, key, car_value):
 
   reason = context.level_reason(key) or context.car_reason(car_value != 0) or auto_tune_reason(context)
   return reason or context.setting_reason(torque_steering, "ForceTorqueController") or context.setting_reason(not is_using_nnff(context), "NNFF", wanted=False)
-
-
-def always_on_lateral_lkas_visible(context):
-  lkas_optional = context.lkas_allowed_for_aol and (not context.is_hkg_can_fd or context.has_openpilot_longitudinal)
-  return context.level_reason("AlwaysOnLateralLKASButton") or context.car_reason(lkas_optional)
 
 
 ROWS = [
@@ -214,14 +216,15 @@ ROWS = [
   },
   {
     "children": ("Driving Controls", "STEERING", "Always On Lateral"),
-    "description": ("<b>openpilot keeps steering for you even when it isn't controlling the gas and brake, so it holds your lane when you press a pedal, " +
-                    "cancel, or haven't engaged openpilot at all.</b><br><br>It steers from the moment your car's cruise control is switched on until " +
-                    "you switch that back off or shift out of drive, and it pauses while you brake below the speed set in \"Pause on Brake Press " +
-                    "Below\", except at a full stop. If cruise control is already on when you start the car, it waits until you engage openpilot, " +
-                    "switch cruise control off and on, or press your car's LKAS button if it has one (not on Mazda, Nissan, or Subaru). That press only " +
-                    "starts steering and doesn't run anything assigned to the button. On Hyundai, Kia, and Genesis cars with CAN FD where your car " +
-                    "handles the gas and brake, or with \"Enable With LKAS\" on, engaging openpilot or pressing the LKAS button takes the place of " +
-                    "cruise control."),
+    "description": ("<b>openpilot keeps steering even when it isn't controlling the gas and brake, so it still holds your lane when you press " +
+                    "the gas, cancel cruise control, or haven't engaged openpilot at all.</b><br><br>Steering starts when you switch your " +
+                    "car's cruise control on or engage openpilot, and stops when you switch cruise control off. With \"Enable With LKAS\" on, " +
+                    "the LKAS button starts and stops it too, and Honda and Acura, Ford's Mustang Mach-E, F-150, F-150 Lightning, and Ranger, " +
+                    "and most Hyundai, Kia, and Genesis cars with an LFA button always work this way. On Hyundai, Kia, and Genesis cars using " +
+                    "openpilot longitudinal control, press the cruise MAIN button to switch cruise control on or off. On some cars, if cruise " +
+                    "control was already on when openpilot started, an alert tells you how to start it. It keeps steering while you brake " +
+                    "unless \"Pause on Brake Press Below\" is set, and only steers in drive. On Tesla and Rivian, engaging openpilot starts " +
+                    "it, and pressing the brake stops it, as does taking over the steering wheel on Tesla."),
     "key": "AlwaysOnLateral",
     "on_change": lambda context, old_value, new_value: context.started and new_value,
     "order": 1,
@@ -231,26 +234,29 @@ ROWS = [
     "widget": "manage"
   },
   {
-    "description": ("<b>Use the LKAS button instead of cruise control to arm steering, so openpilot keeps steering even when it is not " +
-                    "engaged.</b><br><br>openpilot does not read your car's LKAS status for this. It starts every drive disarmed, engaging openpilot " +
-                    "arms it, and each press of the LKAS button while openpilot isn't engaged flips it. Switching cruise control off doesn't stop it. " +
-                    "With this off, cruise control arms steering and the LKAS button is free to reassign under \"LKAS Button\"."),
+    "description": ("<b>Press your car's LKAS button to start or stop \"Always On Lateral\".</b><br><br>A press starts steering when it's off " +
+                    "and stops it when it's on, even with cruise control off. While this is on, the button does only this, so the \"LKAS " +
+                    "Button\" setting is hidden. Honda and Acura, Ford's Mustang Mach-E, F-150, F-150 Lightning, and Ranger, and most " +
+                    "Hyundai, Kia, and Genesis cars with an LFA button always work this way."),
     "key": "AlwaysOnLateralLKASButton",
-    "on_change": reboot_when_started,
+    "on_change": lambda context, old_value, new_value: context.started and new_value,
     "order": 0,
     "path": ("Driving Controls", "STEERING", "Always On Lateral"),
     "title": "Enable With LKAS",
-    "visible": always_on_lateral_lkas_visible,
+    "visible": always_on_lateral_lkas_button_visible,
     "widget": "toggle"
   },
   {
-    "description": "<b>Pause \"Always On Lateral\" below the speed set here while the brake pedal is pressed, except at a full stop.</b>",
+    "description": ("<b>Pause \"Always On Lateral\" while you hold the brake below the speed you set, except at a full " +
+                    "stop.</b><br><br>Steering picks back up as soon as you let go of the brake. With this off, it keeps steering while you " +
+                    "brake."),
     "key": "PauseAOLOnBrake",
     "order": 1,
     "path": ("Driving Controls", "STEERING", "Always On Lateral"),
     "title": "Pause on Brake Press Below",
     "value": rows.number(0, 99, unit=" mph", labels={0: "Off"}, fast=True,
                          metric=rows.number(0, 150, unit=" km/h", labels={0: "Off"}, fast=True)),
+    "visible": lambda context: context.level_reason("PauseAOLOnBrake") or context.car_reason(context.has_cruise_switch),
     "widget": "value"
   },
   {

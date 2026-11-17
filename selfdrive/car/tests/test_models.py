@@ -382,7 +382,7 @@ class TestCarModelBase(unittest.TestCase):
         if self.safety.get_cruise_engaged_prev() != prev_panda_cruise_engaged:
           self.assertEqual(CS.cruiseState.enabled, self.safety.get_cruise_engaged_prev())
 
-      if self.CP.brand == "honda":
+      if self.CP.brand in ("honda", "toyota"):
         if self.safety.get_acc_main_on() != prev_panda_acc_main_on:
           self.assertEqual(CS.cruiseState.available, self.safety.get_acc_main_on())
 
@@ -466,7 +466,7 @@ class TestCarModelBase(unittest.TestCase):
         if button_enable and not mismatch:
           self.safety.set_controls_allowed(False)
 
-      if self.CP.brand == "honda":
+      if self.CP.brand in ("honda", "toyota"):
         checks['mainOn'] += CS.cruiseState.available != self.safety.get_acc_main_on()
 
       CS_prev = CS

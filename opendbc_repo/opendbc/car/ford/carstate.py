@@ -4,6 +4,7 @@ from opendbc.car.common.conversions import Conversions as CV
 from opendbc.car.ford.fordcan import CanBus
 from opendbc.car.ford.values import DBC, CarControllerParams, FordFlags
 from opendbc.car.interfaces import CarStateBase
+from opendbc.safety import MAX_SPEED_DELTA
 
 ButtonType = structs.CarState.ButtonEvent.Type
 GearShifter = structs.CarState.GearShifter
@@ -153,6 +154,8 @@ class CarState(CarStateBase):
     # FrogPilot variables
     if self.FPCP.hasDashboardSpeedLimit:
       self.fp_ret.dashboardSpeedLimit = calculate_speed_limit(cp_cam)
+
+    self.fp_ret.speedSensorsDisagree = abs(cp.vl["EngVehicleSpThrottle2"]["Veh_V_ActlEng"] * CV.KPH_TO_MS - ret.vEgoRaw) > MAX_SPEED_DELTA
 
     return ret
 

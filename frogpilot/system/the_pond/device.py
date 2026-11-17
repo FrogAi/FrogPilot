@@ -45,7 +45,7 @@ async def get_device(request):
   return web.json_response({
     "alerts": sorted(alerts, key=lambda alert: (-alert["severity"], alert["key"])),
     "branch": params.get("GitBranch"),
-    "comma_four": utilities.IS_COMMA_FOUR,
+    "comma_four": frogpilot_variables.IS_COMMA_FOUR,
     "commit": params.get("GitCommit"),
     "cpu_usage": list(device_state.cpuUsagePercent),
     "gpu_usage": device_state.gpuUsagePercent,

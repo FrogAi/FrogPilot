@@ -32,7 +32,7 @@ class CarController(CarControllerBase):
     can_sends.append(create_lka_steering(self.packer, self.frame, CS.acm_lka_hba_cmd, apply_torque, CC.latActive, CC.latActive))
 
     if self.frame % 5 == 0:
-      can_sends.append(create_wheel_touch(self.packer, CS.sccm_wheel_touch, CC.enabled))
+      can_sends.append(create_wheel_touch(self.packer, CS.sccm_wheel_touch, CC.enabled or CC.latActive))
 
     # Longitudinal control
     if self.CP.openpilotLongitudinalControl:

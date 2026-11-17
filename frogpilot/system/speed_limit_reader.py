@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import datetime
 import functools
 import json
 import math
@@ -48,9 +49,9 @@ def capture_sign(buffer, state, outputs, sm, gps_service, best_confidences):
   gps_location = sm[gps_service]
   frogpilot_utilities.update_json_file(image_path.with_suffix(".json"), {
     "bearing": gps_location.bearingDeg,
-    "captured_at": gps_location.unixTimestampMillis,
     "latitude": gps_location.latitude,
     "longitude": gps_location.longitude,
+    "month": datetime.datetime.fromtimestamp(gps_location.unixTimestampMillis / 1000, datetime.UTC).strftime("%Y-%m"),
   })
 
 def load_model(folder):
@@ -106,7 +107,9 @@ def main():
   outputs = {name: index for index, name in enumerate(inputs["outputs"])}
   fields = [(name, index) for name, index in outputs.items() if name in custom.FrogPilotSignReading.schema.fieldnames]
 
-  capture = all(name in outputs for name in SIGN_OUTPUTS) and frogpilot_variables.get_frogpilot_toggles().speed_limit_filler
+  frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles()
+
+  capture = all(name in outputs for name in SIGN_OUTPUTS) and frogpilot_toggles.speed_limit_filler and frogpilot_toggles.telemetry_sharing
 
   gps_service = get_gps_location_service(Params())
 

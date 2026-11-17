@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import itertools
 import unittest
 
 from opendbc.car.gm.values import GMSafetyFlags
@@ -13,6 +14,9 @@ class Buttons:
   RES_ACCEL = 2
   DECEL_SET = 3
   CANCEL = 6
+
+  # FrogPilot variables
+  MAIN = 5
 
 
 class GmLongitudinalBase(common.CarSafetyTest, common.LongitudinalGasBrakeSafetyTest):
@@ -178,6 +182,48 @@ class TestGmCameraSafetyBase(TestGmSafetyBase):
     values = {"BrakePressed": brake}
     return self.packer.make_can_msg_safety("ECMEngineStatus", 0, values)
 
+  # FrogPilot variables
+  def _main_press_msg(self, bus=0):
+    return self.packer.make_can_msg_safety("ASCMSteeringButton", bus, {"ACCButtons": Buttons.MAIN})
+
+  def test_main_button(self):
+    for acc_main_on, controls_allowed, cruise_engaged, bus in itertools.product((True, False), (True, False), (True, False), (0, 2)):
+      self._reset_safety_hooks()
+      self._rx(self._toggle_aol(acc_main_on))
+      self.safety.set_controls_allowed(controls_allowed)
+      self.safety.set_cruise_engaged_prev(cruise_engaged)
+
+      allowed = acc_main_on and not controls_allowed and not cruise_engaged and bus == 0
+      self.assertEqual(allowed, self._tx(self._main_press_msg(bus)), (acc_main_on, controls_allowed, cruise_engaged, bus))
+
+  def test_main_button_once(self):
+    for _ in range(2):
+      self._reset_safety_hooks()
+      self._rx(self._toggle_aol(True))
+
+      self.assertTrue(self._tx(self._main_press_msg()))
+      self.assertFalse(self._tx(self._main_press_msg()))
+
+  def test_main_button_after_main_off(self):
+    self._rx(self._toggle_aol(False))
+    self._rx(self._toggle_aol(True))
+
+    self.assertFalse(self._tx(self._main_press_msg()))
+
+  def test_main_button_after_engaged(self):
+    for set_engaged in (self.safety.set_controls_allowed, self.safety.set_cruise_engaged_prev):
+      self._reset_safety_hooks()
+      set_engaged(True)
+      self._rx(self._toggle_aol(True))
+      set_engaged(False)
+
+      self.assertFalse(self._tx(self._main_press_msg()))
+
+  def test_main_on_camera_bus_ignored(self):
+    self._rx(self.packer.make_can_msg_safety("ECMEngineStatus", 2, {"CruiseMainOn": 1}))
+
+    self.assertFalse(self.safety.get_acc_main_on())
+
 
 class TestGmCameraSafety(TestGmCameraSafetyBase):
   TX_MSGS = [[0x180, 0],  # pt bus
@@ -308,6 +354,13 @@ class TestGmInterceptorSafety(common.GasInterceptorSafetyTest, TestGmCameraSafet
     return self.packer.make_can_msg_safety("ECMCruiseControl", 0, values)
 
 
+class TestGmInterceptorGasSafety(TestGmInterceptorSafety):
+  EXTRA_SAFETY_PARAM = 0
+
+  def _user_regen_msg(self, regen):
+    pass
+
+
 class TestGmCcLongitudinalSafety(TestGmCameraSafety):
   TX_MSGS = [[0x180, 0], [0x1E1, 0], [0x184, 2]]
   FWD_BLACKLISTED_ADDRS = {2: [0x180], 0: [0x184]}  # block LKAS message and PSCMStatus
@@ -345,7 +398,7 @@ class TestGmCcLongitudinalSafety(TestGmCameraSafety):
         self._rx(self._pcm_status_msg(True))
         for t in range(1, 4):
           self.safety.set_timer(int(t * 1e6))
-          for msg in ("EBCMWheelSpdRear", "PSCMStatus", "ASCMSteeringButton", "AcceleratorPedal2", "ECMEngineStatus"):
+          for msg in ("EBCMRegenPaddle", "EBCMWheelSpdRear", "PSCMStatus", "ASCMSteeringButton", "AcceleratorPedal2", "ECMEngineStatus"):
             self._rx(self.packer.make_can_msg_safety(msg, 0, {}))
           if pcm_status_alive:
             self._rx(self._pcm_status_msg(True))
@@ -353,6 +406,14 @@ class TestGmCcLongitudinalSafety(TestGmCameraSafety):
         self.assertEqual(pcm_status_alive, self.safety.safety_config_valid())
         self.assertEqual(pcm_status_alive, self.safety.get_controls_allowed())
         self.assertEqual(pcm_status_alive, self._tx(self._button_msg(Buttons.RES_ACCEL)))
+
+
+class TestGmCcLongitudinalEVSafety(TestGmCcLongitudinalSafety, TestGmEVSafetyBase):
+  def setUp(self):
+    self.packer = CANPackerSafety("gm_global_a_powertrain_generated")
+    self.safety = libsafety_py.libsafety
+    self.safety.set_safety_hooks(CarParams.SafetyModel.gm, GMSafetyFlags.HW_CAM | GMSafetyFlags.FLAG_GM_NO_ACC | GMSafetyFlags.FLAG_GM_CC_LONG | self.EXTRA_SAFETY_PARAM)
+    self.safety.init_tests()
 
 
 if __name__ == "__main__":

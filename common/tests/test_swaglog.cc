@@ -86,3 +86,28 @@ TEST_CASE("swaglog") {
 
   recv_log(thread_cnt, thread_msg_cnt);
 }
+
+// FrogPilot variables
+TEST_CASE("swaglog error file") {
+  std::string error_path = Path::shm_path() + "/swaglog_error." + std::to_string(getpid());
+  std::string tmp_path = error_path + ".tmp";
+  std::string unfinished_write(1000, 'x');
+
+  LOGE("first error");
+  util::write_file(tmp_path.c_str(), unfinished_write.data(), unfinished_write.size(), O_WRONLY | O_CREAT);
+  LOGE("last error %d", 16);
+  int error_line = __LINE__ - 1;
+  LOGW("warning");
+
+  symlink((tmp_path + ".missing/tmp").c_str(), tmp_path.c_str());
+  LOGE("error that can't be written");
+  unlink(tmp_path.c_str());
+
+  std::string err;
+  json11::Json msg = json11::Json::parse(util::read_file(error_path), err);
+  unlink(error_path.c_str());
+
+  REQUIRE_THAT(msg["filename"].string_value(), Catch::Contains("test_swaglog.cc"));
+  REQUIRE(msg["lineno"].int_value() == error_line);
+  REQUIRE(msg["msg"].string_value() == "last error 16");
+}

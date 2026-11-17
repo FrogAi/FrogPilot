@@ -7,6 +7,7 @@ import opendbc.safety.tests.common as common
 from opendbc.car.ford.carcontroller import MAX_LATERAL_ACCEL
 from opendbc.car.ford.values import FordSafetyFlags
 from opendbc.car.structs import CarParams
+from opendbc.safety import ALTERNATIVE_EXPERIENCE
 from opendbc.safety.tests.libsafety import libsafety_py
 from opendbc.safety.tests.common import CANPackerSafety
 
@@ -391,6 +392,32 @@ class TestFordSafetyBase(common.CarSafetyTest):
 
   def _aol_steer_msg(self):
     return self._lat_ctl_msg(True, 0, 0, self.ANGLE_RATE_UP[0] / 2.0, 0)
+
+  def _lkas_press_msg(self, pressed):
+    values = {"TjaButtnOnOffPress": pressed}
+    return self.packer.make_can_msg_safety("Steering_Data_FD1", 0, values)
+
+  def test_lkas_button_msg_lagging(self):
+    for lkas_button_msg in (True, False):
+      self._reset_safety_hooks()
+      self.safety.set_alternative_experience(ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL)
+      self.safety.set_timer(0)
+      self._rx(self._lkas_press_msg(False))
+
+      self.safety.set_timer(int(1.5e6))
+      self._rx(self._toggle_aol(True))
+      self._rx(self._speed_msg(0))
+      self._rx(self._speed_msg_2(0))
+      self._rx(self._user_gas_msg(0))
+      self._rx(self._vehicle_moving_msg(0))
+      self._rx(self._yaw_rate_msg(0, 0))
+
+      if lkas_button_msg:
+        self._rx(self._lkas_press_msg(False))
+
+      self.safety.safety_tick_current_safety_config()
+
+      self.assertEqual(lkas_button_msg, self.safety.get_lateral_allowed(), lkas_button_msg)
 
 
 class TestFordCANFDStockSafety(TestFordSafetyBase):

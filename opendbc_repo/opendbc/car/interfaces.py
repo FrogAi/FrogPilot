@@ -18,11 +18,11 @@ from opendbc.car.common.basedir import BASEDIR
 from opendbc.car.common.conversions import Conversions as CV
 from opendbc.car.common.simple_kalman import KF1D, get_kalman_gain
 from opendbc.car.ford.fordcan import CanBus as FordCanBus
-from opendbc.car.ford.values import CAR as FORD, FordFlags
+from opendbc.car.ford.values import CAR as FORD, NO_CRUISE_STANDBY_CAR, FordFlags
 from opendbc.car.gm.values import CAR as GM
 from opendbc.car.honda.values import CAR as HONDA, HONDA_BOSCH
 from opendbc.car.hyundai.hyundaicanfd import CanBus as HyundaiCanBus
-from opendbc.car.hyundai.values import CAR as HYUNDAI, CANFD_CAR, HyundaiFlags, HyundaiFrogPilotSafetyFlags
+from opendbc.car.hyundai.values import CAR as HYUNDAI, CANFD_CAR, CRUISE_STANDBY_LFA_BUTTON_CAR, HyundaiFlags, HyundaiFrogPilotSafetyFlags
 from opendbc.car.mock.values import CAR as MOCK
 from opendbc.car.subaru.values import CAR as SUBARU, SubaruSafetyFlags
 from opendbc.car.toyota.values import CAR as TOYOTA, NO_DSU_CAR, TSS2_CAR, UNSUPPORTED_DSU_CAR, ToyotaFrogPilotFlags
@@ -195,12 +195,14 @@ class CarInterfaceBase(ABC):
             fp_ret.flags |= ChryslerFrogPilotFlags.RAM_HD_ALT_BUTTONS.value
 
       elif platform in FORD:
+        fp_ret.alwaysOnLateralLKASButton = candidate in NO_CRUISE_STANDBY_CAR
         fp_ret.hasDashboardSpeedLimit = bool(CP.flags & FordFlags.CANFD) and 0x3CD in fingerprint[FordCanBus(CP).camera]
 
       elif platform in GM:
         fp_ret.canUsePedal = True
 
       elif platform in HONDA:
+        fp_ret.alwaysOnLateralLKASButton = True
         fp_ret.canUsePedal = candidate not in HONDA_BOSCH
 
         if candidate not in HONDA_BOSCH and frogpilot_toggles.honda_alt_tune:
@@ -220,10 +222,10 @@ class CarInterfaceBase(ABC):
         if CP.flags & HyundaiFlags.CANFD and frogpilot_toggles.taco_tune_hacks:
           CP.safetyConfigs[-1].safetyParam |= HyundaiFrogPilotSafetyFlags.TACO_TUNE_HACK.value
 
-        lkas_allowed_for_aol = CP.flags & (HyundaiFlags.CANFD | HyundaiFlags.HAS_LDA_BUTTON)
-        lkas_required_for_aol = CP.flags & HyundaiFlags.CANFD and not CP.openpilotLongitudinalControl
-        if lkas_allowed_for_aol and frogpilot_toggles.always_on_lateral and (frogpilot_toggles.always_on_lateral_lkas_selected or lkas_required_for_aol):
-          CP.safetyConfigs[-1].safetyParam |= HyundaiFrogPilotSafetyFlags.ALWAYS_ON_LATERAL_LKAS.value
+        if CP.flags & HyundaiFlags.CANFD:
+          fp_ret.alwaysOnLateralLKASButton = True
+        elif CP.flags & HyundaiFlags.HAS_LDA_BUTTON:
+          fp_ret.alwaysOnLateralLKASButton = candidate not in CRUISE_STANDBY_LFA_BUTTON_CAR
 
       elif platform in SUBARU:
         if CP.autoResumeSng and frogpilot_toggles.subaru_sng:

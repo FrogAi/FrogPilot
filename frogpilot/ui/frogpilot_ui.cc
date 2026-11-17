@@ -191,6 +191,12 @@ void FrogPilotUIState::requestAccountUrl(const QString &purpose) {
   pm->send("frogpilotUIRequest", msg);
 }
 
+void FrogPilotUIState::resetStats() {
+  MessageBuilder msg;
+  msg.initEvent().initFrogpilotUIRequest().setResetStats();
+  pm->send("frogpilotUIRequest", msg);
+}
+
 void FrogPilotUIState::restoreSettingsBackup(const QString &name) {
   MessageBuilder msg;
   cereal::Event::Builder event = msg.initEvent();

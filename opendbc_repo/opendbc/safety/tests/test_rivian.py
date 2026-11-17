@@ -2,6 +2,7 @@
 import unittest
 
 from opendbc.car.structs import CarParams
+from opendbc.safety import ALTERNATIVE_EXPERIENCE
 from opendbc.safety.tests.libsafety import libsafety_py
 import opendbc.safety.tests.common as common
 from opendbc.safety.tests.common import CANPackerSafety
@@ -108,6 +109,66 @@ class TestRivianSafetyBase(common.CarSafetyTest, common.DriverTorqueSteeringSafe
         msg[0].data[0] = 0xff
         self.assertFalse(self._rx(msg))
         self.assertFalse(self.safety.get_controls_allowed())
+
+  # FrogPilot variables
+  def _engage_and_disengage(self):
+    self._rx(self._pcm_status_msg(1))
+    self._rx(self._pcm_status_msg(0))
+
+  def test_always_on_lateral(self):
+    disengaged_feature_states = (0, 2, 3, 4)  # STANDBY, HWP, UF, FAULTED
+
+    for alternative_experience in (0, ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL):
+      self._reset_safety_hooks()
+      self.safety.set_alternative_experience(alternative_experience)
+
+      for feature_status in disengaged_feature_states:
+        self._rx(self._pcm_status_msg(feature_status))
+        self.assertFalse(self._tx(self._aol_steer_msg()), (alternative_experience, feature_status))
+
+      self._engage_and_disengage()
+
+      self.assertFalse(self.safety.get_controls_allowed())
+      self.assertEqual(alternative_experience != 0, self._tx(self._aol_steer_msg()))
+
+  def test_always_on_lateral_brake(self):
+    self.safety.set_alternative_experience(ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL)
+
+    self._rx(self._user_brake_msg(True))
+    self._engage_and_disengage()
+    self._rx(self._speed_msg(10))
+    self._rx(self._user_brake_msg(True))
+
+    self.assertTrue(self.safety.get_lateral_allowed())
+
+    self._rx(self._user_brake_msg(False))
+    self._rx(self._user_brake_msg(True))
+    self._rx(self._user_brake_msg(False))
+
+    self.assertFalse(self.safety.get_lateral_allowed())
+
+    self._engage_and_disengage()
+
+    self.assertTrue(self.safety.get_lateral_allowed())
+
+  def test_always_on_lateral_brake_while_engaged(self):
+    self.safety.set_alternative_experience(ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL)
+
+    self._rx(self._pcm_status_msg(1))
+    self._rx(self._user_brake_msg(True))
+    self._rx(self._pcm_status_msg(0))
+    self._rx(self._user_brake_msg(False))
+
+    self.assertFalse(self.safety.get_lateral_allowed())
+
+  def test_always_on_lateral_engagement_cancelled(self):
+    self.safety.set_alternative_experience(ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL)
+
+    self._rx(self._speed_msg(10))
+    self._rx(self._user_brake_msg(True))
+    self._engage_and_disengage()
+
+    self.assertFalse(self.safety.get_lateral_allowed())
 
 
 class TestRivianStockSafety(TestRivianSafetyBase):

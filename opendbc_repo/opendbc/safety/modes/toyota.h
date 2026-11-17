@@ -74,6 +74,11 @@ static bool toyota_stock_longitudinal = false;
 static bool toyota_lta = false;
 static int toyota_dbc_eps_torque_factor = 100;   // conversion factor for STEER_TORQUE_EPS in %: see dbc file
 
+// FrogPilot variables
+static bool toyota_lkas_status = false;
+
+static int toyota_lda_on_message = 0;
+
 static uint32_t toyota_compute_checksum(const CANPacket_t *msg) {
   int len = GET_LEN(msg);
   uint8_t checksum = (uint8_t)(msg->addr) + (uint8_t)((unsigned int)(msg->addr) >> 8U) + (uint8_t)(len);
@@ -439,6 +444,8 @@ static safety_config toyota_init(uint16_t param) {
   bool toyota_unsupported_dsu = GET_FLAG(param, TOYOTA_PARAM_UNSUPPORTED_DSU);
 
   enable_gas_interceptor = GET_FLAG(param, TOYOTA_PARAM_GAS_INTERCEPTOR) && !toyota_stock_longitudinal && !toyota_secoc;
+  toyota_lda_on_message = 0;
+  toyota_lkas_status = false;
 
   safety_config ret;
   if (toyota_secoc) {
@@ -564,6 +571,24 @@ static safety_config toyota_init(uint16_t param) {
   return ret;
 }
 
+// FrogPilot variables
+static void toyota_lkas_button_hook(const CANPacket_t *msg) {
+  // LDA_ON_MESSAGE shows when a press turns lane assist on, and LKAS_STATUS falls to 0 when a press turns it off.
+  // The camera also turns lane assist off by itself, flagged by TWO_BEEPS, LDA_MALFUNCTION or LDA_UNAVAILABLE
+  if ((msg->bus == 2U) && (msg->addr == 0x412U)) {
+    bool camera_turned_off = GET_BIT(msg, 12U) || GET_BIT(msg, 15U) || GET_BIT(msg, 16U);  // LKAS_HUD.TWO_BEEPS, LDA_MALFUNCTION, LDA_UNAVAILABLE
+    bool lkas_status = (msg->data[0] >> 6) != 0U;  // LKAS_HUD.LKAS_STATUS
+
+    int lda_on_message = msg->data[3] >> 6;  // LKAS_HUD.LDA_ON_MESSAGE
+
+    lkas_button_pressed = ((lda_on_message != 0) && (lda_on_message != toyota_lda_on_message)) || (!camera_turned_off && !lkas_status && toyota_lkas_status);
+    toyota_lda_on_message = lda_on_message;
+    toyota_lkas_status = lkas_status;
+  } else {
+    lkas_button_pressed = false;
+  }
+}
+
 const safety_hooks toyota_hooks = {
   .init = toyota_init,
   .rx = toyota_rx_hook,
@@ -574,4 +599,5 @@ const safety_hooks toyota_hooks = {
 
   // FrogPilot variables
   .get_counter = toyota_get_counter,
+  .lkas_button = toyota_lkas_button_hook,
 };

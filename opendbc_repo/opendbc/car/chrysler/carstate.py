@@ -109,7 +109,7 @@ class CarState(CarStateBase):
 
     prev_lkas_button = self.lkas_button
     if self.CP.carFingerprint in RAM_CARS:
-      self.lkas_button = cp.vl["Center_Stack_1"]["LKAS_Button"] or cp.vl["Center_Stack_2"]["LKAS_Button"]
+      self.lkas_button = cp.vl["Center_Stack_2"]["LKAS_Button"]
     else:
       self.lkas_button = cp.vl["TRACTION_BUTTON"]["TOGGLE_LKAS"] == 1
 

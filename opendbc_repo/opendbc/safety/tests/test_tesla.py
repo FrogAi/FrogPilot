@@ -358,24 +358,105 @@ class TestTeslaSafetyBase(common.CarSafetyTest, common.AngleSteeringSafetyTest, 
         self.assertTrue(self._tx(self._angle_cmd_msg(0, True)))
 
   # FrogPilot variables
+  def _engage_and_disengage(self):
+    self._rx(self._pcm_status_msg(True))
+    self._rx(self._pcm_status_msg(False))
+
   def test_always_on_lateral(self):
     disengaged_cruise_states = (0, 1, 5)  # UNAVAILABLE, STANDBY, FAULT
 
-    self.safety.set_alternative_experience(0)
-    for cruise_state in disengaged_cruise_states:
-      self._rx(self.packer.make_can_msg_safety("DI_state", 0, {"DI_cruiseState": cruise_state}))
-      self.assertFalse(self.safety.get_controls_allowed())
-      self.assertFalse(self._tx(self._angle_cmd_msg(0, True)))
+    for alternative_experience in (0, ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL):
+      self._reset_safety_hooks()
+      self.safety.set_alternative_experience(alternative_experience)
 
+      for cruise_state in disengaged_cruise_states:
+        self._rx(self.packer.make_can_msg_safety("DI_state", 0, {"DI_cruiseState": cruise_state}))
+        self.assertFalse(self._tx(self._angle_cmd_msg(0, True)), (alternative_experience, cruise_state))
+
+      self._engage_and_disengage()
+
+      self.assertFalse(self.safety.get_controls_allowed())
+      self.assertEqual(alternative_experience != 0, self._tx(self._angle_cmd_msg(0, True)))
+
+      for autopark_state in self.active_autopark_states:
+        self._rx(self._pcm_status_msg(False, autopark_state=autopark_state))
+        self.assertFalse(self._tx(self._angle_cmd_msg(0, True)))
+
+  def test_always_on_lateral_brake(self):
     self.safety.set_alternative_experience(ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL)
-    for cruise_state in disengaged_cruise_states:
-      self._rx(self.packer.make_can_msg_safety("DI_state", 0, {"DI_cruiseState": cruise_state}))
-      self.assertFalse(self.safety.get_controls_allowed())
-      self.assertTrue(self._tx(self._angle_cmd_msg(0, True)))
 
-    for autopark_state in self.active_autopark_states:
-      self._rx(self.packer.make_can_msg_safety("DI_state", 0, {"DI_cruiseState": 1, "DI_autoparkState": autopark_state}))
-      self.assertFalse(self._tx(self._angle_cmd_msg(0, True)))
+    self._rx(self._user_brake_msg(True))
+    self._engage_and_disengage()
+    self._rx(self._vehicle_moving_msg(10))
+    self._rx(self._user_brake_msg(True))
+
+    self.assertTrue(self.safety.get_lateral_allowed())
+
+    self._rx(self._user_brake_msg(False))
+    self._rx(self._user_brake_msg(True))
+    self._rx(self._user_brake_msg(False))
+
+    self.assertFalse(self.safety.get_lateral_allowed())
+
+  def test_always_on_lateral_brake_while_engaged(self):
+    self.safety.set_alternative_experience(ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL)
+
+    self._rx(self._pcm_status_msg(True))
+    self._rx(self._user_brake_msg(True))
+    self._rx(self._pcm_status_msg(False))
+    self._rx(self._user_brake_msg(False))
+
+    self.assertFalse(self.safety.get_lateral_allowed())
+
+  def test_always_on_lateral_engagement_cancelled(self):
+    self.safety.set_alternative_experience(ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL)
+
+    self._rx(self._vehicle_moving_msg(10))
+    self._rx(self._user_brake_msg(True))
+    self._engage_and_disengage()
+
+    self.assertFalse(self.safety.get_lateral_allowed())
+
+  def test_always_on_lateral_steering_disengage(self):
+    self.safety.set_alternative_experience(ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL)
+
+    self._rx(self._angle_meas_msg(0, hands_on_level=3))
+    self._engage_and_disengage()
+    self._rx(self._angle_meas_msg(0, hands_on_level=3))
+
+    self.assertTrue(self.safety.get_lateral_allowed())
+
+    self._rx(self._angle_meas_msg(0))
+    self._rx(self._angle_meas_msg(0, hands_on_level=3))
+    self._rx(self._angle_meas_msg(0))
+
+    self.assertFalse(self.safety.get_lateral_allowed())
+
+    self._engage_and_disengage()
+
+    self.assertTrue(self.safety.get_lateral_allowed())
+
+  def test_always_on_lateral_steering_disengage_while_engaged(self):
+    self.safety.set_alternative_experience(ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL)
+
+    self._rx(self._pcm_status_msg(True))
+    self._rx(self._angle_meas_msg(0, hands_on_level=3))
+    self._rx(self._pcm_status_msg(False))
+    self._rx(self._angle_meas_msg(0))
+
+    self.assertFalse(self.safety.get_lateral_allowed())
+
+  def test_always_on_lateral_stock_lkas(self):
+    lkas_msg_cam = self._angle_cmd_msg(0, state=self.steer_control_types["LANE_KEEP_ASSIST"], bus=2)
+
+    for alternative_experience in (0, ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL):
+      self._reset_safety_hooks()
+      self.safety.set_alternative_experience(alternative_experience)
+      self._engage_and_disengage()
+
+      self._rx(lkas_msg_cam)
+      self.assertEqual(alternative_experience != 0, self._tx(self._angle_cmd_msg(0, True)), alternative_experience)
+      self.assertEqual(alternative_experience == 0, self.safety.safety_fwd_hook(2, lkas_msg_cam.addr) == 0, alternative_experience)
 
 
 class TestTeslaStockSafety(TestTeslaSafetyBase):

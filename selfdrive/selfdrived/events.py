@@ -425,6 +425,15 @@ def invalid_lkas_setting_alert(CP: car.CarParams, CS: car.CarState, sm: messagin
 
 
 # FrogPilot variables
+def always_on_lateral_waiting_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int, personality, frogpilot_toggles: SimpleNamespace) -> Alert:
+  if frogpilot_toggles.always_on_lateral_lkas_button:
+    start_steering = "Press LKAS, turn cruise off and on, or engage to start steering"
+  else:
+    start_steering = "Turn cruise off and on, or engage to start steering"
+
+  return NormalPermanentAlert("Always On Lateral Isn't Active Yet", start_steering, priority=Priority.LOWEST)
+
+
 def custom_startup_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int, personality, frogpilot_toggles: SimpleNamespace) -> Alert:
   return StartupAlert(frogpilot_toggles.startup_alert_top, frogpilot_toggles.startup_alert_bottom, alert_status=FrogPilotAlertStatus.frogpilot)
 
@@ -1108,6 +1117,14 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
 
 # FrogPilot variables
 FROGPILOT_EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
+  FrogPilotEventName.alwaysOnLateralSteeringOff: {
+    ET.PERMANENT: NormalPermanentAlert("Steering Off", "Press LKAS to resume steering"),
+  },
+
+  FrogPilotEventName.alwaysOnLateralWaiting: {
+    ET.PERMANENT: always_on_lateral_waiting_alert,
+  },
+
   FrogPilotEventName.blockUser: {
     ET.PERMANENT: Alert(
       "Don't use the 'MAKE-PRS-HERE' branch!",
@@ -1241,6 +1258,12 @@ FROGPILOT_EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       "",
       FrogPilotAlertStatus.frogpilot, AlertSize.small,
       Priority.LOW, VisualAlert.none, AudibleAlert.prompt, 3.),
+  },
+
+  FrogPilotEventName.speedSensorsDisagree: {
+    ET.IMMEDIATE_DISABLE: ImmediateDisableAlert("Speed Sensors Disagree"),
+    ET.PERMANENT: NormalPermanentAlert("Speed Sensors Disagree", "Steering is unavailable until they match"),
+    ET.NO_ENTRY: NoEntryAlert("Speed Sensors Disagree"),
   },
 
   FrogPilotEventName.trafficModeActive: {
@@ -1445,6 +1468,25 @@ if HARDWARE.get_device_type() == 'mici':
 
 
 # FrogPilot variables
+def always_on_lateral_waiting_alert_mici(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int, personality, frogpilot_toggles: SimpleNamespace) -> Alert:
+  if frogpilot_toggles.always_on_lateral_lkas_button:
+    start_steering = "Press LKAS to Start"
+  else:
+    start_steering = "Turn Cruise Off and On"
+
+  return NormalPermanentAlert("Steering Off", start_steering, priority=Priority.LOWEST)
+
+
+def custom_startup_alert_mici(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int, personality, frogpilot_toggles: SimpleNamespace) -> Alert:
+  params = Params()
+  default_text = (params.get_default_value("StartupMessageTop"), params.get_default_value("StartupMessageBottom"))
+
+  if (frogpilot_toggles.startup_alert_top, frogpilot_toggles.startup_alert_bottom) == default_text:
+    return StartupAlert("Buckle Up!", "Frog-approved 🐸", alert_status=FrogPilotAlertStatus.frogpilot)
+
+  return custom_startup_alert(CP, CS, sm, metric, soft_disable_time, personality, frogpilot_toggles)
+
+
 def forcing_stop_alert_mici(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int, personality, frogpilot_toggles: SimpleNamespace) -> Alert:
   if CS.standstill:
     stop_message = "Holding"
@@ -1505,12 +1547,21 @@ if HARDWARE.get_device_type() == 'mici':
         FrogPilotAlertStatus.frogpilot, AlertSize.mid,
         Priority.LOW, VisualAlert.none, FrogPilotAudibleAlert.nessie, 4.),
     },
+    FrogPilotEventName.alwaysOnLateralSteeringOff: {
+      ET.PERMANENT: NormalPermanentAlert("Steering Off", "Press LKAS to Resume"),
+    },
+    FrogPilotEventName.alwaysOnLateralWaiting: {
+      ET.PERMANENT: always_on_lateral_waiting_alert_mici,
+    },
     FrogPilotEventName.blockUser: {
       ET.PERMANENT: Alert(
         "Dashcam",
         "Don't use MAKE-PRS-HERE",
         AlertStatus.userPrompt, AlertSize.mid,
         Priority.HIGHEST, VisualAlert.none, AudibleAlert.none, 1.),
+    },
+    FrogPilotEventName.customStartupAlert: {
+      ET.PERMANENT: custom_startup_alert_mici,
     },
     FrogPilotEventName.dejaVuCurve: {
       ET.PERMANENT: Alert(
@@ -1584,6 +1635,11 @@ if HARDWARE.get_device_type() == 'mici':
         "",
         FrogPilotAlertStatus.frogpilot, AlertSize.small,
         Priority.LOW, VisualAlert.none, AudibleAlert.prompt, 3.),
+    },
+    FrogPilotEventName.speedSensorsDisagree: {
+      ET.IMMEDIATE_DISABLE: ImmediateDisableAlert("Speed Sensors Disagree"),
+      ET.PERMANENT: NormalPermanentAlert("Steering Off", "Speed Sensors Disagree"),
+      ET.NO_ENTRY: NoEntryAlert("Speed Fault"),
     },
     FrogPilotEventName.thisIsFineSteerSaturated: {
       ET.WARNING: Alert(

@@ -1149,7 +1149,7 @@ function pairingOffMessage() {
 
 function pairingCodePlace() {
   if (state.comma_four) {
-    return "on the device's “frogpilot settings” screen";
+    return "on the device's “FrogPilot settings” screen";
   }
 
   return "next to “Manage Your Settings At” in FrogPilot's Navigation settings";

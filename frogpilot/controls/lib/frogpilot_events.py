@@ -6,10 +6,11 @@ import numpy as np
 from openpilot.common.constants import ACCELERATION_DUE_TO_GRAVITY, CV
 from openpilot.common.realtime import DT_MDL
 from openpilot.selfdrive.controls.lib.desire_helper import TurnDirection
-from openpilot.selfdrive.selfdrived.events import ET, EVENT_NAME, FROGPILOT_EVENT_NAME, EventName, FrogPilotEventName, Events
+from openpilot.selfdrive.selfdrived.events import ET, EVENT_NAME, FROGPILOT_EVENT_NAME, AlertSize, EventName, FrogPilotEventName, Events
 
 from openpilot.frogpilot.common import frogpilot_paths, frogpilot_variables
 
+ALWAYS_ON_LATERAL_WAITING_ALERT_TIME = 10
 DEJA_VU_G_FORCE = 0.75
 GREEN_LIGHT_LOOKAHEAD = 6
 GREEN_LIGHT_TIME = 0.35
@@ -32,6 +33,7 @@ class FrogPilotEvents:
     self.startup_seen = False
     self.stopped_for_light = False
 
+    self.always_on_lateral_waiting_timer = 0
     self.green_light_timer = 0
     self.max_acceleration = 0
     self.random_event_timer = 0
@@ -164,6 +166,21 @@ class FrogPilotEvents:
       self.always_on_lateral_allowed_previously = sm["frogpilotCarState"].alwaysOnLateralAllowed
       self.random_event_playing |= any(frogpilot_variables.RANDOM_EVENT_START <= event <= frogpilot_variables.RANDOM_EVENT_END for event in self.events.names)
 
+    if sm["frogpilotCarState"].alwaysOnLateralSteeringOff:
+      self.events.add(FrogPilotEventName.alwaysOnLateralSteeringOff)
+
+    if sm["frogpilotCarState"].alwaysOnLateralWaiting:
+      waiting_alert_shown = f"{FROGPILOT_EVENT_NAME[FrogPilotEventName.alwaysOnLateralWaiting]}/" in current_frogpilot_alert
+      waiting_alert_shown &= sm["frogpilotSelfdriveState"].hasPriorityAlert or sm["selfdriveState"].alertSize == AlertSize.none
+
+      if waiting_alert_shown:
+        self.always_on_lateral_waiting_timer += DT_MDL
+
+      if not frogpilot_variables.IS_COMMA_FOUR or self.always_on_lateral_waiting_timer <= ALWAYS_ON_LATERAL_WAITING_ALERT_TIME:
+        self.events.add(FrogPilotEventName.alwaysOnLateralWaiting)
+    else:
+      self.always_on_lateral_waiting_timer = 0
+
     if frogpilot_paths.ERROR_LOG_PATH.is_file():
       if frogpilot_toggles.random_events:
         self.events.add(FrogPilotEventName.openpilotCrashedRandomEvent)
@@ -179,7 +196,10 @@ class FrogPilotEvents:
     if self.frogpilot_planner.frogpilot_vcruise.slc.speed_limit_changed_timer == DT_MDL and frogpilot_toggles.speed_limit_changed_alert:
       self.events.add(FrogPilotEventName.speedLimitChanged)
 
-    self.startup_seen |= sm["frogpilotSelfdriveState"].alertText1 == frogpilot_toggles.startup_alert_top and sm["frogpilotSelfdriveState"].alertText2 == frogpilot_toggles.startup_alert_bottom
+    if sm["frogpilotCarState"].speedSensorsDisagree:
+      self.events.add(FrogPilotEventName.speedSensorsDisagree)
+
+    self.startup_seen |= f"{FROGPILOT_EVENT_NAME[FrogPilotEventName.customStartupAlert]}/" in current_frogpilot_alert
 
     if sm["frogpilotCarState"].trafficModeEnabled != self.previous_traffic_mode:
       if self.previous_traffic_mode:

@@ -32,7 +32,7 @@ class ThePondDialog(PairingDialog):
 
     self._address_label = MiciLabel(ip_address, ADDRESS_FONT_SIZE, font_weight=FontWeight.ROMAN, color=rl.Color(255, 255, 255, int(255 * 0.6)))
     self._code_label = None
-    self._title_label = MiciLabel(tr("frogpilot settings"), TITLE_FONT_SIZE, font_weight=FontWeight.BOLD, color=main_color,
+    self._title_label = MiciLabel(tr("FrogPilot settings"), TITLE_FONT_SIZE, font_weight=FontWeight.BOLD, color=main_color,
                                   line_height=TITLE_LINE_HEIGHT, wrap_text=True)
 
     if ui_state.params.get_bool("ThePondPairing"):
@@ -78,7 +78,7 @@ class ThePondDialog(PairingDialog):
 
 class FrogPilotBigButton(BigButton):
   def __init__(self):
-    super().__init__("frogpilot", tr("open the pond"))
+    super().__init__("FrogPilot", tr("open the pond"))
 
   def _handle_mouse_release(self, mouse_pos):
     super()._handle_mouse_release(mouse_pos)

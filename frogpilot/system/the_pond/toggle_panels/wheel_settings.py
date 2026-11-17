@@ -3,22 +3,28 @@ from openpilot.frogpilot.common import frogpilot_variables
 ALWAYS_AVAILABLE_FUNCTIONS = (frogpilot_variables.BUTTON_FUNCTIONS["NOTHING"], frogpilot_variables.BUTTON_FUNCTIONS["PAUSE_LATERAL"])
 
 
+def always_on_lateral_lkas_button(context):
+  if not context.can_use_always_on_lateral_lkas_button:
+    return False
+
+  lkas_button_selected = context.level >= context.tuning_level("AlwaysOnLateralLKASButton") and context.params.get_bool("AlwaysOnLateralLKASButton")
+
+  return context.params.get_bool("AlwaysOnLateral") and lkas_button_selected
+
+
 def button_option(value, label):
   if value in ALWAYS_AVAILABLE_FUNCTIONS:
     return {"label": label, "value": value}
   return {"label": label, "value": value, "visible": longitudinal_reason}
 
 
-def lkas_button_visible(context):
-  lkas_required_for_lateral = context.is_hkg_can_fd and not context.has_openpilot_longitudinal
-  lkas_used_for_lateral = context.params.get_bool("AlwaysOnLateral") and (lkas_required_for_lateral or context.params.get_bool("AlwaysOnLateralLKASButton"))
-
-  setting = "AlwaysOnLateralLKASButton"
-  if lkas_required_for_lateral:
-    setting = "AlwaysOnLateral"
-
+def lkas_button_control_visible(context):
   reason = context.level_reason("LKASButtonControl") or context.car_reason(context.has_lkas_button)
-  return reason or context.setting_reason(not context.lkas_allowed_for_aol or not lkas_used_for_lateral, setting, wanted=False)
+
+  if context.always_on_lateral_lkas_button_forced:
+    return reason or context.setting_reason(not context.params.get_bool("AlwaysOnLateral"), "AlwaysOnLateral", wanted=False)
+
+  return reason or context.setting_reason(not always_on_lateral_lkas_button(context), "AlwaysOnLateralLKASButton", wanted=False)
 
 
 def longitudinal_reason(context):
@@ -71,7 +77,7 @@ ROWS = [
     "path": ("Vehicle Settings", "WHEEL BUTTONS"),
     "picker": {"title": "Select a function for the \"LKAS\" button"},
     "title": "LKAS Button",
-    "visible": lkas_button_visible,
+    "visible": lkas_button_control_visible,
     "widget": "select"
   }
 ]

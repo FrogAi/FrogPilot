@@ -5,8 +5,9 @@ from opendbc.car.lateral import apply_driver_steer_torque_limits
 from opendbc.car.gm import gmcan
 from opendbc.car.common.conversions import Conversions as CV
 from opendbc.car.common.filter_simple import FirstOrderFilter
-from opendbc.car.gm.values import CC_ONLY_CAR, DBC, CanBus, CarControllerParams, CruiseButtons, GMFlags
+from opendbc.car.gm.values import CAMERA_ACC_CAR, CC_ONLY_CAR, DBC, CanBus, CarControllerParams, CruiseButtons, GMFlags
 from opendbc.car.interfaces import CarControllerBase
+from opendbc.safety import ALTERNATIVE_EXPERIENCE
 
 VisualAlert = structs.CarControl.HUDControl.VisualAlert
 NetworkLocation = structs.CarParams.NetworkLocation
@@ -56,6 +57,8 @@ class CarController(CarControllerBase):
     self.packer_ch = CANPacker(DBC[self.CP.carFingerprint][Bus.chassis])
 
     # FrogPilot variables
+    self.send_main_off = self.CP.carFingerprint in CAMERA_ACC_CAR
+
     self.pitch = FirstOrderFilter(0., PITCH_FILTER_TIME_CONSTANT, DT_CTRL * LONGITUDINAL_STEP)
 
   # OPGM variables
@@ -214,7 +217,7 @@ class CarController(CarControllerBase):
       cc_cancel = (self.CP.flags & GMFlags.CC_LONG.value) and CC.cruiseControl.cancel
       if (pedal_cancel or cc_cancel) and (self.frame - self.last_button_frame) * DT_CTRL > 0.04:
         self.last_button_frame = self.frame
-        can_sends.append(gmcan.create_buttons(self.packer_pt, CanBus.POWERTRAIN, (CS.buttons_counter + 1) % 4, CruiseButtons.CANCEL))
+        can_sends.append(gmcan.create_buttons(self.packer_pt, self.CP, CanBus.POWERTRAIN, (CS.buttons_counter + 1) % 4, CruiseButtons.CANCEL))
 
     else:
       # While car is braking, cancel button causes ECM to enter a soft disable state with a fault status.
@@ -225,7 +228,7 @@ class CarController(CarControllerBase):
       if (self.frame - self.last_button_frame) * DT_CTRL > 0.04:
         if self.cancel_counter > CAMERA_CANCEL_DELAY_FRAMES:
           self.last_button_frame = self.frame
-          can_sends.append(gmcan.create_buttons(self.packer_pt, CanBus.CAMERA, CS.buttons_counter, CruiseButtons.CANCEL))
+          can_sends.append(gmcan.create_buttons(self.packer_pt, self.CP, CanBus.CAMERA, CS.buttons_counter, CruiseButtons.CANCEL))
 
     if self.CP.networkLocation == NetworkLocation.fwdCamera:
       # Silence "Take Steering" alert sent by camera, forward PSCMStatus with HandsOffSWlDetectionStatus=1
@@ -239,4 +242,15 @@ class CarController(CarControllerBase):
     new_actuators.brake = self.apply_brake
 
     self.frame += 1
+
+    # FrogPilot variables
+    if CC.enabled or CS.cruise_main_off_seen or CS.out.cruiseState.enabled:
+      self.send_main_off = False
+
+    if CS.loopback_lka_steering_cmd_ts_nanos != 0 and self.send_main_off:
+      if CS.out.cruiseState.available and self.CP.alternativeExperience & ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL:
+        can_sends.append(gmcan.create_buttons(self.packer_pt, self.CP, CanBus.POWERTRAIN, (CS.buttons_counter + 1) % 4, CruiseButtons.MAIN))
+
+      self.send_main_off = False
+
     return new_actuators, can_sends

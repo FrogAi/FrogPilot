@@ -18,7 +18,6 @@ from opendbc.car.fw_versions import ObdCallback
 from opendbc.car.car_helpers import get_car, interfaces
 from opendbc.car.interfaces import CarInterfaceBase, RadarInterfaceBase
 from opendbc.car.tesla.values import TeslaFlags
-from opendbc.safety import ALTERNATIVE_EXPERIENCE
 from openpilot.selfdrive.pandad import can_capnp_to_list, can_list_to_can_capnp
 from openpilot.selfdrive.car.cruise import VCruiseHelper
 from openpilot.selfdrive.car.car_specific import MockCarState
@@ -176,8 +175,7 @@ class Car:
 
     self.frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles()
 
-    if not self.CP.passive and self.frogpilot_toggles.always_on_lateral:
-      self.CP.alternativeExperience |= ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL
+    self.frogpilot_card = FrogPilotCard(self.CP, self.FPCP, self.frogpilot_toggles)
 
     if frogpilot_utilities.block_user():
       sentry.capture_message(f"Blocked user from using the {frogpilot_variables.PR_BRANCH} branch", level="info")
@@ -205,9 +203,7 @@ class Car:
     self.params.put("FrogPilotCarParams", fpcp_bytes)
     self.params.put_nonblocking("FrogPilotCarParamsPersistent", fpcp_bytes)
 
-    self.frogpilot_card = FrogPilotCard(self.CP)
-
-    self.sm = self.sm.extend(['frogpilotPlan', 'frogpilotProcessState', 'frogpilotSelfdriveState', 'liveCalibration', 'selfdriveState'])
+    self.sm = self.sm.extend(['frogpilotPlan', 'frogpilotProcessState', 'frogpilotSelfdriveState', 'selfdriveState'])
     self.pm = self.pm.extend(['frogpilotCarState'])
 
   def state_update(self) -> tuple[car.CarState, structs.RadarDataT | None]:
@@ -332,6 +328,7 @@ class Car:
     # FrogPilot variables
     self.CI.CS.CC = self.sm['carControl']
     self.CI.CS.car_safety_mode_set = self.frogpilot_card.car_safety_mode_set
+    self.CI.CS.rx_checks_invalid = self.frogpilot_card.rx_checks_invalid
 
     self.frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles(self.sm)
 

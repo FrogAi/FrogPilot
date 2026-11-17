@@ -60,10 +60,11 @@ int cruise_button_prev = 0;
 bool safety_rx_checks_invalid = false;
 
 // FrogPilot variables
-bool aol_allowed = false;
-bool lkas_button_prev = false;
+static bool acc_main_on_prev = false;
+static bool data_integrity_fault = false;
+static bool lkas_button_pressed_prev = false;
+bool lkas_button_pressed = false;
 bool lkas_on = false;
-bool main_button_prev = false;
 
 // for safety modes with torque steering control
 int desired_torque_last = 0;       // last desired steer torque
@@ -201,6 +202,11 @@ bool safety_rx_hook(const CANPacket_t *msg) {
   bool whitelisted = get_addr_check_index(msg, current_safety_config.rx_checks, current_safety_config.rx_checks_len) != -1;
   if (valid && whitelisted) {
     current_hooks->rx(msg);
+  }
+
+  // FrogPilot variables
+  if (current_hooks->lkas_button != NULL) {
+    current_hooks->lkas_button(msg);
   }
 
   // Handles gas, brake, and regen paddle
@@ -374,7 +380,15 @@ static void generic_rx_checks(void) {
   steering_disengage_prev = steering_disengage;
 
   // FrogPilot variables
-  aol_allowed = (acc_main_on || lkas_on) && (alternative_experience & ALT_EXP_ALWAYS_ON_LATERAL) && !safety_rx_checks_invalid;
+  if (lkas_button_pressed && !lkas_button_pressed_prev && ((alternative_experience & ALT_EXP_ALWAYS_ON_LATERAL_LKAS_BUTTON) != 0)) {
+    lkas_on = true;
+  }
+  lkas_button_pressed_prev = lkas_button_pressed;
+
+  if (!acc_main_on && acc_main_on_prev) {
+    lkas_on = false;
+  }
+  acc_main_on_prev = acc_main_on;
 }
 
 static void stock_ecu_check(bool stock_ecu_detected) {
@@ -500,10 +514,11 @@ int set_safety_hooks(uint16_t mode, uint16_t param) {
   }
 
   // FrogPilot variables
-  aol_allowed = false;
-  lkas_button_prev = false;
+  acc_main_on_prev = false;
+  data_integrity_fault = false;
+  lkas_button_pressed = false;
+  lkas_button_pressed_prev = false;
   lkas_on = false;
-  main_button_prev = false;
 
   return set_status;
 }
@@ -561,4 +576,14 @@ void speed_mismatch_check(const float speed_2) {
   if (is_invalid_speed) {
     controls_allowed = false;
   }
+
+  // FrogPilot variables
+  data_integrity_fault = is_invalid_speed;
+}
+
+// FrogPilot variables
+bool get_lateral_allowed(void) {
+  bool always_on_lateral = (alternative_experience & ALT_EXP_ALWAYS_ON_LATERAL) != 0;
+
+  return controls_allowed || ((acc_main_on || lkas_on) && !data_integrity_fault && !safety_rx_checks_invalid && always_on_lateral);
 }

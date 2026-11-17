@@ -32,6 +32,10 @@ class FrogPilotAPIError(RuntimeError):
   pass
 
 
+class FrogPilotAPIRejection(FrogPilotAPIError):
+  pass
+
+
 class FrogPilotAPI:
   def __init__(self, params):
     self.params = params
@@ -90,6 +94,9 @@ class FrogPilotAPI:
       raise FrogPilotAPIError(f"POST {path} failed (no response)")
 
     if not self.succeeded(response):
+      if 400 <= response.status_code < 500 and response.status_code not in (401, 408, 409, 429):
+        raise FrogPilotAPIRejection(f"POST {path} refused ({response.status_code})")
+
       raise FrogPilotAPIError(f"POST {path} failed ({response.status_code})")
 
     return response.json()

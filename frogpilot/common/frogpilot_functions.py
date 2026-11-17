@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 import json
 import math
+import shutil
 import subprocess
 import time
 
 from multiprocessing import Process
+from pathlib import Path
 
-from cereal import messaging
+from cereal import CEREAL_PATH, messaging
 from opendbc.car.mock.values import CAR as MOCK
 from openpilot.common.constants import CV
 from openpilot.common.params import Params
@@ -16,6 +18,8 @@ from openpilot.system.hardware import HARDWARE, PC
 
 from openpilot.frogpilot.assets.theme_manager import ThemeManager
 from openpilot.frogpilot.common import frogpilot_backups, frogpilot_paths, frogpilot_utilities, frogpilot_variables
+
+SCHEMA_FILES = ("car.capnp", "custom.capnp", "include/c++.capnp", "legacy.capnp", "log.capnp")
 
 
 def boot_backup(build_metadata):
@@ -166,6 +170,8 @@ def frogpilot_boot_functions(build_metadata, params):
 
   frogpilot_utilities.delete_path(frogpilot_paths.RESTORE_TEMP_PATH)
 
+  save_log_schema(build_metadata.openpilot.git_commit)
+
   Process(target=boot_backup, args=(build_metadata,), daemon=True).start()
 
 
@@ -277,6 +283,19 @@ def reset_settings(params, params_cache):
 def run_frogsgomoo(build_metadata):
   if frogpilot_utilities.is_FrogsGoMoo_development(build_metadata):
     frogpilot_utilities.run_cmd_on_writable_mount("/persist", ["sudo", "python3", frogpilot_paths.FROGS_GO_MOO_PATH], "Failed to run frogsgomoo.py")
+
+
+def save_log_schema(git_commit):
+  schema_path = frogpilot_paths.TELEMETRY_SCHEMAS_PATH / git_commit
+
+  if not schema_path.is_dir():
+    staging_path = frogpilot_paths.TELEMETRY_SCHEMAS_PATH / f".{git_commit}"
+
+    for name in SCHEMA_FILES:
+      (staging_path / name).parent.mkdir(parents=True, exist_ok=True)
+      shutil.copy(Path(CEREAL_PATH, name), staging_path / name)
+
+    staging_path.rename(schema_path)
 
 
 def soft_reboot():

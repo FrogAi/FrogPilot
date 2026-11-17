@@ -87,16 +87,11 @@ class TestHyundaiCanfdBase(HyundaiLkasButtonBase, HyundaiButtonBase, common.CarS
     values = {"MainMode_ACC": main_on}
     return self.packer.make_can_msg_safety("SCC_CONTROL", self.SCC_BUS, values)
 
-  def _toggle_aol(self, toggle_on):
-    self._rx(self.packer.make_can_msg_safety("CRUISE_BUTTONS", self.PT_BUS, {"LDA_BTN": 0}))
-    return self.packer.make_can_msg_safety("CRUISE_BUTTONS", self.PT_BUS, {"LDA_BTN": int(toggle_on != self.safety.get_lkas_on())})
-
   def _lkas_button_msg(self, pressed):
     return self.packer.make_can_msg_safety("CRUISE_BUTTONS", self.PT_BUS, {"LDA_BTN": pressed})
 
-  def test_always_on_lateral(self):
-    self._set_lkas_aol_path()
-    super().test_always_on_lateral()
+  def _acc_enabled_msg(self, enabled):
+    return self.packer.make_can_msg_safety("TCS", self.PT_BUS, {"ACCEnable": int(not enabled)})
 
 
 class TestHyundaiCanfdLFASteeringBase(TestHyundaiCanfdBase):
@@ -168,10 +163,6 @@ class TestHyundaiCanfdLFASteeringAltButtonsBase(TestHyundaiCanfdLFASteeringBase)
       self.assertFalse(self._tx(self._acc_cancel_msg(False)))
 
   # FrogPilot variables
-  def _toggle_aol(self, toggle_on):
-    self._rx(self.packer.make_can_msg_safety("CRUISE_BUTTONS_ALT", self.PT_BUS, {"LDA_BTN": 0}))
-    return self.packer.make_can_msg_safety("CRUISE_BUTTONS_ALT", self.PT_BUS, {"LDA_BTN": int(toggle_on != self.safety.get_lkas_on())})
-
   def _lkas_button_msg(self, pressed):
     return self.packer.make_can_msg_safety("CRUISE_BUTTONS_ALT", self.PT_BUS, {"LDA_BTN": pressed})
 

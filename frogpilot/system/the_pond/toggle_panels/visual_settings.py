@@ -514,8 +514,8 @@ ROWS = [
     "widget": "toggle"
   },
   {
-    "description": ("<b>Show the posted speed limit as a sign in the top-left corner of the driving screen.</b><br><br>The limit comes from your " +
-                    "downloaded map data first, then from your car's dashboard where it can read one, and from signs read by the camera otherwise."),
+    "description": ("<b>Show the posted speed limit as a sign in the top-left corner of the driving screen.</b><br><br>The limit comes from signs " +
+                    "read by the camera first, then from your downloaded map data, and then from your car's dashboard where it can read one."),
     "key": "ShowSpeedLimits",
     "order": 1,
     "path": ("Theme and Appearance", "DRIVING VIEW", "Navigation Widgets"),

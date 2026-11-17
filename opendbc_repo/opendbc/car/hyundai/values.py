@@ -86,7 +86,6 @@ class HyundaiSafetyFlags(IntFlag):
 class HyundaiFrogPilotSafetyFlags(IntFlag):
   HAS_LDA_BUTTON = 1024
   TACO_TUNE_HACK = 2048
-  ALWAYS_ON_LATERAL_LKAS = 4096
 
 
 class HyundaiFlags(IntFlag):
@@ -820,5 +819,8 @@ LEGACY_SAFETY_MODE_CAR = CAR.with_flags(HyundaiFlags.LEGACY)
 # TODO: another PR with (HyundaiFlags.LEGACY | HyundaiFlags.UNSUPPORTED_LONGITUDINAL | HyundaiFlags.CAMERA_SCC |
 #       HyundaiFlags.CANFD_RADAR_SCC | HyundaiFlags.CANFD_NO_RADAR_DISABLE | )
 UNSUPPORTED_LONGITUDINAL_CAR = CAR.with_flags(HyundaiFlags.LEGACY) | CAR.with_flags(HyundaiFlags.UNSUPPORTED_LONGITUDINAL)
+
+# FrogPilot variables
+CRUISE_STANDBY_LFA_BUTTON_CAR = {CAR.HYUNDAI_SONATA, CAR.HYUNDAI_SONATA_HYBRID}
 
 DBC = CAR.create_dbc_map()

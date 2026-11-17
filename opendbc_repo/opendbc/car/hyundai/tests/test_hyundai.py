@@ -3,7 +3,8 @@ from types import SimpleNamespace
 
 import pytest
 
-from opendbc.car import gen_empty_fingerprint
+from opendbc.can import CANPacker
+from opendbc.car import Bus, gen_empty_fingerprint
 from opendbc.car.structs import CarParams
 from opendbc.car.fw_versions import build_fw_dict
 from opendbc.car.hyundai.interface import CarInterface
@@ -12,8 +13,10 @@ from opendbc.car.hyundai.radar_interface import RADAR_START_ADDR
 from opendbc.car.hyundai.values import CAMERA_SCC_CAR, CANFD_CAR, CAN_GEARS, CAR, CHECKSUM, DATE_FW_ECUS, \
                                          HYBRID_CAR, EV_CAR, FW_QUERY_CONFIG, LEGACY_SAFETY_MODE_CAR, CANFD_FUZZY_WHITELIST, \
                                          UNSUPPORTED_LONGITUDINAL_CAR, PLATFORM_CODE_ECUS, HYUNDAI_VERSION_REQUEST_LONG, \
-                                         HyundaiFlags, get_platform_codes, HyundaiSafetyFlags, HyundaiFrogPilotSafetyFlags
+                                         HyundaiFlags, get_platform_codes, HyundaiSafetyFlags, DBC, HyundaiFrogPilotSafetyFlags
 from opendbc.car.hyundai.fingerprints import FW_VERSIONS
+from opendbc.car.tests.test_car_interfaces import TOGGLES
+from opendbc.safety import ALTERNATIVE_EXPERIENCE
 
 Ecu = CarParams.Ecu
 
@@ -75,12 +78,110 @@ class TestHyundaiFingerprint:
     fingerprint = gen_empty_fingerprint()
     for car_model in CAR:
       for taco_tune_hacks in (True, False):
-        frogpilot_toggles = SimpleNamespace(always_on_lateral=False, always_on_lateral_lkas_selected=False, force_torque_controller=False,
-                                            nnff_lite_selected=False, nnff_selected=False, taco_tune_hacks=taco_tune_hacks)
+        frogpilot_toggles = SimpleNamespace(always_on_lateral=False, force_torque_controller=False, nnff_lite_selected=False, nnff_selected=False,
+                                            taco_tune_hacks=taco_tune_hacks)
         CP = CarInterface.get_params(car_model, fingerprint, [], False, False, False)
         CarInterface.get_frogpilot_params(car_model, fingerprint, [], CP, frogpilot_toggles)
         flag_set = bool(CP.safetyConfigs[-1].safetyParam & HyundaiFrogPilotSafetyFlags.TACO_TUNE_HACK)
         assert flag_set == (taco_tune_hacks and bool(CP.flags & HyundaiFlags.CANFD))
+
+  def test_always_on_lateral_lkas_button_forced(self):
+    lfa_button_fingerprint = gen_empty_fingerprint()
+    lfa_button_fingerprint[0][0x391] = 8
+
+    for car_model, fingerprint, openpilot_longitudinal, forced in ((CAR.HYUNDAI_IONIQ_5, gen_empty_fingerprint(), False, True),
+                                                                   (CAR.HYUNDAI_ELANTRA_2021, lfa_button_fingerprint, False, True),
+                                                                   (CAR.HYUNDAI_ELANTRA_2021, gen_empty_fingerprint(), False, False),
+                                                                   (CAR.HYUNDAI_SONATA, lfa_button_fingerprint, False, False),
+                                                                   (CAR.HYUNDAI_SONATA, lfa_button_fingerprint, True, False),
+                                                                   (CAR.HYUNDAI_SONATA_HYBRID, lfa_button_fingerprint, False, False)):
+      CP = CarInterface.get_params(car_model, fingerprint, [], openpilot_longitudinal, False, False)
+      FPCP = CarInterface.get_frogpilot_params(car_model, fingerprint, [], CP, TOGGLES)
+
+      assert FPCP.alwaysOnLateralLKASButton == forced, (car_model, openpilot_longitudinal)
+
+  @pytest.mark.parametrize("car_model, buttons_msg, main_button_signal, tcs_msg", [
+    (CAR.HYUNDAI_IONIQ_5, "CRUISE_BUTTONS_ALT", "ADAPTIVE_CRUISE_MAIN_BTN", "TCS"),
+    (CAR.HYUNDAI_SONATA, "CLU11", "CF_Clu_CruiseSwMain", "TCS13"),
+  ])
+  def test_main_cruise_openpilot_longitudinal(self, car_model, buttons_msg, main_button_signal, tcs_msg):
+    CP = CarInterface.get_params(car_model, gen_empty_fingerprint(), [], True, False, False)
+    CP.alternativeExperience |= ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL
+    FPCP = CarInterface.get_frogpilot_params(car_model, gen_empty_fingerprint(), [], CP, TOGGLES)
+    CI = CarInterface(CP, FPCP)
+    packer = CANPacker(DBC[car_model][Bus.pt])
+
+    CI.update([], TOGGLES)
+    pt_bus = CI.can_parsers[Bus.pt].bus
+    pt_messages = [state.name for state in CI.can_parsers[Bus.pt].message_states.values()]
+
+    def cruise_available(step, main_button=0, acc_enable=0):
+      frames = []
+      for name in pt_messages:
+        if name == buttons_msg:
+          values = {main_button_signal: main_button}
+        elif name == tcs_msg:
+          values = {"ACCEnable": acc_enable}
+        else:
+          values = {}
+        frames.append(packer.make_can_msg(name, pt_bus, values))
+
+      CS, _ = CI.update([(step * 10_000_000, frames)], TOGGLES)
+
+      return CS.cruiseState.available
+
+    cruise_available(1, main_button=1)
+    assert not cruise_available(2)
+
+    CI.CS.car_safety_mode_set = True
+
+    assert not cruise_available(3)
+    cruise_available(4, main_button=1)
+    assert cruise_available(5)
+    assert not cruise_available(6, acc_enable=1)
+    assert cruise_available(7)
+
+    CI.CS.rx_checks_invalid = True
+    cruise_available(8)
+    assert not cruise_available(9)
+    cruise_available(10, main_button=1)
+    assert cruise_available(11)
+
+    CI.CS.rx_checks_invalid = False
+    assert cruise_available(12)
+
+    CI.CS.car_safety_mode_set = False
+    cruise_available(13)
+
+    assert not cruise_available(14)
+
+  @pytest.mark.parametrize("always_on_lateral", [False, True])
+  def test_main_cruise_canfd_stock_longitudinal(self, always_on_lateral):
+    CP = CarInterface.get_params(CAR.HYUNDAI_IONIQ_5, gen_empty_fingerprint(), [], False, False, False)
+    if always_on_lateral:
+      CP.alternativeExperience |= ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL
+    FPCP = CarInterface.get_frogpilot_params(CAR.HYUNDAI_IONIQ_5, gen_empty_fingerprint(), [], CP, TOGGLES)
+    CI = CarInterface(CP, FPCP)
+    packer = CANPacker(DBC[CAR.HYUNDAI_IONIQ_5][Bus.pt])
+
+    CI.update([], TOGGLES)
+
+    def cruise_available(step, main_mode):
+      frames = []
+      for parser in CI.can_parsers.values():
+        for state in parser.message_states.values():
+          if state.name == "SCC_CONTROL":
+            values = {"MainMode_ACC": main_mode}
+          else:
+            values = {}
+          frames.append(packer.make_can_msg(state.name, parser.bus, values))
+
+      CS, _ = CI.update([(step * 10_000_000, frames)], TOGGLES)
+
+      return CS.cruiseState.available
+
+    assert cruise_available(1, 0) != always_on_lateral
+    assert cruise_available(2, 1)
 
   def test_can_features(self):
     # Test no EV/HEV in any gear lists (should all use ELECT_GEAR)

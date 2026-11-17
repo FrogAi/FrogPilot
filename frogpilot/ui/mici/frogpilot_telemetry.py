@@ -14,11 +14,11 @@ class TelemetryPage(TermsPage):
     super().__init__(lambda: self._answer(True), back_callback=lambda: self._answer(False), back_text=tr("no thanks"), continue_text=tr("yes, share data"))
 
     self._pm = ui_request_publisher()
-    self._title_header = TermsHeader(tr("help improve frogpilot?"), gui_app.texture("icons_mici/setup/green_info.png", 60, 60))
+    self._title_header = TermsHeader(tr("help improve FrogPilot?"), gui_app.texture("icons_mici/setup/green_info.png", 60, 60))
     self._description_label = UnifiedLabel(tr("Your drives make FrogPilot better for everyone, with better steering and braking, support for more cars, " +
                                               "and smarter speed limits.\n\nSharing sends filtered driving logs, short road camera clips, " +
                                               "learned speed limits, and usage stats. Turn it off anytime in settings. " +
-                                              "Learn more at frogpilot.com/privacy."), 36, FontWeight.ROMAN)
+                                              "Learn more at FrogPilot.com/privacy."), 36, FontWeight.ROMAN)
 
     self._answered_callback = answered_callback
 
@@ -52,7 +52,7 @@ class TelemetryPage(TermsPage):
 
 class ShareDataToggle(BigToggle):
   def __init__(self):
-    super().__init__(tr("share frogpilot data"))
+    super().__init__(tr("share FrogPilot data"))
 
     self._label.set_font_size(self._get_label_font_size())
 

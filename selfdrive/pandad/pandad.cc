@@ -457,7 +457,7 @@ void pandad_run(std::vector<Panda *> &pandas) {
 
   Params params;
   RateKeeper rk("pandad", 100);
-  SubMaster sm({"selfdriveState"});
+  SubMaster sm({"selfdriveState", "frogpilotCarState", "pandaStates"});
   PubMaster pm({"can", "pandaStates", "peripheralState"});
   PandaSafety panda_safety(pandas);
   Panda *peripheral_panda = pandas[0];
@@ -477,6 +477,18 @@ void pandad_run(std::vector<Panda *> &pandas) {
     if (rk.frame() % 10 == 0) {
       sm.update(0);
       engaged = sm.allAliveAndValid({"selfdriveState"}) && sm["selfdriveState"].getSelfdriveState().getEnabled();
+
+      // FrogPilot variables
+      const bool always_on_lateral = sm.allAliveAndValid({"frogpilotCarState"}) && sm["frogpilotCarState"].getFrogpilotCarState().getAlwaysOnLateralEnabled();
+
+      bool controls_allowed = false;
+
+      for (const cereal::PandaState::Reader &panda_state : sm["pandaStates"].getPandaStates()) {
+        controls_allowed |= panda_state.getControlsAllowed();
+      }
+
+      engaged = heartbeat_engaged(engaged, always_on_lateral, controls_allowed);
+
       is_onroad = params.getBool("IsOnroad");
       process_panda_state(pandas, &pm, engaged, is_onroad, spoofing_started);
       panda_safety.configureSafetyMode(is_onroad);

@@ -48,6 +48,7 @@ ERROR_LOG_PATH = ERROR_LOGS_PATH / "error.txt"
 SCREEN_RECORDINGS_PATH = Path("/data/media/screen_recordings")
 SENTRY_QUEUE_PATH = Path("/data/sentry_queue")
 SPEED_LIMIT_CAPTURES_PATH = Path("/data/media/speed_limit_captures")
+SWAGLOG_ERROR_PATH = Path("/dev/shm/swaglog_error")
 TELEMETRY_SCHEMAS_PATH = Path("/data/telemetry_schemas")
 TMUX_LOGS_PATH = Path("/data/tmux_logs")
 

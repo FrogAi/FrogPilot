@@ -74,6 +74,7 @@ class CarState(CarStateBase):
     self.needs_angle_offset_zss = True
 
     self.angle_offset_zss = 0
+    self.lkas_status = 0
     self.prev_pcm_acc_status = 0
 
   # FrogPilot variables
@@ -214,15 +215,6 @@ class CarState(CarStateBase):
 
     buttonEvents = []
     if self.CP.carFingerprint in TSS2_CAR:
-      # lkas button is wired to the camera
-      prev_lkas_button = self.lkas_button
-      self.lkas_button = cp_cam.vl["LKAS_HUD"]["LDA_ON_MESSAGE"]
-
-      # Cycles between 1 and 2 when pressing the button, then rests back at 0 after ~3s
-      if self.lkas_button != 0 and self.lkas_button != prev_lkas_button:
-        buttonEvents.extend(create_button_events(1, 0, {1: ButtonType.lkas}) +
-                            create_button_events(0, 1, {1: ButtonType.lkas}))
-
       if self.CP.carFingerprint not in (RADAR_ACC_CAR | SECOC_CAR):
         # distance button is wired to the ACC module (camera or radar)
         prev_distance_button = self.distance_button
@@ -237,14 +229,20 @@ class CarState(CarStateBase):
 
       buttonEvents += create_button_events(self.distance_button, prev_distance_button, {1: ButtonType.gapAdjustCruise})
 
-      if self.CP.carFingerprint != CAR.TOYOTA_PRIUS_V:
-        prev_lkas_button = self.lkas_button
-        self.lkas_button = self.lkas_hud["LDA_ON_MESSAGE"]
+    if self.CP.carFingerprint != CAR.TOYOTA_PRIUS_V:
+      prev_lkas_button = self.lkas_button
+      prev_lkas_status = self.lkas_status
+      self.lkas_button = self.lkas_hud["LDA_ON_MESSAGE"]
+      self.lkas_status = self.lkas_hud["LKAS_STATUS"]
 
-        # Cycles between 1 and 2 when pressing the button, then rests back at 0 after ~3s
-        if self.lkas_button != 0 and self.lkas_button != prev_lkas_button:
-          buttonEvents.extend(create_button_events(1, 0, {1: ButtonType.lkas}) +
-                              create_button_events(0, 1, {1: ButtonType.lkas}))
+      # LDA_ON_MESSAGE shows when a press turns lane assist on, and LKAS_STATUS falls to 0 when a press turns it off. The camera also
+      # turns lane assist off by itself, flagged by LDA_MALFUNCTION, LDA_UNAVAILABLE or TWO_BEEPS, or while cruise is engaged
+      camera_turned_off = self.lkas_hud["LDA_MALFUNCTION"] or self.lkas_hud["LDA_UNAVAILABLE"] or self.lkas_hud["TWO_BEEPS"]
+      lkas_off_pressed = not camera_turned_off and prev_lkas_status != 0 and not ret.cruiseState.enabled and self.lkas_status == 0
+
+      if lkas_off_pressed or (self.lkas_button != 0 and self.lkas_button != prev_lkas_button):
+        buttonEvents.extend(create_button_events(1, 0, {1: ButtonType.lkas}) +
+                            create_button_events(0, 1, {1: ButtonType.lkas}))
 
     if self.pcm_acc_status != self.prev_pcm_acc_status and self.pcm_acc_status in (9, 10):
       if self.pcm_acc_status == 9:

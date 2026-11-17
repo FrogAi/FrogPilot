@@ -6,6 +6,9 @@ from opendbc.car.mazda.values import DBC, LKAS_LIMITS
 
 ButtonType = structs.CarState.ButtonEvent.Type
 
+# FrogPilot variables
+STANDSTILL_LOCKOUT_TIME = 3.5
+
 
 class CarState(CarStateBase):
   def __init__(self, CP):
@@ -21,7 +24,11 @@ class CarState(CarStateBase):
     self.distance_button = 0
 
     # FrogPilot variables
-    self.lkas_button = None
+    self.main_on_at_start = True
+    self.standstill_lockout = False
+
+    self.lkas_button = 0
+    self.standstill_nanos = 0
 
   def update(self, can_parsers) -> structs.CarState:
     cp = can_parsers[Bus.pt]
@@ -83,6 +90,13 @@ class CarState(CarStateBase):
     else:
       self.lkas_allowed_speed = True
 
+      # FrogPilot variables
+      if cp.ts_nanos["ENGINE_DATA"]["SPEED"] > 0 and ret.standstill:
+        self.standstill_lockout = True
+        self.standstill_nanos = cp.ts_nanos["ENGINE_DATA"]["SPEED"]
+      elif cp.ts_nanos["ENGINE_DATA"]["SPEED"] - self.standstill_nanos > STANDSTILL_LOCKOUT_TIME * 1e9 or not lkas_blocked:
+        self.standstill_lockout = False
+
     # TODO: the signal used for available seems to be the adaptive cruise signal, instead of the main on
     #       it should be used for carState.cruiseState.nonAdaptive instead
     ret.cruiseState.available = cp.vl["CRZ_CTRL"]["CRZ_AVAILABLE"] == 1
@@ -104,7 +118,7 @@ class CarState(CarStateBase):
     # Check if LKAS is disabled due to lack of driver torque when all other states indicate
     # it should be enabled (steer lockout). Don't warn until we actually get lkas active
     # and lose it again, i.e, after initial lkas activation
-    ret.steerFaultTemporary = self.lkas_allowed_speed and lkas_blocked
+    ret.steerFaultTemporary = self.lkas_allowed_speed and lkas_blocked and not self.standstill_lockout
 
     self.acc_active_last = ret.cruiseState.enabled
 
@@ -119,12 +133,12 @@ class CarState(CarStateBase):
     ret.buttonEvents = create_button_events(self.distance_button, prev_distance_button, {1: ButtonType.gapAdjustCruise})
 
     # FrogPilot variables
-    if cp_cam.ts_nanos["CAM_LANEINFO"]["LANE_LINES"] > 0:
-      prev_lkas_button = self.lkas_button
-      self.lkas_button = not ret.invalidLkasSetting
+    prev_lkas_button = self.lkas_button
+    self.lkas_button = cp.vl["MSG_05"]["LKAS_BUTTON"]
+    ret.buttonEvents = [*ret.buttonEvents, *create_button_events(self.lkas_button, prev_lkas_button, {1: ButtonType.lkas})]
 
-      if prev_lkas_button is not None and self.lkas_button != prev_lkas_button:
-        ret.buttonEvents = [*ret.buttonEvents, *create_button_events(1, 0, {1: ButtonType.lkas}), *create_button_events(0, 1, {1: ButtonType.lkas})]
+    if cp.vl["CRZ_CTRL"]["CRZ_READY"] == 1:
+      self.main_on_at_start &= ret.cruiseState.available and not ret.cruiseState.enabled
 
     return ret
 

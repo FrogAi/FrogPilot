@@ -50,24 +50,27 @@ class SpeedLimitFiller:
     entry = {
       "distance": round(self.distances[speed_limit]),
       "is_forward": self.way[1],
-      "observed": datetime.datetime.now(datetime.UTC).date().isoformat(),
       "speed_limit": speed_limit,
       "way_id": self.way[0],
-      **self.first_seen[speed_limit],
     }
+
+    if speed_limit in self.first_seen:
+      entry["month"] = datetime.datetime.now(datetime.UTC).strftime("%Y-%m")
+      entry.update(self.first_seen[speed_limit])
 
     self.distances = {}
     self.first_seen = {}
 
     if abs(speed_limit - self.map_speed_limit) < 1:
-      confirmation = {key: entry[key] for key in ("is_forward", "observed", "speed_limit", "way_id")}
-      if self.confirmations.get(self.way) != confirmation:
-        self.confirmations.pop(self.way, None)
-        self.confirmations[self.way] = confirmation
-        self.changed = True
+      if "month" in entry:
+        confirmation = {key: entry[key] for key in ("is_forward", "month", "speed_limit", "way_id")}
+        if self.confirmations.get(self.way) != confirmation:
+          self.confirmations.pop(self.way, None)
+          self.confirmations[self.way] = confirmation
+          self.changed = True
 
-        if len(self.confirmations) > MAX_SHARED_SPEED_LIMITS:
-          self.confirmations.pop(next(iter(self.confirmations)))
+          if len(self.confirmations) > MAX_SHARED_SPEED_LIMITS:
+            self.confirmations.pop(next(iter(self.confirmations)))
 
       self.remove_speed_limit(self.way)
       return
@@ -75,7 +78,7 @@ class SpeedLimitFiller:
     previous = self.speed_limits.get(self.way, {})
 
     replaced = previous.get("speed_limit") != speed_limit
-    if replaced or previous.get("observed") != entry["observed"]:
+    if replaced or previous.get("month") != entry.get("month") or previous.get("distance", 0) < entry["distance"]:
       self.speed_limits.pop(self.way, None)
       self.speed_limits[self.way] = entry
       self.changed = True
@@ -86,7 +89,10 @@ class SpeedLimitFiller:
     if self.way in self.finished_ways:
       replaced |= self.finished_ways[self.way][1]
 
-    self.finished_ways[self.way] = (speed_limit, replaced)
+    if "month" in entry:
+      self.finished_ways[self.way] = (speed_limit, replaced)
+    else:
+      self.finished_ways[self.way] = (None, replaced)
 
   def get_speed_limit(self, map_match):
     entry = self.speed_limits.get((map_match.wayId, map_match.isForward))
@@ -125,7 +131,7 @@ class SpeedLimitFiller:
     self.changed = False
     self.finished_ways = {}
 
-  def update(self, gps_position, v_ego, sm):
+  def update(self, gps_position, v_ego, sm, frogpilot_toggles):
     if sm["frogpilotCarState"].parked and not self.parked:
       self.finish_way()
 
@@ -161,7 +167,9 @@ class SpeedLimitFiller:
 
     if camera_speed_limit >= 1:
       self.distances[camera_speed_limit] = self.distances.get(camera_speed_limit, 0) + v_ego * DT_MDL
-      self.first_seen.setdefault(camera_speed_limit, gps_position)
+
+      if frogpilot_toggles.telemetry_sharing:
+        self.first_seen.setdefault(camera_speed_limit, gps_position)
 
 def upload_speed_limits(params, frogpilot_api):
   if not frogpilot_paths.SPEED_LIMIT_FILLER_PATH.is_file():
@@ -171,7 +179,7 @@ def upload_speed_limits(params, frogpilot_api):
 
   entries = []
   for entry in data.get("speed_limits", []):
-    if "observed" in entry and entry["speed_limit"] <= MAX_SHARED_SPEED_LIMIT:
+    if "month" in entry and entry["speed_limit"] <= MAX_SHARED_SPEED_LIMIT:
       entries.append(entry)
 
   speed_limits = []
@@ -182,7 +190,7 @@ def upload_speed_limits(params, frogpilot_api):
       "is_forward": entry["is_forward"],
       "latitude": entry["latitude"],
       "longitude": entry["longitude"],
-      "observed": entry["observed"],
+      "observed": f"{entry['month']}-01",
       "segment_id": entry["way_id"],
       "source": "Camera",
       "speed_limit": entry["speed_limit"],
@@ -190,12 +198,17 @@ def upload_speed_limits(params, frogpilot_api):
 
   entries = []
   for entry in data.get("confirmations", []):
-    if entry["speed_limit"] <= MAX_SHARED_SPEED_LIMIT:
+    if "month" in entry and entry["speed_limit"] <= MAX_SHARED_SPEED_LIMIT:
       entries.append(entry)
 
   confirmations = []
   for entry in sorted(entries, key=lambda entry: (entry["way_id"], entry["is_forward"])):
-    confirmations.append({"is_forward": entry["is_forward"], "observed": entry["observed"], "segment_id": entry["way_id"], "speed_limit": entry["speed_limit"]})
+    confirmations.append({
+      "is_forward": entry["is_forward"],
+      "observed": f"{entry['month']}-01",
+      "segment_id": entry["way_id"],
+      "speed_limit": entry["speed_limit"],
+    })
 
   body = json.dumps({"confirmations": confirmations, "schema_version": 1, "speed_limits": speed_limits}, separators=(",", ":")).encode()
   body_hash = hashlib.sha256(body).hexdigest()
@@ -228,15 +241,17 @@ def upload_speed_limits(params, frogpilot_api):
       continue
 
     capture = frogpilot_utilities.load_json_file(image_path.with_suffix(".json"))
-    if not capture:
+    if "month" not in capture:
       continue
+
+    month_start = datetime.datetime.strptime(capture["month"], "%Y-%m").replace(tzinfo=datetime.UTC)
 
     with open(image_path, "rb") as image:
       image_data = image.read()
 
       descriptor = {
         "bearing": capture["bearing"],
-        "captured_at": capture["captured_at"],
+        "captured_at": int(month_start.timestamp() * 1000),
         "is_forward": way[1],
         "latitude": capture["latitude"],
         "longitude": capture["longitude"],

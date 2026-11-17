@@ -41,9 +41,9 @@ FrogPilotLateralPanel::FrogPilotLateralPanel(FrogPilotSettingsWindow *parent, bo
     {"ForceAutoTuneOff", tr("Force Auto-Tune Off"), tr("<b>Use the friction, lateral acceleration, and steer ratio you set instead of the values openpilot works out on its own.</b><br><br>Only offered on cars that normally tune themselves."), ""},
     {"ForceTorqueController", tr("Force Torque Controller"), tr("<b>Switch openpilot to steering by effort instead of by wheel angle, which usually holds the lane more smoothly through curves.</b><br><br>Only offered on cars that don't already steer this way. Changing this while driving asks you to reboot."), ""},
 
-    {"AlwaysOnLateral", tr("Always On Lateral"), tr("<b>openpilot keeps steering for you even when it isn't controlling the gas and brake, so it holds your lane when you press a pedal, cancel, or haven't engaged openpilot at all.</b><br><br>It steers from the moment your car's cruise control is switched on until you switch that back off or shift out of drive, and it pauses while you brake below the speed set in \"Pause on Brake Press Below\", except at a full stop. If cruise control is already on when you start the car, it waits until you engage openpilot, switch cruise control off and on, or press your car's LKAS button if it has one (not on Mazda, Nissan, or Subaru). That press only starts steering and doesn't run anything assigned to the button. On Hyundai, Kia, and Genesis cars with CAN FD where your car handles the gas and brake, or with \"Enable With LKAS\" on, engaging openpilot or pressing the LKAS button takes the place of cruise control."), "../../frogpilot/assets/toggle_icons/icon_always_on_lateral.svg"},
-    {"AlwaysOnLateralLKASButton", tr("Enable With LKAS"), tr("<b>Use the LKAS button instead of cruise control to arm steering, so openpilot keeps steering even when it is not engaged.</b><br><br>openpilot does not read your car's LKAS status for this. It starts every drive disarmed, engaging openpilot arms it, and each press of the LKAS button while openpilot isn't engaged flips it. Switching cruise control off doesn't stop it. With this off, cruise control arms steering and the LKAS button is free to reassign under \"LKAS Button\"."), ""},
-    {"PauseAOLOnBrake", tr("Pause on Brake Press Below"), tr("<b>Pause \"Always On Lateral\" below the set speed while the brake pedal is pressed, except at a full stop.</b>"), ""},
+    {"AlwaysOnLateral", tr("Always On Lateral"), tr("<b>openpilot keeps steering even when it isn't controlling the gas and brake, so it still holds your lane when you press the gas, cancel cruise control, or haven't engaged openpilot at all.</b><br><br>Steering starts when you switch your car's cruise control on or engage openpilot, and stops when you switch cruise control off. With \"Enable With LKAS\" on, the LKAS button starts and stops it too, and Honda and Acura, Ford's Mustang Mach-E, F-150, F-150 Lightning, and Ranger, and most Hyundai, Kia, and Genesis cars with an LFA button always work this way. On Hyundai, Kia, and Genesis cars using openpilot longitudinal control, press the cruise MAIN button to switch cruise control on or off. On some cars, if cruise control was already on when openpilot started, an alert tells you how to start it. It keeps steering while you brake unless \"Pause on Brake Press Below\" is set, and only steers in drive. On Tesla and Rivian, engaging openpilot starts it, and pressing the brake stops it, as does taking over the steering wheel on Tesla."), "../../frogpilot/assets/toggle_icons/icon_always_on_lateral.svg"},
+    {"AlwaysOnLateralLKASButton", tr("Enable With LKAS"), tr("<b>Press your car's LKAS button to start or stop \"Always On Lateral\".</b><br><br>A press starts steering when it's off and stops it when it's on, even with cruise control off. While this is on, the button does only this, so the \"LKAS Button\" setting is hidden. Honda and Acura, Ford's Mustang Mach-E, F-150, F-150 Lightning, and Ranger, and most Hyundai, Kia, and Genesis cars with an LFA button always work this way."), ""},
+    {"PauseAOLOnBrake", tr("Pause on Brake Press Below"), tr("<b>Pause \"Always On Lateral\" while you hold the brake below the speed you set, except at a full stop.</b><br><br>Steering picks back up as soon as you let go of the brake. With this off, it keeps steering while you brake."), ""},
 
     {"LaneChanges", tr("Lane Changes"), tr("<b>Allow openpilot to change lanes.</b>"), "../../frogpilot/assets/toggle_icons/icon_lane.svg"},
     {"NudgelessLaneChange", tr("Automatic Lane Changes"), tr("<b>With your turn signal on, openpilot starts the lane change on its own instead of waiting for a small push on the wheel from you.</b><br><br>It waits out \"Lane Change Delay\" before moving over, skips the move below the minimum lane change speed, and stays out of lanes narrower than any \"Minimum Lane Width\" you set. It only holds off for a car beside you if your car came with factory blind spot monitoring, so without that hardware there is no blind spot check at all. Check that the lane is clear yourself before you signal."), ""},
@@ -165,13 +165,17 @@ FrogPilotLateralPanel::FrogPilotLateralPanel(FrogPilotSettingsWindow *parent, bo
     QObject::connect(static_cast<ToggleControl*>(toggles[key]), &ToggleControl::toggleFlipped, this, &FrogPilotLateralPanel::updateToggles);
   }
 
+  for (const QString &key : QStringList{"AlwaysOnLateral", "AlwaysOnLateralLKASButton"}) {
+    QObject::connect(static_cast<ToggleControl*>(toggles[key]), &ToggleControl::toggleFlipped, parent, &FrogPilotSettingsWindow::updateVariables);
+  }
+
   QSet<QString> rebootKeys = {"AdvancedLateralTune", "AlwaysOnLateral", "AlwaysOnLateralLKASButton", "ForceTorqueController", "LateralTune", "NNFF", "NNFFLite"};
   for (const QString &key : rebootKeys) {
     QObject::connect(static_cast<ToggleControl*>(toggles[key]), &ToggleControl::toggleFlipped, [key, parent, this](bool state) {
       bool rebootRequired = true;
       if (key == "AdvancedLateralTune") {
         rebootRequired = !parent->isAngleCar && params.getBool("ForceTorqueController");
-      } else if (key == "AlwaysOnLateral") {
+      } else if (key == "AlwaysOnLateral" || key == "AlwaysOnLateralLKASButton") {
         rebootRequired = state;
       } else if (key == "LateralTune") {
         bool usingNNFF = parent->hasNNFFLog && (parent->tuningLevel < parent->frogpilotToggleLevels.value("NNFF").toDouble() || params.getBool("NNFF"));
@@ -326,8 +330,7 @@ void FrogPilotLateralPanel::updateToggles() {
     bool setVisible = parent->tuningLevel >= parent->frogpilotToggleLevels.value(key).toDouble();
 
     if (key == "AlwaysOnLateralLKASButton") {
-      setVisible &= parent->lkasAllowedForAOL;
-      setVisible &= !parent->isHKGCanFd || parent->hasOpenpilotLongitudinal;
+      setVisible &= !parent->alwaysOnLateralLKASButtonForced && parent->canUseAlwaysOnLateralLKASButton;
     }
 
     else if (key == "ForceAutoTune") {
@@ -361,6 +364,10 @@ void FrogPilotLateralPanel::updateToggles() {
     else if (key == "NNFFLite") {
       setVisible &= !usingNNFF;
       setVisible &= !parent->isAngleCar;
+    }
+
+    else if (key == "PauseAOLOnBrake") {
+      setVisible &= !parent->isRivian && !parent->isTesla;
     }
 
     else if (key == "SteerDelay") {

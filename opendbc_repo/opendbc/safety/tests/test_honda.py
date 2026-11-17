@@ -3,6 +3,7 @@ import unittest
 import numpy as np
 
 from opendbc.car.honda.values import HondaFrogPilotSafetyFlags, HondaSafetyFlags
+from opendbc.safety import ALTERNATIVE_EXPERIENCE
 from opendbc.safety.tests.libsafety import libsafety_py
 import opendbc.safety.tests.common as common
 from opendbc.car.structs import CarParams
@@ -244,6 +245,23 @@ class HondaBase(common.CarSafetyTest):
   def _aol_steer_msg(self):
     return self._send_steer_msg(0x1000)
 
+  def _cruise_setting_msg(self, setting):
+    values = {"CRUISE_SETTING": setting, "COUNTER": self.cnt_button % 4}
+    self.__class__.cnt_button += 1
+    return self.packer.make_can_msg_safety("SCM_BUTTONS", self.PT_BUS, values)
+
+  def _lkas_press_msg(self, pressed):
+    return self._cruise_setting_msg(int(pressed))
+
+  def test_always_on_lateral_distance_press(self):
+    self.safety.set_alternative_experience(ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL | ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL_LKAS_BUTTON)
+    self._rx(self._toggle_aol(False))
+
+    for setting in (3, 0, 2, 0):
+      self._rx(self._cruise_setting_msg(setting))
+
+    self.assertFalse(self.safety.get_lateral_allowed())
+
 
 # ********************* Honda Nidec **********************
 
@@ -365,6 +383,12 @@ class TestHondaNidecPcmAltSafety(TestHondaNidecPcmSafety):
     values = {"CRUISE_BUTTONS": buttons, "MAIN_ON": main_on, "COUNTER": self.cnt_button % 4}
     self.__class__.cnt_button += 1
     return self.packer.make_can_msg_safety("SCM_BUTTONS", bus, values)
+
+  # FrogPilot variables
+  def _cruise_setting_msg(self, setting):
+    values = {"CRUISE_SETTING": setting, "MAIN_ON": self.safety.get_acc_main_on(), "COUNTER": self.cnt_button % 4}
+    self.__class__.cnt_button += 1
+    return self.packer.make_can_msg_safety("SCM_BUTTONS", self.PT_BUS, values)
 
 
 # ********************* Honda Bosch **********************
@@ -636,6 +660,11 @@ class TestHondaNidecAltGasInterceptorSafety(TestHondaNidecGasInterceptorSafety):
     values = {"CRUISE_BUTTONS": buttons, "MAIN_ON": main_on, "COUNTER": self.cnt_button % 4}
     self.__class__.cnt_button += 1
     return self.packer.make_can_msg_safety("SCM_BUTTONS", bus, values)
+
+  def _cruise_setting_msg(self, setting):
+    values = {"CRUISE_SETTING": setting, "MAIN_ON": self.safety.get_acc_main_on(), "COUNTER": self.cnt_button % 4}
+    self.__class__.cnt_button += 1
+    return self.packer.make_can_msg_safety("SCM_BUTTONS", self.PT_BUS, values)
 
 
 class TestHondaNidecClaritySafety(TestHondaNidecPcmSafety):

@@ -5,9 +5,10 @@ import sys
 import zstandard
 
 from cereal import log
+from openpilot.common.params import Params
 from openpilot.system.loggerd.config import SEGMENT_LENGTH
 
-from openpilot.frogpilot.common import frogpilot_variables
+from openpilot.frogpilot.common import frogpilot_paths, frogpilot_utilities, frogpilot_variables
 
 CE_STATUS_REASONS = {
   frogpilot_variables.CE_STATUS["CURVATURE"]: "curve",
@@ -69,7 +70,7 @@ def add_event(events, last_seen, kind, time, reason=None):
     events.append({"kind": kind, "reason": reason, "time": time})
 
 
-def read_events(qlog):
+def read_events(qlog, schemas):
   try:
     with open(qlog, "rb") as file:
       data = zstandard.ZstdDecompressor().stream_reader(file).read()
@@ -77,7 +78,18 @@ def read_events(qlog):
     return
 
   try:
-    yield from log.Event.read_multiple_bytes(data)
+    git_commit = next(log.Event.read_multiple_bytes(data)).initData.gitCommit
+  except (StopIteration, capnp.KjException):
+    return
+
+  if git_commit not in schemas:
+    if (frogpilot_paths.TELEMETRY_SCHEMAS_PATH / git_commit / "log.capnp").is_file():
+      schemas[git_commit] = frogpilot_utilities.load_log_schema(git_commit)
+    else:
+      schemas[git_commit] = log
+
+  try:
+    yield from schemas[git_commit].Event.read_multiple_bytes(data)
   except capnp.KjException:
     return
 
@@ -96,6 +108,7 @@ def summarize(qlogs):
   engaged = []
   events = []
   last_seen = {}
+  schemas = {Params().get("GitCommit"): log}
 
   ce_status = 0
   csc_controlling = False
@@ -113,8 +126,12 @@ def summarize(qlogs):
 
   for position, qlog in qlogs:
     qlog_start = None
-    for msg in read_events(qlog):
-      which = msg.which()
+    for msg in read_events(qlog, schemas):
+      try:
+        which = msg.which()
+      except capnp.KjException:
+        continue
+
       if qlog_start is None and which != "initData":
         qlog_start = msg.logMonoTime
 
