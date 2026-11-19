@@ -57,7 +57,10 @@ def get_action_from_model(model_output: dict[str, np.ndarray], prev_action: log.
                                                      action_t=long_action_t)
 
     # FrogPilot variables
-    if current_speed_stop:
+    if "action" in model_output:
+      desired_accel = model_output["action"][0,1]
+      should_stop = v_ego < frogpilot_model_utilities.V_EGO_STOPPING and desired_accel < 0.1
+    elif current_speed_stop:
       desired_accel, should_stop = frogpilot_model_utilities.get_current_speed_accel_from_plan(plan[:,Plan.VELOCITY][:,0],
                                                                                                plan[:,Plan.ACCELERATION][:,0],
                                                                                                long_action_t,
@@ -72,7 +75,9 @@ def get_action_from_model(model_output: dict[str, np.ndarray], prev_action: log.
                                                 lat_action_t)
 
     # FrogPilot variables
-    if min_stable_delay > 0:
+    if "action" in model_output:
+      desired_curvature = model_output["action"][0,0] / (max(2.5, v_ego))**2
+    elif min_stable_delay > 0:
       desired_curvature = frogpilot_model_utilities.get_stable_curvature_from_plan(plan[:,Plan.T_FROM_CURRENT_EULER][:,2],
                                                                                    plan[:,Plan.ORIENTATION_RATE][:,2],
                                                                                    v_ego,
@@ -259,7 +264,8 @@ def main(demo=False):
   if frogpilot_utilities.use_min_stable_delay(frogpilot_toggles.model):
     min_stable_delay = frogpilot_model_utilities.MIN_STABLE_DELAY
 
-  legacy_model = frogpilot_model_utilities.is_legacy_model(model_path)
+  combined_model = frogpilot_model_utilities.is_combined_model(model_path)
+  legacy_model = not combined_model and frogpilot_model_utilities.is_legacy_model(model_path)
   frogpilot_model_utilities.prepare_model_process(model_path, demo)
 
   if not USBGPU:
@@ -273,7 +279,9 @@ def main(demo=False):
   cloudlog.warning("CL context ready; loading model")
 
   # FrogPilot variables
-  if legacy_model:
+  if combined_model:
+    model = frogpilot_model_utilities.CombinedModelState(cl_context, model_path)
+  elif legacy_model:
     model = frogpilot_model_utilities.LegacyModelState(cl_context, model_path)
   else:
     model = ModelState(cl_context, model_path)
@@ -343,6 +351,9 @@ def main(demo=False):
   if 'radar_tracks' in model.numpy_inputs:
     sm = sm.extend(['liveTracks'])
 
+  if combined_model:
+    sm = sm.extend(["controlsState"])
+
   pm = pm.extend(['frogpilotModelV2'])
 
   while True:
@@ -407,7 +418,7 @@ def main(demo=False):
     run_count = run_count + 1
 
     frame_drop_ratio = frames_dropped / (1 + frames_dropped)
-    prepare_only = vipc_dropped_frames > 0
+    prepare_only = vipc_dropped_frames > 0 and not combined_model
     if prepare_only:
       cloudlog.error(f"skipping model eval. Dropped {vipc_dropped_frames} frames")
 
@@ -419,7 +430,12 @@ def main(demo=False):
     }
 
     # FrogPilot variables
-    if legacy_model:
+    lat_action_t = lat_delay + DT_MDL + action_delay
+    long_action_t = long_delay + DT_MDL + action_delay
+
+    if combined_model:
+      model.update_inputs(inputs, sm, prev_action, lat_action_t, long_action_t)
+    elif legacy_model:
       model.update_inputs(inputs, sm, frogpilot_toggles.steerActuatorDelay, lat_delay)
 
     mt1 = time.perf_counter()
@@ -432,8 +448,7 @@ def main(demo=False):
       drivingdata_send = messaging.new_message('drivingModelData')
       posenet_send = messaging.new_message('cameraOdometry')
 
-      action = get_action_from_model(model_output, prev_action, lat_delay + DT_MDL + action_delay, long_delay + DT_MDL + action_delay, v_ego,
-                                     lat_smooth_seconds, current_speed_stop, min_stable_delay)
+      action = get_action_from_model(model_output, prev_action, lat_action_t, long_action_t, v_ego, lat_smooth_seconds, current_speed_stop, min_stable_delay)
 
       # FrogPilot variables
       if legacy_model:

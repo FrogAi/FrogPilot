@@ -5,16 +5,19 @@ import pickle
 import struct
 import sys
 
+from pathlib import Path
+
 import numpy as np
 from tinygrad.dtype import dtypes
 from tinygrad.tensor import Tensor
 
 from cereal import log
+from msgq.visionipc import VisionBuf
 from openpilot.common.realtime import DT_MDL
 from openpilot.frogpilot.common import frogpilot_paths, frogpilot_variables
 from openpilot.selfdrive.controls.lib.drive_helpers import curv_from_psis, get_accel_from_plan, get_curvature_from_plan
 from openpilot.selfdrive.modeld.constants import Meta, ModelConstants, Plan
-from openpilot.selfdrive.modeld.models.commonmodel_pyx import DrivingModelFrame
+from openpilot.selfdrive.modeld.models.commonmodel_pyx import CLContext, DrivingModelFrame
 from openpilot.selfdrive.modeld.parse_model_outputs import Parser
 from openpilot.selfdrive.modeld.runners.tinygrad_helpers import qcom_tensor_from_opencl_address
 from openpilot.system.hardware import TICI
@@ -268,6 +271,86 @@ class LegacyModelState:
       inputs["radar_tracks"] = radar_tracks.reshape(self.numpy_inputs["radar_tracks"].shape)
 
 
+class CombinedModelState:
+  frames: dict[str, DrivingModelFrame]
+  inputs: dict[str, np.ndarray]
+  output: np.ndarray
+  prev_desire: np.ndarray  # for tracking the rising edge of the pulse
+
+  def __init__(self, context: CLContext, model_path: Path):
+    with open(model_path / "driving_metadata.pkl", "rb") as f:
+      metadata = pickle.load(f)
+      self.input_shapes =  metadata["input_shapes"]
+      self.output_slices = metadata["output_slices"]
+      self.state_names = [name for name in self.input_shapes if f"next_{name}" in metadata["output_shapes"]]
+      output_size = metadata["output_shapes"]["outputs"][1]
+
+    self.vision_input_names = ["img", "big_img"]
+    self.vision_input_shape = (1, 2 * self.input_shapes["new_img"][1], *self.input_shapes["new_img"][2:])
+    self.frames = {name: DrivingModelFrame(context, 0) for name in self.vision_input_names}
+    self.prev_desire = np.zeros(ModelConstants.DESIRE_LEN, dtype=np.float32)
+
+    # policy inputs
+    self.numpy_inputs = {k: np.zeros(self.input_shapes[k], dtype=np.float32) for k in self.input_shapes if k != "new_img" and k not in self.state_names}
+
+    self.states = {}
+    for k in self.state_names:
+      if "img" in k:
+        dtype = dtypes.uint8
+      else:
+        dtype = dtypes.float32
+
+      self.states[k] = Tensor.zeros(*self.input_shapes[k], dtype=dtype).contiguous().realize()
+
+    # img buffers are managed in openCL transform code
+    self.vision_inputs: dict[str, Tensor] = {}
+    self.policy_inputs = {k: Tensor(v, device="NPY").realize() for k,v in self.numpy_inputs.items()}
+    self.output = np.zeros(output_size, dtype=np.float32)
+    self.parser = Parser()
+
+    with open(model_path / "driving_tinygrad.pkl", "rb") as f:
+      self.model_run = pickle.load(f)
+
+  def slice_outputs(self, model_outputs: np.ndarray, output_slices: dict[str, slice]) -> dict[str, np.ndarray]:
+    parsed_model_outputs = {k: model_outputs[np.newaxis, v] for k,v in output_slices.items()}
+    return parsed_model_outputs
+
+  def run(self, bufs: dict[str, VisionBuf], transforms: dict[str, np.ndarray],
+                inputs: dict[str, np.ndarray], prepare_only: bool) -> dict[str, np.ndarray]:
+    # Model decides when action is completed, so desire input is just a pulse triggered on rising edge
+    inputs["desire_pulse"][0] = 0
+    self.numpy_inputs["desire"][:] = np.where(inputs["desire_pulse"] - self.prev_desire > .99, inputs["desire_pulse"], 0)
+    self.prev_desire[:] = inputs["desire_pulse"]
+
+    imgs_cl = {name: self.frames[name].prepare(bufs[name], transforms[name].flatten()) for name in self.vision_input_names}
+
+    if TICI and "USBGPU" not in os.environ:
+      # The imgs tensors are backed by opencl memory, only need init once
+      for key in imgs_cl:
+        if key not in self.vision_inputs:
+          self.vision_inputs[key] = qcom_tensor_from_opencl_address(imgs_cl[key].mem_address, self.vision_input_shape, dtype=dtypes.uint8)
+    else:
+      for key in imgs_cl:
+        frame_input = self.frames[key].buffer_from_cl(imgs_cl[key]).reshape(self.vision_input_shape)
+        self.vision_inputs[key] = Tensor(frame_input, dtype=dtypes.uint8).realize()
+
+    self.numpy_inputs["traffic_convention"][:] = inputs["traffic_convention"]
+    self.numpy_inputs["action_t"][:] = inputs["action_t"]
+
+    self.output = self.model_run(**self.vision_inputs, **self.states, **self.policy_inputs).uop.base.buffer.numpy()
+    outputs_dict = self.parser.parse_outputs(self.slice_outputs(self.output, self.output_slices))
+    if os.getenv("SEND_RAW_PRED"):
+      outputs_dict["raw_pred"] = self.output.copy()
+
+    return outputs_dict
+
+  def update_inputs(self, inputs, sm, prev_action, lat_action_t, long_action_t):
+    inputs["action_t"] = np.array([lat_action_t, long_action_t], dtype=np.float32)
+
+    if not sm["carControl"].latActive:
+      prev_action.desiredCurvature = sm["controlsState"].curvature
+
+
 def convert_legacy_meta(meta):
   group_size = LEGACY_META_GROUP_SIZES[meta.shape[1]]
 
@@ -300,6 +383,10 @@ def get_stable_curvature_from_plan(yaws, yaw_rates, v_ego, action_t, min_stable_
     psi_target = np.interp(action_t, ModelConstants.T_IDXS, yaws)
 
   return curv_from_psis(psi_target, yaw_rates[0], v_ego, action_t)
+
+
+def is_combined_model(model_path):
+  return (model_path / "driving_metadata.pkl").is_file()
 
 
 def is_legacy_model(model_path):

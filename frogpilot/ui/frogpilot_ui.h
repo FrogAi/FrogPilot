@@ -18,6 +18,7 @@ struct FrogPilotUIScene {
   bool wake_up_screen = false;
 
   int conditional_status = 0;
+  int settled_status = 0;
 
   QJsonObject frogpilot_toggles;
 };

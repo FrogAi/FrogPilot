@@ -105,7 +105,7 @@ std::atomic<bool> save_request = false;
 
 std::atomic<int> replay_request = 0;
 
-std::atomic<wl_event_queue *> driver_queue = nullptr;
+thread_local wl_event_queue *driver_queue = nullptr;
 
 std::mutex capture_mutex;
 

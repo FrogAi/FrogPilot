@@ -46,7 +46,8 @@ class FrogPilotScreen:
 
     status = ui_state.status
     status_changed = status != self._status and status != type(status).OVERRIDE
-    self._status = status
+    if status != type(status).OVERRIDE:
+      self._status = status
 
     ss = sm["selfdriveState"]
     alert = ss.alertSize != log.SelfdriveState.AlertSize.none or sm["frogpilotSelfdriveState"].alertStatus in WAKE_ALERT_STATUSES

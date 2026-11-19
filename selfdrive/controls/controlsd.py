@@ -133,12 +133,15 @@ class Controls:
     standstill = abs(CS.vEgo) <= max(self.CP.minSteerSpeed, 0.3) or CS.standstill
 
     # FrogPilot variables
+    force_decel = bool((self.sm["driverMonitoringState"].awarenessStatus < 0.) or
+                       (self.sm["selfdriveState"].state == State.softDisabling))
     lateral_allowed = not self.CP.alternativeExperience & ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL or self.sm["frogpilotCarState"].alwaysOnLateralAllowed
     lateral_active = (lateral_allowed and self.sm["selfdriveState"].active) or self.sm["frogpilotCarState"].alwaysOnLateralEnabled
 
     CC.latActive = lateral_active and not CS.steerFaultTemporary and not CS.steerFaultPermanent and \
                    (not standstill or self.CP.steerAtStandstill) and self.sm['frogpilotPlan'].lateralCheck
-    CC.longActive = CC.enabled and not any(e.overrideLongitudinal for e in self.sm['onroadEvents']) and not self.sm['frogpilotCarState'].pauseLongitudinal and self.CP.openpilotLongitudinalControl
+    CC.longActive = CC.enabled and not any(e.overrideLongitudinal for e in self.sm['onroadEvents']) and \
+                    (force_decel or not self.sm['frogpilotCarState'].pauseLongitudinal) and self.CP.openpilotLongitudinalControl
 
     actuators = CC.actuators
     actuators.longControlState = self.LoC.long_control_state

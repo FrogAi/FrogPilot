@@ -285,7 +285,12 @@ async def retry_issue_report(request):
 async def get_tmux_pane(request):
   the_pond = request.app[utilities.THE_POND]
   session = await get_tmux_session(the_pond, request.query.get("session", "openpilot"))
-  pane = await utilities.run_process(["tmux", "capture-pane", "-p", "-J", "-S", "-", "-t", session])
+  try:
+    pane = await utilities.run_process(["tmux", "capture-pane", "-p", "-J", "-S", "-", "-t", session])
+  except RuntimeError:
+    if session != TMUX_SESSIONS["shell"] or the_pond.shell_used is not None:
+      raise
+    return web.Response(status=204)
 
   capture_id = hashlib.sha256(pane).hexdigest()
   since = request.query.get("since")

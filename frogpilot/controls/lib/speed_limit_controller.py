@@ -412,7 +412,7 @@ class SpeedLimitController:
     if self.next_speed_limit <= 0 or self.next_speed_limit == self.map_speed_limit:
       return
 
-    if self.next_speed_limit > self.map_speed_limit:
+    if self.next_speed_limit > (self.map_speed_limit or self.target or v_ego):
       lookahead = self.frogpilot_toggles.map_speed_lookahead_higher
     else:
       lookahead = self.frogpilot_toggles.map_speed_lookahead_lower

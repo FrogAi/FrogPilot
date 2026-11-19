@@ -67,6 +67,7 @@ FrogPilotUIState::FrogPilotUIState(QObject *parent) : QObject(parent) {
   }
 
   QObject::connect(uiState(), &UIState::offroadTransition, this, [this](bool offroad) {
+    frogpilot_scene.settled_status = STATUS_DISENGAGED;
     frogpilot_scene.wake_up_screen = false;
 
     if (Params().getInt("TetheringEnabled") == 2) {

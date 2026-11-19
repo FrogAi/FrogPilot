@@ -494,7 +494,7 @@ def nnff_supported(car_fingerprint):
 
 @cache
 def predicts_lead_trajectories(model_path):
-  for metadata_name in ("supercombo_metadata.pkl", "driving_vision_metadata.pkl", "driving_policy_metadata.pkl"):
+  for metadata_name in ("supercombo_metadata.pkl", "driving_vision_metadata.pkl", "driving_policy_metadata.pkl", "driving_metadata.pkl"):
     metadata_path = Path(model_path) / metadata_name
     if not metadata_path.is_file():
       continue

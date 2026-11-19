@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import json
 import math
-import shutil
+import os
 import subprocess
 import time
 
@@ -293,7 +293,10 @@ def save_log_schema(git_commit):
 
     for name in SCHEMA_FILES:
       (staging_path / name).parent.mkdir(parents=True, exist_ok=True)
-      shutil.copy(Path(CEREAL_PATH, name), staging_path / name)
+      with open(staging_path / name, "wb") as f:
+        f.write(Path(CEREAL_PATH, name).read_bytes())
+        f.flush()
+        os.fsync(f.fileno())
 
     staging_path.rename(schema_path)
 

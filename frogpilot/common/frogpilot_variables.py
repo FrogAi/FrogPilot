@@ -104,7 +104,8 @@ GIT_PROGRESS_PATTERN = re.compile(r"(?:remote: )?(?P<phase>\w+ \w+): +(?P<percen
 GIT_PROGRESS_SUMMARY_PATTERN = re.compile(r"remote: (?:\w+ \w+: \d+, done\.|Total \d+ )")
 UPDATER_PROCESS = "system.updated.updated"
 
-ACTION_DELAY_MODELS = {"cd210-model", "pop-model"}
+ACTION_DELAY_MODELS = {"cd210-model", "cheddar-model", "pop-model"}
+COMBINED_MODEL_FILES = ("driving_metadata.pkl", "driving_tinygrad.pkl")
 CURRENT_SPEED_STOP_MODELS = {"cd210-model", "pop-model"}
 DEFAULT_MODEL = {"id": "dark-souls", "lat_smooth_seconds": 0.1, "name": "Dark Souls"}
 LEAD_TRAJECTORY_OUTPUT_SIZE = 144
@@ -1242,6 +1243,9 @@ def get_models():
 def is_model_complete(model_path):
   if (model_path / "supercombo_metadata.pkl").is_file():
     return (model_path / "supercombo.thneed").is_file() or (model_path / "supercombo_tinygrad.pkl").is_file()
+
+  if (model_path / "driving_metadata.pkl").is_file():
+    return all((model_path / file_name).is_file() for file_name in COMBINED_MODEL_FILES)
 
   return all((model_path / file_name).is_file() for file_name in SPLIT_MODEL_FILES)
 

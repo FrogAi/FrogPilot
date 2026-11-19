@@ -102,7 +102,7 @@ class ModelManager:
   def update_models(self, automatically_download):
     for repo_url in frogpilot_variables.RESOURCE_REPOSITORY_URLS:
       try:
-        response = self.session.get(model_url(repo_url, "models.json"), timeout=10)
+        response = self.session.get(model_url(repo_url, "models_v2.json"), timeout=10)
         response.raise_for_status()
         remote_models = response.json()
       except requests.exceptions.RequestException:
