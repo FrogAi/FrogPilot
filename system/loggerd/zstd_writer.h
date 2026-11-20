@@ -12,6 +12,7 @@ public:
   ~ZstdFileWriter();
   void write(void* data, size_t size);
   inline void write(kj::ArrayPtr<capnp::byte> array) { write(array.begin(), array.size()); }
+  inline bool ok() const { return file_ != nullptr && !write_error_; }
 
 private:
   void flushCache(bool last_chunk);
@@ -21,4 +22,6 @@ private:
   std::vector<char> output_buffer_;
   ZSTD_CStream *cstream_;
   FILE* file_ = nullptr;
+  bool write_error_ = false;
+  std::string filename_;
 };
