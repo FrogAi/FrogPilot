@@ -151,7 +151,7 @@ void FrogPilotModelReview::showEvent(QShowEvent *event) {
   QStringList blacklistedModels = QString::fromStdString(params.get("BlacklistedModels")).split(",", QString::SkipEmptyParts);
   QDir modelsDir("/data/models/openpilot-0_10_3");
 
-  int selectableModels = blacklistedModels.contains("dark-souls") ? 0 : 1;
+  int selectableModels = blacklistedModels.contains("cheddar-model") ? 0 : 1;
   for (const QString &modelId : frogpilotUIState()->frogpilot_scene.frogpilot_toggles.value("available_models").toObject().keys()) {
     if (modelsDir.exists(modelId) && !blacklistedModels.contains(modelId)) {
       selectableModels++;
@@ -175,7 +175,7 @@ void FrogPilotModelReview::rateDrive(int rating) {
 
   params.put("ModelDrivesAndScores", QJsonDocument(modelDrivesAndScores).toJson(QJsonDocument::Compact).toStdString());
 
-  QStringList models = {"Dark Souls"};
+  QStringList models = {"Cheddar Model"};
   for (const QJsonValue &model : frogpilotUIState()->frogpilot_scene.frogpilot_toggles.value("available_models").toObject()) {
     models.append(model.toString());
   }
