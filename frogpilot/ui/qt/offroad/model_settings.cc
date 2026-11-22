@@ -252,8 +252,8 @@ QStringList FrogPilotModelPanel::modelNames(const QStringList &modelIds) {
 }
 
 void FrogPilotModelPanel::refreshModels() {
-  defaultModel = "dark-souls";
-  defaultModelName = "Dark Souls";
+  defaultModel = "cheddar-model";
+  defaultModelName = "Cheddar Model";
   modelsDir.setPath("/data/models/openpilot-0_10_3");
 
   availableModels.clear();
