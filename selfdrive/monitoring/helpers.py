@@ -12,6 +12,8 @@ from openpilot.common.stat_live import RunningStatFilter
 from openpilot.common.transformations.camera import DEVICE_CAMERAS
 from openpilot.system.hardware import HARDWARE
 
+from openpilot.frogpilot.common import frogpilot_variables
+
 EventName = log.OnroadEvent.EventName
 
 # ******************************************************************************************
@@ -449,7 +451,11 @@ class DriverMonitoring:
       rpyCalib = [0., 0., 0.]
     else:
       highway_speed = sm['carState'].vEgo
-      enabled = sm['selfdriveState'].enabled or sm['frogpilotCarState'].alwaysOnLateralAllowed
+
+      # FrogPilot variables
+      always_on_lateral_active = sm['frogpilotCarState'].alwaysOnLateralAllowed and sm['carState'].gearShifter not in frogpilot_variables.NON_DRIVING_GEARS
+
+      enabled = sm['selfdriveState'].enabled or always_on_lateral_active
       wrong_gear = sm['carState'].gearShifter not in (car.CarState.GearShifter.drive, car.CarState.GearShifter.low)
       standstill = sm['carState'].standstill
       driver_engaged = sm['carState'].steeringPressed or sm['carState'].gasPressed
