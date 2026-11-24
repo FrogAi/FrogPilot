@@ -112,10 +112,11 @@ class FrogPilotAPI:
 
       code = error.findtext("Code")
 
-      sentry.capture_message(f"B2 upload PUT failed ({response.status_code} {code})", level="error",
-                             fingerprint=[str(response.status_code), str(code)],
-                             extras={"message": error.findtext("Message")},
-                             tags={"upload_kind": upload_kind})
+      if response.status_code < 500:
+        sentry.capture_message(f"B2 upload PUT failed ({response.status_code} {code})", level="error",
+                               fingerprint=[str(response.status_code), str(code)],
+                               extras={"message": error.findtext("Message")},
+                               tags={"upload_kind": upload_kind})
 
       raise FrogPilotAPIError(f"{description} upload failed ({response.status_code})")
 
