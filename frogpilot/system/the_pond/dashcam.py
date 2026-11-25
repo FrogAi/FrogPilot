@@ -116,9 +116,13 @@ def list_routes(recording_route):
   route_list = []
   unsummarized = {}
   for route, segments in all_routes.items():
-    route_info = get_route_info(route, segments, route == recording_route)
-    qlogs = get_qlogs(segments, route_info["recording"])
-    drive = load_drive(route, qlogs) if qlogs else None
+    try:
+      route_info = get_route_info(route, segments, route == recording_route)
+      qlogs = get_qlogs(segments, route_info["recording"])
+      drive = load_drive(route, qlogs) if qlogs else None
+    except FileNotFoundError:
+      continue
+
     if drive is None:
       if qlogs and not route_info["recording"]:
         unsummarized[route] = qlogs
@@ -374,6 +378,16 @@ async def get_duration(path):
   return float(await utilities.run_process(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", str(path)]))
 
 
+async def has_video(path):
+  try:
+    output = await utilities.run_process(["ffprobe", "-v", "error", "-select_streams", "v", "-show_entries", "packet=size", "-read_intervals", "%+#1",
+                                          "-of", "csv=p=0", str(path)])
+  except RuntimeError:
+    return False
+
+  return bool(output.strip())
+
+
 async def is_readable(path):
   try:
     await get_duration(path)
@@ -580,7 +594,13 @@ async def get_video(request):
       else:
         cmd = ["ffmpeg", "-loglevel", "error", "-framerate", str(CAMERA_FPS), "-i", str(source), "-c", "copy", "-tag:v", "hvc1",
                "-movflags", "+faststart", "-f", "mp4"]
-      await utilities.create_file(the_pond, video_path, cmd)
+      try:
+        await utilities.create_file(the_pond, video_path, cmd)
+      except RuntimeError as exception:
+        if await has_video(source):
+          raise
+        raise web.HTTPNotFound(text="not_found") from exception
+
       await asyncio.to_thread(trim_video_cache)
     else:
       os.utime(video_path)
