@@ -86,7 +86,7 @@ class ModelManager:
   def remove_outdated_models(self, repo_url):
     for model_id in self.downloaded_models():
       remote_size = frogpilot_download_utilities.get_remote_file_size(self.session, model_url(repo_url, f"{model_id}.tar"))
-      if remote_size == 0:
+      if remote_size == 0 or not (frogpilot_paths.MODELS_PATH / model_id).is_dir():
         continue
 
       size_path = frogpilot_paths.MODELS_PATH / model_id / ARCHIVE_SIZE_FILE
