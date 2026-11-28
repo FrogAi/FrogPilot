@@ -1,4 +1,6 @@
 #include <cassert>
+#include <cerrno>
+#include <cstring>
 
 #include "system/loggerd/video_writer.h"
 #include "common/swaglog.h"
@@ -10,8 +12,12 @@ VideoWriter::VideoWriter(const char *path, const char *filename, bool remuxing, 
   lock_path = util::string_format("%s/%s.lock", path, filename);
 
   int lock_fd = HANDLE_EINTR(open(lock_path.c_str(), O_RDWR | O_CREAT, 0664));
-  assert(lock_fd >= 0);
-  close(lock_fd);
+  if (lock_fd >= 0) {
+    close(lock_fd);
+  } else {
+    // storage failure: carry on, the video file this lock guards won't exist either
+    LOGE("failed to create %s: %s", lock_path.c_str(), strerror(errno));
+  }
 
   LOGD("encoder_open %s remuxing:%d", this->vid_path.c_str(), this->remuxing);
   if (this->remuxing) {
@@ -41,11 +47,38 @@ VideoWriter::VideoWriter(const char *path, const char *filename, bool remuxing, 
     assert(this->out_stream);
 
     int err = avio_open(&this->ofmt_ctx->pb, this->vid_path.c_str(), AVIO_FLAG_WRITE);
-    assert(err >= 0);
+    if (err < 0) {
+      LOGE("failed to open %s (%d) - not recording", this->vid_path.c_str(), err);
+      disable();
+    }
 
   } else {
     this->of = util::safe_fopen(this->vid_path.c_str(), "wb");
-    assert(this->of);
+    if (!this->of) {
+      // write() already tolerates a null file; just log it
+      LOGE("failed to open %s: %s - not recording", this->vid_path.c_str(), strerror(errno));
+    }
+  }
+}
+
+// Turn the writer into a no-op after a storage failure: free any
+// partially-initialized ffmpeg state so the write/audio/dtor paths,
+// which are all gated on remuxing/of, never touch it again.
+void VideoWriter::disable() {
+  if (this->remuxing) {
+    if (this->audio_codec_ctx) avcodec_free_context(&this->audio_codec_ctx);
+    if (this->audio_frame) av_frame_free(&this->audio_frame);
+    if (this->ofmt_ctx) {
+      if (this->ofmt_ctx->pb) avio_closep(&this->ofmt_ctx->pb);
+      avformat_free_context(this->ofmt_ctx);
+      this->ofmt_ctx = nullptr;
+    }
+    if (this->codec_ctx) avcodec_free_context(&this->codec_ctx);
+    this->remuxing = false;
+  }
+  if (this->of) {
+    fclose(this->of);
+    this->of = nullptr;
   }
 }
 
@@ -104,10 +137,19 @@ void VideoWriter::write(uint8_t *data, int len, long long timestamp, bool codecc
         memcpy(codec_ctx->extradata, data, len);
       }
       int err = avcodec_parameters_from_context(out_stream->codecpar, codec_ctx);
-      assert(err >= 0);
+      if (err < 0) {
+        LOGE("avcodec_parameters_from_context failed %d - not recording %s", err, this->vid_path.c_str());
+        disable();
+        return;
+      }
       // if there is an audio stream, it must be initialized before this point
       err = avformat_write_header(ofmt_ctx, NULL);
-      assert(err >= 0);
+      if (err < 0) {
+        // storage failure (e.g. EIO/read-only remount) while writing the container header
+        LOGE("avformat_write_header failed %d - not recording %s", err, this->vid_path.c_str());
+        disable();
+        return;
+      }
       header_written = true;
     } else {
       // input timestamps are in microseconds
@@ -225,7 +267,7 @@ VideoWriter::~VideoWriter() {
     err = avio_closep(&this->ofmt_ctx->pb);
     if (err != 0) LOGE("avio_closep failed %d", err);
     avformat_free_context(this->ofmt_ctx);
-  } else {
+  } else if (this->of) {
     util::safe_fflush(this->of);
     fclose(this->of);
     this->of = nullptr;
