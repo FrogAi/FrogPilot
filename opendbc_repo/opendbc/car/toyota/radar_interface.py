@@ -2,12 +2,15 @@
 from opendbc.can import CANParser
 from opendbc.car import Bus
 from opendbc.car.structs import RadarData
-from opendbc.car.toyota.values import DBC, TSS2_CAR
+from opendbc.car.toyota.values import DBC, TSS2_CAR, RADAR_ACC_CAR
 from opendbc.car.interfaces import RadarInterfaceBase
 
 
-def _create_radar_can_parser(car_fingerprint):
-  if car_fingerprint in TSS2_CAR:
+def _create_radar_can_parser(car_fingerprint, use_ars510=False):
+  if use_ars510:
+    RADAR_A_MSGS = [0x235]
+    RADAR_B_MSGS = [0x237]
+  elif car_fingerprint in TSS2_CAR:
     RADAR_A_MSGS = list(range(0x180, 0x190))
     RADAR_B_MSGS = list(range(0x190, 0x1a0))
   else:
@@ -16,7 +19,12 @@ def _create_radar_can_parser(car_fingerprint):
 
   msg_a_n = len(RADAR_A_MSGS)
   msg_b_n = len(RADAR_B_MSGS)
-  messages = list(zip(RADAR_A_MSGS + RADAR_B_MSGS, [20] * (msg_a_n + msg_b_n), strict=True))
+  if use_ars510:
+    messages = list(zip(RADAR_A_MSGS + RADAR_B_MSGS, [50] * (msg_a_n + msg_b_n), strict=True))
+    messages.append(('ACC_TARGET_3', 50))
+    messages.append(('EVENT_STATE', float('nan')))  # not required: carries the radar's fault flag
+  else:
+    messages = list(zip(RADAR_A_MSGS + RADAR_B_MSGS, [20] * (msg_a_n + msg_b_n), strict=True))
 
   return CANParser(DBC[car_fingerprint][Bus.radar], messages, 1)
 
@@ -26,7 +34,12 @@ class RadarInterface(RadarInterfaceBase):
     super().__init__(CP)
     self.track_id = 0
 
-    if CP.carFingerprint in TSS2_CAR:
+    # radar-ACC cars (RAV4 2022-25, C-HR, Yaris) have a Continental ARS510: its ACC target becomes the one point
+    self.use_ars510 = CP.carFingerprint in RADAR_ACC_CAR
+    if self.use_ars510:
+      self.RADAR_A_MSGS = [0x235]
+      self.RADAR_B_MSGS = [0x237]
+    elif CP.carFingerprint in TSS2_CAR:
       self.RADAR_A_MSGS = list(range(0x180, 0x190))
       self.RADAR_B_MSGS = list(range(0x190, 0x1a0))
     else:
@@ -35,8 +48,10 @@ class RadarInterface(RadarInterfaceBase):
 
     self.valid_cnt = {key: 0 for key in self.RADAR_A_MSGS}
 
-    self.rcp = None if CP.radarUnavailable else _create_radar_can_parser(CP.carFingerprint)
+    self.rcp = None if CP.radarUnavailable else _create_radar_can_parser(CP.carFingerprint, self.use_ars510)
     self.trigger_msg = self.RADAR_B_MSGS[-1]
+    self.ars510_cycle = 0
+    self.ars510_fault_cycles = 0
     self.updated_messages = set()
 
   def update(self, can_strings):
@@ -45,9 +60,19 @@ class RadarInterface(RadarInterfaceBase):
 
     vls = self.rcp.update(can_strings)
     self.updated_messages.update(vls)
+    if self.use_ars510 and 0x196 in vls:
+      # RADAR_FAULT is held while the radar declares itself blocked, and set on one cycle at power-up
+      self.ars510_fault_cycles = self.ars510_fault_cycles + 1 if self.rcp.vl['EVENT_STATE']['RADAR_FAULT'] else 0
 
     if self.trigger_msg not in self.updated_messages:
       return None
+
+    if self.use_ars510:
+      # the ACC target frames repeat at 50 Hz; publish once per radar cycle (16.7 Hz), when the radar's clock advances
+      cycle = self.rcp.vl['ACC_TARGET_3']['TIMESTAMP']
+      if cycle == self.ars510_cycle:
+        return None
+      self.ars510_cycle = cycle
 
     rr = self._update(self.updated_messages)
     self.updated_messages.clear()
@@ -58,6 +83,23 @@ class RadarInterface(RadarInterfaceBase):
     ret = RadarData()
     if not self.rcp.can_valid:
       ret.errors.canError = True
+
+    if self.use_ars510:
+      if self.ars510_fault_cycles >= 2:
+        ret.errors.radarUnavailableTemporary = True
+        return ret
+      target, position = self.rcp.vl["ACC_TARGET_1"], self.rcp.vl["ACC_TARGET_2"]
+      if self.rcp.can_valid and target["STATE"] == 5 and position["PRESENT"]:  # 1 = idle, with every field zero
+        pt = RadarData.RadarPoint()
+        pt.trackId = int(target["TARGET_ID"])
+        pt.dRel = position["LONG_DIST"]
+        pt.yRel = position["LAT_DIST"]
+        pt.vRel = target["REL_SPEED"]
+        pt.aRel = float('nan')
+        pt.yvRel = float('nan')
+        pt.measured = True
+        ret.points = [pt]
+      return ret
 
     for ii in sorted(updated_messages):
       if ii in self.RADAR_A_MSGS:
