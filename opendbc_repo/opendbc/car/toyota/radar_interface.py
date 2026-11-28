@@ -22,6 +22,7 @@ def _create_radar_can_parser(car_fingerprint, use_ars510=False):
   if use_ars510:
     messages = list(zip(RADAR_A_MSGS + RADAR_B_MSGS, [50] * (msg_a_n + msg_b_n), strict=True))
     messages.append(('ACC_TARGET_3', 50))
+    messages.append(('EVENT_STATE', float('nan')))  # not required: carries the radar's fault flag
   else:
     messages = list(zip(RADAR_A_MSGS + RADAR_B_MSGS, [20] * (msg_a_n + msg_b_n), strict=True))
 
@@ -50,6 +51,7 @@ class RadarInterface(RadarInterfaceBase):
     self.rcp = None if CP.radarUnavailable else _create_radar_can_parser(CP.carFingerprint, self.use_ars510)
     self.trigger_msg = self.RADAR_B_MSGS[-1]
     self.ars510_cycle = 0
+    self.ars510_fault_cycles = 0
     self.updated_messages = set()
 
   def update(self, can_strings):
@@ -58,6 +60,9 @@ class RadarInterface(RadarInterfaceBase):
 
     vls = self.rcp.update(can_strings)
     self.updated_messages.update(vls)
+    if self.use_ars510 and 0x196 in vls:
+      # RADAR_FAULT is held while the radar declares itself blocked, and set on one cycle at power-up
+      self.ars510_fault_cycles = self.ars510_fault_cycles + 1 if self.rcp.vl['EVENT_STATE']['RADAR_FAULT'] else 0
 
     if self.trigger_msg not in self.updated_messages:
       return None
@@ -80,6 +85,9 @@ class RadarInterface(RadarInterfaceBase):
       ret.errors.canError = True
 
     if self.use_ars510:
+      if self.ars510_fault_cycles >= 2:
+        ret.errors.radarUnavailableTemporary = True
+        return ret
       target, position = self.rcp.vl["ACC_TARGET_1"], self.rcp.vl["ACC_TARGET_2"]
       if self.rcp.can_valid and target["STATE"] == 5 and position["PRESENT"]:  # 1 = idle, with every field zero
         pt = RadarData.RadarPoint()

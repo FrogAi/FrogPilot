@@ -64,6 +64,22 @@ class TestToyotaInterfaces:
     assert pt.trackId == 37 and abs(pt.dRel - 61.5) < 1e-6 and abs(pt.yRel - 0.42) < 1e-6 and abs(pt.vRel + 3.25) < 1e-6
     assert pt.measured
 
+  def test_ars510_fault_flag(self):
+    # EVENT_STATE RADAR_FAULT: one set cycle (power-up) is ignored, two or more report radarUnavailableTemporary
+    CP = CarInterface.get_params(CAR.TOYOTA_RAV4_TSS2_2022, gen_empty_fingerprint(), [], False, False, False)
+    RI = CarInterface.RadarInterface(CP)
+    packer = CANPacker("toyota_tss2_ars510")
+    reports = []
+    for i, fault in enumerate((True, False, True, True, True, False)):
+      c = {"COUNTER": i % 16}
+      msgs = [packer.make_can_msg("EVENT_STATE", 1, {"RADAR_FAULT": int(fault)}),
+              packer.make_can_msg("ACC_TARGET_1", 1, {"STATE": 5, "REL_SPEED": -1.0, "TARGET_ID": 9, **c}),
+              packer.make_can_msg("ACC_TARGET_2", 1, {"LONG_DIST": 40.0, "LAT_DIST": 0.3, "PRESENT": 1, **c}),
+              packer.make_can_msg("ACC_TARGET_3", 1, {"TIMESTAMP": 60000 * (i + 1), **c})]
+      rr = RI.update([(int((i + 1) * 6e7), msgs)])
+      reports.append((rr.errors.radarUnavailableTemporary, len(rr.points)))
+    assert reports == [(False, 1), (False, 1), (False, 1), (True, 0), (True, 0), (False, 1)]
+
   def test_essential_ecus(self, subtests):
     # Asserts standard ECUs exist for each platform
     common_ecus = {Ecu.fwdRadar, Ecu.fwdCamera}
